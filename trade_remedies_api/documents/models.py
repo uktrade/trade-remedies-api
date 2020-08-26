@@ -194,6 +194,17 @@ class Document(BaseModel):
     indexed = models.NullBooleanField()
     index_state = models.SmallIntegerField(default=INDEX_STATE_NOT_INDEXED, choices=INDEX_STATES)
 
+    block_from_public_file = models.BooleanField(default=False)
+    block_reason = models.CharField(max_length=128, null=True, blank=True)
+    blocked_by = models.ForeignKey(
+        "core.User",
+        null=True,
+        blank=True,
+        related_name="documents_blocked_by",
+        on_delete=models.SET_NULL,
+    )
+    blocked_at = models.DateTimeField(null=True, blank=True)
+
     objects = DocumentManager()
 
     def __str__(self):
@@ -281,14 +292,27 @@ class Document(BaseModel):
         return _dict
 
     def to_minimal_dict(self):
-        return {
+        result = {
             "id": str(self.id),
             "name": self.name,
             "size": self.size,
             "confidential": self.confidential,
+            "block_from_public_file": self.block_from_public_file,
+            "block_reason": self.block_reason,
             "safe": self.safe,
             "index_state": self.index_state,
         }
+
+        if self.blocked_at:
+            result["blocked_at"] = self.blocked_at
+
+        if self.blocked_by:
+            result["blocked_by"] = {
+                "id": self.created_by.id,
+                "name": self.created_by.name,
+            }
+
+        return result
 
     def submissions(self, case=None):
         submissions = self.submissiondocument_set.select_related(

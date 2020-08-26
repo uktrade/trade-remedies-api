@@ -6,7 +6,7 @@ echo "Bootstrapping a new environment"
 
 ARG1=${1-web}
 
-if [ $ARG1 != 'test' ] && [ $ARG1 != 'code-quality' ]
+if [ $ARG1 != 'test' ]
 then
     python ./trade_remedies_api/manage.py migrate
     python ./trade_remedies_api/manage.py resetsecurity
@@ -41,7 +41,4 @@ elif [ $ARG1 = 'test' ]
 then
     cd trade_remedies_api && coverage run manage.py test && coverage xml && coverage report
     exit 0
-elif [ $ARG1 = 'code-quality' ]
-then
-    black trade_remedies_api --check # || flake8
 fi
