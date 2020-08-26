@@ -1289,6 +1289,12 @@ class SubmissionDocumentStatusAPI(TradeRemediesApiView):
         doc_status = request.data.get("status")
         if doc_status not in ("deficient", "sufficient"):
             raise InvalidRequestParams("status should be either sufficient or deficient")
+
+        block_from_public_file = (
+            request.data.get("block_from_public_file", False) in TRUTHFUL_INPUT_VALUES
+        )
+        block_reason = request.data.get("block_reason", "")
+
         case = get_case(case_id)
         submission = Submission.objects.get_submission(id=submission_id, case=case)
         try:
@@ -1297,7 +1303,18 @@ class SubmissionDocumentStatusAPI(TradeRemediesApiView):
             )
             submission_document.deficient = doc_status == "deficient"
             submission_document.sufficient = doc_status == "sufficient"
+
+            submission_document.document.block_from_public_file = block_from_public_file
+            submission_document.document.block_reason = block_reason
+
+            if block_from_public_file:
+                submission_document.document.blocked_at = timezone.now()
+                submission_document.document.blocked_by = request.user
+
+            submission_document.document.save()
+
             submission_document.save()
+
         except SubmissionDocument.DoesNotExist:
             raise NotFoundApiExceptions("Document not found in this submission")
         return ResponseSuccess(
