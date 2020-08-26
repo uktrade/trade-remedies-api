@@ -1,0 +1,170 @@
+[
+  {
+    "model": "cases.sector",
+    "pk": 1,
+    "fields": {
+      "name": "Live animals and animal products",
+      "code": "1"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 2,
+    "fields": {
+      "name": "Vegetable products",
+      "code": "2"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 3,
+    "fields": {
+      "name": "Animal and vegetable fats, oils and waxes",
+      "code": "3"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 4,
+    "fields": {
+      "name": "Prepared foods, drinks, tobacco",
+      "code": "4"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 5,
+    "fields": {
+      "name": "Mineral products",
+      "code": "5"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 6,
+    "fields": {
+      "name": "Chemical products",
+      "code": "6"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 7,
+    "fields": {
+      "name": "Plastics and rubber",
+      "code": "7"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 8,
+    "fields": {
+      "name": "Animal skins, saddlery, travel cases, bags",
+      "code": "8"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 9,
+    "fields": {
+      "name": "Wood, cork, basketware",
+      "code": "9"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 10,
+    "fields": {
+      "name": "Paper and paperboard",
+      "code": "10"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 11,
+    "fields": {
+      "name": "Textiles",
+      "code": "11"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 12,
+    "fields": {
+      "name": "Footwear, headgear, feathers, artificial flowers",
+      "code": "12"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 13,
+    "fields": {
+      "name": "Stone, ceramic, glass items",
+      "code": "13"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 14,
+    "fields": {
+      "name": "Pearls, (semi-)precious stones, jewellery, coins",
+      "code": "14"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 15,
+    "fields": {
+      "name": "Base metals",
+      "code": "15"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 16,
+    "fields": {
+      "name": "Machinery, mechanical and electrical equipment",
+      "code": "16"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 17,
+    "fields": {
+      "name": "Vehicles, aircraft, vessels, transport equipment",
+      "code": "17"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 18,
+    "fields": {
+      "name": "Instruments incl. optical, measuring, medical, clocks",
+      "code": "18"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 19,
+    "fields": {
+      "name": "Arms and ammunition",
+      "code": "19"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 20,
+    "fields": {
+      "name": "Miscellaneous manufactured items",
+      "code": "20"
+    }
+  },
+  {
+    "model": "cases.sector",
+    "pk": 21,
+    "fields": {
+      "name": "Works of art, antiques",
+      "code": "21"
+    }
+  }
+]

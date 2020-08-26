@@ -1,0 +1,63 @@
+[
+  {
+    "model": "core.systemparameter",
+    "pk": 1000,
+    "fields": {
+      "key": "UNUSED_LINK_1000",
+      "data_type": "str",
+      "value": "https://www.gov.uk"
+    }
+  },
+
+  {
+    "model": "core.systemparameter",
+    "pk": 1001,
+    "fields": {
+      "key": "LINK_TRA_CASELIST",
+      "data_type": "str",
+      "value": "https://www.gov.uk/government/publications/the-uk-trade-remedies-investigations-process",
+      "editable": true
+    }
+  },
+
+  {
+    "model": "core.systemparameter",
+    "pk": 1002,
+    "fields": {
+      "key": "LINK_HELP_BOX_GUIDANCE",
+      "data_type": "str",
+      "value": "https://www.gov.uk/government/publications/the-uk-trade-remedies-investigations-process",
+      "editable": true
+    }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 1003,
+    "fields": {
+      "key": "LINK_REGISTRATION_GUIDANCE",
+      "data_type": "str",
+      "value": "https://www.gov.uk/government/publications/the-uk-trade-remedies-investigations-process",
+      "editable": true
+    }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 1004,
+    "fields": {
+      "key": "LINK_GUIDANCE_CONF_NONCONF",
+      "data_type": "str",
+      "value": "https://www.gov.uk/government/publications/the-uk-trade-remedies-investigations-process/an-introduction-to-our-investigations-process#handling-confidential-information",
+      "editable": true
+    }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 1005,
+    "fields": {
+      "key": "LINK_GUIDANCE_SAFEGUARDS",
+      "data_type": "str",
+      "value": "https://www.gov.uk/government/publications/the-uk-trade-remedies-investigations-process/an-introduction-to-our-investigations-process#types-of-investigation",
+      "editable": true
+    }
+  }
+]

@@ -1,0 +1,79 @@
+[
+  {
+    "model": "security.caseaction",
+    "fields": {
+      "id": "CREATE_APPLICATION",
+      "name": "Create Application"
+    }
+  },
+  {
+    "model": "security.caseaction",
+    "fields": {
+      "id": "VIEW_APPLICATION",
+      "name": "View Application"
+    }
+  },
+  {
+    "model": "security.caseaction",
+    "fields": {
+      "id": "UPDATE_APPLICATION",
+      "name": "Update Application"
+    }
+  },
+  {
+    "model": "security.caseaction",
+    "fields": {
+      "id": "UPLOAD_DOCUMENT",
+      "name": "Upload Document"
+    }
+  },
+  {
+    "model": "security.caseaction",
+    "fields": {
+      "id": "DOWNLOAD_DOCUMENT",
+      "name": "Download Document"
+    }
+  },
+  {
+    "model": "security.caseaction",
+    "fields": {
+      "id": "DELETE_DOCUMENT",
+      "name": "Delete Document"
+    }
+  },
+  {
+    "model": "security.caseaction",
+    "fields": {
+      "id": "CREATE_APPLICANT",
+      "name": "Create Applicant"
+    }
+  },
+  {
+    "model": "security.caseaction",
+    "fields": {
+      "id": "DEACTIVATE_APPLICANT",
+      "name": "Deactivate Applicant"
+    }
+  },
+  {
+    "model": "security.caseaction",
+    "fields": {
+      "id": "DELETE_APPLICANT",
+      "name": "Delete Applicant"
+    }
+  },
+  {
+    "model": "security.caseaction",
+    "fields": {
+      "id": "DONLOAD_QUESTIONNAIRE",
+      "name": "Download Questionnaire"
+    }
+  },
+  {
+    "model": "security.caseaction",
+    "fields": {
+      "id": "VIEW_CASE",
+      "name": "View Case"
+    }
+  }
+]

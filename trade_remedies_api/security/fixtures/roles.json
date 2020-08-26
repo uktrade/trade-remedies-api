@@ -1,0 +1,135 @@
+[
+  {
+    "model": "security.caserole",
+    "pk": 1,
+    "fields": {
+      "name": "Applicant",
+      "plural": "Applicants",
+      "key": "applicant",
+      "order": 1,
+      "actions": [
+        "CREATE_APPLICATION",
+        "VIEW_APPLICATION",
+        "UPDATE_APPLICATION",
+        "UPLOAD_DOCUMENT",
+        "DOWNLOAD_DOCUMENT",
+        "DELETE_DOCUMENT",
+        "DONLOAD_QUESTIONNAIRE",
+        "VIEW_CASE"
+      ]
+    }
+  },
+  {
+    "model": "security.caserole",
+    "pk": 2,
+    "fields": {
+      "name": "Domestic Producer",
+      "plural": "Domestic Producers",
+      "key": "domestic_producer",
+      "order": 2,
+      "actions": ["VIEW_APPLICATION", "VIEW_CASE"]
+    }
+  },
+  {
+    "model": "security.caserole",
+    "pk": 3,
+    "fields": {
+      "name": "Importer",
+      "plural": "Importers",
+      "key": "importer",
+      "order": 3,
+      "actions": ["VIEW_APPLICATION", "VIEW_CASE"]
+    }
+  },
+  {
+    "model": "security.caserole",
+    "pk": 4,
+    "fields": {
+      "name": "Exporter",
+      "plural": "Exporters",
+      "key": "exporter",
+      "order": 4,
+      "actions": ["VIEW_APPLICATION", "VIEW_CASE"]
+    }
+  },
+  {
+    "model": "security.caserole",
+    "pk": 5,
+    "fields": {
+      "name": "Foreign Government",
+      "plural": "Foreign Governments",
+      "key": "foreign_government",
+      "order": 5,
+      "actions": ["VIEW_APPLICATION", "VIEW_CASE"]
+    }
+  },
+  {
+    "model": "security.caserole",
+    "pk": 6,
+    "fields": {
+      "name": "Industrial User of Product",
+      "plural": "Industrial Users of Product",
+      "key": "product_user",
+      "order": 6,
+      "actions": ["VIEW_APPLICATION", "VIEW_CASE"]
+    }
+  },
+  {
+    "model": "security.caserole",
+    "pk": 7,
+    "fields": {
+      "name": "Trade Body",
+      "plural": "Trade Bodies",
+      "key": "trade_body",
+      "order": 7,
+      "actions": ["VIEW_APPLICATION", "VIEW_CASE"]
+    }
+  },
+  {
+    "model": "security.caserole",
+    "pk": 8,
+    "fields": {
+      "name": "Contributor",
+      "plural": "Contributors",
+      "key": "contributor",
+      "order": 8,
+      "actions": ["VIEW_APPLICATION", "VIEW_CASE"]
+    }
+  },
+  {
+    "model": "security.caserole",
+    "pk": 9,
+    "fields": {
+      "name": "Awaiting Approval",
+      "plural": "Awaiting Approval",
+      "key": "awaiting_approval",
+      "order": 9,
+      "actions": [],
+      "allow_cw_create": false
+    }
+  },
+  {
+    "model": "security.caserole",
+    "pk": 10,
+    "fields": {
+      "name": "Rejected",
+      "plural": "Rejected",
+      "key": "rejected",
+      "order": 10,
+      "actions": [],
+      "allow_cw_create": false
+    }
+  },
+  {
+    "model": "security.caserole",
+    "pk": 11,
+    "fields": {
+      "name": "Preparing",
+      "plural": "Preparing",
+      "key": "preparing",
+      "order": 10,
+      "actions": [],
+      "allow_cw_create": false
+    }
+  }
+]

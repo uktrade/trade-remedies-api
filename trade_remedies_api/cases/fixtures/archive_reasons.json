@@ -1,0 +1,26 @@
+[
+  {
+    "model": "cases.archivereason",
+    "pk": 1,
+    "fields": {
+      "name": "Rejected",
+      "key": "CASE_REJECTED_BY_TRA"
+    }
+  },
+  {
+    "model": "cases.archivereason",
+    "pk": 2,
+    "fields": {
+      "name": "Case closed",
+      "key": "CASE_CLOSED"
+    }
+  },
+  {
+    "model": "cases.archivereason",
+    "pk": 3,
+    "fields": {
+      "name": "Appeal closed",
+      "key": "CASE_CLOSE_POST_APPEAL"
+    }
+  }
+]
