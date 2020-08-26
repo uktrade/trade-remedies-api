@@ -1,0 +1,187 @@
+[
+  {
+    "model": "feedback.placement",
+    "pk": "SUBMIT",
+    "fields": {
+      "created_at": "2019-01-08T11:24:05.704Z",
+      "last_modified": "2019-01-08T11:24:05.704Z",
+      "name": "Submission Feedback"
+    }
+  },
+  {
+    "model": "feedback.placement",
+    "pk": "NOTIFY",
+    "fields": {
+      "created_at": "2019-01-08T11:24:05.704Z",
+      "last_modified": "2019-01-08T11:24:05.704Z",
+      "name": "Final determination notify feedback"
+    }
+  },
+  {
+    "model": "feedback.feedbackform",
+    "pk": "682c7d04-3d7b-4afc-bc65-5bb42488eb5d",
+    "fields": {
+      "created_at": "2019-01-08T11:24:31.127Z",
+      "last_modified": "2019-01-08T11:24:31.127Z",
+      "name": "Give feedback",
+      "key": "TR-FEEDBACK",
+      "description": "Trade remedies standard feedback"
+    }
+  },
+  {
+    "model": "feedback.elementtype",
+    "pk": 1,
+    "fields": {
+      "name": "Satisfaction scale",
+      "key": "SCALE",
+      "options": {
+        "max": 5,
+        "min": 1,
+        "labels": [
+          "Very satisfied",
+          "Satisfied",
+          "Neither satisfied or dissatisfied",
+          "Dissatisfied",
+          "Very dissatisfied"
+        ],
+        "max_label": "Very satisfied",
+        "min_label": "Very dissatisfied"
+      }
+    }
+  },
+  {
+    "model": "feedback.elementtype",
+    "pk": 2,
+    "fields": {
+      "name": "Large text",
+      "key": "TEXTAREA",
+      "options": {}
+    }
+  },
+  {
+    "model": "feedback.elementtype",
+    "pk": 3,
+    "fields": {
+      "name": "Text input",
+      "key": "TEXT",
+      "options": {}
+    }
+  },
+  {
+    "model": "feedback.elementtype",
+    "pk": 4,
+    "fields": {
+      "name": "Label",
+      "key": "LABEL",
+      "options": {}
+    }
+  },
+  {
+    "model": "feedback.elementtype",
+    "pk": 5,
+    "fields": {
+      "name": "Page url",
+      "key": "PAGEURL",
+      "options": {}
+    }
+  },
+  {
+    "model": "feedback.elementtype",
+    "pk": 5,
+    "fields": {
+      "name": "Page url",
+      "key": "PAGEURL",
+      "options": {}
+    }
+  },
+  {
+    "model": "feedback.formelement",
+    "pk": "030272d3-40eb-4860-89d4-3b5b27a53898",
+    "fields": {
+      "created_at": "2020-01-21T16:46:03.522Z",
+      "last_modified": "2020-01-22T11:18:56.136Z",
+      "form": "682c7d04-3d7b-4afc-bc65-5bb42488eb5d",
+      "element_type": 4,
+      "name": "A Label",
+      "label": null,
+      "description": "Would you like to take part in a future feedback session about this service?\r\nIf so, please provide a contact email below.",
+      "options": {},
+      "order": 20
+    }
+  },
+  {
+    "model": "feedback.formelement",
+    "pk": "13d12841-2345-413d-a38c-ea2afc69f2d2",
+    "fields": {
+      "created_at": "2020-01-21T16:58:22.921Z",
+      "last_modified": "2020-01-21T16:58:22.921Z",
+      "form": "682c7d04-3d7b-4afc-bc65-5bb42488eb5d",
+      "element_type": 3,
+      "name": "email",
+      "label": "Email address",
+      "description": "",
+      "options": {},
+      "order": 40
+    }
+  },
+  {
+    "model": "feedback.formelement",
+    "pk": "21907809-2658-454f-ae90-a0d499d2b90c",
+    "fields": {
+      "created_at": "2019-01-08T11:26:08.115Z",
+      "last_modified": "2019-01-08T11:26:08.115Z",
+      "form": "682c7d04-3d7b-4afc-bc65-5bb42488eb5d",
+      "element_type": 1,
+      "name": "",
+      "label": "Overall, how did you feel about the digital service you have used?",
+      "description": null,
+      "options": {},
+      "order": 0
+    }
+  },
+  {
+    "model": "feedback.formelement",
+    "pk": "416968fc-85b1-4d49-98a6-7950028f78af",
+    "fields": {
+      "created_at": "2020-01-21T16:37:00.770Z",
+      "last_modified": "2020-01-22T12:13:23.103Z",
+      "form": "682c7d04-3d7b-4afc-bc65-5bb42488eb5d",
+      "element_type": 3,
+      "name": "Name",
+      "label": "Name",
+      "description": "",
+      "options": {},
+      "order": 30
+    }
+  },
+  {
+    "model": "feedback.formelement",
+    "pk": "89c83186-ee3f-4d73-8dd5-90f9daec3152",
+    "fields": {
+      "created_at": "2019-01-08T11:26:27.590Z",
+      "last_modified": "2019-01-08T11:26:27.590Z",
+      "form": "682c7d04-3d7b-4afc-bc65-5bb42488eb5d",
+      "element_type": 2,
+      "name": "",
+      "label": "How could we improve this service?",
+      "description": null,
+      "options": {},
+      "order": 10
+    }
+  },
+  {
+    "model": "feedback.formelement",
+    "pk": "3456b715-29eb-4f9f-aa0b-19775aa55426",
+    "fields": {
+      "created_at": "2020-01-22T16:13:40.452Z",
+      "last_modified": "2020-01-22T16:17:45.811Z",
+      "form": "682c7d04-3d7b-4afc-bc65-5bb42488eb5d",
+      "element_type": 5,
+      "name": "Page URL",
+      "label": null,
+      "description": "",
+      "options": {},
+      "order": 0
+    }
+  }
+]

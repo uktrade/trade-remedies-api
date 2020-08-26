@@ -1,0 +1,65 @@
+[
+  {
+    "model": "core.jobtitle",
+    "pk": 1,
+    "fields": {
+      "name": "Investigator"
+    }
+  },
+  {
+    "model": "core.jobtitle",
+    "pk": 2,
+    "fields": {
+      "name": "Junior Investigator"
+    }
+  },
+  {
+    "model": "core.jobtitle",
+    "pk": 3,
+    "fields": {
+      "name": "Economic Advisor"
+    }
+  },
+  {
+    "model": "core.jobtitle",
+    "pk": 4,
+    "fields": {
+      "name": "Junior Economist"
+    }
+  },
+  {
+    "model": "core.jobtitle",
+    "pk": 5,
+    "fields": {
+      "name": "Assistant Economist"
+    }
+  },
+  {
+    "model": "core.jobtitle",
+    "pk": 6,
+    "fields": {
+      "name": "Legal Advisor"
+    }
+  },
+  {
+    "model": "core.jobtitle",
+    "pk": 7,
+    "fields": {
+      "name": "Assistant Legal Advisor"
+    }
+  },
+  {
+    "model": "core.jobtitle",
+    "pk": 8,
+    "fields": {
+      "name": "SLT"
+    }
+  },
+  {
+    "model": "core.jobtitle",
+    "pk": 9,
+    "fields": {
+      "name": "TRID Other"
+    }
+  }
+]

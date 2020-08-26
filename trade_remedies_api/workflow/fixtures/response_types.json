@@ -1,0 +1,74 @@
+[
+{
+    "model": "workflow.responsetype",
+    "pk": 1,
+    "fields": {
+        "name": "Yes/No",
+        "description": "Has this been performed?"
+    }
+},
+{
+    "model": "workflow.responsetype",
+    "pk": 2,
+    "fields": {
+        "name": "Free Text",
+        "description": "Enter details relating to this task"
+    }
+},
+{
+    "model": "workflow.responsetype",
+    "pk": 3,
+    "fields": {
+        "name": "Selection",
+        "description": "Select one of the following options"
+    }
+},
+{
+    "model": "workflow.responsetype",
+    "pk": 4,
+    "fields": {
+        "name": "Checkbox/NA",
+        "description": "Answer checkbox with not applicable"
+    }
+},
+{
+    "model": "workflow.responsetype",
+    "pk": 5,
+    "fields": {
+        "name": "Checkbox",
+        "description": "Tick or blank"
+    }
+},
+{
+    "model": "workflow.responsetype",
+    "pk": 6,
+    "fields": {
+        "name": "NoteSection",
+        "description": "Add notes or upload documents"
+    }
+},
+{
+    "model": "workflow.responsetype",
+    "pk": 7,
+    "fields": {
+        "name": "Yes/No/NA",
+        "description": "Three radios"
+    }
+},
+{
+    "model": "workflow.responsetype",
+    "pk": 8,
+    "fields": {
+        "name": "Timer",
+        "description": "No response from user. This is a system timer task"
+    }
+},
+{
+    "model": "workflow.responsetype",
+    "pk": 9,
+    "fields": {
+        "name": "Label",
+        "description": "Just a text label with no input"
+    }
+}
+]

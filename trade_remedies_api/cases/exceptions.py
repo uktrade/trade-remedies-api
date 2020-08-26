@@ -1,0 +1,2 @@
+class DocumentNotInSubmission(Exception):
+    pass

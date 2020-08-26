@@ -1,0 +1,5 @@
+---
+applications:
+- name: traderemediesapi
+  memory: 4GB
+  buildpack: python_buildpack

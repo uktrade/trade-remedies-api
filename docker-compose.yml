@@ -1,0 +1,60 @@
+version: "2"
+services:
+  cli:
+    build: .
+    stdin_open: true
+    tty: true
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/opt/traderemedies/api
+    env_file:
+      - local.env
+    depends_on:
+      - postgres
+      - redis
+    entrypoint: dockerize -timeout 120s -wait tcp://localhost:5432 -timeout 120s -wait tcp://localhost:6379 /opt/traderemedies/api/bootstrap.sh cli
+    network_mode: host
+  worker:
+    build: .
+    volumes:
+      - .:/opt/traderemedies/api
+    env_file:
+      - local.env
+    depends_on:
+      - postgres
+      - redis
+    entrypoint: dockerize -timeout 120s -wait tcp://localhost:5432 -timeout 120s -wait tcp://localhost:6379 /opt/traderemedies/api/bootstrap.sh celery-worker
+    network_mode: host
+  beat:
+    build: .
+    volumes:
+      - .:/opt/traderemedies/api
+    env_file:
+      - local.env
+    depends_on:
+      - postgres
+      - redis
+    entrypoint: dockerize -timeout 120s -wait tcp://localhost:5432 -timeout 120s -wait tcp://localhost:6379 /opt/traderemedies/api/bootstrap.sh celery-beat
+    network_mode: host
+  postgres:
+    image: postgres:10.1
+    restart: on-failure
+    volumes:
+     - postgres_data:/var/lib/postgressql/data
+    environment:
+      POSTGRES_DB: trade_remedies
+      POSTGRES_USER: uktrade
+      POSTGRES_PASSWORD: uktrade
+    logging:
+      driver: "none"
+    network_mode: host
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    logging:
+      driver: "none"
+    network_mode: host
+volumes:
+  postgres_data:

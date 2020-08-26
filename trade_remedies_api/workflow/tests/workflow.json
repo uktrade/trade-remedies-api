@@ -1,0 +1,72 @@
+{
+    "root": [
+        {
+            "_type": "Action",
+            "label": "Review Draft",
+            "outcome_spec": [
+                {
+                    "type": "next_action",
+                    "spec": [
+                        {
+                            "key": "INFORM_FOREIGN_GOVERNMENT",
+                            "if": {
+                                "type": "Task",
+                                "key": "DRAFT_SUFFICIENT_TO_PROCEED",
+                                "value": true
+                            }
+                        },
+                        {
+                            "key": "REVIEW_DRAFT",
+                            "if": {
+                                "type": "Task",
+                                "key": "DRAFT_SUFFICIENT_TO_PROCEED",
+                                "value": false
+                            }
+                        },
+                    ]
+                },
+                {
+                    "type": "status_change",
+                    "spec": [
+                        {
+                            "key": "SUFFICIENT_TO_PROCEED",
+                            "if": {
+                                "type": "Task",
+                                "key": "DRAFT_SUFFICIENT_TO_PROCEED",
+                                "value": true
+                            }
+                        }
+                        {
+                            "key": "INSUFFICIENT_TO_PROCEED",
+                            "if": {
+                                "type": "Task",
+                                "key": "DRAFT_SUFFICIENT_TO_PROCEED",
+                                "value": false
+                            }
+                        }
+                    ]
+                }
+            ],
+            "tasks": [
+                {
+                    "_type": "Task",
+                    "key": "CONFIRM_ANSWERED_ALL",
+                    "label": "Confirm that complainants have answered all questions and provided a sufficient non-confidential version of the application",
+                    "id": "1"
+                },
+                {
+                    "_type": "Task",
+                    "key": "CONFIRM_HS_CODES",
+                    "label": "Confirm HS codes with the tariff advice section",
+                    "id": "2"
+                },
+                {
+                    "_type": "Task",
+                    "key": "DRAFT_SUFFICIENT_TO_PROCEED",
+                    "label": "Draft sufficient to proceed?",
+                    "id": "3"
+                }
+            ]
+        }
+    ]
+}

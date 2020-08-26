@@ -1,0 +1,126 @@
+from django.conf import settings
+
+
+ROLE_APPLICANT = 1
+ROLE_DOMESTIC_PRODUCER = 2
+ROLE_IMPORTER = 3
+ROLE_EXPORTER = 4
+ROLE_FOREIGN_GOVERNMENT = 5
+ROLE_INDUSTRIAL_USER = 6
+ROLE_TRADE_BODY = 7
+ROLE_CONTRIBUTOR = 8
+ROLE_AWAITING_APPROVAL = 9
+ROLE_REJECTED = 10
+ROLE_PREPARING = 11
+
+SECURITY_GROUP_SUPER_USER = "Super User"
+SECURITY_GROUP_ORGANISATION_OWNER = "Organisation Owner"
+SECURITY_GROUP_ORGANISATION_USER = "Organisation User"
+
+SECURITY_GROUP_TRA_ADMINISTRATOR = "TRA Administrator"
+SECURITY_GROUP_TRA_INVESTIGATOR = "TRA Investigator"
+SECURITY_GROUP_TRA_LEAD_INVESTIGATOR = "Lead Investigator"
+SECURITY_GROUP_TRA_HEAD_OF_INVESTIGATION = "Head of Investigation"
+
+# these roles should be assigned to SOS organisation, and if ommited, removed from if there already
+SOS_SECURITY_GROUPS = [
+    SECURITY_GROUP_TRA_HEAD_OF_INVESTIGATION,
+]
+
+GROUPS = [
+    (SECURITY_GROUP_SUPER_USER, "Has all permissions and can override security restrictions"),
+    (SECURITY_GROUP_TRA_ADMINISTRATOR, SECURITY_GROUP_TRA_ADMINISTRATOR),
+    (SECURITY_GROUP_TRA_INVESTIGATOR, SECURITY_GROUP_TRA_INVESTIGATOR),
+    (SECURITY_GROUP_TRA_LEAD_INVESTIGATOR, SECURITY_GROUP_TRA_LEAD_INVESTIGATOR),
+    (SECURITY_GROUP_TRA_HEAD_OF_INVESTIGATION, SECURITY_GROUP_TRA_HEAD_OF_INVESTIGATION),
+    (SECURITY_GROUP_ORGANISATION_OWNER, "A member of an organisation with owner access"),
+    (SECURITY_GROUP_ORGANISATION_USER, "A member of an organisation with standard access"),
+]
+
+GROUP_PERMISSIONS = {}
+GROUP_PERMISSIONS[SECURITY_GROUP_TRA_INVESTIGATOR] = []
+GROUP_PERMISSIONS[SECURITY_GROUP_TRA_LEAD_INVESTIGATOR] = GROUP_PERMISSIONS[
+    SECURITY_GROUP_TRA_INVESTIGATOR
+] + [
+    "cases.send_deficiency_notice",
+    "cases.publish_public",
+    "cases.publish_public_tasklist",
+    "cases.publish_non_conf_interested_parties",
+    "cases.issue_submission_requests",
+    "cases.close_case_tasks",
+    "organisations.merge_organisations",
+]
+GROUP_PERMISSIONS[SECURITY_GROUP_TRA_HEAD_OF_INVESTIGATION] = (
+    GROUP_PERMISSIONS[SECURITY_GROUP_TRA_INVESTIGATOR]
+    + GROUP_PERMISSIONS[SECURITY_GROUP_TRA_LEAD_INVESTIGATOR]
+    + [
+        "cases.create_ex_oficio",
+        "cases.case_admin",
+        "cases.complete_decision_tasks",
+        "cases.can_assign_team",
+        "core.add_user",
+        "core.change_user",
+        "core.delete_user",
+        "cases.can_generate_audit",
+    ]
+)
+GROUP_PERMISSIONS[SECURITY_GROUP_TRA_ADMINISTRATOR] = (
+    GROUP_PERMISSIONS[SECURITY_GROUP_TRA_INVESTIGATOR]
+    + GROUP_PERMISSIONS[SECURITY_GROUP_TRA_LEAD_INVESTIGATOR]
+    + GROUP_PERMISSIONS[SECURITY_GROUP_TRA_HEAD_OF_INVESTIGATION]
+    + ["cases.workflow_editor"]
+)
+
+GROUP_PERMISSIONS[SECURITY_GROUP_ORGANISATION_USER] = []
+GROUP_PERMISSIONS[SECURITY_GROUP_ORGANISATION_OWNER] = GROUP_PERMISSIONS["Organisation User"] + [
+    "core.change_org_user",
+    "core.can_view_all_org_cases",
+]
+
+PERMISSION_MODELS = [
+    "core",
+]
+
+# Any additional permissions to be assigned to the Super User
+ADDITIONAL_PERMISSIONS = []
+
+# The initial user will be assigned the Super User group which provides them with all
+# permissions, and cannot be unset. New users will default to the following group
+# configuration
+DEFAULT_USER_PERMISSIONS = []
+
+DEFAULT_ADMIN_PERMISSIONS = DEFAULT_USER_PERMISSIONS + [
+    "Administrator",
+]
+
+
+SECURITY_GROUPS_TRA = [
+    SECURITY_GROUP_SUPER_USER,
+    SECURITY_GROUP_TRA_ADMINISTRATOR,
+    SECURITY_GROUP_TRA_INVESTIGATOR,
+    SECURITY_GROUP_TRA_LEAD_INVESTIGATOR,
+    SECURITY_GROUP_TRA_HEAD_OF_INVESTIGATION,
+]
+
+SECURITY_GROUPS_TRA_ADMINS = [
+    SECURITY_GROUP_SUPER_USER,
+    SECURITY_GROUP_TRA_ADMINISTRATOR,
+    SECURITY_GROUP_TRA_HEAD_OF_INVESTIGATION,
+    SECURITY_GROUP_TRA_LEAD_INVESTIGATOR,
+]
+
+SECURITY_GROUPS_TRA_TOP_LEVEL = [
+    SECURITY_GROUP_SUPER_USER,
+    SECURITY_GROUP_TRA_ADMINISTRATOR,
+    SECURITY_GROUP_TRA_HEAD_OF_INVESTIGATION,
+]
+
+SECURITY_GROUPS_PUBLIC = [
+    SECURITY_GROUP_ORGANISATION_OWNER,
+    SECURITY_GROUP_ORGANISATION_USER,
+]
+
+ENVIRONMENT_GROUPS = {
+    settings.CASE_WORKER_ENVIRONMENT_KEY: SECURITY_GROUPS_TRA,
+    settings.PUBLIC_ENVIRONMENT_KEY: SECURITY_GROUPS_PUBLIC,
+}

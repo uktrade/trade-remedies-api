@@ -1,0 +1,381 @@
+[
+    {
+        "key": "AUDIT_PAGE_SIZE",
+        "data_type": "int",
+        "default": 10,
+        "editable": true
+    },
+    {
+        "key": "NOTIFY_AD_HOC_EMAIL",
+        "data_type": "str",
+        "default": "a833cc08-aae1-4b47-a44c-9dfef4193063"
+    },
+    {
+        "key": "NOTIFY_INTERESTED_PARTY_REQUEST_DENIED",
+        "data_type": "str",
+        "default": "3246cf3a-179e-48df-a92d-4725ab12179d"
+    },
+    {
+        "key": "NOTIFY_INTERESTED_PARTY_REQUEST_PERMITTED",
+        "data_type": "str",
+        "default": "f8703b0a-f462-43e9-a364-b75171a6fe47"
+    },
+    {
+        "key": "NOTIFY_INTERESTED_PARTY_REQUEST_CONFIRMATION",
+        "data_type": "str",
+        "default": "40bb7d30-ba9d-4d61-a5b3-14c3162bfcc0"
+    },
+    {
+        "key": "NOTIFY_UPDATE_TO_CASE",
+        "data_type": "str",
+        "default": "e110e97b-966c-4612-bfb5-43e430f40c8c"
+    },
+    {
+        "key": "NOTIFY_FINAL_APPLICATION_REMINDER",
+        "data_type": "str",
+        "default": "1a0ab34d-a7d2-4ad0-93a6-19a79bf41f2a"
+    },
+    {
+        "key": "NOTIFY_FINAL_DETERMINATION",
+        "data_type": "str",
+        "default": "19923e9b-d835-456f-b9e0-4c1ddcd0e11f"
+    },
+    {
+        "key": "NOTIFY_DISCLOSURE_OF_ESSENTIAL_FACTS",
+        "data_type": "str",
+        "default": "c1c204e4-793d-44c6-b5ab-a375e2cb3524"
+    },
+    {
+        "key": "NOTIFY_PROVISIONAL_DETERMINATION",
+        "data_type": "str",
+        "default": "1b24b9fa-46df-4c13-ba6c-f3b64a05bc90"
+    },
+    {
+        "key": "NOTIFY_CASE_INITIATION",
+        "data_type": "str",
+        "default": "d46711d0-7536-4f6b-871b-da6b5ca24f3d"
+    },
+    {
+        "key": "NOTIFY_VERIFICATION_REPORT_COMPLETED",
+        "data_type": "str",
+        "default": "2370f6fe-d216-476b-9231-8bd0bc345a96"
+    },
+    {
+        "key": "NOTIFY_VERIFICATION_VISIT_CONFIRMATION",
+        "data_type": "str",
+        "default": "2f0284ef-5392-4879-b2f9-e26cd7793b21"
+    },
+    {
+        "key": "NOTIFY_QUESTIONNAIRE_REMINDER",
+        "data_type": "str",
+        "default": "2071db92-4ebd-4e27-affa-82daa52c743c"
+    },
+    {
+        "key": "NOTIFY_QUESTIONNAIRE_RECEIVED",
+        "data_type": "str",
+        "default": "9f2b2e18-32d9-44db-9344-42f44ebc25cd"
+    },
+    {
+        "key": "NOTIFY_QUESTIONNAIRE",
+        "data_type": "str",
+        "default": "850ec7ec-cb38-4851-98dc-c70e4564b3b3"
+    },
+    {
+        "key": "NOTIFY_INVESTIGATION_NOT_STARTED",
+        "data_type": "str",
+        "default": "b7da7a36-428d-4dcd-9a40-c80d3059d8b0"
+    },
+    {
+        "key": "NOTIFY_APPLICATION_SUCCESSFUL",
+        "data_type": "str",
+        "default": "58dfbf2d-a39d-4e5f-b1cc-f0eb2313f212"
+    },
+    {
+        "key": "NOTIFY_FINAL_APPLICATION_RECEIVED",
+        "data_type": "str",
+        "default": "7faa2f2b-e25a-48d8-9608-c7374b06e5f5"
+    },
+    {
+        "key": "NOTIFY_DRAFT_APPLICATION_REVIEWED",
+        "data_type": "str",
+        "default": "376d232b-7eee-4607-b85a-705490f39d6f"
+    },
+    {
+        "key": "NOTIFY_DRAFT_APPLICATION_RECEIVED",
+        "data_type": "str",
+        "default": "a74b8560-e9d1-4662-b995-9f007c515ae8"
+    },
+    {
+        "key": "NOTIFY_ACCOUNT_USER_DETAILS_CHANGE",
+        "data_type": "str",
+        "default": "65d5cc1b-2ffc-426f-bcb9-c820d74eaeb8"
+    },
+    {
+        "key": "NOTIFY_ACCOUNT_USER_PERMISSION_CHANGE",
+        "data_type": "str",
+        "default": "ef3991ce-22db-4df4-a841-163b792073c6"
+    },
+    {
+        "key": "NOTIFY_ACCOUNT_NEW_USER",
+        "data_type": "str",
+        "default": "1a2cab58-6f95-4e1b-85c4-8138accbbae1"
+    },
+    {
+        "key": "NOTIFY_RESET_PASSWORD",
+        "data_type": "str",
+        "default": "b88e3ace-223d-4651-b080-bb2d663402a0"
+    },
+    {
+        "key": "NOTIFY_VERIFY_EMAIL",
+        "data_type": "str",
+        "default": "57e6211a-3878-4178-8065-def16465fe60"
+    },
+    {
+        "key": "NOTIFY_REGISTRATION",
+        "data_type": "str",
+        "default": ""
+    },
+    {
+        "key": "NOTIFY_INFORM_INTERESTED_PARTIES",
+        "data_type": "str",
+        "default": "671c3643-0fa1-4c1c-97de-e15b0c7c9739"
+    },
+    {
+        "key": "2FA_CODE_MESSAGE",
+        "data_type": "str",
+        "default": "580f86cc-e8ca-4b85-8a61-68df3ab27776",
+        "editable": false
+    },
+    {
+        "key": "REGISTRATION_SOFT_LOCK",
+        "data_type": "bool",
+        "default": false,
+        "editable": true
+    },
+    {
+        "key": "REGISTRATION_SOFT_LOCK_KEY",
+        "data_type": "str",
+        "default": "Fal4f3l!"
+    },
+    {
+        "key": "NOTIFY_SUBMISSION_DEFICIENCY",
+        "data_type": "str",
+        "default": "931bc432-5778-47a7-8e5c-3b96f1e76c8a"
+    },
+    {
+        "key": "NOTICE_OF_INITIATION_DOCUMENT",
+        "data_type": "str",
+        "default": ""
+    },
+    {
+        "key": "AWAITING_APPROVAL_ROLE_ID",
+        "data_type": "int",
+        "default": 9
+    },
+    {
+        "key": "NOTIFY_THIRD_PARTY_INVITE",
+        "data_type": "str",
+        "default": "5e5a7c12-8816-47f3-9405-2c0c406dc69f"
+    },
+    {
+        "key": "NOTIFY_THIRD_PARTY_INVITE_APPROVED",
+        "data_type": "str",
+        "default": "752c5c54-a48e-42cc-b4c5-e48b3712e8c2"
+    },
+    {
+        "key": "NOTIFY_SUBMISSION_RECEIVED",
+        "data_type": "str",
+        "default": "d6fb3018-2338-40c9-aa6d-f1195f5f65de"
+    },
+    {
+        "key": "NOTIFY_APPLICATION_INSUFFICIENT",
+        "data_type": "str",
+        "default": "6af847a8-a48b-4bf9-bf26-289302864a83"
+    },
+    {
+        "key": "DUPE-NOTIFY_APPLICATION_SUCCESSFUL",
+        "data_type": "str",
+        "default": "58dfbf2d-a39d-4e5f-b1cc-f0eb2313f212"
+    },
+    {
+        "key": "PRE_RELEASE_INVITATIONS",
+        "data_type": "bool",
+        "default": true,
+        "content_type": null,
+        "editable": true
+    },
+    {
+        "key": "PRE_RELEASE_ARCHIVE",
+        "remove": true,
+        "data_type": "bool",
+        "default": false,
+        "content_type": null,
+        "editable": true
+    },
+    {
+        "key": "FEATURE_CONTACT_EMAIL_READ_ONLY",
+        "data_type": "int",
+        "default": 0,
+        "editable": true
+    },
+    {
+        "key": "PUBLIC_2FA_CODE_EMAIL",
+        "data_type": "str",
+        "default": "32b4e56c-207f-4b45-98a5-aca8862492fd"
+    },
+    {
+        "key": "ENABLE_2FA",
+        "data_type": "bool",
+        "default": true,
+        "editable": true
+    },
+    {
+        "key": "NOTIFY_BLOCK_FOOTER",
+        "data_type": "str",
+        "default": "Investigations Team\nTrade Remedies\nDepartment for International Trade\nContact: investigations@traderemedies.gov.uk",
+        "editable": true
+    },
+    {
+        "key": "PRE_MANAGE_TEAM",
+        "data_type": "bool",
+        "default": true,
+        "editable": true
+    },
+    {
+        "key": "PRE_APPLICATIONS",
+        "data_type": "bool",
+        "default": true,
+        "editable": true
+    },
+    {
+        "key": "HOLDING_PAGE_TEXT",
+        "data_type": "str",
+        "default": "",
+        "editable": true
+    },
+    {
+        "key": "PRE_REGISTER_INTEREST",
+        "data_type": "bool",
+        "default": true,
+        "editable": true
+    },
+    {
+        "key": "NOTIFY_COMPANY_ROLE_CHANGED",
+        "data_type": "str",
+        "default": "0660ce64-9f4d-4e24-91cd-cfc199fe393b"
+    },
+    {
+        "key": "NOTIFY_COMPANY_ROLE_DENIED",
+        "data_type": "str",
+        "default": "0bb921a4-1cd7-4903-8327-693692932a2d"
+    },
+    {
+        "key": "NOTIFY_APPLICATION_CANCELLED",
+        "data_type": "str",
+        "default": "5f74bf2a-4fa0-40ac-8636-37c969b0d4c4"
+    },
+    {
+        "key": "FEATURE_ORGANISATION_ADMIN",
+        "data_type": "int",
+        "default": 0,
+        "editable": true
+    },
+    {
+        "key": "TRADE_REMEDIES_EMAIL",
+        "data_type": "str",
+        "default": "investigations@traderemedies.gov.uk",
+        "editable": true
+    },
+    {
+        "key": "NOTIFY_INVITE_ORGANISATION_USER",
+        "data_type": "str",
+        "default": "4e7e9a27-d96f-401c-b8e3-5397d57e68fc"
+    },
+    {
+        "key": "NOTIFY_INVITE_EXISTING_ORGANISATION_USER",
+        "data_type": "str",
+        "default": "c86b426f-c63f-4fd1-9088-2b0bebea3f7a"
+    },
+    {
+        "key": "DRAFT_SUBMISSION_CANCELLED",
+        "data_type": "str",
+        "default": "c7a7e77f-3016-483a-8845-12f034c6a6c8"
+    },
+    {
+        "key": "PRE_NEW_SUBMISSION_PAGE",
+        "data_type": "bool",
+        "default": false,
+        "editable": true
+    },
+    {
+        "key": "NOTIFY_USER_ASSIGNED_TO_CASE",
+        "data_type": "str",
+        "default": "adf96a56-541a-4286-9b30-fa1a7903b0cf"
+    },
+    {
+        "key": "NOTIFY_ORGANISATION_MERGED",
+        "data_type": "str",
+        "default": "8b93ff53-ae4a-4525-b1df-faa3330982ae"
+    },
+    {
+        "key": "NOTIFY_EMAIL_EXISTS",
+        "data_type": "str",
+        "default": "b1c4603e-2168-4d06-b079-46a48f750e7d"
+    },
+    {
+        "key": "PRE_REVIEW_APPLICATIONS",
+        "data_type": "bool",
+        "default": true,
+        "content_type": null,
+        "editable": true
+    },
+    {
+        "key": "PRE_DOCUMENT_SEARCH",
+        "data_type": "bool",
+        "default": false,
+        "content_type": null,
+        "editable": true
+    },
+    {
+        "key": "FEATURE_NOTICES",
+        "data_type": "int",
+        "default": 0,
+        "content_type": null,
+        "editable": true
+    },
+    {
+        "key": "FEATURE_SYSTEM_DASHBOARD",
+        "data_type": "int",
+        "default": 0,
+        "content_type": null,
+        "editable": true
+    },
+    {
+        "key": "PUBLIC_NOTICE",
+        "data_type": "string",
+        "default": "",
+        "content_type": null,
+        "editable": true
+    },
+    {
+        "key": "PRE_RELEASE_PANELS",
+        "data_type": "bool",
+        "content_type": null,
+        "editable": true
+    },
+    {
+        "key": "NOTIFY_INFORM_REPAYMENT_INVESTIGATION",
+        "data_type": "str",
+        "default": "195619b2-755e-420d-8a2f-650655610ad6"
+    },
+    {
+        "key": "NOTIFY_REPORT_ISSUED",
+        "data_type": "str",
+        "default": "a04f8b01-58cf-4365-8284-7ba5abe316cb"
+    },
+    {
+        "key": "NOTIFY_HEARING_ARRANGEMENTS",
+        "data_type": "str",
+        "default": "d644a5a7-ab54-4a57-9f49-26e98bed19c1"
+    }
+]

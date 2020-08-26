@@ -1,0 +1,964 @@
+[
+  {
+    "model": "cases.casestage",
+    "pk": "892cad92-de21-4ecf-88b5-7deb25f3173b",
+    "fields": {
+      "key": "CASE_CREATED",
+      "name": "Created",
+      "public_name": "Draft",
+      "type": null,
+      "order": 0,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "e93f159c-05c8-4c79-bb14-460b7ad6d567",
+    "fields": {
+      "key": "MANAGER_ASSIGNED",
+      "name": "Manager assigned",
+      "public_name": "Draft",
+      "type": null,
+      "order": 1,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "ace260dc-0e3e-47ee-8f3c-2df165e99b40",
+    "fields": {
+      "key": "TEAM_ASSIGNED",
+      "name": "Team assigned",
+      "public_name": "Draft",
+      "type": null,
+      "order": 5,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "c11fc555-b6e1-4e59-a31b-3758adee5369",
+    "fields": {
+      "key": "DRAFT_RECEIVED",
+      "name": "Draft received",
+      "public_name": "Submitted for review",
+      "type": null,
+      "order": 20,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "60c66873-9d69-4885-ae3b-d750817f0cb1",
+    "fields": {
+      "key": "DRAFT_REVIEW",
+      "name": "Draft review",
+      "public_name": "Draft",
+      "type": null,
+      "order": 30,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "6d338480-923f-425c-b905-0de37df981a7",
+    "fields": {
+      "key": "DRAFT_REVIEWED",
+      "name": "Draft reviewed",
+      "public_name": "Draft",
+      "type": null,
+      "order": 35,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "9da2135d-fa7a-4bbd-8afc-5bc82a259093",
+    "fields": {
+      "key": "DRAFT_SUFFICIENT",
+      "name": "Draft sufficient",
+      "public_name": "Draft",
+      "type": null,
+      "order": 35,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "d02a0e2e-965e-4851-b326-405d38cf68e0",
+    "fields": {
+      "key": "AWAITING_FULL_APPLICATION",
+      "name": "Awaiting full application",
+      "public_name": "Application",
+      "type": null,
+      "order": 38,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "8aadc503-c1a5-427f-808b-88e794e2f919",
+    "fields": {
+      "key": "APPLICATION_RECEIVED",
+      "name": "Application received",
+      "public_name": "Full application received",
+      "type": null,
+      "order": 40,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "ddd1a8db-548e-491f-a0c4-1398b7ba6912",
+    "fields": {
+      "key": "INSUFFICIENT_TO_PROCEED",
+      "name": "Insufficient to proceed",
+      "public_name": null,
+      "type": 1,
+      "order": 50,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "89d7d0eb-616a-47ba-904d-c75094406c96",
+    "fields": {
+      "key": "SUFFICIENT_TO_PROCEED",
+      "name": "Sufficient to proceed",
+      "public_name": "Full application received",
+      "type": 1,
+      "order": 60,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "3b784bb5-0e18-4ad1-a77b-c37e926482e3",
+    "fields": {
+      "key": "EXPORTERS_GOVERNMENT_INFORMED",
+      "name": "Exporter's government informed",
+      "public_name": "Case Initiated",
+      "type": null,
+      "order": 80,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "8495101b-cbff-40f9-9da5-a91e0846ff03",
+    "fields": {
+      "key": "APPLICATION_ASSESSED",
+      "name": "Application assessed",
+      "public_name": "Application assessed",
+      "type": null,
+      "order": 80,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "8495101b-cbff-40f9-9da5-a91e0846ff03",
+    "fields": {
+      "key": "CASE_ASSESSED",
+      "name": "Case assessed",
+      "public_name": "Case assessed",
+      "type": null,
+      "order": 80,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "97b230bc-46ed-4633-859a-ce949d044fc2",
+    "fields": {
+      "key": "INITIATION_DECLINED",
+      "name": "Initiation declined",
+      "public_name": null,
+      "type": null,
+      "order": 90,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "0dcfc981-1c32-4e6c-a23d-5b29ae8fb2a4",
+    "fields": {
+      "key": "TO_BE_INITIATED",
+      "name": "To be initiated",
+      "public_name": null,
+      "type": null,
+      "order": 100,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "3a592eb0-0ea2-423f-b75a-237ae6f52095",
+    "fields": {
+      "key": "INITIATION_PREPARED",
+      "name": "Initiation prepared",
+      "public_name": "Full application received",
+      "type": null,
+      "order": 110,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "db9af4f8-c7d1-4245-9be6-58c43f2e85db",
+    "fields": {
+      "key": "INFORMATION_FINALISED",
+      "name": "Case information finalised",
+      "public_name": null,
+      "type": null,
+      "order": 115,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "fdeb2162-572a-4128-bebf-b7bfefa9ff7b",
+    "fields": {
+      "key": "CASE_INITIATED_REGISTRATION_OPEN",
+      "name": "Case initiated - registration open",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 120,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "ab8c12da-9d6e-47c9-899a-8b16379e0bd0",
+    "fields": {
+      "key": "CASE_INITIATED_REGISTRATION",
+      "name": "Case initiated - registration",
+      "public_name": null,
+      "type": null,
+      "order": 120,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "b0473fad-2355-43a4-924e-f35c31677e4a",
+    "fields": {
+      "key": "CASE_INITIATED",
+      "name": "Case initiated",
+      "public_name": null,
+      "type": null,
+      "order": 120,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "ea5cccd2-7406-457d-9d8d-b5714f104d26",
+    "fields": {
+      "key": "QUESTIONNAIRES_ISSUED",
+      "name": "Questionnaires issued",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 130,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "6a4a72d8-2152-45f4-8958-8fabb06d1453",
+    "fields": {
+      "key": "QUESTIONNAIRES_RESPONSE_PERIOD_CLOSED",
+      "name": "Questionnaires response period closed",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 140,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "df8f4ea0-f49e-4d6c-8596-e18d7bfe0d5c",
+    "fields": {
+      "key": "QUESTIONNAIRES_PROCESSED",
+      "name": "Questionnaires processed",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 150,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "45a359a5-924e-4a74-83e5-8e44130a91bb",
+    "fields": {
+      "key": "ANALYSIS_1_COMPLETE",
+      "name": "Data analysed",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 155,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "ef75a9a4-9691-425f-b651-8f6f7b484701",
+    "fields": {
+      "key": "VERIFICATIONS_COMPLETE",
+      "name": "Verification complete",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 160,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "031dd7ae-9419-4c3e-b08b-0864c83a7a4b",
+    "fields": {
+      "key": "ANALYSIS_2_COMPLETE",
+      "name": "Verification analysed",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 165,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "db90041b-e778-43fb-a2f9-b7f4654c4b57",
+    "fields": {
+      "key": "AUTHENTICATIONS_COMPLETE",
+      "name": "Authentications complete",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 165,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "87e7c5cf-cbee-4430-8643-145c263fdcbb",
+    "fields": {
+      "key": "AUTHENTICATIONS_ANALYSED",
+      "name": "Authentications analysed",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 165,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "57a91bd6-e3e0-47c3-866f-e083ca7284b3",
+    "fields": {
+      "key": "MEASURE_TYPE_DECIDED",
+      "name": "Measure type decided",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 170,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "1f6c1faf-6bd9-4620-9965-91a3145d2b4d",
+    "fields": {
+      "key": "PROVISIONAL_DETERMINATION_PREPARED",
+      "name": "Provisional determination prepared",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 170,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "bdc52f86-72f9-4516-a254-74c16163fe3d",
+    "fields": {
+      "key": "PROVISIONAL_DETERMINATION_WITH_SOS",
+      "name": "Provisional determination with SoS",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 180,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "6fe1e9d4-c0bb-4f93-afb7-0631e68641b6",
+    "fields": {
+      "key": "STATEMENT_OF_INTENDED_FINAL_DETERMINATION",
+      "name": "Statement of intended final determination",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 180,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "b879679a-2f11-4bb4-b9ed-fe161fc61f63",
+    "fields": {
+      "key": "PROVISIONAL_DETERMINATION_APPROVED",
+      "name": "Provisional determination approved",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 190,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "167b7f0d-ecf5-42c1-8363-973661f6074e",
+    "fields": {
+      "key": "STATEMENT_OF_INTENDED_FINAL_DETERMINATION_APPROVED",
+      "name": "Statement of intended final determination approved",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 190,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "220a13c0-0f14-42fc-8f1b-7ab71c27d3b1",
+    "fields": {
+      "key": "PROVISIONAL_DETERMINATION_PUBLISHED",
+      "name": "Provisional determination published",
+      "public_name": null,
+      "type": null,
+      "order": 200,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "88bba1ef-1321-4332-9955-b957d044a065",
+    "fields": {
+      "key": "STATEMENT_OF_INTENDED_FINAL_DETERMINATION_PUBLISHED",
+      "name": "Statement of intended final determination published",
+      "public_name": null,
+      "type": null,
+      "order": 200,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "a1ca391d-b77d-4569-856c-2a76d5e32c6d",
+    "fields": {
+      "key": "PROVISIONAL_DETERMINATION_PUBLISHED_HEARING_REQUESTS_CLOSED",
+      "name": "Provisional determination published - hearing requests closed",
+      "public_name": null,
+      "type": null,
+      "order": 210,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "536df128-e831-4f63-a256-8cc7b3d884bc",
+    "fields": {
+      "key": "PROVISIONAL_DETERMINATION_RESPONSES_CLOSED",
+      "name": "Provisional determination - response window closed",
+      "public_name": null,
+      "type": null,
+      "order": 220,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "ab148898-be81-44f1-a0d6-755c75174799",
+    "fields": {
+      "key": "PROVISIONAL_DETERMINATION_RESPONSES_PROCESSED",
+      "name": "Provisional determination responses processed",
+      "public_name": null,
+      "type": null,
+      "order": 290,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "603d86e1-d23e-4eb1-b1ef-9e119040b6fc",
+    "fields": {
+      "key": "STATEMENT_OF_INTENDED_FINAL_DETERMINATION_RESPONSES_PROCESSED",
+      "name": "Statement of intended final determination responses processed",
+      "public_name": null,
+      "type": null,
+      "order": 290,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "eec3a7f9-355c-4f15-8f2a-a08c86831273",
+    "fields": {
+      "key": "UNDERTAKINGS_ASSESSED",
+      "name": "Undertakings assessed",
+      "public_name": null,
+      "type": null,
+      "order": 295,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "1d621d44-832e-4d43-8f8a-eec2d1a7cfeb",
+    "fields": {
+      "key": "STATEMENT_OF_ESSENTIAL_FACTS",
+      "name": "Statement of Essential Facts",
+      "public_name": null,
+      "type": null,
+      "order": 300,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "0381d56d-99e1-4182-84b5-cb508026bc9c",
+    "fields": {
+      "key": "STATEMENT_OF_ESSENTIAL_FACTS_HEARING_REQUESTS_CLOSED",
+      "name": "Statement of Essential Facts - hearing requests closed",
+      "public_name": null,
+      "type": null,
+      "order": 301,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "fabc5bde-635f-43a0-8587-fc64fb25051e",
+    "fields": {
+      "key": "STATEMENT_OF_ESSENTIAL_FACTS_RESPONSE_WINDOW_OPEN",
+      "name": "Statement of Essential Facts - response window open",
+      "public_name": null,
+      "type": null,
+      "order": 302,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "091b00c4-9840-4545-8f70-c6d7e9bafb92",
+    "fields": {
+      "key": "STATEMENT_OF_INTENDED_FINAL_DETERMINATION_RESPONSE_WINDOW_OPEN",
+      "name": "Statement of Intended Final Determination - response window open",
+      "public_name": null,
+      "type": null,
+      "order": 302,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "18922e19-2a2f-460e-a6ad-929449a7e4ba",
+    "fields": {
+      "key": "STATEMENT_OF_ESSENTIAL_FACTS_RESPONSE_WINDOW_CLOSED",
+      "name": "Statement of Essential Facts - response window closed",
+      "public_name": null,
+      "type": null,
+      "order": 303,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "a0af662b-172d-44ea-bfb2-8c0635a2dd28",
+    "fields": {
+      "key": "STATEMENT_OF_INTENDED_FINAL_DETERMINATION_RESPONSE_WINDOW_CLOSED",
+      "name": "Statement of Intended Final Determination - response window closed",
+      "public_name": null,
+      "type": null,
+      "order": 303,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "f38e7756-0275-49f0-a814-442efd9e5ced",
+    "fields": {
+      "key": "HEARINGS_COMPLETED",
+      "name": "Hearings completed",
+      "public_name": null,
+      "type": null,
+      "order": 303,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "1bd92e81-e1c0-4385-aec1-3a30f043b3df",
+    "fields": {
+      "key": "HEARINGS_RESPONSES_COMPLETE",
+      "name": "Hearings and responses complete",
+      "public_name": null,
+      "type": null,
+      "order": 304,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "c5b01904-1f2d-4102-9992-6ede04fbfbaf",
+    "fields": {
+      "key": "STATEMENT_OF_ESSENTIAL_FACTS_RESPONSES_COMPLETED",
+      "name": "Responses to Statement of Essential Facts completed",
+      "public_name": null,
+      "type": null,
+      "order": 304,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "2d68c738-3cfe-4ca9-bd5c-1a24c79458b3",
+    "fields": {
+      "key": "FINAL_ANALYSIS_COMPLETE",
+      "name": "Final analysis complete",
+      "public_name": "Statement of Essential Facts - closed",
+      "type": null,
+      "order": 310,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "51a36e9e-758d-4f90-8f64-335a5df3cc9e",
+    "fields": {
+      "key": "FINAL_DETERMINATION_IN_PREPARATION",
+      "name": "Statement of Essential Facts published",
+      "public_name": "Statement of Essential Facts - closed",
+      "type": null,
+      "order": 320,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "e542b9f8-50ec-439c-bc74-18ced6508eb6",
+    "fields": {
+      "key": "STATEMENT_OF_ESSENTIAL_FACTS_PUBLISHED",
+      "name": "Statement of Essential Facts published",
+      "public_name": "Statement of Essential Facts - closed",
+      "type": null,
+      "order": 320,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "dc6049a3-7181-43d5-a1b4-b9dd77c3e17c",
+    "fields": {
+      "key": "FINAL_DETERMINATION_PREPARED",
+      "name": "Final determination prepared",
+      "public_name": "Statement of Essential Facts - closed",
+      "type": null,
+      "order": 330,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "e549fb62-55dc-4d1f-84ac-329f4c4b09b4",
+    "fields": {
+      "key": "FINAL_DETERMINATION_APPROVED",
+      "name": "Final determination approved",
+      "public_name": "Statement of Essential Facts - closed",
+      "type": null,
+      "order": 340,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "a5cde51d-d781-4876-beb8-8525905d8044",
+    "fields": {
+      "key": "FINAL_DETERMINATION_PUBLISHED",
+      "name": "Final determination published",
+      "public_name": "Final determination",
+      "type": null,
+      "order": 340,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "39ad74e8-631a-4196-bffd-5241e35bf5e8",
+    "fields": {
+      "key": "RECONSIDERATION_REQUEST_RECEIVED",
+      "name": "Reconsideration request received",
+      "public_name": "Under reconsideration",
+      "type": null,
+      "order": 400,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "28808aff-c81d-4e1b-9812-f190a6199311",
+    "fields": {
+      "key": "NO_RECONSIDERATION_REQUEST_RECEIVED",
+      "name": "No Reconsideration request received",
+      "public_name": "Final determination published",
+      "type": null,
+      "order": 400,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "25dd3547-e321-4b3f-8ad1-a0096bd7c4c3",
+    "fields": {
+      "key": "RECONSIDERATION_TEAM_ASSIGNED",
+      "name": "Reconsideration team assigned",
+      "public_name": "Under reconsideration",
+      "type": null,
+      "order": 410,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "dad99138-efce-456e-b8ce-29106c07261b",
+    "fields": {
+      "key": "RECONSIDERATION_ASSESSED",
+      "name": "Reconsideration assessed",
+      "public_name": "Under reconsideration",
+      "type": null,
+      "order": 412,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "b0c6f084-fec6-4695-a878-52a8838070ff",
+    "fields": {
+      "key": "RECONSIDERATION_DECIDED",
+      "name": "Reconsideration decided",
+      "public_name": "Reconsideration decided",
+      "type": null,
+      "order": 413,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "24cf08e7-4444-411d-bdcd-eb20bd9f9fba",
+    "fields": {
+      "key": "UNDER_RECONSIDERATION",
+      "name": "Reconsideration initiated",
+      "public_name": "Reconsideration initiated",
+      "type": null,
+      "order": 415,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "e5e3ea9c-2f6a-4347-a64c-c51307eddbe6",
+    "fields": {
+      "key": "RECONSIDERATION_INITIATION_DECIDED",
+      "name": "Reconsideration initiation decided",
+      "public_name": "Reconsideration initiation decided",
+      "type": null,
+      "order": 415,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "9f814c52-e2ce-44c5-be5a-b9f00b73954c",
+    "fields": {
+      "key": "RECONSIDERATION_INITIATION_PUBLISHED",
+      "name": "Reconsideration initiation published",
+      "public_name": "Reconsideration initiation published",
+      "type": null,
+      "order": 416,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "3890fef5-8a03-4f82-888a-b21a691204f9",
+    "fields": {
+      "key": "RECONSIDERATION_ANALYSED",
+      "name": "Reconsideration analysed",
+      "public_name": "Reconsideration analysed",
+      "type": null,
+      "order": 417,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "b0c6f084-fec6-4695-a878-52a8838070ff",
+    "fields": {
+      "key": "RECONSIDERATION_DECIDED",
+      "name": "Reconsideration decided",
+      "public_name": "Reconsideration decided",
+      "type": null,
+      "order": 418,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "126b598d-c921-4626-bfbe-f9e5eae7bdae",
+    "fields": {
+      "key": "AMENDED_FINAL_DETERMINATION_PUBLISHED",
+      "name": "Amended final determination published",
+      "public_name": "Amended final determination published",
+      "type": null,
+      "order": 425,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "1106a7ac-b208-4b02-97f5-b0ee6fb9d731",
+    "fields": {
+      "key": "REGISTRATION_CLOSED",
+      "name": "Registration closed",
+      "public_name": "Investigation in progress",
+      "type": null,
+      "order": 0,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "c9dfc9c4-4550-4dc5-922b-e37d7569a20b",
+    "fields": {
+      "key": "CASE_IN_APPEAL",
+      "name": "Case in appeal",
+      "public_name": "Case in appeal",
+      "type": null,
+      "order": 500,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "f55d3452-f39c-4c09-9576-4dc14f8e8e34",
+    "fields": {
+      "key": "NO_APPEALS",
+      "name": "No appeals",
+      "public_name": "No appeals",
+      "type": null,
+      "order": 505,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "c532eb77-241b-4c1a-b63c-6bd3e273e016",
+    "fields": {
+      "key": "APPEALS_WINDOW_CLOSED",
+      "name": "Appeals window closed",
+      "public_name": "Appeals window closed",
+      "type": null,
+      "order": 510,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "ed7fc697-ccc8-4e5e-b3c9-a3ab9ba603ca",
+    "fields": {
+      "key": "CASE_CLOSED",
+      "name": "Case closed",
+      "public_name": "Case closed",
+      "type": null,
+      "order": 600,
+      "locking": false,
+      "flow_restrict": true
+    }
+  },
+  {
+    "model": "cases.casestage",
+    "pk": "e9c9c99c-a9db-484e-848b-7602d3a621f1",
+    "fields": {
+      "key": "MEASURES_EXPIRED",
+      "name": "Measures expired",
+      "public_name": "Measures expired",
+      "type": null,
+      "order": 620,
+      "locking": false,
+      "flow_restrict": true
+    }
+  }
+]

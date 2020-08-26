@@ -1,0 +1,24 @@
+{
+  "name": "trade-remedies-api",
+  "version": "1.0.0",
+  "description": "Back end API to support the Trade Remedies service.",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uktrade/trade-remedies-api_archive.git"
+  },
+  "keywords": [],
+  "author": "uktrade",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/uktrade/trade-remedies-api_archive/issues"
+  },
+  "homepage": "https://github.com/uktrade/trade-remedies-api_archive#readme",
+  "devDependencies": {
+    "all-contributors-cli": "^6.17.2"
+  }
+}

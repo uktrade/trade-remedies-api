@@ -1,0 +1,651 @@
+[
+  {
+    "model": "cases.casetype",
+    "pk": 1,
+    "fields": {
+      "name": "Anti-dumping investigation",
+      "acronym": "AD",
+      "colour": "#912B88",
+      "workflow": "c83c0c75-a04d-4212-a942-eb35855c60fe",
+      "order": 5
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 2,
+    "fields": {
+      "name": "Anti-subsidy investigation",
+      "acronym": "AS",
+      "colour": "#FC42C3",
+      "workflow": "d62e3127-64cd-46af-a8dc-b49bc77e3b27",
+      "order": 10
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 3,
+    "fields": {
+      "name": "Interim review",
+      "acronym": "IR",
+      "colour": "#B58840",
+      "workflow": "c83c0c75-a04d-4212-a942-eb35855c60fe",
+      "order": 45,
+      "meta": {
+        "review": true,
+        "criteria": [
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_COMMENCEMENT",
+            "value": 12,
+            "unit": "months"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": -12,
+            "unit": "months"
+          },
+          {
+            "criterion": "parent_case_types",
+            "value": [
+              "AD",
+              "AS",
+              "TD",
+              "TS",
+              "IR",
+              "SC",
+              "ER",
+              "AR",
+              "CR",
+              "DR",
+              "BU"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 4,
+    "fields": {
+      "name": "Scope review",
+      "acronym": "SC",
+      "colour": "#004274",
+      "workflow": "c83c0c75-a04d-4212-a942-eb35855c60fe",
+      "order": 50,
+      "meta": {
+        "review": true,
+        "criteria": [
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_COMMENCEMENT",
+            "value": 12,
+            "unit": "months"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": -3,
+            "unit": "months"
+          },
+          {
+            "criterion": "parent_case_types",
+            "value": [
+              "AD",
+              "AS",
+              "TD",
+              "TS",
+              "IR",
+              "SC",
+              "ER",
+              "AR",
+              "CR",
+              "DR"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 5,
+    "fields": {
+      "name": "Expiry review",
+      "acronym": "ER",
+      "colour": "#D67F05",
+      "workflow": "c83c0c75-a04d-4212-a942-eb35855c60fe",
+      "order": 40,
+      "meta": {
+        "review": true,
+        "criteria": [
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_EXPIRY",
+            "value": -12,
+            "unit": "months"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": -3,
+            "unit": "months"
+          },
+          {
+            "criterion": "parent_case_types",
+            "value": [
+              "AD",
+              "AS",
+              "TD",
+              "TS",
+              "IR",
+              "SC",
+              "ER",
+              "AR",
+              "CR",
+              "DR",
+              "BU"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 6,
+    "fields": {
+      "name": "Absorption review",
+      "acronym": "AR",
+      "colour": "#0B0C0C",
+      "workflow": "c83c0c75-a04d-4212-a942-eb35855c60fe",
+      "order": 30,
+      "meta": {
+        "review": true,
+        "criteria": [
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_COMMENCEMENT",
+            "value": 1,
+            "unit": "days"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": -3,
+            "unit": "months"
+          },
+          {
+            "criterion": "parent_case_types",
+            "value": ["AD", "TD", "IR", "SC", "ER", "AR", "CR", "DR"]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 7,
+    "fields": {
+      "name": "Circumvention review",
+      "acronym": "CR",
+      "colour": "#01753B",
+      "workflow": "c83c0c75-a04d-4212-a942-eb35855c60fe",
+      "order": 35,
+      "meta": {
+        "review": true,
+        "criteria": [
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_COMMENCEMENT",
+            "value": 1,
+            "unit": "days"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": -3,
+            "unit": "months"
+          },
+          {
+            "criterion": "parent_case_types",
+            "value": [
+              "AD",
+              "AS",
+              "TD",
+              "TS",
+              "IR",
+              "SC",
+              "ER",
+              "AR",
+              "CR",
+              "DR"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 8,
+    "fields": {
+      "name": "New exporter review",
+      "acronym": "NE",
+      "colour": "#2B8CC4",
+      "workflow": "c83c0c75-a04d-4212-a942-eb35855c60fe",
+      "order": 25,
+      "meta": {
+        "review": true,
+        "criteria": [
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_COMMENCEMENT",
+            "value": 1,
+            "unit": "days"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": -3,
+            "unit": "months"
+          },
+          {
+            "criterion": "parent_case_types",
+            "value": [
+              "AD",
+              "AS",
+              "TD",
+              "TS",
+              "IR",
+              "SC",
+              "ER",
+              "AR",
+              "UR",
+              "CR",
+              "DR"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 9,
+    "fields": {
+      "name": "Undertaking review",
+      "acronym": "UR",
+      "colour": "#7F58BC",
+      "workflow": "c83c0c75-a04d-4212-a942-eb35855c60fe",
+      "order": 90,
+      "meta": {
+        "review": true,
+        "criteria": [
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_COMMENCEMENT",
+            "value": 12,
+            "unit": "months"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": -3,
+            "unit": "months"
+          },
+          {
+            "criterion": "parent_case_types",
+            "value": [
+              "AD",
+              "AS",
+              "TD",
+              "TS",
+              "IR",
+              "SC",
+              "ER",
+              "AR",
+              "UR",
+              "CR",
+              "DR"
+            ]
+          },
+          {
+            "criterion": "state_value",
+            "key": "UNDERTAKINGS_ACCEPTED",
+            "value": "yes"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 10,
+    "fields": {
+      "name": "Suspension review",
+      "acronym": "SR",
+      "colour": "#6F777B",
+      "workflow": "c83c0c75-a04d-4212-a942-eb35855c60fe",
+      "order": 60,
+      "meta": {
+        "review": true,
+        "criteria": [
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_COMMENCEMENT",
+            "value": 1,
+            "unit": "days"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": -3,
+            "unit": "months"
+          },
+          {
+            "criterion": "parent_case_types",
+            "value": [
+              "AD",
+              "AS",
+              "TD",
+              "TS",
+              "IR",
+              "SC",
+              "ER",
+              "AR",
+              "CR",
+              "DR"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 11,
+    "fields": {
+      "name": "Repayment investigation",
+      "acronym": "RI",
+      "colour": "#21AB21",
+      "workflow": "c83c0c75-a04d-4212-a942-eb35855c60fe",
+      "order": 20,
+      "meta": {
+        "review": true,
+        "confidential_only": true,
+        "exclude_for_interest": true,
+        "invite_notify_template_key": "NOTIFY_INFORM_REPAYMENT_INVESTIGATION",
+        "criteria": [
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_COMMENCEMENT",
+            "value": 6,
+            "unit": "months"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": 6,
+            "unit": "months"
+          },
+          {
+            "criterion": "parent_case_types",
+            "value": [
+              "AD",
+              "AS",
+              "SF",
+              "TD",
+              "TS",
+              "TF",
+              "IR",
+              "SC",
+              "ER",
+              "AR",
+              "CR",
+              "UR",
+              "DR",
+              "BU",
+              "SM",
+              "SE",
+              "SS",
+              "SD"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 12,
+    "fields": {
+      "name": "Dispute ruling",
+      "acronym": "DR",
+      "colour": "#F22613",
+      "workflow": "c83c0c75-a04d-4212-a942-eb35855c60fe",
+      "order": 85,
+      "meta": {
+        "review": true,
+        "criteria": [
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_COMMENCEMENT",
+            "value": 12,
+            "unit": "months"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": -12,
+            "unit": "months"
+          },
+          { "criterion": "parent_case_types", "value": [] }
+        ]
+      }
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 13,
+    "fields": {
+      "name": "Safeguarding investigation",
+      "acronym": "SF",
+      "colour": "#28A197",
+      "workflow": "259838a3-21b9-4232-a134-630495e4835c",
+      "order": 15
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 14,
+    "fields": {
+      "name": "Transition anti-dumping review",
+      "acronym": "TD",
+      "colour": "#912B88",
+      "workflow": "5c7a6060-eacd-4f01-a991-14ec7099b51b",
+      "order": 100,
+      "internal": true
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 15,
+    "fields": {
+      "name": "Transition anti-subsidy review",
+      "acronym": "TS",
+      "colour": "#FC42C3",
+      "workflow": "cf546a2b-aed7-4bfb-8e26-201cbeae04fe",
+      "order": 105,
+      "internal": true
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 16,
+    "fields": {
+      "name": "Transition safeguarding review",
+      "acronym": "TF",
+      "colour": "#28A197",
+      "workflow": "fd13f9ec-dbea-45a7-b2bc-2db125cb15a6",
+      "order": 110,
+      "internal": true
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 17,
+    "fields": {
+      "name": "Safeguard mid-term review",
+      "acronym": "SM",
+      "colour": "#B58840",
+      "workflow": "259838a3-21b9-4232-a134-630495e4835c",
+      "order": 75,
+      "meta": {
+        "review": true,
+        "criteria": [
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_COMMENCEMENT",
+            "value": 18,
+            "unit": "months"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": -24,
+            "unit": "months"
+          },
+          { "criterion": "parent_case_types", "value": [] }
+        ]
+      }
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 18,
+    "fields": {
+      "name": "Safeguard extension review",
+      "acronym": "SE",
+      "colour": "#D67F05",
+      "workflow": "259838a3-21b9-4232-a134-630495e4835c",
+      "order": 70,
+      "meta": {
+        "review": true,
+        "criteria": [
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_COMMENCEMENT",
+            "value": 12,
+            "unit": "months"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": -3,
+            "unit": "months"
+          },
+          {
+            "criterion": "parent_case_types",
+            "value": ["SF", "TF", "SM", "SE", "SS", "SD"]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 19,
+    "fields": {
+      "name": "Safeguard suspension review",
+      "acronym": "SS",
+      "colour": "#6F777B",
+      "workflow": "259838a3-21b9-4232-a134-630495e4835c",
+      "order": 80,
+      "meta": {
+        "review": true,
+        "criteria": [
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_COMMENCEMENT",
+            "value": 12,
+            "unit": "months"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": -12,
+            "unit": "months"
+          },
+          {
+            "criterion": "parent_case_types",
+            "value": ["SF", "TF", "SM", "SE", "SS", "SD"]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 20,
+    "fields": {
+      "name": "Safeguard discontinuation",
+      "acronym": "SD",
+      "colour": "#005EA5",
+      "workflow": "259838a3-21b9-4232-a134-630495e4835c",
+      "order": 65,
+      "meta": {
+        "COMMENT": "No longer in use"
+      }
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 21,
+    "fields": {
+      "name": "Breach of undertakings",
+      "acronym": "BU",
+      "colour": "#7F58BB",
+      "workflow": "c83c0c75-a04d-4212-a942-eb35855c60fe",
+      "order": 120,
+      "meta": {
+        "review": true,
+        "criteria": [
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_COMMENCEMENT",
+            "value": 12,
+            "unit": "months"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": -3,
+            "unit": "months"
+          },
+          {
+            "criterion": "parent_case_types",
+            "value": [
+              "AD",
+              "AS",
+              "TD",
+              "TS",
+              "IR",
+              "SC",
+              "ER",
+              "AR",
+              "CR",
+              "DR"
+            ]
+          },
+          {
+            "criterion": "state_value",
+            "key": "UNDERTAKINGS_ACCEPTED",
+            "value": "yes"
+          }
+        ]
+      }
+    }
+  }
+]

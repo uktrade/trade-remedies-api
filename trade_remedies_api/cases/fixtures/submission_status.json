@@ -1,0 +1,2185 @@
+[
+{
+    "model": "cases.submissionstatus",
+    "pk": 1,
+    "fields": {
+        "type": 1,
+        "name": "Draft",
+        "public_name": "Draft",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true,
+        "send_confirmation_notification": ""
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 2,
+    "fields": {
+        "type": 1,
+        "name": "Review draft",
+        "public_name": "In review",
+        "order": 2,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": true,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_DRAFT_APPLICATION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 3,
+    "fields": {
+        "type": 1,
+        "name": "Awaiting information",
+        "public_name": "Awaiting information",
+        "order": 3,
+        "locking": false,
+        "version": true,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 4,
+    "fields": {
+        "type": 1,
+        "name": "Completing",
+        "public_name": "Proceed",
+        "order": 4,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review_ok": true,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_DRAFT_APPLICATION_REVIEWED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 5,
+    "fields": {
+        "type": 2,
+        "name": "Draft",
+        "public_name": "",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": 37,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 6,
+    "fields": {
+        "type": 2,
+        "name": "Sent",
+        "public_name": "Received",
+        "duration": null,
+        "order": 2,
+        "locking": false,
+        "version": false,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 7,
+    "fields": {
+        "type": 2,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 3,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 8,
+    "fields": {
+        "type": 2,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 4,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 9,
+    "fields": {
+        "type": 2,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 10,
+    "fields": {
+        "type": 3,
+        "name": "In progress",
+        "public_name": "Draft",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 11,
+    "fields": {
+        "type": 3,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 3,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 12,
+    "fields": {
+        "type": 3,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 4,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 13,
+    "fields": {
+        "type": 3,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 14,
+    "fields": {
+        "type": 14,
+        "name": "Draft",
+        "public_name": "",
+        "order": 0,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 15,
+    "fields": {
+        "type": 6,
+        "name": "Sent",
+        "public_name": "Received",
+        "order": 2,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 16,
+    "fields": {
+        "type": 6,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 3,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 17,
+    "fields": {
+        "type": 6,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 4,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 18,
+    "fields": {
+        "type": 6,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "duration": null,
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 19,
+    "fields": {
+        "type": 7,
+        "name": "In progress",
+        "public_name": "Draft",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 20,
+    "fields": {
+        "type": 7,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 3,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 21,
+    "fields": {
+        "type": 7,
+        "name": "Sufficient",
+        "public_name": "Accepted",
+        "order": 4,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 22,
+    "fields": {
+        "type": 7,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 23,
+    "fields": {
+        "type": 3,
+        "name": "Sent",
+        "public_name": "Received",
+        "order": 2,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 24,
+    "fields": {
+        "type": 8,
+        "name": "Created",
+        "public_name": "",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 25,
+    "fields": {
+        "type": 8,
+        "name": "Published",
+        "public_name": "Published",
+        "order": 2,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 26,
+    "fields": {
+        "type": 9,
+        "name": "In progress",
+        "public_name": "Draft",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 27,
+    "fields": {
+        "type": 9,
+        "name": "Sent",
+        "public_name": "Received",
+        "order": 2,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 28,
+    "fields": {
+        "type": 9,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 2,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 29,
+    "fields": {
+        "type": 1,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 4,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_FINAL_APPLICATION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 30,
+    "fields": {
+        "type": 12,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 3,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 31,
+    "fields": {
+        "type": 16,
+        "name": "In progress",
+        "public_name": "Draft",
+        "order": 0,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 32,
+    "fields": {
+        "type": 15,
+        "name": "Created",
+        "public_name": "",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 33,
+    "fields": {
+        "type": 15,
+        "name": "Published",
+        "public_name": "Published",
+        "order": 3,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 34,
+    "fields": {
+        "type": 1,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 4,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_APPLICATION_SUCCESSFUL"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 35,
+    "fields": {
+        "type": 10,
+        "name": "Published",
+        "public_name": "Published",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 36,
+    "fields": {
+        "type": 20,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "order": 0,
+        "locking": false,
+        "version": true,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 37,
+    "fields": {
+        "type": 14,
+        "name": "Sent",
+        "public_name": "Sent",
+        "order": 0,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 38,
+    "fields": {
+        "type": 16,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 3,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 39,
+    "fields": {
+        "type": 16,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 4,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 40,
+    "fields": {
+        "type": 16,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "duration": null,
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 41,
+    "fields": {
+        "type": 16,
+        "name": "Sent",
+        "public_name": "Received",
+        "order": 2,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 42,
+    "fields": {
+        "type": 19,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 1,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 43,
+    "fields": {
+        "type": 18,
+        "name": "In progress",
+        "public_name": "Draft",
+        "order": 3,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 44,
+    "fields": {
+        "type": 9,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 4,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 45,
+    "fields": {
+        "type": 9,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "duration": null,
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 46,
+    "fields": {
+        "type": 18,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 2,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 47,
+    "fields": {
+        "type": 12,
+        "name": "Draft",
+        "public_name": "Draft",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 48,
+    "fields": {
+        "type": 12,
+        "name": "Sent",
+        "public_name": "Received",
+        "order": 2,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 49,
+    "fields": {
+        "type": 14,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 0,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 50,
+    "fields": {
+        "type": 12,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 4,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 51,
+    "fields": {
+        "type": 12,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "duration": null,
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 52,
+    "fields": {
+        "type": 19,
+        "name": "In progress",
+        "public_name": "Draft",
+        "order": 0,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 53,
+    "fields": {
+        "type": 17,
+        "name": "In progress",
+        "public_name": "Draft",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 54,
+    "fields": {
+        "type": 17,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 3,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 55,
+    "fields": {
+        "type": 17,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 4,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 56,
+    "fields": {
+        "type": 17,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 57,
+    "fields": {
+        "type": 13,
+        "name": "Draft",
+        "public_name": "",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 58,
+    "fields": {
+        "type": 13,
+        "name": "Sent",
+        "public_name": "Received",
+        "order": 2,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 59,
+    "fields": {
+        "type": 13,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 3,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 60,
+    "fields": {
+        "type": 20,
+        "name": "Sent",
+        "public_name": "Received",
+        "order": 0,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 61,
+    "fields": {
+        "type": 20,
+        "name": "In progress",
+        "public_name": "Draft",
+        "order": 0,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 62,
+    "fields": {
+        "type": 20,
+        "name": "Draft",
+        "public_name": "",
+        "order": 0,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 63,
+    "fields": {
+        "type": 20,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 0,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 64,
+    "fields": {
+        "type": 2,
+        "name": "In progress",
+        "public_name": "Draft",
+        "order": 0,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 65,
+    "fields": {
+        "type": 13,
+        "name": "In progress",
+        "public_name": "Draft",
+        "order": 0,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 66,
+    "fields": {
+        "type": 6,
+        "name": "In progress",
+        "public_name": "Draft",
+        "order": 0,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 67,
+    "fields": {
+        "type": 12,
+        "name": "Draft",
+        "public_name": "Draft",
+        "order": 0,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 68,
+    "fields": {
+        "type": 14,
+        "name": "In progress",
+        "public_name": "Draft",
+        "order": 0,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 69,
+    "fields": {
+        "type": 21,
+        "name": "Invite draft",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 70,
+    "fields": {
+        "type": 21,
+        "name": "Invite requested",
+        "order": 2,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 71,
+    "fields": {
+        "type": 21,
+        "name": "Invites sent",
+        "order": 3,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 72,
+    "fields": {
+        "type": 21,
+        "name": "Invites declined",
+        "order": 4,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 73,
+    "fields": {
+        "type": 4,
+        "name": "Created",
+        "public_name": "Created",
+        "order": 1,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": true,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 74,
+    "fields": {
+        "type": 5,
+        "name": "Created",
+        "public_name": "",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 75,
+    "fields": {
+        "type": 10,
+        "name": "Created",
+        "public_name": "",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 76,
+    "fields": {
+        "type": 11,
+        "name": "Created",
+        "public_name": "",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 77,
+    "fields": {
+        "type": 11,
+        "name": "Published",
+        "public_name": "Published",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 78,
+    "fields": {
+        "type": 6,
+        "name": "Draft",
+        "public_name": "",
+        "order": 0,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 79,
+    "fields": {
+        "type": 5,
+        "name": "Published",
+        "public_name": "Published",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 80,
+    "fields": {
+        "type": 22,
+        "name": "Created",
+        "public_name": "",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+"model": "cases.submissionstatus",
+    "pk": 81,
+    "fields": {
+        "type": 22,
+        "name": "Published",
+        "public_name": "Published",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 82,
+    "fields": {
+        "type": 23,
+        "name": "Created",
+        "public_name": "",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 83,
+    "fields": {
+        "type": 23,
+        "name": "Published",
+        "public_name": "Published",
+        "order": 2,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 84,
+    "fields": {
+        "type": 25,
+        "name": "In progress",
+        "public_name": "Draft",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 85,
+    "fields": {
+        "type": 25,
+        "name": "Sent",
+        "public_name": "Received",
+        "order": 2,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 86,
+    "fields": {
+        "type": 25,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 2,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 87,
+    "fields": {
+        "type": 26,
+        "name": "In progress",
+        "public_name": "Draft",
+        "order": 0,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 88,
+    "fields": {
+        "type": 26,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 1,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 89,
+    "fields": {
+        "type": 20,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 0,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 90,
+    "fields": {
+        "type": 19,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 0,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 91,
+    "fields": {
+        "type": 18,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 0,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 92,
+    "fields": {
+        "type": 21,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 93,
+    "fields": {
+        "type": 18,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 94,
+    "fields": {
+        "type": 19,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 95,
+    "fields": {
+        "type": 22,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 0,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 96,
+    "fields": {
+        "type": 22,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 97,
+    "fields": {
+        "type": 25,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 0,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 98,
+    "fields": {
+        "type": 25,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 99,
+    "fields": {
+        "type": 26,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 0,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 100,
+    "fields": {
+        "type": 26,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 101,
+    "fields": {
+        "type": 13,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 102,
+    "fields": {
+        "type": 14,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 103,
+    "fields": {
+        "type": 13,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 4,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 104,
+    "fields": {
+        "type": 24,
+        "name": "Draft",
+        "public_name": "",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 105,
+    "fields": {
+        "type": 24,
+        "name": "Sent",
+        "public_name": "Received",
+        "duration": null,
+        "order": 2,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 106,
+    "fields": {
+        "type": 24,
+        "name": "Received",
+        "public_name": "Submitted",
+        "order": 3,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false,
+        "send_confirmation_notification": "NOTIFY_SUBMISSION_RECEIVED"
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 107,
+    "fields": {
+        "type": 24,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 4,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 108,
+    "fields": {
+        "type": 24,
+        "name": "Deficient",
+        "public_name": "Deficient",
+        "order": 5,
+        "locking": false,
+        "version": true,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 109,
+    "fields": {
+        "type": 24,
+        "name": "In progress",
+        "public_name": "Draft",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 110,
+    "fields": {
+        "type": 14,
+        "name": "Sufficient",
+        "public_name": "Sufficient",
+        "order": 4,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 111,
+    "fields": {
+        "type": 27,
+        "name": "Assign draft",
+        "order": 1,
+        "locking": false,
+        "version": false,
+        "duration": null,
+        "default": true,
+        "sent": false,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": true
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 112,
+    "fields": {
+        "type": 27,
+        "name": "Assign requested",
+        "order": 2,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": false,
+        "received": true,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 113,
+    "fields": {
+        "type": 27,
+        "name": "Accepted",
+        "order": 3,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": true,
+        "review": false,
+        "draft": false
+    }
+},
+{
+    "model": "cases.submissionstatus",
+    "pk": 114,
+    "fields": {
+        "type": 27,
+        "name": "Assignment declined",
+        "order": 4,
+        "locking": true,
+        "version": false,
+        "duration": null,
+        "default": false,
+        "sent": true,
+        "received": false,
+        "sufficient": false,
+        "review": false,
+        "draft": false
+    }
+}
+
+]

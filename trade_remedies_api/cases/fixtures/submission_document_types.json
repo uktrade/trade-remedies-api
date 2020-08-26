@@ -1,0 +1,34 @@
+[
+  {
+    "model": "cases.submissiondocumenttype",
+    "pk": 1,
+    "fields": {
+      "name": "TRID Document",
+      "key": "caseworker"
+    }
+  },
+  {
+    "model": "cases.submissiondocumenttype",
+    "pk": 2,
+    "fields": {
+      "name": "Customer Document",
+      "key": "respondent"
+    }
+  },
+  {
+    "model": "cases.submissiondocumenttype",
+    "pk": 3,
+    "fields": {
+      "name": "Deficiency Document",
+      "key": "deficiency"
+    }
+  },
+  {
+    "model": "cases.submissiondocumenttype",
+    "pk": 4,
+    "fields": {
+      "name": "Letter of Authority",
+      "key": "loa"
+    }
+  }
+]

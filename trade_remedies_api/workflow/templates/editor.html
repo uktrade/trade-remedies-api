@@ -1,0 +1,75 @@
+{% load workflow_select %}
+<style>
+li {
+    margin:5px;
+}
+</style>
+<script>
+    function setNode(name, value, parentId, index) {
+        console.log(name, value, parentId, index);
+        const url = '{{template_id}}' != 'None' ? '/api/v1/workflow/templates/{{template_id}}/' : '/api/v1/workflow/templates/';
+        $.post(url, {
+            name: name,
+            value: value,
+            index: index,
+            parent_id: parentId,
+            access_token: 'd36f5fd224006b939dd1c9b741c1c134ce886eba'
+        }, (response) => {
+            document.location.reload()
+        }, 'json');
+    }
+</script>
+<div style="width:100%;">
+    <h1>Workflow Template Editor</h1>
+    <select name="template_id">
+        {% for template in all_templates %}
+        <option
+            value="{{template.id}}"
+            {% if template.id == template_id %}selected{% endif %}
+        >
+        {{template.name}}</option>
+        {% endfor %}
+    </select>
+</div>
+<hr/>
+<div style="float:left; width:68%; border-right: 1px solid black;">
+<ul style="margin: 8px; padding: 5px;">
+     {% for action in workflow.root %}
+        <li>{% workflow_select 'action_id' action.id  forloop.counter0 stage.id%}
+            <UL>
+                {% for task in action.children %}
+                    <li>{% workflow_select 'task_id' task.id  forloop.counter0 action.id %}</li>
+                {% endfor %}
+                <li>Add Task: {% workflow_select 'task_id' '' None action.id %}</li>
+            </UL>
+        </li>
+    {% endfor %}
+    <li>Add Action: {% workflow_select 'action_id' '' None stage.id %}</li>
+</ul>
+<P>
+<textarea style="width:100%; height: 100%">{{workflow}}</textarea>
+</div>
+
+<div style="float:right; width:30%; border-left: 1px solid silver;">
+
+<UL>
+    {% for action in nodes %}
+    <LI>
+        {{action}}
+        <UL>
+            {% for task in action.children %}
+            <LI>
+                {{task}}
+            </LI>
+            {% endfor %}
+        </UL>
+    </LI>
+    {% endfor %}
+</UL>
+
+</div>
+
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
