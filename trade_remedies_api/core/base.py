@@ -142,7 +142,7 @@ class BaseModel(SimpleBaseModel):
 
     def set_user_context(self, context):
         """
-        Set the user context of this mode.
+        Set the user context of this model.
         A user context defines the user who is performing the action, and optionally the
         caseworker assisting them by doing the action on their behalf.
         The modified_by (and optionally assisted_by) will be set to the user, and it will be assumed
