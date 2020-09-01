@@ -1,6 +1,6 @@
 {
   "name": "trade-remedies-api",
-  "version": "1.0.0",
+  "version": "1.5.3",
   "description": "Back end API to support the Trade Remedies service.",
   "main": "index.js",
   "private": true,
