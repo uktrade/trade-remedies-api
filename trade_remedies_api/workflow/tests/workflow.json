@@ -22,7 +22,7 @@
                                 "key": "DRAFT_SUFFICIENT_TO_PROCEED",
                                 "value": false
                             }
-                        },
+                        }
                     ]
                 },
                 {
@@ -35,7 +35,7 @@
                                 "key": "DRAFT_SUFFICIENT_TO_PROCEED",
                                 "value": true
                             }
-                        }
+                        },
                         {
                             "key": "INSUFFICIENT_TO_PROCEED",
                             "if": {
