@@ -377,5 +377,11 @@
         "key": "NOTIFY_HEARING_ARRANGEMENTS",
         "data_type": "str",
         "default": "d644a5a7-ab54-4a57-9f49-26e98bed19c1"
+    },
+    {
+        "key": "PRE_THIRD_PARTY_INVITES",
+        "data_type": "bool",
+        "content_type": null,
+        "editable": true
     }
 ]
