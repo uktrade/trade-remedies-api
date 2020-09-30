@@ -58,7 +58,7 @@ class Command(BaseCommand):
         else:
             print("Admin user already exists. Resetting password")
             admin_user = admin_users[0]
-            admin_user.set_password(options["Password"])
+            admin_user.set_password(options["password"])
             admin_user.save()
         print("|= Creating the health check user ==================|")
         health_user = User.objects.filter(email=health_check_user_email, deleted_at__isnull=True)
