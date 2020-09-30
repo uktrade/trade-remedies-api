@@ -1,60 +1,45 @@
-version: "2"
+version: "3"
 services:
-  cli:
-    build: .
-    stdin_open: true
-    tty: true
+  api:
+    build:
+       context: . 
     ports:
       - "8000:8000"
     volumes:
-      - .:/opt/traderemedies/api
+      - ./:/app/
     env_file:
       - local.env
     depends_on:
       - postgres
       - redis
-    entrypoint: dockerize -timeout 120s -wait tcp://localhost:5432 -timeout 120s -wait tcp://localhost:6379 /opt/traderemedies/api/bootstrap.sh cli
-    network_mode: host
-  worker:
+    command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.local  
+  celery:
+    build:
+       context: . 
     build: .
+    command: celery -A config worker -l INFO
     volumes:
-      - .:/opt/traderemedies/api
+      - ./:/app/
     env_file:
       - local.env
     depends_on:
       - postgres
       - redis
-    entrypoint: dockerize -timeout 120s -wait tcp://localhost:5432 -timeout 120s -wait tcp://localhost:6379 /opt/traderemedies/api/bootstrap.sh celery-worker
-    network_mode: host
-  beat:
-    build: .
-    volumes:
-      - .:/opt/traderemedies/api
-    env_file:
-      - local.env
-    depends_on:
-      - postgres
-      - redis
-    entrypoint: dockerize -timeout 120s -wait tcp://localhost:5432 -timeout 120s -wait tcp://localhost:6379 /opt/traderemedies/api/bootstrap.sh celery-beat
-    network_mode: host
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.local
   postgres:
-    image: postgres:10.1
-    restart: on-failure
+    image: postgres:10.7
+    ports:
+      - "5432:5432"
     volumes:
-     - postgres_data:/var/lib/postgressql/data
+      - ./setup/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       POSTGRES_DB: trade_remedies
       POSTGRES_USER: uktrade
       POSTGRES_PASSWORD: uktrade
-    logging:
-      driver: "none"
-    network_mode: host
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
-    logging:
-      driver: "none"
-    network_mode: host
-volumes:
-  postgres_data:

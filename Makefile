@@ -23,18 +23,18 @@ help:
 
 
 test:
-		$(VENV_PATH)/python ./trade_remedies_api/manage.py test ./trade_remedies_api/security;
-		$(VENV_PATH)/python ./trade_remedies_api/manage.py test ./trade_remedies_api/cases;
-		$(VENV_PATH)/python ./trade_remedies_api/manage.py test ./trade_remedies_api/core;
+		$(VENV_PATH)/python ./manage.py test ./security;
+		$(VENV_PATH)/python ./manage.py test ./cases;
+		$(VENV_PATH)/python ./manage.py test ./core;
 
 bootstrap:
-		$(VENV_PATH)/python ./trade_remedies_api/manage.py migrate;
-		$(VENV_PATH)/python ./trade_remedies_api/manage.py resetsecurity;
-		$(VENV_PATH)/python ./trade_remedies_api/manage.py adminuser;
-		$(VENV_PATH)/python ./trade_remedies_api/manage.py loaddata ./trade_remedies_api/security/fixtures/*.json;
-		$(VENV_PATH)/python ./trade_remedies_api/manage.py loaddata ./trade_remedies_api/cases/fixtures/*.json;
-		$(VENV_PATH)/python ./trade_remedies_api/manage.py loaddata ./trade_remedies_api/core/fixtures/*.json;
-		$(VENV_PATH)/python ./trade_remedies_api/manage.py s3credentials;
+		$(VENV_PATH)/python ./manage.py migrate;
+		$(VENV_PATH)/python ./manage.py resetsecurity;
+		$(VENV_PATH)/python ./manage.py adminuser;
+		$(VENV_PATH)/python ./manage.py loaddata ./security/fixtures/*.json;
+		$(VENV_PATH)/python ./manage.py loaddata ./cases/fixtures/*.json;
+		$(VENV_PATH)/python ./manage.py loaddata ./core/fixtures/*.json;
+		$(VENV_PATH)/python ./manage.py s3credentials;
 
 docker-test:
 		docker-compose -f docker-compose-test.yml -p trade-remedies-api-test rm --force
@@ -73,3 +73,33 @@ build-docker-celery-worker:
 build-docker-celery-beat:
 		docker-compose -f docker-compose.yml build beat
 
+build:
+	docker-compose build
+
+up:
+	docker-compose up
+
+down:
+	docker-compose down
+
+all-requirements:
+	pip-compile --output-file requirements/base.txt requirements.in/base.in
+	pip-compile --output-file requirements/dev.txt requirements.in/dev.in
+	pip-compile --output-file requirements/prod.txt requirements.in/prod.in
+
+dev-requirements:
+	pip-compile --output-file requirements/base.txt requirements.in/base.in
+	pip-compile --output-file requirements/dev.txt requirements.in/dev.in
+
+prod-requirements:
+	pip-compile --output-file requirements/base.txt requirements.in/base.in
+	pip-compile --output-file requirements/prod.txt requirements.in/prod.in
+
+bash:
+	docker-compose run api bash
+
+makemigrations:
+	docker-compose run api python manage.py makemigrations
+
+migrate:
+	docker-compose run api python manage.py migrate
