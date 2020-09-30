@@ -106,8 +106,6 @@ migrate:
 
 first-use:
 	docker-compose run api python manage.py migrate --noinput
-	docker-compose run api python manage.py loaddata /app/cases/fixtures/*
-	docker-compose run api python manage.py loaddata /app/security/fixtures/*
-	docker-compose run api python app/manage.py loaddata /app/core/fixtures/*
-	docker-compose run api python app/manage.py load_sysparams
-	docker-compose run api python app/manage.py adminuser
+	docker-compose run api sh fixtures.sh
+	docker-compose run api python manage.py load_sysparams
+	docker-compose run api python manage.py adminuser

@@ -58,7 +58,7 @@ class Command(BaseCommand):
         else:
             print("Admin user already exists. Resetting password")
             admin_user = admin_users[0]
-            admin_user.set_password(options["password"])
+            admin_user.set_password(options["Password"])
             admin_user.save()
         print("|= Creating the health check user ==================|")
         health_user = User.objects.filter(email=health_check_user_email, deleted_at__isnull=True)
@@ -66,7 +66,7 @@ class Command(BaseCommand):
             user = User.objects.create(
                 name="Health Check",
                 email=health_check_user_email,
-                password=crypto.get_random_string(24),
+                password=f"{crypto.get_random_string(12)}{crypto.get_random_string(12).upper()}",
             )
             token = Token.objects.create(user=user, key=health_check_user_token)
             print(f"Health check user created with token {health_check_user_token}")
