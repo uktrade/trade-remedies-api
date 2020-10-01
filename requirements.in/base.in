@@ -13,6 +13,7 @@ django-redis
 django-silk
 django-storages
 django-timezone-field
+django-db-geventpool
 Django==2.2.13
 djangorestframework
 dpath

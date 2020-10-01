@@ -27,6 +27,7 @@ defusedxml==0.6.0         # via -r requirements.in/../requirements/base.txt, odf
 dj-database-url==0.5.0    # via -r requirements.in/../requirements/base.txt
 django-axes==5.7.1        # via -r requirements.in/../requirements/base.txt
 django-countries==6.1.3   # via -r requirements.in/../requirements/base.txt
+django-db-geventpool==3.2.3  # via -r requirements.in/../requirements/base.txt
 django-dirtyfields==1.4   # via -r requirements.in/../requirements/base.txt
 django-environ==0.4.5     # via -r requirements.in/../requirements/base.txt
 django-extensions==3.0.9  # via -r requirements.in/../requirements/base.txt
@@ -36,7 +37,7 @@ django-redis==4.12.1      # via -r requirements.in/../requirements/base.txt
 django-silk==4.1.0        # via -r requirements.in/../requirements/base.txt
 django-storages==1.10.1   # via -r requirements.in/../requirements/base.txt
 django-timezone-field==4.0  # via -r requirements.in/../requirements/base.txt
-django==2.2.13            # via -r requirements.in/../requirements/base.txt, django-axes, django-dirtyfields, django-redis, django-silk, django-storages, django-timezone-field, djangorestframework, feed-gov-back
+django==2.2.13            # via -r requirements.in/../requirements/base.txt, django-axes, django-db-geventpool, django-dirtyfields, django-redis, django-silk, django-storages, django-timezone-field, djangorestframework, feed-gov-back
 djangorestframework==3.12.1  # via -r requirements.in/../requirements/base.txt, feed-gov-back
 docopt==0.6.2             # via -r requirements.in/../requirements/base.txt, notifications-python-client
 dpath==2.0.1              # via -r requirements.in/../requirements/base.txt
@@ -78,7 +79,7 @@ phonenumbers==8.12.10     # via -r requirements.in/../requirements/base.txt
 pickleshare==0.7.5        # via -r requirements.in/../requirements/base.txt, ipython
 pillow==7.2.0             # via -r requirements.in/../requirements/base.txt, python-pptx
 prompt-toolkit==3.0.7     # via -r requirements.in/../requirements/base.txt, click-repl, ipython
-psycogreen==1.0.2         # via -r requirements.in/../requirements/base.txt
+psycogreen==1.0.2         # via -r requirements.in/../requirements/base.txt, django-db-geventpool
 psycopg2-binary==2.8.6    # via -r requirements.in/../requirements/base.txt, feed-gov-back
 ptyprocess==0.6.0         # via -r requirements.in/../requirements/base.txt, pexpect
 pycodestyle==2.6.0        # via -r requirements.in/../requirements/base.txt, autopep8, flake8

@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./:/app/
+      - ./trade_remedies_api:/app/
     env_file:
       - local.env
     depends_on:
@@ -14,21 +14,21 @@ services:
       - redis
     command: python manage.py runserver 0.0.0.0:8000
     environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.local  
+      - DJANGO_SETTINGS_MODULE=trade_remedies_api.settings.local  
   celery:
     build:
        context: . 
     build: .
-    command: celery -A config worker -l INFO
+    command: celery -A trade_remedies_api worker -l INFO
     volumes:
-      - ./:/app/
+      - ./trade_remedies_api:/app/
     env_file:
       - local.env
     depends_on:
       - postgres
       - redis
     environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.local
+      - DJANGO_SETTINGS_MODULE=trade_remedies_api.settings.local
   postgres:
     image: postgres:10.7
     ports:

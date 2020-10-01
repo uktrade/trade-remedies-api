@@ -25,7 +25,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--path",
             type=str,
-            default=f"{settings.SITE_ROOT}/trade_remedies_api/core/system/parameters.json",
+            default="core/system/parameters.json",
         )
 
     def handle(self, *args, **options):

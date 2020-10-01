@@ -1,11 +1,11 @@
 import hashlib
 import phonenumbers
 import dpath
-#import gevent
+import gevent
 from django.conf import settings
 from django.db import connection
 from django.contrib.contenttypes.models import ContentType
-from config.constants import STATE_INCOMPLETE
+from trade_remedies_api.constants import STATE_INCOMPLETE
 
 
 def deep_index_items_by(items, key):
@@ -121,7 +121,7 @@ def file_md5_checksum(file):
         md5 = hashlib.md5()
         for chunk in iter(lambda: file.read(65536), b""):
             md5.update(chunk)
-            #gevent.sleep(0) # TODO find out from Mark what this is
+            gevent.sleep(0) # TODO find out from Mark what this is
 
         return md5.hexdigest()
     except Exception:

@@ -96,10 +96,10 @@ prod-requirements:
 	pip-compile --output-file requirements/prod.txt requirements.in/prod.in
 
 bash:
-	docker-compose run api bash
+	docker-compose run api --rm bash
 
 makemigrations:
-	docker-compose run api python manage.py makemigrations
+	docker-compose run api --rm python manage.py makemigrations
 
 migrate:
 	docker-compose run api python manage.py migrate

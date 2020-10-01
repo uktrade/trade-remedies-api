@@ -22,7 +22,7 @@ import dj_database_url
 
 root = environ.Path(__file__) - 4
 env = environ.Env(DEBUG=(bool, False),)
-environ.Env.read_env(f"{root}/local.env")
+environ.Env.read_env()
 
 sentry_sdk.init(
     dsn=os.environ.get("SENTRY_DSN"),
@@ -131,18 +131,22 @@ WSGI_APPLICATION = "trade_remedies_api.wsgi.application"
 _VCAP_SERVICES = env.json('VCAP_SERVICES', default={})
 
 if 'postgres' in _VCAP_SERVICES:
-    _DATABASE_URL = _VCAP_SERVICES['postgres'][0]['credentials']['uri']
-else:
-    _DATABASE_URL = os.getenv('DATABASE_URL')
-
-DATABASES = dj_database_url.parse(
-    _DATABASE_URL, 
-    conn_max_age=0,
-    engine="django_db_geventpool.backends.postgresql_psycopg2",
-    options={
-        "MAX_CONNS": int(os.environ.get("DB_MAX_CONNS", "10")),
+    _database_uri = _VCAP_SERVICES['postgres'][0]['credentials']['uri']
+    DATABASES = {
+        "default": {
+            **dj_database_url.parse(
+                _database_uri,
+                engine="postgresql",
+                conn_max_age=0,
+            ),
+            "ENGINE": "django_db_geventpool.backends.postgresql_psycopg2",
+            "OPTIONS": {"MAX_CONNS": int(os.environ.get("DB_MAX_CONNS", "10")),},
+        },
     }
-)
+else:
+    DATABASES = {
+        "default": env.db()
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
