@@ -96,16 +96,16 @@ prod-requirements:
 	pip-compile --output-file requirements/prod.txt requirements.in/prod.in
 
 bash:
-	docker-compose run api --rm bash
+	docker-compose run --rm api bash
 
 makemigrations:
-	docker-compose run api --rm python manage.py makemigrations
+	docker-compose run --rm api python manage.py makemigrations
 
 migrate:
-	docker-compose run api python manage.py migrate
+	docker-compose run --rm api python manage.py migrate
 
 first-use:
-	docker-compose run api python manage.py migrate --noinput
-	docker-compose run api sh fixtures.sh
-	docker-compose run api python manage.py load_sysparams
-	docker-compose run api python manage.py adminuser
+	docker-compose run --rm api python manage.py migrate --noinput
+	docker-compose run --rm api sh fixtures.sh
+	docker-compose run --rm api python manage.py load_sysparams
+	docker-compose run --rm api python manage.py adminuser
