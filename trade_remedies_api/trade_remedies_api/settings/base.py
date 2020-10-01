@@ -18,10 +18,11 @@ import environ
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
+import dj_database_url
 
 root = environ.Path(__file__) - 4
 env = environ.Env(DEBUG=(bool, False),)
-environ.Env.read_env(f"local.env")
+environ.Env.read_env(f"{root}/local.env")
 
 sentry_sdk.init(
     dsn=os.environ.get("SENTRY_DSN"),
@@ -81,7 +82,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "config.middleware.ApiTokenSetter",
+    "trade_remedies_api.middleware.ApiTokenSetter",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -101,7 +102,7 @@ if "silk" in INSTALLED_APPS:
     SILKY_PYTHON_PROFILER = True
     SILKY_META = True
 
-ROOT_URLCONF = "config.urls"
+ROOT_URLCONF = "trade_remedies_api.urls"
 
 TEMPLATES = [
     {
@@ -125,18 +126,23 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
-WSGI_APPLICATION = "config.wsgi.application"
+WSGI_APPLICATION = "trade_remedies_api.wsgi.application"
 
-VCAP_SERVICES = env.json('VCAP_SERVICES', default={})
+_VCAP_SERVICES = env.json('VCAP_SERVICES', default={})
 
-if 'postgres' in VCAP_SERVICES:
-    DATABASE_URL = VCAP_SERVICES['postgres'][0]['credentials']['uri']
+if 'postgres' in _VCAP_SERVICES:
+    _DATABASE_URL = _VCAP_SERVICES['postgres'][0]['credentials']['uri']
 else:
-    DATABASE_URL = os.getenv('DATABASE_URL')
+    _DATABASE_URL = os.getenv('DATABASE_URL')
 
-DATABASES = {
-    "default": env.db()
-}
+DATABASES = dj_database_url.parse(
+    _DATABASE_URL, 
+    conn_max_age=0,
+    engine="django_db_geventpool.backends.postgresql_psycopg2",
+    options={
+        "MAX_CONNS": int(os.environ.get("DB_MAX_CONNS", "10")),
+    }
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -195,8 +201,8 @@ REST_FRAMEWORK = {
 }
 
 # Redis
-if 'redis' in VCAP_SERVICES:
-    REDIS_BASE_URL = VCAP_SERVICES['redis'][0]['credentials']['uri']
+if 'redis' in _VCAP_SERVICES:
+    REDIS_BASE_URL = _VCAP_SERVICES['redis'][0]['credentials']['uri']
 else:
     REDIS_BASE_URL = os.getenv('REDIS_BASE_URL')
 
@@ -288,7 +294,7 @@ SECRETARY_OF_STATE_ORGANISATION_ID = "8850d091-e119-4ab5-9e21-ede5f0112bef"
 ELASTIC_HOST = os.environ.get("ELASTIC_HOST")
 ELASTIC_PORT = os.environ.get("ELASTIC_PORT")
 ELASTIC_URI = None
-elastic_vcap_config = VCAP_SERVICES.get("elasticsearch")
+elastic_vcap_config = _VCAP_SERVICES.get("elasticsearch")
 if elastic_vcap_config:
     ELASTIC_URI = elastic_vcap_config[0]["credentials"]["uri"]
 # Elastic index mapping  by doc_type
@@ -322,8 +328,8 @@ STATICFILES_DIRS = [
 
 GOV_NOTIFY_API_KEY = os.environ.get("GOV_NOTIFY_API_KEY")
 
-if 'redis' in VCAP_SERVICES:
-    credentials = VCAP_SERVICES['redis'][0]['credentials']
+if 'redis' in _VCAP_SERVICES:
+    credentials = _VCAP_SERVICES['redis'][0]['credentials']
 
     CELERY_BROKER_URL = "rediss://:{}@{}:{}/0?ssl_cert_reqs=required".format(
         credentials['password'],

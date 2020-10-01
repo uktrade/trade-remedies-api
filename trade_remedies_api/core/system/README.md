@@ -35,4 +35,4 @@ By default the file used is in `core/system/parameters.json`
 
 
 Note that the **content** system parameters are still defined in the standard fixture 
-`core/fixtures/system_parameters_links.json`. 
+`trade_remedies_api/core/fixtures/system_parameters_links.json`. 

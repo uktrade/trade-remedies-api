@@ -1,3 +1,2 @@
-greenlet
-gevent
-psycogreen
+# Constrain to base requirements
+-r ../requirements/base.txt

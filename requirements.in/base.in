@@ -40,7 +40,10 @@ redis
 requests
 requests_toolbelt
 titlecase
-vine==1.3.0 
+vine
 werkzeug
 whitenoise
 xlrd
+greenlet
+gevent
+psycogreen

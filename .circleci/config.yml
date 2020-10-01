@@ -18,7 +18,7 @@ jobs:
           name: Run black
           command: |
             source env/bin/activate
-            black . --check
+            black trade_remedies_api --check
       - run:
           name: flake8
           command: |

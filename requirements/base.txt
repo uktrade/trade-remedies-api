@@ -44,8 +44,10 @@ feed-gov-back==0.4        # via -r requirements.in/base.in
 freezegun==1.0.0          # via -r requirements.in/base.in
 future==0.18.2            # via notifications-python-client
 geckoboard.py==1.1.0      # via -r requirements.in/base.in
+gevent==20.9.0            # via -r requirements.in/base.in
 gprof2dot==2019.11.30     # via django-silk
 graphviz==0.14.1          # via -r requirements.in/base.in
+greenlet==0.4.17          # via -r requirements.in/base.in, gevent
 gunicorn==20.0.4          # via -r requirements.in/base.in
 idna==2.10                # via requests
 ipython-genutils==0.2.0   # via traitlets
@@ -69,6 +71,7 @@ phonenumbers==8.12.10     # via -r requirements.in/base.in
 pickleshare==0.7.5        # via ipython
 pillow==7.2.0             # via python-pptx
 prompt-toolkit==3.0.7     # via click-repl, ipython
+psycogreen==1.0.2         # via -r requirements.in/base.in
 psycopg2-binary==2.8.6    # via -r requirements.in/base.in, feed-gov-back
 ptyprocess==0.6.0         # via pexpect
 pycodestyle==2.6.0        # via autopep8
@@ -92,12 +95,14 @@ titlecase==1.1.1          # via -r requirements.in/base.in
 toml==0.10.1              # via autopep8
 traitlets==5.0.4          # via ipython
 urllib3==1.25.10          # via botocore, elasticsearch, minio, requests, sentry-sdk
-vine==1.3.0               # via amqp, celery
+vine==5.0.0               # via -r requirements.in/base.in, amqp, celery
 wcwidth==0.2.5            # via prompt-toolkit
 werkzeug==1.0.1           # via -r requirements.in/base.in
 whitenoise==5.2.0         # via -r requirements.in/base.in
 xlrd==1.2.0               # via -r requirements.in/base.in
 xlsxwriter==1.3.6         # via python-pptx
+zope.event==4.5.0         # via gevent
+zope.interface==5.1.1     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

@@ -36,7 +36,7 @@ from cases.models import (
     CaseWorkflowState,
     Notice,
 )
-from config.constants import (
+from trade_remedies_api.constants import (
     STATE_INCOMPLETE,
     STATE_COMPLETE,
 )

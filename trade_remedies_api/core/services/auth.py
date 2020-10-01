@@ -30,7 +30,7 @@ from security.constants import (
     GROUPS,
 )
 from core.constants import CONTENT_EMAIL_EXISTS
-from config.version import __version__
+from trade_remedies_api.version import __version__
 from .base import TradeRemediesApiView, ResponseSuccess, ResponseError
 from .exceptions import InvalidRequestParams, ServerError, AccessDenied, InvalidRequestLockout
 
