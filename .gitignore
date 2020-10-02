@@ -123,5 +123,5 @@ node_modules
 # Mac
 .DS_Store
 
-# Static
+# static
 trade_remedies_api/trade_remedies_api/staticfiles/
