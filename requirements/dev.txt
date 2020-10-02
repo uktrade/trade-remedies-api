@@ -4,83 +4,81 @@
 #
 #    pip-compile --output-file=requirements/dev.txt requirements.in/dev.in
 #
-amqp==5.0.1               # via -r requirements.in/../requirements/base.txt, kombu
+amqp==2.6.1               # via -r requirements.in/../requirements/base.txt, kombu
 appdirs==1.4.4            # via black
 appnope==0.1.0            # via -r requirements.in/../requirements/base.txt, ipython
 autopep8==1.5.4           # via -r requirements.in/../requirements/base.txt, django-silk
 backcall==0.2.0           # via -r requirements.in/../requirements/base.txt, ipython
 billiard==3.6.3.0         # via -r requirements.in/../requirements/base.txt, celery
 black==20.8b1             # via -r requirements.in/dev.in
-boto3==1.15.8             # via -r requirements.in/../requirements/base.txt
-botocore==1.18.8          # via -r requirements.in/../requirements/base.txt, boto3, s3transfer
-celery==5.0.0             # via -r requirements.in/../requirements/base.txt
-certifi==2020.6.20        # via -r requirements.in/../requirements/base.txt, elasticsearch, minio, requests, sentry-sdk
+boto3==1.11.14            # via -r requirements.in/../requirements/base.txt
+botocore==1.14.17         # via -r requirements.in/../requirements/base.txt, boto3, s3transfer
+celery==4.4.0             # via -r requirements.in/../requirements/base.txt
+certifi==2020.6.20        # via -r requirements.in/../requirements/base.txt, minio, requests, sentry-sdk
 chardet==3.0.4            # via -r requirements.in/../requirements/base.txt, requests
-click-didyoumean==0.0.3   # via -r requirements.in/../requirements/base.txt, celery
-click-repl==0.1.6         # via -r requirements.in/../requirements/base.txt, celery
-click==7.1.2              # via -r requirements.in/../requirements/base.txt, black, celery, click-didyoumean, click-repl
+click==7.1.2              # via black
 colour==0.1.5             # via -r requirements.in/../requirements/base.txt
-configparser==5.0.0       # via -r requirements.in/../requirements/base.txt, minio
 coverage==5.3             # via -r requirements.in/dev.in
 decorator==4.4.2          # via -r requirements.in/../requirements/base.txt, ipython
 defusedxml==0.6.0         # via -r requirements.in/../requirements/base.txt, odfpy
 dj-database-url==0.5.0    # via -r requirements.in/../requirements/base.txt
-django-axes==5.7.1        # via -r requirements.in/../requirements/base.txt
-django-countries==6.1.3   # via -r requirements.in/../requirements/base.txt
-django-db-geventpool==3.2.3  # via -r requirements.in/../requirements/base.txt
+django-appconf==1.0.4     # via -r requirements.in/../requirements/base.txt, django-axes
+django-axes==5.4.1        # via -r requirements.in/../requirements/base.txt
+django-countries==5.5     # via -r requirements.in/../requirements/base.txt
+django-db-geventpool==3.1.0  # via -r requirements.in/../requirements/base.txt
 django-dirtyfields==1.4   # via -r requirements.in/../requirements/base.txt
 django-environ==0.4.5     # via -r requirements.in/../requirements/base.txt
-django-extensions==3.0.9  # via -r requirements.in/../requirements/base.txt
+django-extensions==2.2.3  # via -r requirements.in/../requirements/base.txt
 django-ipware==3.0.1      # via -r requirements.in/../requirements/base.txt, django-axes
-django-pglocks==1.0.4     # via -r requirements.in/../requirements/base.txt
-django-redis==4.12.1      # via -r requirements.in/../requirements/base.txt
-django-silk==4.1.0        # via -r requirements.in/../requirements/base.txt
-django-storages==1.10.1   # via -r requirements.in/../requirements/base.txt
-django-timezone-field==4.0  # via -r requirements.in/../requirements/base.txt
-django==2.2.13            # via -r requirements.in/../requirements/base.txt, django-axes, django-db-geventpool, django-dirtyfields, django-redis, django-silk, django-storages, django-timezone-field, djangorestframework, feed-gov-back
-djangorestframework==3.12.1  # via -r requirements.in/../requirements/base.txt, feed-gov-back
+django-redis==4.10.0      # via -r requirements.in/../requirements/base.txt
+django-silk==3.0.1        # via -r requirements.in/../requirements/base.txt
+django-storages==1.9.1    # via -r requirements.in/../requirements/base.txt
+django-timezone-field==3.1  # via -r requirements.in/../requirements/base.txt
+django==2.2.13            # via -r requirements.in/../requirements/base.txt, django-appconf, django-axes, django-db-geventpool, django-dirtyfields, django-redis, django-silk, django-storages, django-timezone-field, feed-gov-back
+django_pglocks==1.0.3     # via -r requirements.in/../requirements/base.txt
+djangorestframework==3.10.3  # via -r requirements.in/../requirements/base.txt, feed-gov-back
 docopt==0.6.2             # via -r requirements.in/../requirements/base.txt, notifications-python-client
-dpath==2.0.1              # via -r requirements.in/../requirements/base.txt
-elasticsearch-dsl==7.3.0  # via -r requirements.in/../requirements/base.txt
-elasticsearch==7.9.1      # via -r requirements.in/../requirements/base.txt, elasticsearch-dsl
+docutils==0.15.2          # via -r requirements.in/../requirements/base.txt, botocore
+dpath==1.4.2              # via -r requirements.in/../requirements/base.txt
+elasticsearch-dsl==6.4.0  # via -r requirements.in/../requirements/base.txt
+elasticsearch==6.8.1      # via -r requirements.in/../requirements/base.txt, elasticsearch-dsl
 et-xmlfile==1.0.1         # via -r requirements.in/../requirements/base.txt, openpyxl
 feed-gov-back==0.4        # via -r requirements.in/../requirements/base.txt
 flake8==3.8.3             # via -r requirements.in/dev.in
-freezegun==1.0.0          # via -r requirements.in/../requirements/base.txt
+freezegun==0.3.11         # via -r requirements.in/../requirements/base.txt
 future==0.18.2            # via -r requirements.in/../requirements/base.txt, notifications-python-client
-geckoboard.py==1.1.0      # via -r requirements.in/../requirements/base.txt
-gevent==20.9.0            # via -r requirements.in/../requirements/base.txt
-gprof2dot==2019.11.30     # via -r requirements.in/../requirements/base.txt, django-silk
-graphviz==0.14.1          # via -r requirements.in/../requirements/base.txt
+geckoboard.py==1.0.0      # via -r requirements.in/../requirements/base.txt
+gevent==1.4.0             # via -r requirements.in/../requirements/base.txt
+gprof2dot==2016.10.13     # via -r requirements.in/../requirements/base.txt, django-silk
+graphviz==0.8.3           # via -r requirements.in/../requirements/base.txt
 greenlet==0.4.17          # via -r requirements.in/../requirements/base.txt, gevent
-gunicorn==20.0.4          # via -r requirements.in/../requirements/base.txt
-idna==2.10                # via -r requirements.in/../requirements/base.txt, requests
+idna==2.8                 # via -r requirements.in/../requirements/base.txt, requests
 ipython-genutils==0.2.0   # via -r requirements.in/../requirements/base.txt, traitlets
-ipython==7.18.1           # via -r requirements.in/../requirements/base.txt
+ipython==7.8.0            # via -r requirements.in/../requirements/base.txt
 jdcal==1.4.1              # via -r requirements.in/../requirements/base.txt, openpyxl
 jedi==0.17.2              # via -r requirements.in/../requirements/base.txt, ipython
 jinja2==2.11.2            # via -r requirements.in/../requirements/base.txt, django-silk
 jmespath==0.10.0          # via -r requirements.in/../requirements/base.txt, boto3, botocore
-kombu==5.0.2              # via -r requirements.in/../requirements/base.txt, celery
+kombu==4.6.11             # via -r requirements.in/../requirements/base.txt, celery
 lxml==4.5.2               # via -r requirements.in/../requirements/base.txt, python-docx, python-pptx
-markdown==3.2.2           # via -r requirements.in/../requirements/base.txt
+markdown==3.1.1           # via -r requirements.in/../requirements/base.txt
 markupsafe==1.1.1         # via -r requirements.in/../requirements/base.txt, jinja2
 mccabe==0.6.1             # via flake8
-minio==6.0.0              # via -r requirements.in/../requirements/base.txt
+minio==4.0.11             # via -r requirements.in/../requirements/base.txt
 monotonic==1.5            # via -r requirements.in/../requirements/base.txt, notifications-python-client
 mypy-extensions==0.4.3    # via black
-notifications-python-client==5.7.0  # via -r requirements.in/../requirements/base.txt
+notifications-python-client==5.3.0  # via -r requirements.in/../requirements/base.txt
 odfpy==1.4.1              # via -r requirements.in/../requirements/base.txt
-openpyxl==3.0.5           # via -r requirements.in/../requirements/base.txt
+openpyxl==2.5.12          # via -r requirements.in/../requirements/base.txt
 parso==0.7.1              # via -r requirements.in/../requirements/base.txt, jedi
 pathspec==0.8.0           # via black
 pexpect==4.8.0            # via -r requirements.in/../requirements/base.txt, ipython
-phonenumbers==8.12.10     # via -r requirements.in/../requirements/base.txt
+phonenumbers==8.10.20     # via -r requirements.in/../requirements/base.txt
 pickleshare==0.7.5        # via -r requirements.in/../requirements/base.txt, ipython
 pillow==7.2.0             # via -r requirements.in/../requirements/base.txt, python-pptx
-prompt-toolkit==3.0.7     # via -r requirements.in/../requirements/base.txt, click-repl, ipython
+prompt-toolkit==2.0.10    # via -r requirements.in/../requirements/base.txt, ipython
 psycogreen==1.0.2         # via -r requirements.in/../requirements/base.txt, django-db-geventpool
-psycopg2-binary==2.8.6    # via -r requirements.in/../requirements/base.txt, feed-gov-back
+psycopg2-binary==2.8.3    # via -r requirements.in/../requirements/base.txt, feed-gov-back
 ptyprocess==0.6.0         # via -r requirements.in/../requirements/base.txt, pexpect
 pycodestyle==2.6.0        # via -r requirements.in/../requirements/base.txt, autopep8, flake8
 pyflakes==2.2.0           # via flake8
@@ -91,29 +89,27 @@ python-dateutil==2.8.1    # via -r requirements.in/../requirements/base.txt, bot
 python-docx==0.8.10       # via -r requirements.in/../requirements/base.txt
 python-pptx==0.6.18       # via -r requirements.in/../requirements/base.txt
 pytz==2020.1              # via -r requirements.in/../requirements/base.txt, celery, django, django-dirtyfields, django-silk, django-timezone-field, minio
-redis==3.5.3              # via -r requirements.in/../requirements/base.txt, django-redis
-regex==2020.9.27          # via -r requirements.in/../requirements/base.txt, black, titlecase
-requests-toolbelt==0.9.1  # via -r requirements.in/../requirements/base.txt
-requests==2.24.0          # via -r requirements.in/../requirements/base.txt, django-silk, geckoboard.py, notifications-python-client, requests-toolbelt
+redis==3.3.8              # via -r requirements.in/../requirements/base.txt, django-redis
+regex==2020.9.27          # via black
+requests==2.22.0          # via -r requirements.in/../requirements/base.txt, django-silk, geckoboard.py, notifications-python-client, requests-toolbelt
+requests_toolbelt==0.9.1  # via -r requirements.in/../requirements/base.txt
 s3transfer==0.3.3         # via -r requirements.in/../requirements/base.txt, boto3
-sentry-sdk==0.18.0        # via -r requirements.in/../requirements/base.txt
-six==1.15.0               # via -r requirements.in/../requirements/base.txt, click-repl, django-pglocks, elasticsearch-dsl, python-dateutil
+sentry-sdk==0.13.1        # via -r requirements.in/../requirements/base.txt
+six==1.15.0               # via -r requirements.in/../requirements/base.txt, django-countries, django-extensions, elasticsearch-dsl, freezegun, prompt-toolkit, python-dateutil
 sqlparse==0.3.1           # via -r requirements.in/../requirements/base.txt, django, django-silk
-striprtf==0.0.11          # via -r requirements.in/../requirements/base.txt
-titlecase==1.1.1          # via -r requirements.in/../requirements/base.txt
+striprtf==0.0.10          # via -r requirements.in/../requirements/base.txt
+titlecase==0.12.0         # via -r requirements.in/../requirements/base.txt
 toml==0.10.1              # via -r requirements.in/../requirements/base.txt, autopep8, black
 traitlets==5.0.4          # via -r requirements.in/../requirements/base.txt, ipython
 typed-ast==1.4.1          # via black
 typing-extensions==3.7.4.3  # via black
 urllib3==1.25.10          # via -r requirements.in/../requirements/base.txt, botocore, elasticsearch, minio, requests, sentry-sdk
-vine==5.0.0               # via -r requirements.in/../requirements/base.txt, amqp, celery
+vine==1.3.0               # via -r requirements.in/../requirements/base.txt, amqp, celery
 wcwidth==0.2.5            # via -r requirements.in/../requirements/base.txt, prompt-toolkit
-werkzeug==1.0.1           # via -r requirements.in/../requirements/base.txt
-whitenoise==5.2.0         # via -r requirements.in/../requirements/base.txt
+werkzeug==0.15.3          # via -r requirements.in/../requirements/base.txt
+whitenoise==3.3.1         # via -r requirements.in/../requirements/base.txt
 xlrd==1.2.0               # via -r requirements.in/../requirements/base.txt
 xlsxwriter==1.3.6         # via -r requirements.in/../requirements/base.txt, python-pptx
-zope.event==4.5.0         # via -r requirements.in/../requirements/base.txt, gevent
-zope.interface==5.1.1     # via -r requirements.in/../requirements/base.txt, gevent
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

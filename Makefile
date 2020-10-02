@@ -104,8 +104,3 @@ makemigrations:
 migrate:
 	docker-compose run --rm api python manage.py migrate
 
-first-use:
-	docker-compose run --rm api python manage.py migrate --noinput
-	docker-compose run --rm api sh fixtures.sh
-	docker-compose run --rm api python manage.py load_sysparams
-	docker-compose run --rm api python manage.py adminuser

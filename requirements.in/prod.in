@@ -1,2 +1,5 @@
 # Constrain to base requirements
 -r ../requirements/base.txt
+
+gunicorn==20.0.4
+psycogreen==1.0.2
