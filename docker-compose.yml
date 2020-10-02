@@ -9,14 +9,9 @@ services:
       - ./trade_remedies_api:/app/
     env_file:
       - local.env
-    depends_on:
-      - postgres
-      - redis
     command: python manage.py runserver 0.0.0.0:8000
     environment:
       - DJANGO_SETTINGS_MODULE=trade_remedies_api.settings.local
-    networks:
-      - proxynet
   celery:
     build:
        context: . 
@@ -26,13 +21,8 @@ services:
       - ./trade_remedies_api:/app/
     env_file:
       - local.env
-    depends_on:
-      - postgres
-      - redis
     environment:
       - DJANGO_SETTINGS_MODULE=trade_remedies_api.settings.local
-    networks:
-      - proxynet
   postgres:
     image: postgres:10.7
     ports:
@@ -43,14 +33,7 @@ services:
       POSTGRES_DB: trade_remedies
       POSTGRES_USER: uktrade
       POSTGRES_PASSWORD: uktrade
-    networks:
-      - proxynet
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
-    networks:
-      - proxynet
-networks:
-  proxynet:
-    name: trade_remedies_network
