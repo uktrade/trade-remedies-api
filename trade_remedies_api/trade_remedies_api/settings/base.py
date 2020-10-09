@@ -326,10 +326,7 @@ COUNTRIES_OVERRIDE = {
     "EU": "European Customs Union",
 }
 
-
-STATICFILES_DIRS = [
-    #     os.path.join(BASE_DIR, '..', 'static')
-]
+STATICFILES_DIRS = []
 
 GOV_NOTIFY_API_KEY = os.environ.get("GOV_NOTIFY_API_KEY")
 
