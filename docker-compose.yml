@@ -31,8 +31,6 @@ services:
       - ./setup/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       POSTGRES_DB: trade_remedies
-      POSTGRES_USER: uktrade
-      POSTGRES_PASSWORD: uktrade
   redis:
     image: redis:alpine
     ports:
