@@ -3,7 +3,7 @@
 
 # add packages needed only for development
 
-pip
+ipython==7.10
 black
 flake8
 coverage

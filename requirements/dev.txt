@@ -7,10 +7,10 @@
 amqp==2.6.1               # via -r requirements.in/../requirements/base.txt, kombu
 apipkg==1.5               # via execnet
 appdirs==1.4.4            # via black
-appnope==0.1.0            # via -r requirements.in/../requirements/base.txt, ipython
+appnope==0.1.0            # via ipython
 attrs==20.2.0             # via pytest
 autopep8==1.5.4           # via -r requirements.in/../requirements/base.txt, django-silk
-backcall==0.2.0           # via -r requirements.in/../requirements/base.txt, ipython
+backcall==0.2.0           # via ipython
 billiard==3.6.3.0         # via -r requirements.in/../requirements/base.txt, celery
 black==20.8b1             # via -r requirements.in/dev.in
 boto3==1.11.14            # via -r requirements.in/../requirements/base.txt
@@ -21,7 +21,7 @@ chardet==3.0.4            # via -r requirements.in/../requirements/base.txt, req
 click==7.1.2              # via black
 colour==0.1.5             # via -r requirements.in/../requirements/base.txt
 coverage==5.3             # via -r requirements.in/dev.in, pytest-cov
-decorator==4.4.2          # via -r requirements.in/../requirements/base.txt, ipython
+decorator==4.4.2          # via ipython
 defusedxml==0.6.0         # via -r requirements.in/../requirements/base.txt, odfpy
 dj-database-url==0.5.0    # via -r requirements.in/../requirements/base.txt
 django-appconf==1.0.4     # via -r requirements.in/../requirements/base.txt, django-axes
@@ -57,10 +57,10 @@ graphviz==0.8.3           # via -r requirements.in/../requirements/base.txt
 greenlet==0.4.17          # via -r requirements.in/../requirements/base.txt, gevent
 idna==2.8                 # via -r requirements.in/../requirements/base.txt, requests
 iniconfig==1.0.1          # via pytest
-ipython-genutils==0.2.0   # via -r requirements.in/../requirements/base.txt, traitlets
-ipython==7.8.0            # via -r requirements.in/../requirements/base.txt
+ipython-genutils==0.2.0   # via traitlets
+ipython==7.10             # via -r requirements.in/dev.in
 jdcal==1.4.1              # via -r requirements.in/../requirements/base.txt, openpyxl
-jedi==0.17.2              # via -r requirements.in/../requirements/base.txt, ipython
+jedi==0.17.2              # via ipython
 jinja2==2.11.2            # via -r requirements.in/../requirements/base.txt, django-silk
 jmespath==0.10.0          # via -r requirements.in/../requirements/base.txt, boto3, botocore
 kombu==4.6.11             # via -r requirements.in/../requirements/base.txt, celery
@@ -75,17 +75,17 @@ notifications-python-client==5.3.0  # via -r requirements.in/../requirements/bas
 odfpy==1.4.1              # via -r requirements.in/../requirements/base.txt
 openpyxl==2.5.12          # via -r requirements.in/../requirements/base.txt
 packaging==20.4           # via pytest
-parso==0.7.1              # via -r requirements.in/../requirements/base.txt, jedi
+parso==0.7.1              # via jedi
 pathspec==0.8.0           # via black
-pexpect==4.8.0            # via -r requirements.in/../requirements/base.txt, ipython
+pexpect==4.8.0            # via ipython
 phonenumbers==8.10.20     # via -r requirements.in/../requirements/base.txt
-pickleshare==0.7.5        # via -r requirements.in/../requirements/base.txt, ipython
+pickleshare==0.7.5        # via ipython
 pillow==7.2.0             # via -r requirements.in/../requirements/base.txt, python-pptx
 pluggy==0.13.1            # via pytest
-prompt-toolkit==2.0.10    # via -r requirements.in/../requirements/base.txt, ipython
+prompt-toolkit==2.0.10    # via ipython
 psycogreen==1.0.2         # via -r requirements.in/../requirements/base.txt, django-db-geventpool
 psycopg2-binary==2.8.3    # via -r requirements.in/../requirements/base.txt, feed-gov-back
-ptyprocess==0.6.0         # via -r requirements.in/../requirements/base.txt, pexpect
+ptyprocess==0.6.0         # via pexpect
 py==1.9.0                 # via pytest, pytest-forked
 pycodestyle==2.6.0        # via -r requirements.in/../requirements/base.txt, autopep8, flake8
 pyflakes==2.2.0           # via flake8
@@ -113,17 +113,16 @@ sqlparse==0.3.1           # via -r requirements.in/../requirements/base.txt, dja
 striprtf==0.0.10          # via -r requirements.in/../requirements/base.txt
 titlecase==0.12.0         # via -r requirements.in/../requirements/base.txt
 toml==0.10.1              # via -r requirements.in/../requirements/base.txt, autopep8, black, pytest
-traitlets==5.0.4          # via -r requirements.in/../requirements/base.txt, ipython
+traitlets==5.0.4          # via ipython
 typed-ast==1.4.1          # via black
 typing-extensions==3.7.4.3  # via black
 urllib3==1.25.10          # via -r requirements.in/../requirements/base.txt, botocore, elasticsearch, minio, requests, sentry-sdk
 vine==1.3.0               # via -r requirements.in/../requirements/base.txt, amqp, celery
-wcwidth==0.2.5            # via -r requirements.in/../requirements/base.txt, prompt-toolkit
+wcwidth==0.2.5            # via prompt-toolkit
 werkzeug==0.15.3          # via -r requirements.in/../requirements/base.txt
 whitenoise==3.3.1         # via -r requirements.in/../requirements/base.txt
 xlrd==1.2.0               # via -r requirements.in/../requirements/base.txt
 xlsxwriter==1.3.6         # via -r requirements.in/../requirements/base.txt, python-pptx
 
 # The following packages are considered to be unsafe in a requirements file:
-# pip
 # setuptools
