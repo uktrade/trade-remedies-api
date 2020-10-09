@@ -5,7 +5,7 @@
 
 ipython==7.10
 traitlets==4.2
-black
+black==19.10b0
 flake8
 coverage
 pytest
