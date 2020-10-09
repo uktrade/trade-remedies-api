@@ -1,6 +1,34 @@
 version: 2.1
 jobs:
-  build:
+  code_quality:
+    docker:
+      - image: circleci/python:3.6.10
+    steps:
+      - checkout
+      - restore_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
+      - run:
+          name: Install Python deps
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install --upgrade pip
+            pip install -r requirements/dev.txt
+      - save_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
+          paths:
+            - "venv"
+      - run:
+          name: Run black
+          command: |
+            source env/bin/activate
+            black trade_remedies_api --check
+      - run:
+          name: Run Flake8
+          command: |
+            . venv/bin/activate
+            # python -m flake8 trade_remedies_api
+  test:
     docker:
       - image: circleci/python:3.6.10
         environment:
@@ -18,17 +46,6 @@ jobs:
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
       - run:
-          name: Install Python deps
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install --upgrade pip
-            pip install -r requirements/dev.txt
-      - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
-          paths:
-            - "venv"
-      - run:
           name: Collect static
           command: |
             . venv/bin/activate
@@ -38,8 +55,10 @@ jobs:
           command: |
             . venv/bin/activate
             python trade_remedies_api/manage.py test
-      - run:
-          name: Run Flake8
-          command: |
-            . venv/bin/activate
-            python -m flake8 trade_remedies_api
+
+workflows:
+  version: 2
+  run_tests:
+    jobs:
+      - code_quality
+      - test
