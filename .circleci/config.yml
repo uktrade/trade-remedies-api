@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: circleci/python:3.6-stretch-node-browsers-legacy
+      - image: circleci/python:3.6.10
         environment:
           DATABASE_URL: psql://ubuntu@localhost:5432/trade_remedies
           DJANGO_SETTINGS_MODULE: config.settings.ci
