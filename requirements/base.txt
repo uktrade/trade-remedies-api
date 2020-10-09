@@ -100,5 +100,4 @@ xlrd==1.2.0               # via -r requirements.in/base.in
 xlsxwriter==1.3.6         # via python-pptx
 
 # The following packages are considered to be unsafe in a requirements file:
-# pip
 # setuptools

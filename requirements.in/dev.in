@@ -3,6 +3,7 @@
 
 # add packages needed only for development
 
+pip
 black
 flake8
 coverage
