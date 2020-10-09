@@ -21,7 +21,7 @@ chardet==3.0.4            # via -r requirements.in/../requirements/base.txt, req
 click==7.1.2              # via black
 colour==0.1.5             # via -r requirements.in/../requirements/base.txt
 coverage==5.3             # via -r requirements.in/dev.in, pytest-cov
-decorator==4.4.2          # via ipython
+decorator==4.4.2          # via ipython, traitlets
 defusedxml==0.6.0         # via -r requirements.in/../requirements/base.txt, odfpy
 dj-database-url==0.5.0    # via -r requirements.in/../requirements/base.txt
 django-appconf==1.0.4     # via -r requirements.in/../requirements/base.txt, django-axes
@@ -113,7 +113,7 @@ sqlparse==0.3.1           # via -r requirements.in/../requirements/base.txt, dja
 striprtf==0.0.10          # via -r requirements.in/../requirements/base.txt
 titlecase==0.12.0         # via -r requirements.in/../requirements/base.txt
 toml==0.10.1              # via -r requirements.in/../requirements/base.txt, autopep8, black, pytest
-traitlets==5.0.4          # via ipython
+traitlets==4.2.0          # via -r requirements.in/dev.in, ipython
 typed-ast==1.4.1          # via black
 typing-extensions==3.7.4.3  # via black
 urllib3==1.25.10          # via -r requirements.in/../requirements/base.txt, botocore, elasticsearch, minio, requests, sentry-sdk
