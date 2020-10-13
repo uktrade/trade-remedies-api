@@ -372,7 +372,10 @@ class DocumentAPIView(TradeRemediesApiView):
                         }
                     )
             # schedule the index not
-            index_document.delay(str(document.id))
+            if settings.RUN_ASYNC:
+                index_document.delay(str(document.id))
+            else:
+                index_document(str(document.id))
             return ResponseSuccess({"result": result}, http_status=status.HTTP_201_CREATED)
         elif document_id:
             # We just want to attach a document

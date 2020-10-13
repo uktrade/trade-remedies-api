@@ -18,7 +18,7 @@ dj-database-url==0.5.0    # via -r requirements.in/../requirements/base.txt
 django-appconf==1.0.4     # via -r requirements.in/../requirements/base.txt, django-axes
 django-axes==5.4.1        # via -r requirements.in/../requirements/base.txt
 django-countries==5.5     # via -r requirements.in/../requirements/base.txt
-django-db-geventpool==3.1.0  # via -r requirements.in/../requirements/base.txt
+django-db-geventpool==3.1.0  # via -r requirements.in/prod.in
 django-dirtyfields==1.4   # via -r requirements.in/../requirements/base.txt
 django-environ==0.4.5     # via -r requirements.in/../requirements/base.txt
 django-extensions==2.2.3  # via -r requirements.in/../requirements/base.txt
@@ -60,7 +60,7 @@ odfpy==1.4.1              # via -r requirements.in/../requirements/base.txt
 openpyxl==2.5.12          # via -r requirements.in/../requirements/base.txt
 phonenumbers==8.10.20     # via -r requirements.in/../requirements/base.txt
 pillow==7.2.0             # via -r requirements.in/../requirements/base.txt, python-pptx
-psycogreen==1.0.2         # via -r requirements.in/../requirements/base.txt, -r requirements.in/prod.in, django-db-geventpool
+psycogreen==1.0.2         # via -r requirements.in/prod.in, django-db-geventpool
 psycopg2-binary==2.8.3    # via -r requirements.in/../requirements/base.txt, feed-gov-back
 pycodestyle==2.6.0        # via -r requirements.in/../requirements/base.txt, autopep8
 pygments==2.7.1           # via -r requirements.in/../requirements/base.txt, django-silk

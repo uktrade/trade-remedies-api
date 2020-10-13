@@ -345,6 +345,10 @@ else:
 CELERY_TASK_ALWAYS_EAGER = os.environ.get("CELERY_TASK_ALWAYS_EAGER", "FALSE").upper() == "TRUE"
 CELERY_WORKER_LOG_FORMAT = "[%(asctime)s: %(levelname)s/%(processName)s] [%(name)s] %(message)s"
 
+RUN_ASYNC = True
+
+AXES_ENABLED = os.environ.get("AXES_ENABLED", True)
+
 if DEBUG:
     LOGGING = {
         "version": 1,

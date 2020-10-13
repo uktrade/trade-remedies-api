@@ -12,7 +12,6 @@ from rest_framework.authtoken.models import Token
 
 logger = logging.getLogger(__name__)
 
-
 base_dir = os.path.dirname(os.path.dirname(__file__))
 
 

@@ -1,7 +1,7 @@
+from django.test import override_settings
 from django.test import TestCase
 from django.utils import timezone
 from freezegun import freeze_time
-
 from core.user_context import UserContext
 from audit.models import Audit
 from audit.utils import audit_log
@@ -24,7 +24,7 @@ class AuditTestMixin(object):
             created_by=self.user, name="Untitled", user_context=self.assisted_user_context
         )
 
-
+@override_settings(DEBUG=True)
 class AuditTest(TestCase, AuditTestMixin):
     fixtures = ["submission_types.json"]
 
