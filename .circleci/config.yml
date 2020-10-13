@@ -49,7 +49,8 @@ jobs:
           name: Run tests
           command: |
             . venv/bin/activate
-            python trade_remedies_api/manage.py test
+            cd trade_remedies_api
+            python manage.py test
 
 workflows:
   version: 2
