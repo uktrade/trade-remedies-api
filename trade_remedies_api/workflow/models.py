@@ -1,6 +1,8 @@
 import uuid
 from copy import deepcopy
 from functools import singledispatch
+import logging
+
 from django.db import models
 from django.contrib.postgres import fields
 from graphviz import Digraph
@@ -8,6 +10,9 @@ from core.utils import rekey
 from .exceptions import InvalidParentType, DuplicateNode, InvalidArgument, InvalidNode
 from .outcomes import OUTCOME_REGISTRY
 from .response_types import RESPONSE_TYPES
+
+logger = logging.getLogger(__name__)
+
 
 RT = rekey(RESPONSE_TYPES, "id", rekey_as="key")
 
@@ -243,7 +248,7 @@ class Workflow(dict):
                     outcome = Outcome(node, self, spec=spec, **kwargs)
                     result = outcome.execute()
         else:
-            print(f"NO outcome spec: {node.get('outcome_spec')}")
+            logger.debug(f"NO outcome spec: {node.get('outcome_spec')}")
         return
 
     def key_precedes(self, key_1, key_2):

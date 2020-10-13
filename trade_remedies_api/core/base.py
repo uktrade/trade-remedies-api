@@ -1,3 +1,4 @@
+import logging
 import uuid
 import json
 import re
@@ -112,7 +113,7 @@ class SimpleBaseModel(models.Model, DirtyFieldsMixin, AuditableMixin):
                                 value = json.loads(value)  # to remove escaping
                             setattr(self, key, value)
                         except Exception:
-                            print("Invalid field type", key, value, data_type)
+                            logger.error(f"Invalid field type {key}, {value}, {data_type}", exc_info=True)
                     report["set"].append((key, value))
             else:
                 report["invalid"].append((key, value))
@@ -206,7 +207,7 @@ class BaseModel(SimpleBaseModel):
         try:
             _dict.update(self._to_dict(*args, **kwargs))
         except AttributeError as ex:
-            print("No extended _to_dict:", ex)
+            logger.error("No extended _to_dict", exc_info=True)
             raise
         return _dict
 
@@ -277,6 +278,4 @@ class BaseModel(SimpleBaseModel):
                 out[field] = val
             except AttributeError:
                 pass
-                # if field:
-                #    print(f'Field not found "{field}"')
         return out

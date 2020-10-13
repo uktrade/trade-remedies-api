@@ -36,7 +36,7 @@ def index_document(document_id, case_id=None):
 
     document = Document.objects.get(id=document_id)
     result = document.elastic_index(case=case_id)
-    print(result)
+    logger.info(result)
 
 
 @shared_task()

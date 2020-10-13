@@ -50,7 +50,7 @@ def send_mail_task(self, email, context, template_id, reference=None, audit_kwar
     audit_data = {}
     try:
         send_report = sync_send_mail(email, context, template_id, reference)
-        print("SEND", send_report)
+        logger.info(f"Send email: {send_report}")
     except HTTPError as err:
         error_report, error_status = extract_error_from_api_exception(err)
         if error_status in (500, 503):
