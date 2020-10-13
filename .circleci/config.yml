@@ -46,11 +46,6 @@ jobs:
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
       - run:
-          name: Collect static
-          command: |
-            . venv/bin/activate
-            python trade_remedies_api/manage.py collectstatic --noinput
-      - run:
           name: Run tests
           command: |
             . venv/bin/activate
