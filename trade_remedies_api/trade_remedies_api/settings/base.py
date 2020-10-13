@@ -132,7 +132,7 @@ WSGI_APPLICATION = "trade_remedies_api.wsgi.application"
 _VCAP_SERVICES = env.json('VCAP_SERVICES', default={})
 
 if 'postgres' in _VCAP_SERVICES:
-    _database_uri = _VCAP_SERVICES['postgres'][0]['credentials']['uri']
+    _database_uri = f"{_VCAP_SERVICES['postgres'][0]['credentials']['uri']}/0"
     DATABASES = {
         "default": {
             **dj_database_url.parse(
@@ -333,7 +333,8 @@ GOV_NOTIFY_API_KEY = os.environ.get("GOV_NOTIFY_API_KEY")
 if 'redis' in _VCAP_SERVICES:
     credentials = _VCAP_SERVICES['redis'][0]['credentials']
 
-    CELERY_BROKER_URL = "rediss://:{}@{}:{}/0?ssl_cert_reqs=required".format(
+    # Using /2 to differentiate from Django cache
+    CELERY_BROKER_URL = "rediss://:{}@{}:{}/2?ssl_cert_reqs=required".format(
         credentials['password'],
         credentials['host'],
         credentials['port'],
