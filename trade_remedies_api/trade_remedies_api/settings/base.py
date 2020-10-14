@@ -205,6 +205,12 @@ REST_FRAMEWORK = {
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
+# Trade remedies uses different redis database numbers
+# Public Django cache - 2
+# Caseworker Django cache - 1
+# API Django cache - 0
+# API Celery - 2 TODO find out if this should be a different value to public
+
 # Redis
 if 'redis' in _VCAP_SERVICES:
     REDIS_BASE_URL = _VCAP_SERVICES['redis'][0]['credentials']['uri']
@@ -214,7 +220,7 @@ else:
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": REDIS_BASE_URL,
+        "LOCATION": f"{REDIS_BASE_URL}/0",
         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient",},
     },
 }
@@ -330,10 +336,15 @@ STATICFILES_DIRS = []
 
 GOV_NOTIFY_API_KEY = os.environ.get("GOV_NOTIFY_API_KEY")
 
+# Trade remedies uses different redis database numbers
+# Public Django cache - 2
+# Caseworker Django cache - 1
+# API Django cache - 0
+# API Celery - 2 TODO find out if this should be a different value to public
+
 if 'redis' in _VCAP_SERVICES:
     credentials = _VCAP_SERVICES['redis'][0]['credentials']
 
-    # Using /2 to differentiate from Django cache
     CELERY_BROKER_URL = "rediss://:{}@{}:{}/2?ssl_cert_reqs=required".format(
         credentials['password'],
         credentials['host'],

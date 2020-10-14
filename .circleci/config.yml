@@ -14,8 +14,6 @@ jobs:
             pip install -r requirements/dev.txt
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
-          paths:
-            - "venv"
       - run:
           name: Run black
           command: |
@@ -48,8 +46,6 @@ jobs:
             pip install -r requirements/dev.txt
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
-          paths:
-            - "venv"
       - run:
           name: Run tests
           command: |
