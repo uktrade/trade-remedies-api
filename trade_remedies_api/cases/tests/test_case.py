@@ -1,7 +1,6 @@
 import json
 from django.test import TestCase
 from django.contrib.auth.models import Group
-from django.conf import settings
 from core.models import User, SystemParameter
 from organisations.models import Organisation
 from cases.models import Case, CaseType, CaseStage, CaseWorkflow
@@ -57,7 +56,10 @@ class CaseTestMixin(object):
         # create users:
         # two standard users, one owner, and one who will not be part of the org
         self.user_owner = User.objects.create_user(
-            name="org owner", email="owner@test.com", password=PASSWORD, assign_default_groups=False
+            name="org owner",
+            email="owner@test.com",
+            password=PASSWORD,
+            assign_default_groups=False
         )
         self.investigator = User.objects.create_user(
             name="tra user",

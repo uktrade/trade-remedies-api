@@ -113,7 +113,9 @@ class SubmissionManager(models.Manager):
                 | Q(organisation__isnull=True)
             ).distinct()
         # TODO: Exclude drafts from CW (include in public - needs switch)
-        # submissions = submissions.exclude(type=SUBMISSION_TYPE_REGISTER_INTEREST, status=SUBMISSION_STATUS_REGISTER_INTEREST_DRAFT)
+        # submissions = submissions.exclude(
+        # type=SUBMISSION_TYPE_REGISTER_INTEREST, status=SUBMISSION_STATUS_REGISTER_INTEREST_DRAFT
+        # )
         submissions = submissions.order_by("-created_at")
         return submissions
 
@@ -224,7 +226,8 @@ class Submission(BaseModel):
             self.time_window = self.status.duration
 
         if is_new_instance:
-            # This code forces the due_date at save based on the submission type which is not desirable behaviour
+            # This code forces the due_date at save based on the submission type
+            # which is not desirable behaviour
             due_at = (
                 CaseWorkflowState.objects.filter(case=self.case, key=self.type.time_window_key)
                 .values_list("due_date", flat=True)
@@ -237,7 +240,8 @@ class Submission(BaseModel):
                 self.organisation_name = self.organisation.name
         super().save(*args, **kwargs)
         if is_new_instance:
-            # Add the case documents  to the submission on creation if there is a matching sub type for this case
+            # Add the case documents  to the submission on creation
+            # if there is a matching sub type for this case
             # First, find the right bundle
             document_bundle = self.type.documentbundle_set.filter(
                 case_id=self.case.id, status="LIVE"

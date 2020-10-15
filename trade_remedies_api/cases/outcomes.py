@@ -346,13 +346,13 @@ class SetCaseMilestone(CaseAction):
                 milestone_date = now
                 if isinstance(milestone_type, dict):
                     try:
-                        workflow = self.case.workflow.as_workflow()
+                        # workflow = self.case.workflow.as_workflow()
                         value_key = milestone_type.get("value_key")
                         _value = parse(
                             CaseWorkflowState.objects.value_index(self.case, keys=[value_key])
                         )
                         milestone_date = _value.get(value_key)[0]
-                    except Exception as exc:
+                    except Exception:
                         milestone_date = None
                     finally:
                         milestone_type = milestone_type["key"]
