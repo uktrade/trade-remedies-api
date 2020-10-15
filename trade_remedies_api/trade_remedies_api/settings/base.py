@@ -132,7 +132,7 @@ WSGI_APPLICATION = "trade_remedies_api.wsgi.application"
 _VCAP_SERVICES = env.json('VCAP_SERVICES', default={})
 
 if 'postgres' in _VCAP_SERVICES:
-    _database_uri = f"{_VCAP_SERVICES['postgres'][0]['credentials']['uri']}/0"
+    _database_uri = f"{_VCAP_SERVICES['postgres'][0]['credentials']['uri']}"
     DATABASES = {
         "default": {
             **dj_database_url.parse(
