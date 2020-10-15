@@ -26,9 +26,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--path",
-            type=str,
-            default="core/system/parameters.json",
+            "--path", type=str, default="core/system/parameters.json",
         )
 
     def handle(self, *args, **options):

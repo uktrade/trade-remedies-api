@@ -129,25 +129,19 @@ AUTHENTICATION_BACKENDS = [
 
 WSGI_APPLICATION = "trade_remedies_api.wsgi.application"
 
-_VCAP_SERVICES = env.json('VCAP_SERVICES', default={})
+_VCAP_SERVICES = env.json("VCAP_SERVICES", default={})
 
-if 'postgres' in _VCAP_SERVICES:
+if "postgres" in _VCAP_SERVICES:
     _database_uri = f"{_VCAP_SERVICES['postgres'][0]['credentials']['uri']}"
     DATABASES = {
         "default": {
-            **dj_database_url.parse(
-                _database_uri,
-                engine="postgresql",
-                conn_max_age=0,
-            ),
+            **dj_database_url.parse(_database_uri, engine="postgresql", conn_max_age=0,),
             "ENGINE": "django_db_geventpool.backends.postgresql_psycopg2",
             "OPTIONS": {"MAX_CONNS": int(os.environ.get("DB_MAX_CONNS", "10")),},
         },
     }
 else:
-    DATABASES = {
-        "default": env.db()
-    }
+    DATABASES = {"default": env.db()}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -209,13 +203,13 @@ REST_FRAMEWORK = {
 # Public Django cache - 2
 # Caseworker Django cache - 1
 # API Django cache - 0
-# API Celery - 2 TODO find out if this should be a different value to public
+#  API Celery - 2 TODO find out if this should be a different value to public
 
 # Redis
-if 'redis' in _VCAP_SERVICES:
-    REDIS_BASE_URL = _VCAP_SERVICES['redis'][0]['credentials']['uri']
+if "redis" in _VCAP_SERVICES:
+    REDIS_BASE_URL = _VCAP_SERVICES["redis"][0]["credentials"]["uri"]
 else:
-    REDIS_BASE_URL = os.getenv('REDIS_BASE_URL')
+    REDIS_BASE_URL = os.getenv("REDIS_BASE_URL")
 
 CACHES = {
     "default": {
@@ -340,15 +334,13 @@ GOV_NOTIFY_API_KEY = os.environ.get("GOV_NOTIFY_API_KEY")
 # Public Django cache - 2
 # Caseworker Django cache - 1
 # API Django cache - 0
-# API Celery - 2 TODO find out if this should be a different value to public
+#  API Celery - 2 TODO find out if this should be a different value to public
 
-if 'redis' in _VCAP_SERVICES:
-    credentials = _VCAP_SERVICES['redis'][0]['credentials']
+if "redis" in _VCAP_SERVICES:
+    credentials = _VCAP_SERVICES["redis"][0]["credentials"]
 
     CELERY_BROKER_URL = "rediss://:{}@{}:{}/2?ssl_cert_reqs=required".format(
-        credentials['password'],
-        credentials['host'],
-        credentials['port'],
+        credentials["password"], credentials["host"], credentials["port"],
     )
 else:
     CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=None)

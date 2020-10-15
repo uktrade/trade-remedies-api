@@ -44,7 +44,9 @@ def migrate_case_documents(apps, schema_editor):
             for doc in params["documents"]:
                 bundle.documents.add(doc)
     except Exception as exc:
-        logger.error(f"Failed. Are we in test? If so that's ok... (reason in exception)", exc_info=True)
+        logger.error(
+            f"Failed. Are we in test? If so that's ok... (reason in exception)", exc_info=True
+        )
 
 
 class Migration(migrations.Migration):

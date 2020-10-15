@@ -113,7 +113,9 @@ class SimpleBaseModel(models.Model, DirtyFieldsMixin, AuditableMixin):
                                 value = json.loads(value)  # to remove escaping
                             setattr(self, key, value)
                         except Exception:
-                            logger.error(f"Invalid field type {key}, {value}, {data_type}", exc_info=True)
+                            logger.error(
+                                f"Invalid field type {key}, {value}, {data_type}", exc_info=True
+                            )
                     report["set"].append((key, value))
             else:
                 report["invalid"].append((key, value))
