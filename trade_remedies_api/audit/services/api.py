@@ -1,18 +1,11 @@
 from core.services.base import TradeRemediesApiView, ResponseSuccess
-from core.services.exceptions import (
-    InvalidRequestParams,
-    IntegrityErrorRequest,
-    NotFoundApiExceptions,
-)
 from django.http import HttpResponse
-from rest_framework import status
 from audit import AUDIT_TYPE_DELIVERED
 from audit.models import Audit
 from audit.utils import get_notify_fail_report
-from cases.models import Case, get_case
+from cases.models import get_case
 from core.constants import TRUTHFUL_INPUT_VALUES
 from core.writers import QuerysetExport
-from core.models import User, SystemParameter
 import mimetypes
 
 # initialise the mimetypes module
@@ -47,7 +40,7 @@ class AuditTrailView(TradeRemediesApiView):
             "created_by", "assisted_by", "content_type"
         ).order_by(order_by)
         limited_queryset = (
-            audit_trail[self._start : self._start + self._limit] if self._limit else audit_trail
+            audit_trail[self._start: self._start + self._limit] if self._limit else audit_trail
         )
         return ResponseSuccess({"results": [audit.to_dict() for audit in limited_queryset]})
 

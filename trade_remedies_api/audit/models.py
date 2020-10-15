@@ -96,7 +96,7 @@ class Audit(models.Model):
         created_at_str = self.created_at.isoformat() if self.created_at else ""
         if self.assisted_by:
             return (
-                f"{created_at_str}: {self.created_by}" f"{self.type}-{content_type}:{self.model_id}"
+                f"{created_at_str}: {self.created_by}" f"{self.type}-{content_type}:{self.model_id}"  # noqa: E501
             )
         else:
             return (
@@ -228,6 +228,7 @@ class LogHumaniser:
             if isinstance(spec, dict) and "to" in spec and "from" in spec:
                 to_text = self.limit_chars(extract_text(spec["to"]))
                 diff.append(
-                    f"{key} changed from `{extract_text(spec['from']) or 'empty value'}` to `{to_text}`."
+                    f"{key} changed from `{extract_text(spec['from']) or 'empty value'}` "
+                    f"to `{to_text}`."
                 )
         return self.separator.join(diff)

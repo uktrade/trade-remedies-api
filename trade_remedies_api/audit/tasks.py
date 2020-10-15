@@ -1,12 +1,9 @@
 import logging
 
 from celery import shared_task
-from notifications_python_client.errors import HTTPError
-from urllib.parse import urlparse, parse_qs
-from django.db.models import Q, F
 from django.db.utils import OperationalError, IntegrityError
 from core.notifier import get_client
-from audit import AUDIT_TYPE_NOTIFY, AUDIT_TYPE_DELIVERED
+from audit import AUDIT_TYPE_DELIVERED
 from audit.models import Audit
 
 logger = logging.getLogger(__name__)
@@ -50,7 +47,7 @@ def check_notify_send_status():
         if delivery_id:
             try:
                 status = notify.get_notification_by_id(delivery_id)
-            except Exception as exc:
+            except Exception:
                 status = {
                     "status": "unknown",
                     "sent_at": None,

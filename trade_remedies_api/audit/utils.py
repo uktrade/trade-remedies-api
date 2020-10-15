@@ -78,6 +78,7 @@ def get_notify_fail_report(case=None, detail=False):
         audits = audits.filter(case_id=case.id)
     report = {}
     for audit in audits:
+        key = ""    # TODO this is added to stop error 'undefined name' Check what is the right fix
         report.setdefault(key, {"permanent-failure": [], "temporary-failure": []})
         key = str(audit.case_id)
         sub_key = audit.data.get("status")
