@@ -438,7 +438,7 @@ class Document(BaseModel):
         except NotFoundError:
             return None
 
-    def elastic_index(self, submission=None, case=None, **kwargs):
+    def elastic_index(self, submission=None, case=None, **kwargs):  # noqa: C901
         """
         Create an elasticsearch indexed document for this record
         """
