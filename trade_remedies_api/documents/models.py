@@ -23,12 +23,11 @@ from .constants import (
     INDEX_STATE_FULL_INDEX,
     INDEX_STATES,
 )
-from .utils import upload_document_to, s3_client
+from .utils import s3_client
 from .exceptions import InvalidFile
 from .fields import S3FileField
 from .tasks import prepare_document, index_document
 from .parsers import parsers
-from pprint import pprint
 
 # initialise the mimetypes module
 mimetypes.init()
@@ -108,7 +107,8 @@ class DocumentManager(models.Manager):
             - case_id: filter within a specific case
             - query: search term to include
             - confidential_stats: True = Conf, False=Non-Conf, None=All
-            - fields: defaults to filter using name, file name and organisation name. A list of allowed search term filters
+            - fields: defaults to filter using name, file name and organisation name.
+                 A list of allowed search term filters
         """
         # create the case filter if required
         # case_filter = {
@@ -527,13 +527,24 @@ class DocumentBundle(SimpleBaseModel):
     """
     Document bundles are a versioned collection of documents which can be used for various
     purposes, e.g., as a template for providing douments to new case applications.
-    A bundle is associated with either a case type, or a combination of case_id and submission type.
+    A bundle is associated with either a case type,
+    or a combination of case_id and submission type.
     Only one live version is availabe per case type. Once a bundle is set to live, all
     previous version of it are ensured to be set to archived.
     """
 
-    case_type = models.ForeignKey("cases.CaseType", null=True, blank=True, on_delete=models.PROTECT)
-    case = models.ForeignKey("cases.Case", null=True, blank=True, on_delete=models.PROTECT)
+    case_type = models.ForeignKey(
+        "cases.CaseType",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT
+    )
+    case = models.ForeignKey(
+        "cases.Case",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT
+    )
     submission_type = models.ForeignKey(
         "cases.SubmissionType", null=True, blank=True, on_delete=models.PROTECT
     )
@@ -625,7 +636,8 @@ class DocumentBundle(SimpleBaseModel):
         """
 
         if self.status == "LIVE":
-            # We only need to create a new version if this one is live - otherwise, just return this
+            # We only need to create a new version if this one is live -
+            # otherwise, just return this
             self.id = None
             self.description = None
             self.version += 1
