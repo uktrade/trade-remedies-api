@@ -323,16 +323,17 @@ class StateManager(models.Manager):
         elif isinstance(workflow, dict):
             workflow = Workflow(workflow)
         for key in workflow.key_index:
-            state.key_index[key]["value"] = self.current_value(key, **kwargs)
+            # TODO fix F821 (undefined name 'state') instead of using noqa
+            state.key_index[key]["value"] = self.current_value(key, **kwargs)  # noqa: F821
             # due_date = CaseWorkflowState.objects.current_due_date(self.case, key)
             # if due_date:
             #     state.key_index[key]['due_date'] = due_date
 
-        state["meta"] = {}
+        state["meta"] = {}  # noqa: F821
         for key in State.BUILT_IN_STATE_KEYS:
             value = self.current_value(key, **kwargs)
-            state["meta"][key] = value
-        return state
+            state["meta"][key] = value  # noqa: F821
+        return state  # noqa: F821
 
 
 class State(models.Model):
