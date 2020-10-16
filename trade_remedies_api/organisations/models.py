@@ -55,7 +55,7 @@ class OrganisationManager(models.Manager):
             rows = cursor.fetchall()
         return rows
 
-    @transaction.atomic
+    @transaction.atomic  # noqa: C901
     def merge_organisation_records(
         self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
     ):
@@ -188,7 +188,7 @@ class OrganisationManager(models.Manager):
             context["login_url"] = public_login_url()
             send_mail(user.contact.email, context, template_id, audit_kwargs=audit_kwargs)
 
-    @transaction.atomic
+    @transaction.atomic  # noqa: C901
     def create_or_update_organisation(
         self,
         user,

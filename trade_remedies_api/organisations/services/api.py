@@ -220,7 +220,7 @@ class OrganisationContactsAPI(TradeRemediesApiView):
     Gets all contacts for this organisation flagged as approprate
     """
 
-    def get(self, request, organisation_id, case_id=None, *args, **kwargs):
+    def get(self, request, organisation_id, case_id=None, *args, **kwargs):  # noqa: C901
 
         contacts = {}
         case = Case.objects.get(id=case_id) if case_id else None
@@ -228,7 +228,7 @@ class OrganisationContactsAPI(TradeRemediesApiView):
         def add_contact(case_contact, case):
             if not get(case_contact, "contact").deleted_at:
                 contact_id = str(get(case_contact, "contact").id)
-                if not contact_id in contacts:
+                if contact_id not in contacts:
                     contact = get(case_contact, "contact")
                     contacts[contact_id] = contact.to_dict(case)
                     contacts[contact_id]["cases"] = {}
@@ -531,7 +531,7 @@ class OrganisationCaseRoleAPI(TradeRemediesApiView):
             return ResponseSuccess({"result": None})
         return ResponseSuccess({"result": caserole.to_dict()})
 
-    @transaction.atomic
+    @transaction.atomic  # noqa: C901
     def post(self, request, case_id, organisation_id, role_key=None, *args, **kwargs):
         sampled = request.data.get("sampled", "true") == "true"
         organisation = Organisation.objects.get(id=organisation_id)
@@ -676,7 +676,7 @@ class OrganisationMatchingAPI(TradeRemediesApiView):
                 }
             )
 
-    def get(self, request, organisation_id=None):
+    def get(self, request, organisation_id=None):  # noqa: C901
         # Get a list of matching orgs
         all_details = request.GET.get("with_details", "all")
         query = Q(id=None)
