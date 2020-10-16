@@ -7,8 +7,6 @@ from rest_framework import status
 from invitations.models import Invitation
 from contacts.models import Contact
 from security.models import get_role, CaseRole
-from audit import AUDIT_TYPE_NOTIFY
-from audit.utils import audit_log
 from cases.models import (
     Case,
     Submission,
@@ -16,9 +14,7 @@ from cases.models import (
     get_submission_type,
     get_case,
 )
-from core.models import User
 from core.utils import convert_to_e164
-from organisations.models import Organisation
 from cases.constants import (
     SUBMISSION_TYPE_INVITE_3RD_PARTY,
     SUBMISSION_TYPE_ASSIGN_TO_CASE,

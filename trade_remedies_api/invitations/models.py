@@ -420,7 +420,7 @@ class Invitation(BaseModel):
         )
         return organisation.assign_user(user, SECURITY_GROUP_ORGANISATION_OWNER)
 
-    @transaction.atomic
+    @transaction.atomic  # noqa:C901
     def process_invitation(
         self,
         user,
