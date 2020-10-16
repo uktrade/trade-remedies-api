@@ -1,4 +1,3 @@
-import time
 import datetime
 import logging
 from rest_framework.views import APIView
@@ -10,16 +9,9 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from rest_framework.authtoken.models import Token
-from axes.models import AccessAttempt
-from django.contrib.auth.models import Group
 from core.models import User, UserProfile, SystemParameter, PasswordResetRequest
 from core.notifier import send_sms, send_mail
-from core.utils import convert_to_e164
-from organisations.models import Organisation
 from invitations.models import Invitation
-from contacts.models import Contact
-from security.models import get_security_group
 from django.conf import settings
 from notifications_python_client.errors import HTTPError
 from axes.utils import reset
@@ -149,7 +141,7 @@ class AuthenticationView(APIView):
 class RegistrationAPIView(APIView):
     authentication_classes = []
 
-    @transaction.atomic
+    @transaction.atomic  # noqa: C901
     def post(self, request, *args, **kwargs):
         email = request.data.get("email")
         password = request.data.get("password")
@@ -250,7 +242,8 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
             return ResponseSuccess(
                 {
                     "result": {
-                        "error": "You have entered an incorrect code too many times and we have temporarily locked your account.",
+                        "error": "You have entered an incorrect code too many times and "
+                                 "we have temporarily locked your account.",
                         "locked_until": locked_until.strftime(settings.API_DATETIME_FORMAT),
                         "locked_for_seconds": locked_for_seconds,
                     }

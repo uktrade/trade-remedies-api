@@ -37,8 +37,8 @@ class Content(BaseModel):
             "short_name": self.short_name,
             "order": self.order,
             "content": self.content,
-            #'parent': self.parent.to_dict() if self.parent else None,
-            #'children': [child.to_dict() for child in self.children],
+            # 'parent': self.parent.to_dict() if self.parent else None,
+            # 'children': [child.to_dict() for child in self.children],
             "documents": [doc.to_dict() for doc in self.documents.all()],
         }
 

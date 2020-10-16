@@ -14,6 +14,8 @@ from dirtyfields import DirtyFieldsMixin
 from django.contrib.contenttypes.models import ContentType
 from .user_context import user_context
 
+logger = logging.getLogger(__name__)
+
 
 class SimpleBaseModel(models.Model, DirtyFieldsMixin, AuditableMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -244,7 +246,7 @@ class BaseModel(SimpleBaseModel):
         )
         return json.loads(json_str)
 
-    def to_json(self, fields, obj=None, context=None, *args, **kwargs):
+    def to_json(self, fields, obj=None, context=None, *args, **kwargs):  # noqa: C901
         obj = obj or self
         out = {}
         for field, subField in fields.items():
@@ -273,7 +275,7 @@ class BaseModel(SimpleBaseModel):
                 if subField and isinstance(subField, dict):
                     if hasattr(val, "to_json"):
                         val = val.to_json(fields=subField, context=self)
-                    elif val != None:
+                    elif val is not None:
                         val = self.to_json(fields=subField, obj=val, context=self)
                 elif hasattr(val, "to_dict"):
                     val = val.to_dict()
