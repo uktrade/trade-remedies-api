@@ -32,7 +32,8 @@ class SubmissionType(models.Model):
     Submissions can have a direction which determines the potential source and target of the submissio.
     Some can be created by Public to the TRA, some the other way around and some are bi-directional.
     Most submissions will use a standard Notify template to alert deficiencies or success to the customer.
-    However, if deficiency/success_template are defined (as a system parameter key holding the actual notify id),
+    However, if deficiency/success_template are defined
+    (as a system parameter key holding the actual notify id),
     they will be used instead.
     """
 

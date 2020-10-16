@@ -12,7 +12,6 @@ from audit import AUDIT_TYPE_NOTIFY
 from notes.models import Note
 from django.contrib.contenttypes.models import ContentType
 from security.constants import (
-    SECURITY_GROUPS_TRA_TOP_LEVEL,
     SECURITY_GROUPS_TRA,
     SECURITY_GROUPS_PUBLIC,
 )
@@ -462,7 +461,7 @@ class Submission(BaseModel):
                 # ],'deficiency_documents': [
                 #     defdoc.to_dict() for defdoc in self.deficiency_documents
                 # ],
-                #'parent': self.parent.to_embedded_dict() if self.parent else None,
+                # 'parent': self.parent.to_embedded_dict() if self.parent else None,
                 "archived": self.archived,
                 "doc_reviewed_at": self.doc_reviewed_at.strftime(settings.API_DATETIME_FORMAT)
                 if self.doc_reviewed_at
