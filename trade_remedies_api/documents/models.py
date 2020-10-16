@@ -308,8 +308,8 @@ class Document(BaseModel):
 
         if self.blocked_by:
             result["blocked_by"] = {
-                "id": self.created_by.id,
-                "name": self.created_by.name,
+                "id": self.blocked_by.id,
+                "name": self.blocked_by.name,
             }
 
         return result
