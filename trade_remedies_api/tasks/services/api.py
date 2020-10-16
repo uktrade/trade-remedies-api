@@ -1,10 +1,7 @@
 import json
-from django.conf import settings
 from core.services.base import TradeRemediesApiView, ResponseSuccess
 from tasks.models import Task
-from core.utils import file_md5_checksum, update_object_from_request
 from rest_framework import status
-from audit import AUDIT_TYPE_ATTACH
 from core.services.exceptions import InvalidRequestParams, NotFoundApiExceptions
 from django.db import transaction
 from django.db.models import Count, Q
@@ -17,7 +14,7 @@ class TaskAPIView(TradeRemediesApiView):
     Create or retrieve tasks
     """
 
-    def get(self, request, task_id=None, case_id=None, *args, **kwargs):
+    def get(self, request, task_id=None, case_id=None, *args, **kwargs):     # noqa: C901
         """
         Get one or more tasks based on a set of query parameters and fields.
         """
