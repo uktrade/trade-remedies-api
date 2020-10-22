@@ -10,17 +10,23 @@ jobs:
       - run:
           name: Install Python deps
           command: |
+            python3 -m venv venv
+            . venv/bin/activate
             pip install --upgrade pip
             pip install -r requirements/dev.txt
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
+          paths:
+            - "venv"
       - run:
           name: Run black
           command: |
+            . venv/bin/activate
             # black trade_remedies_api --check
       - run:
           name: Run Flake8
           command: |
+            . venv/bin/activate
             # python -m flake8 trade_remedies_api
   test:
     docker:
@@ -42,13 +48,18 @@ jobs:
       - run:
           name: Install Python deps
           command: |
+            python3 -m venv venv
+            . venv/bin/activate
             pip install --upgrade pip
             pip install -r requirements/dev.txt
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
+          paths:
+            - "venv"
       - run:
           name: Run tests
           command: |
+            . venv/bin/activate
             cd trade_remedies_api
             python manage.py test --verbosity=2
 
