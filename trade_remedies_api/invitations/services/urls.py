@@ -3,7 +3,6 @@ from .api import (
     InvitationsAPIView,
     ValidateInvitationAPIView,
     InvitationDetailsAPI,
-    InvitationAPIView,
     InviteThirdPartyAPI,
     NotifyInviteThirdPartyAPI,
     ValidateUserInviteAPIView,

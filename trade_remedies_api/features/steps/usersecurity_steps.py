@@ -5,7 +5,7 @@ from behave import given, when, then
 from core.models import User
 from organisations.models import Organisation
 from cases.models import Case
-from security.constants import ROLE_APPLICANT, ROLE_DOMESTIC_PRODUCER
+from security.constants import ROLE_APPLICANT
 
 PASSWORD = "A7Hhfa!jfaw@f"
 

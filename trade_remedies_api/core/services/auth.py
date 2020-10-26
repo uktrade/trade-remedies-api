@@ -2,15 +2,15 @@ import datetime
 import logging
 from rest_framework.views import APIView
 from rest_framework import status
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
-from django.utils import timezone, crypto
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from core.models import User, UserProfile, SystemParameter, PasswordResetRequest
-from core.notifier import send_sms, send_mail
+from core.notifier import send_mail
 from invitations.models import Invitation
 from django.conf import settings
 from notifications_python_client.errors import HTTPError
@@ -19,12 +19,11 @@ from axes.decorators import axes_dispatch
 from security.constants import (
     SECURITY_GROUP_ORGANISATION_OWNER,
     ENVIRONMENT_GROUPS,
-    GROUPS,
 )
 from core.constants import CONTENT_EMAIL_EXISTS
 from trade_remedies_api.version import __version__
 from .base import TradeRemediesApiView, ResponseSuccess, ResponseError
-from .exceptions import InvalidRequestParams, ServerError, AccessDenied, InvalidRequestLockout
+from .exceptions import InvalidRequestParams, AccessDenied, InvalidRequestLockout
 
 
 logger = logging.getLogger(__name__)

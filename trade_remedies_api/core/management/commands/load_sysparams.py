@@ -1,9 +1,7 @@
 import logging
 import json
 from core.models import SystemParameter
-from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
-from django.conf import settings
 
 logger = logging.getLogger(__name__)
 

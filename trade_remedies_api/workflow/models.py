@@ -1,13 +1,16 @@
 import uuid
 from copy import deepcopy
-from functools import singledispatch
 import logging
 
 from django.db import models
 from django.contrib.postgres import fields
 from graphviz import Digraph
 from core.utils import rekey
-from .exceptions import InvalidParentType, DuplicateNode, InvalidArgument, InvalidNode
+from .exceptions import (
+    DuplicateNode,
+    InvalidArgument,
+    InvalidNode,
+)
 from .outcomes import OUTCOME_REGISTRY
 from .response_types import RESPONSE_TYPES
 

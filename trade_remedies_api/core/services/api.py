@@ -1,6 +1,6 @@
 import json
 import mimetypes
-from .base import TradeRemediesApiView, ResponseSuccess, ResponseError
+from .base import TradeRemediesApiView, ResponseSuccess
 from .exceptions import InvalidRequestParams, IntegrityErrorRequest, NotFoundApiExceptions
 from django.contrib.auth.models import Group
 from django.db import transaction
@@ -15,7 +15,7 @@ from rest_framework.views import APIView
 from feedback.models import FeedbackForm
 from audit import AUDIT_TYPE_NOTIFY
 from core.feature_flags import is_enabled, FeatureFlagNotFound
-from core.models import User, UserProfile, SystemParameter, JobTitle
+from core.models import User, SystemParameter, JobTitle
 from core.utils import convert_to_e164, pluck, public_login_url
 from core.notifier import get_template, get_preview
 from core.constants import TRUTHFUL_INPUT_VALUES
@@ -322,7 +322,6 @@ class PublicUserApiView(TradeRemediesApiView):
 
     @transaction.atomic  # noqa: C901
     def post(self, request, organisation_id, user_id=None, invitation_id=None, *args, **kwargs):
-        from cases.models import get_case
 
         group = None
         password = None

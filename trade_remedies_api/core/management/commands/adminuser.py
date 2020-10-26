@@ -1,12 +1,10 @@
 import logging
 import os
-import pytz
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from django.conf import settings
 from django.utils import crypto
 from security.utils import create_groups, assign_group_permissions
-from core.models import User, UserProfile
+from core.models import User
 from django.contrib.auth.models import Group
 from rest_framework.authtoken.models import Token
 

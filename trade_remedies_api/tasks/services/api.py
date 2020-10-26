@@ -2,9 +2,9 @@ import json
 from core.services.base import TradeRemediesApiView, ResponseSuccess
 from tasks.models import Task
 from rest_framework import status
-from core.services.exceptions import InvalidRequestParams, NotFoundApiExceptions
+from core.services.exceptions import NotFoundApiExceptions
 from django.db import transaction
-from django.db.models import Count, Q
+from django.db.models import Q
 from core.utils import get_content_type
 from cases.models import get_case
 

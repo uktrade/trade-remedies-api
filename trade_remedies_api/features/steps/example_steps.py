@@ -1,5 +1,9 @@
 # -- FILE: features/steps/example_steps.py
-from behave import given, when, then, step
+from behave import (
+    given,
+    when,
+    then,
+)
 
 
 @given("we have behave installed")

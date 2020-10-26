@@ -12,7 +12,10 @@ from contacts.models import Contact, CaseContact
 from functools import singledispatch
 from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
 from organisations.constants import NOT_IN_CASE_ORG_CASE_ROLES
-from core.utils import deep_index_items_by, sql_get_list, public_login_url
+from core.utils import (
+    sql_get_list,
+    public_login_url,
+)
 from django_countries.fields import CountryField
 from django.utils import timezone
 from cases.constants import TRA_ORGANISATION_ID

@@ -17,9 +17,7 @@ from cases.models import (
 from core.utils import convert_to_e164
 from cases.constants import (
     SUBMISSION_TYPE_INVITE_3RD_PARTY,
-    SUBMISSION_TYPE_ASSIGN_TO_CASE,
     SUBMISSION_DOCUMENT_TYPE_TRA,
-    CASE_DOCUMENT_TYPE_LETTER_OF_AUTHORISATION,
 )
 from organisations.models import Organisation
 from documents.models import DocumentBundle
