@@ -533,18 +533,8 @@ class DocumentBundle(SimpleBaseModel):
     previous version of it are ensured to be set to archived.
     """
 
-    case_type = models.ForeignKey(
-        "cases.CaseType",
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT
-    )
-    case = models.ForeignKey(
-        "cases.Case",
-        null=True,
-        blank=True,
-        on_delete=models.PROTECT
-    )
+    case_type = models.ForeignKey("cases.CaseType", null=True, blank=True, on_delete=models.PROTECT)
+    case = models.ForeignKey("cases.Case", null=True, blank=True, on_delete=models.PROTECT)
     submission_type = models.ForeignKey(
         "cases.SubmissionType", null=True, blank=True, on_delete=models.PROTECT
     )

@@ -403,8 +403,7 @@ class Case(BaseModel):
             if sub:
                 self._latest_noi_url = (
                     sub.url
-                    or
-                    f"{settings.PUBLIC_ROOT_URL}/public/case/{self.reference}/submission/{sub.id}/"
+                    or f"{settings.PUBLIC_ROOT_URL}/public/case/{self.reference}/submission/{sub.id}/"
                 )
         return self._latest_noi_url
 
@@ -938,9 +937,8 @@ class Case(BaseModel):
                     user=created_by,
                     case=self,
                     data={
-                        "message":
-                            f"User {user} removed from case {self}, "
-                            f"representing {user_case.organisation.name}"
+                        "message": f"User {user} removed from case {self}, "
+                        f"representing {user_case.organisation.name}"
                     },
                 )
             return True

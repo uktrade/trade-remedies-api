@@ -40,7 +40,9 @@ class ContactsAPI(TradeRemediesApiView):
             contacts = Contact.objects.filter(**filter_kwargs)
         return ResponseSuccess({"results": [_contact.to_dict() for _contact in contacts]})
 
-    def post(self, request, contact_id=None, organisation_id=None, case_id=None, *args, **kwargs):  # noqa: C901
+    def post(
+        self, request, contact_id=None, organisation_id=None, case_id=None, *args, **kwargs
+    ):  # noqa: C901
         self.required_keys = ["contact_name"]
         if not self.feature_flags("contact_email_read_only"):
             self.required_keys.append("contact_email")

@@ -93,7 +93,7 @@ urlpatterns = [
         SubmissionsAPIView.as_view(),
     ),
     path(
-        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/notify/<str:notice_type>/",   # noqa: E501
+        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/notify/<str:notice_type>/",  # noqa: E501
         SubmissionNotifyAPI.as_view(),
     ),
     path(
@@ -103,7 +103,9 @@ urlpatterns = [
     path(
         "<uuid:case_id>/submission/<uuid:submission_id>/status/", SubmissionStatusAPIView.as_view()
     ),
-    path("<uuid:case_id>/submission/<uuid:submission_id>/clone/", SubmissionCloneAPIView.as_view()),  # noqa: E501
+    path(
+        "<uuid:case_id>/submission/<uuid:submission_id>/clone/", SubmissionCloneAPIView.as_view()
+    ),  # noqa: E501
     path(
         "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/"
         "<uuid:submission_id>/document/<uuid:document_id>/download/",
@@ -116,7 +118,7 @@ urlpatterns = [
     path("submission/status/", SubmissionStatusAPIView.as_view()),
     # Submission exists
     path(
-        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/type/<int:submission_type_id>/",   # noqa: E501
+        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/type/<int:submission_type_id>/",  # noqa: E501
         SubmissionExistsAPI.as_view(),
     ),
     # Submission Document Status
@@ -147,7 +149,9 @@ urlpatterns = [
         "<uuid:case_id>/organisation/<uuid:organisation_id>/exportsource/<uuid:export_source_id>/",
         ExportSourceAPIView.as_view(),
     ),
-    path("<uuid:case_id>/submission/<uuid:submission_id>/reviewtype/", ReviewTypeAPIView.as_view()),  # noqa: E501
+    path(
+        "<uuid:case_id>/submission/<uuid:submission_id>/reviewtype/", ReviewTypeAPIView.as_view()
+    ),  # noqa: E501
     # Set Review
     path(
         "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/review/",  # noqa: E501

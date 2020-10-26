@@ -40,7 +40,7 @@ class AuditTrailView(TradeRemediesApiView):
             "created_by", "assisted_by", "content_type"
         ).order_by(order_by)
         limited_queryset = (
-            audit_trail[self._start: self._start + self._limit] if self._limit else audit_trail
+            audit_trail[self._start : self._start + self._limit] if self._limit else audit_trail
         )
         return ResponseSuccess({"results": [audit.to_dict() for audit in limited_queryset]})
 

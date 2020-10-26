@@ -1245,7 +1245,7 @@ class SystemParameter(models.Model):
         elif self.data_type == "int":
             try:
                 self.value = int(value)
-            except:   # noqa: E722
+            except:  # noqa: E722
                 self.value = 0
         else:
             self.value = value

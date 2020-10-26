@@ -199,13 +199,15 @@ class CasesAPIView(TradeRemediesApiView):
     all_cases = False  # set by the url def. to denote all cases
 
     # @silk_profile(name="CW Cases")
-    def get(self,  # noqa: C901
-            request,
-            organisation_id=None,
-            case_id=None,
-            user_id=None,
-            *args,
-            **kwargs):
+    def get(
+        self,  # noqa: C901
+        request,
+        organisation_id=None,
+        case_id=None,
+        user_id=None,
+        *args,
+        **kwargs,
+    ):
         archived = request.query_params.get("archived", "false")
         new_cases = request.query_params.get("new_cases", "false") in TRUTHFUL_INPUT_VALUES
         all_cases = request.query_params.get("all", self.all_cases)

@@ -243,7 +243,7 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
                 {
                     "result": {
                         "error": "You have entered an incorrect code too many times and "
-                                 "we have temporarily locked your account.",
+                        "we have temporarily locked your account.",
                         "locked_until": locked_until.strftime(settings.API_DATETIME_FORMAT),
                         "locked_for_seconds": locked_for_seconds,
                     }

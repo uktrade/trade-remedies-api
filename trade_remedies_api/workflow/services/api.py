@@ -27,7 +27,7 @@ class WorkflowTemplateAPI(TradeRemediesApiView):
 
         workflow = template.workflow
         _index = index if index > -1 else None
-        workflow.set(item, parent_id, _index)   # noqa: F821
+        workflow.set(item, parent_id, _index)  # noqa: F821
         template.template = workflow.shrink()
         template.save()
         return ResponseSuccess(

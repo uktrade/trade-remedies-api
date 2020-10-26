@@ -150,12 +150,8 @@ class SubmissionAPITest(APITestCase, APISetUpMixin):
         response = self.client.post(url, payload)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response_data = response.json()
-        self.assertEqual(
-            response_data["response"]["result"]["submission"]["name"], "General(name)"
-        )
-        self.assertEqual(
-            response_data["response"]["result"]["submission"]["status"]["id"], 7
-        )
+        self.assertEqual(response_data["response"]["result"]["submission"]["name"], "General(name)")
+        self.assertEqual(response_data["response"]["result"]["submission"]["status"]["id"], 7)
         self.assertEqual(
             response_data["response"]["result"]["submission"]["type"]["name"], "General"
         )

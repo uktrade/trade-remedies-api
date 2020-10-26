@@ -11,11 +11,9 @@ from cases.constants import (
 from cases.models import (
     CaseWorkflowState,
     SubmissionType,
-    Submission,)
-from cases.tests.test_case import (
-    CaseTestMixin,
-    get_case_fixtures
+    Submission,
 )
+from cases.tests.test_case import CaseTestMixin, get_case_fixtures
 
 
 PASSWORD = "A7Hhfa!jfaw@f"

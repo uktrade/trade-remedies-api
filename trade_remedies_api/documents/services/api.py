@@ -149,7 +149,7 @@ class DocumentAPIView(TradeRemediesApiView):
     system = None
     public = False
 
-    def get(    # noqa: C901
+    def get(  # noqa: C901
         self,
         request,
         organisation_id=None,

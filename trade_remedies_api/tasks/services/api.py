@@ -14,7 +14,7 @@ class TaskAPIView(TradeRemediesApiView):
     Create or retrieve tasks
     """
 
-    def get(self, request, task_id=None, case_id=None, *args, **kwargs):     # noqa: C901
+    def get(self, request, task_id=None, case_id=None, *args, **kwargs):  # noqa: C901
         """
         Get one or more tasks based on a set of query parameters and fields.
         """
