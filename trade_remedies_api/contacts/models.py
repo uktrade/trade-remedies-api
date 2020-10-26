@@ -24,7 +24,8 @@ class ContactManager(models.Manager):
             created_by {User} -- The user creating the contact
 
         Keyword Arguments:
-            organisation {Organisation} -- Optional organisation to associate the contact with (default: {None})
+            organisation {Organisation} -- Optional organisation
+                   to associate the contact with (default: {None})
             phone {str} -- Contact phon enumber. Will be E164 formatted (default: {None})
             post_code {str} -- Contact post code (default: {None})
             country {str} -- Contact ISO country code (default: {None})
@@ -78,7 +79,8 @@ class Contact(BaseModel):
     def has_user(self):
         """
         Returns true if the contact has a user associated with it.
-        At this stage the caseworker will not be able to edit this contact's email or other contact details.
+        At this stage the caseworker will not be able to edit this contact's email
+        or other contact details.
         """
         try:
             return bool(self.userprofile)
@@ -138,7 +140,8 @@ class Contact(BaseModel):
     @transaction.atomic
     def add_to_case(self, case, organisation=None, primary=False):
         """
-        Add this contact to a case representing the given organisation (if provided, default to the contact's one).
+        Add this contact to a case representing the given organisation
+        (if provided, default to the contact's one).
         If set to primary=True, all others contacts in the case for that organisation will be set to
         non-primary
         """

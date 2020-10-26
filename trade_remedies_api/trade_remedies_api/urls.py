@@ -49,7 +49,7 @@ urlpatterns = [
         core_api.AssignUserToCaseView.as_view(),
     ),
     path(
-        f"{settings.API_PREFIX}/team/<uuid:organisation_id>/users/assign/<uuid:user_id>/case/<uuid:case_id>/",
+        f"{settings.API_PREFIX}/team/<uuid:organisation_id>/users/assign/<uuid:user_id>/case/<uuid:case_id>/",  # noqa: E501
         core_api.AssignUserToCaseView.as_view(),
     ),
     path(
@@ -89,11 +89,11 @@ urlpatterns = [
         core_api.CreatePendingUserAPI.as_view(),
     ),
     path(
-        f"{settings.API_PREFIX}/user/organisation/<uuid:organisation_id>/update/pending/<uuid:invitation_id>/",
+        f"{settings.API_PREFIX}/user/organisation/<uuid:organisation_id>/update/pending/<uuid:invitation_id>/",  # noqa: E501
         core_api.CreatePendingUserAPI.as_view(),
     ),
     path(
-        f"{settings.API_PREFIX}/user/organisation/<uuid:organisation_id>/delete/pending/<uuid:invitation_id>/",
+        f"{settings.API_PREFIX}/user/organisation/<uuid:organisation_id>/delete/pending/<uuid:invitation_id>/",  # noqa: E501
         core_api.CreatePendingUserAPI.as_view(),
     ),
     path(f"{settings.API_PREFIX}/my-account/", core_api.MyAccountView.as_view()),

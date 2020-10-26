@@ -62,8 +62,10 @@ class OrganisationsAPIView(TradeRemediesApiView):
             try:
                 organisation = Organisation.objects.get(id=organisation_id)
                 # if not is_tra:
-                #     user_case = UserCase.objects.filter(user=request.user, organisation__id=organisation_id)
-                #     org_user = OrganisationUser.objects.filter(organisation_id=organisation_id, user=request.user)
+                #     user_case = UserCase.objects.
+                #     filter(user=request.user, organisation__id=organisation_id)
+                #     org_user = OrganisationUser.objects.
+                #     filter(organisation_id=organisation_id, user=request.user)
                 #     if not user_case and not org_user:
                 #         raise NotFoundApiExceptions('Invalid organisation or access denied')
                 org_data = organisation.to_dict(case=case)
@@ -450,7 +452,8 @@ class OrganisationApprovalNotifyAPI(TradeRemediesApiView):
                 milestone=True,
                 data={
                     "action": "assign_user",
-                    "message": f"User {user_granted_access} was granted access to the case for {organisation}",
+                    "message": f"User {user_granted_access} "
+                               f"was granted access to the case for {organisation}",
                 },
             )
         return ResponseSuccess({"result": values})
@@ -703,7 +706,8 @@ class OrganisationMatchingAPI(TradeRemediesApiView):
         organisation_matches = Organisation.objects.filter(query)
         if all_details != "none":
             detail_matches = organisation_matches
-            # If all_details parameter is set false, only the details on the primary org will be furnished
+            # If all_details parameter is set false,
+            # only the details on the primary org will be furnished
             if all_details != "all" and organisation_id:
                 detail_matches = Organisation.objects.filter(id=organisation_id)
 

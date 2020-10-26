@@ -369,9 +369,11 @@ class Submission(BaseModel):
             self.case.set_user_context(self.user_context)
             self.case.set_next_action("INIT_ASSESS")
 
-        # This bit of code is overriding the due_at that's getting set on submissions on a change of status.
+        # This bit of code is overriding the due_at that's getting set on submissions
+        # on a change of status.
         # I don't think it's any use now - so I've removed the config.
-        # latest.due_at = timezone.now() + datetime.timedelta(days=new_status.duration) if new_status.duration else None
+        # latest.due_at = timezone.now() + datetime.timedelta(days=new_status.duration)
+        # if new_status.duration else None
         latest.save()
         latest.refresh_from_db()
         return self, clone
@@ -393,7 +395,8 @@ class Submission(BaseModel):
     def organisation_case_role(self, outer=None):
         role = None
         if self.organisation:
-            # supress if it's the TRA as we don't want the TRA to show as 'applicant' in ex-officio cases
+            # supress if it's the TRA as we don't want the TRA to show as 'applicant'
+            # in ex-officio cases
             if not self.organisation.gov_body:
                 role = OrganisationCaseRole.objects.get_organisation_role(
                     self.case, self.organisation, outer=outer
@@ -479,7 +482,8 @@ class Submission(BaseModel):
         out = self.to_minimal_dict()
         out.update(
             {
-                "downloaded_count": downloaded_count,  # how many documents were downloaded at least once
+                # how many documents were downloaded at least once
+                "downloaded_count": downloaded_count,
                 "locked": self.locked,
                 "deficiency_sent_at": self.deficiency_sent_at.strftime(settings.API_DATETIME_FORMAT)
                 if self.deficiency_sent_at
@@ -701,8 +705,8 @@ class Submission(BaseModel):
     def notify_deficiency(self, sent_by, contact=None, context=None, template_id=None):
         """
         Notify the contact about a deficiency to this submission using the given template.
-        If no template is provided, the type's default is used falling back to the default deficiency
-        template.
+        If no template is provided, the type's default is used falling
+        back to the default deficiency template.
         """
         contact = contact or self.contact
         template_id = template_id or self.type.deficiency_template or "NOTIFY_SUBMISSION_DEFICIENCY"

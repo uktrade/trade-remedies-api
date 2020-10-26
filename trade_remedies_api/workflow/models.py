@@ -150,7 +150,8 @@ class Workflow(dict):
             #     del node['parent']
             # if 'order' in node:
             #     del node['order']
-            # if node.get('response_type') and 'id' in node['response_type'] and node['response_type']['id'] in RT:
+            # if node.get('response_type') and 'id' in node['response_type']
+            # and node['response_type']['id'] in RT:
             #     rt = RT[node['response_type']['id']]
             #     if 'id' in rt:
             #         del rt['id']

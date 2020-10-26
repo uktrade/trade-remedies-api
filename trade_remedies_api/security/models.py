@@ -307,8 +307,10 @@ class OrganisationUserManager(models.Manager):
 class OrganisationUser(SimpleBaseModel):
     """
     A membership of a user in an organisation and the security group associated with it.
-    Note that a user might be a member of multiple organisations, but assigned only once to each organisation,
-    although this is not currently in use and a user is considered a direct employee of one organisation.
+    Note that a user might be a member of multiple organisations,
+    but assigned only once to each organisation,
+    although this is not currently in use and a user is considered
+    a direct employee of one organisation.
     """
 
     organisation = models.ForeignKey(

@@ -125,7 +125,8 @@ class OrganisationManager(models.Manager):
                         clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
                         and org_case.role.key != clash.role.key
                     ):
-                        # Argh, both orgs are in the same case with different, non awaiting roles - blow up!
+                        # Argh, both orgs are in the same case with different,
+                        # non awaiting roles - blow up!
                         raise ValueError(
                             "Cannot merge as organisations have different roles in a case",
                             org_case.case.name,

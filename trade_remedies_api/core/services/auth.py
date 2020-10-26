@@ -157,7 +157,8 @@ class RegistrationAPIView(APIView):
                 _key = key.replace("_", " ").capitalize()
                 errors[key] = f"{_key} is required"
         try:
-            # If the email already exists, notify the original user and pretend registration completed ok.
+            # If the email already exists,
+            # notify the original user and pretend registration completed ok.
             user = User.objects.get(email=email.strip().lower())
             template_id = SystemParameter.get("NOTIFY_EMAIL_EXISTS")
             send_mail(user.email, {"full_name": user.name}, template_id)
@@ -267,7 +268,8 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
         two_factor = request.user.two_factor
         if two_factor.is_locked():
             raise InvalidRequestLockout(
-                "You have entered an incorrect code too many times and we have temporarily locked your account."
+                "You have entered an incorrect code too many times "
+                "and we have temporarily locked your account."
             )
         if two_factor.validate(code):
             two_factor.success(user_agent=user_agent)

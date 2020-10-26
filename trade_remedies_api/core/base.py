@@ -63,7 +63,8 @@ class SimpleBaseModel(models.Model, DirtyFieldsMixin, AuditableMixin):
         Set the case context of this model.
         In cases where the model has no direct association with a case at the point of creation
         or otherwise, there is a conceptual case context (as it is likely it was created in relation
-        to a case). In those scenarios it is advised to manually set the case context by calling this
+        to a case). In those scenarios it is advised to manually set
+        the case context by calling this
         method. This will ensure that the audit record created is associated with the case it
         related or originated from.
         """

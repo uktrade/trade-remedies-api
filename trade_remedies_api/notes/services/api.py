@@ -16,7 +16,8 @@ class NoteAPIView(TradeRemediesApiView):
     ### GET
 
     `GET /api/v1/notes/case/{CASE_UUID}/` Get all case notes
-    `GET /api/v1/notes/case/{CASE_UUID}/on/{CONTENT_TYPE_IDENTIFIER}/{MODEL_ID}/` Get all notes for a particular model
+    `GET /api/v1/notes/case/{CASE_UUID}/on/{CONTENT_TYPE_IDENTIFIER}/{MODEL_ID}/`
+    Get all notes for a particular model
     `GET /api/v1/notes/{NOTE_UUID}/` Get a specific note
 
     ### POST

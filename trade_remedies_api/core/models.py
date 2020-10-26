@@ -187,7 +187,8 @@ class UserManager(BaseUserManager):
         The required attributes are the email, name and organisation for the user.
         However, optional fields for the security group (defaults to regular user), phone
         and a case spec can be provided.
-        The case spec is a list of dicts in the following format, specifying which cases to assign the
+        The case spec is a list of dicts in the following format,
+        specifying which cases to assign the
         contact to, and if they are the primary contact for that case.
             [
                 {'case': 'CASE-ID|CASE INSTANCE', 'primary': True|False}
@@ -805,7 +806,8 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
 
     def get_all_permissions(self):
         """
-        Return all user permissions, either directly associated or indirectly via it's security group
+        Return all user permissions,
+        either directly associated or indirectly via it's security group
         """
         return set(Permission.objects.filter(user=self)).union(
             set(Permission.objects.filter(group__user=self))
@@ -870,8 +872,10 @@ class UserProfile(models.Model):
     """
     Additional information about a user.
     A user is also associated with a contact.
-    NOTE: If an existing user is following an invite process, the invite contact might be replaced with the
-    user's one, or alternatively merged. This is not yet implemented as invites are not direct-to-case at the moment.
+    NOTE: If an existing user is following an invite process,
+    the invite contact might be replaced with the
+    user's one, or alternatively merged.
+    This is not yet implemented as invites are not direct-to-case at the moment.
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -966,7 +970,7 @@ class UserProfile(models.Model):
         template_id = SystemParameter.get("NOTIFY_VERIFY_EMAIL")
         context = {
             "name": self.user.name,
-            "verification_link": f"{settings.PUBLIC_ROOT_URL}/email/verify/?code={self.email_verify_code}",
+            "verification_link": f"{settings.PUBLIC_ROOT_URL}/email/verify/?code={self.email_verify_code}",  # noqa: E501
         }
         send_report = send_mail(self.user.email, context, template_id)
         return send_report
@@ -1165,7 +1169,7 @@ class PasswordResetRequest(models.Model):
 
     def get_link(self):
         if self.user.is_tra():
-            return f"{settings.CASEWORKER_ROOT_URL}/accounts/password/reset/{self.user.id}!{self.code}/"
+            return f"{settings.CASEWORKER_ROOT_URL}/accounts/password/reset/{self.user.id}!{self.code}/"  # noqa: E501
         else:
             return f"{settings.PUBLIC_ROOT_URL}/accounts/password/reset/{self.user.id}!{self.code}/"
 
@@ -1335,7 +1339,8 @@ class SystemParameter(models.Model):
                     this_object.set_value(load_object["value"])
                     this_object.save()
                 if "editable" in load_object and load_object["editable"] != this_object.editable:
-                    # allow updates to the editable state only if it is different than what is currently set.
+                    # allow updates to the editable state only
+                    # if it is different than what is currently set.
                     this_object.editable = load_object["editable"]
                     this_object.save()
         return count_created, count_updated, count_removed

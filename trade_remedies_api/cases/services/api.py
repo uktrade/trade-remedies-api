@@ -199,8 +199,8 @@ class CasesAPIView(TradeRemediesApiView):
     all_cases = False  # set by the url def. to denote all cases
 
     # @silk_profile(name="CW Cases")
-    def get(
-        self,  # noqa: C901
+    def get(  # noqa: C901
+        self,
         request,
         organisation_id=None,
         case_id=None,

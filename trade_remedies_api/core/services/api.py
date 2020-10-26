@@ -561,7 +561,8 @@ class CreatePendingUserAPI(TradeRemediesApiView):
     and the user is notified that this has happened.
 
     If an invitation id is provided, the existing invite, if valid, not yet accepted, and the email
-    still matches the request, will update it's parameters. If the invite id is not found a 404 exception
+    still matches the request, will update it's parameters.
+    If the invite id is not found a 404 exception
     will be raise, otherwise a new invite will be created.
 
     The case spec is a list of dicts in the following format, specifying which cases to assign the
