@@ -453,7 +453,7 @@ class OrganisationApprovalNotifyAPI(TradeRemediesApiView):
                 data={
                     "action": "assign_user",
                     "message": f"User {user_granted_access} "
-                               f"was granted access to the case for {organisation}",
+                    f"was granted access to the case for {organisation}",
                 },
             )
         return ResponseSuccess({"result": values})

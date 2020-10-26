@@ -403,7 +403,7 @@ class Case(BaseModel):
             if sub:
                 self._latest_noi_url = (
                     sub.url
-                    or f"{settings.PUBLIC_ROOT_URL}/public/case/{self.reference}/submission/{sub.id}/"   # noqa: E501
+                    or f"{settings.PUBLIC_ROOT_URL}/public/case/{self.reference}/submission/{sub.id}/"  # noqa: E501
                 )
         return self._latest_noi_url
 

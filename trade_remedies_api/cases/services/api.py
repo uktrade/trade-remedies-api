@@ -200,13 +200,7 @@ class CasesAPIView(TradeRemediesApiView):
 
     # @silk_profile(name="CW Cases")
     def get(  # noqa: C901
-        self,
-        request,
-        organisation_id=None,
-        case_id=None,
-        user_id=None,
-        *args,
-        **kwargs,
+        self, request, organisation_id=None, case_id=None, user_id=None, *args, **kwargs,
     ):
         archived = request.query_params.get("archived", "false")
         new_cases = request.query_params.get("new_cases", "false") in TRUTHFUL_INPUT_VALUES
