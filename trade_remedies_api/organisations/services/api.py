@@ -1,13 +1,8 @@
 import json
 from django.utils import timezone
 from django.conf import settings
-from core.services.base import (
-    TradeRemediesApiView,
-    ResponseSuccess
-)
-from core.services.exceptions import (
-    NotFoundApiExceptions,
-)
+from core.services.base import TradeRemediesApiView, ResponseSuccess
+from core.services.exceptions import NotFoundApiExceptions
 from core.utils import (
     public_login_url,
     filter_dict,
@@ -22,9 +17,7 @@ from django.db.models import Count, Q
 
 from rest_framework import status
 from organisations.models import Organisation
-from organisations.constants import (
-    REJECTED_ORG_CASE_ROLE,
-)
+from organisations.constants import REJECTED_ORG_CASE_ROLE
 from cases.models import Case, get_case, Submission
 from contacts.models import Contact, CaseContact
 from security.models import OrganisationUser, OrganisationCaseRole, CaseRole, UserCase
