@@ -229,7 +229,7 @@ TRUSTED_USER_EMAIL = os.environ.get("HEALTH_CHECK_USER_EMAIL")
 AWS_ACCESS_KEY_ID = AWS_S3_ACCESS_KEY_ID = os.environ.get("S3_STORAGE_KEY")
 AWS_SECRET_ACCESS_KEY = AWS_S3_SECRET_ACCESS_KEY = os.environ.get("S3_STORAGE_SECRET")
 AWS_STORAGE_BUCKET_NAME = os.environ.get("S3_BUCKET_NAME")
-AWS_S3_REGION_NAME = "eu-west-1"
+AWS_S3_REGION_NAME = AWS_DEFAULT_REGION = os.environ.get("AWS_REGION", "eu-west-1")  # "eu-west-1" looks like a legacy setting, TODO investigate if used in prod
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_ENCRYPTION = True
 # S3 client library to use
@@ -356,24 +356,28 @@ if DEBUG:
     LOGGING = {
         "version": 1,
         "disable_existing_loggers": False,
-        "filters": {"require_debug_false": {"()": "django.utils.log.RequireDebugFalse"}},
-        "formatters": {
-            "verbose": {"format": "%(asctime)s %(name)s - %(levelname)s - %(message)s"},
+        'handlers': {
+            'stdout': {
+                'class': 'logging.StreamHandler',
+                'stream': sys.stdout,
+            },
+            'null': {
+                'class': 'logging.NullHandler',
+            },
         },
-        "handlers": {
-            "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "verbose"},
+        'root': {
+            'handlers': ['stdout'],
+            'level': os.getenv('ROOT_LOG_LEVEL', 'INFO'),
         },
-        "loggers": {
-            "django.request": {"handlers": ["console"], "level": "ERROR", "propagate": True,},
-            "requests": {"handlers": ["console"], "level": "WARNING", "propagate": False,},
-            "urllib3": {"handlers": ["console"], "level": "WARNING", "propagate": True,},
-            "celery": {"handlers": ["console"], "level": "WARNING", "propagate": True,},
-            "parso": {"handlers": ["console"], "level": "WARNING", "propagate": True,},
-            "axes": {"handlers": ["console"], "level": "WARNING", "propagate": True,},
-            "": {
-                "handlers": ["console"],
-                "level": os.environ.get("LOG_LEVEL", "INFO"),
-                "propagate": False,
+        'loggers': {
+            'django': {
+                'handlers': ['stdout', ],
+                'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+                'propagate': True,
+            },
+            'django.server': {
+                'handlers': ['null'],
+                'propagate': False,
             },
         },
     }

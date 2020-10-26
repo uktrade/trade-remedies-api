@@ -28,3 +28,4 @@ aws_secret_access_key = {s3_secret}
         with open(os.path.expanduser("~/.aws/credentials"), "w") as credentialsfile:
             credentialsfile.write(credentials.strip())
         logger.info("Completed S3 creds file generation.")
+        logger.info(f"Created file path is {os.path.expanduser('~/.aws')}")

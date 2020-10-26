@@ -120,8 +120,9 @@ class TradeRemediesApiView(APIView):
                 if hasattr(self, "queryset"):
                     response.data["start"] = self._start
                     response.data["limit"] = self._limit
-                if settings.DEBUG:
-                    logger.info(f"Time: {response.data['process_time']}")
+                # TODO - talk to Mark re the below
+                # if settings.DEBUG:
+                #     logger.info(f"Time: {response.data['process_time']}")
         return response
 
     def validate_required_fields(self, request):
