@@ -2,9 +2,7 @@ version: "3"
 services:
   api:
     build:
-       context: . 
-    ports:
-      - "8000:8000"
+       context: .
     volumes:
       - ./trade_remedies_api:/app/
     env_file:
