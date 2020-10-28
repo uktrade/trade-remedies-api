@@ -682,8 +682,8 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         # some system users might not have a profile
         try:
             _dict.update(self.userprofile.to_dict())
-        except Exception:
-            logger.error("Cannot expand user profile", exc_info=True)
+        except Exception as exc:
+            logger.error(f"Cannot expand user profile", exc_info=True)
         return _dict
 
     def get_cases(self, organisation=None):

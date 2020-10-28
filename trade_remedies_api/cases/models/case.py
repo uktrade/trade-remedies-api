@@ -956,8 +956,8 @@ class Case(BaseModel):
                 name.append("from")
                 name.append(first_export_country.country.name)
             return " ".join(name)
-        except Exception:
-            logger.error("Error deriving case name", exc_info=True)
+        except Exception as exc:
+            logger.error(f"Error deriving case name", exc_info=True)
             return None
 
     def notify_all_participants(
