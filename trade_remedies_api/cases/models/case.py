@@ -43,7 +43,8 @@ from security.models import (
 from security.exceptions import InvalidAccess
 from organisations.models import Organisation, get_organisation
 from contacts.models import Contact
-from core.models import BaseModel, SystemParameter
+from core.base import BaseModel
+from core.models import SystemParameter
 from .casetype import CaseType
 from .casestage import CaseStage
 from .submission import SubmissionType, Submission

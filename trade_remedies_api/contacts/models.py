@@ -1,5 +1,6 @@
 from django.db import models, transaction
-from core.models import SimpleBaseModel, BaseModel, UserProfile, User
+from core.base import SimpleBaseModel, BaseModel
+from core.models import UserProfile, User
 from core.utils import convert_to_e164
 from django_countries.fields import CountryField
 

@@ -2,7 +2,7 @@ import logging
 
 from django.db import models
 from django.contrib.postgres import fields
-from core.models import BaseModel
+from core.base import BaseModel
 from workflow.models import Workflow
 
 
