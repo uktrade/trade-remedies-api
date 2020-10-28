@@ -8,7 +8,6 @@ from core.base import (
 )
 
 
-
 class Sector(models.Model):
     name = models.CharField(max_length=250, null=False, blank=False)
     code = models.CharField(max_length=50, null=False, blank=False)

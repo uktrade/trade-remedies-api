@@ -96,8 +96,7 @@ class Audit(models.Model):
         created_at_str = self.created_at.isoformat() if self.created_at else ""
         if self.assisted_by:
             return (
-                f"{created_at_str}: {self.created_by}"
-                f"{self.type}-{content_type}:{self.model_id}"
+                f"{created_at_str}: {self.created_by}" f"{self.type}-{content_type}:{self.model_id}"
             )
         else:
             return (

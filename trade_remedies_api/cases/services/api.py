@@ -456,7 +456,7 @@ class CaseInitiationAPIView(TradeRemediesApiView):
         case_id = request.data.get("id")
         request_params = request.data.dict()
         case_name = request.data.get("case_name")
-        case_type_id = request.data.get('case_type_id')
+        case_type_id = request.data.get("case_type_id")
         product_name = request.data.get("product_name")
         product_description = request.data.get("product_description")
         sector_id = request.data.get("sector_id")
