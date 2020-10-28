@@ -97,7 +97,7 @@ class Audit(models.Model):
         if self.assisted_by:
             return (
                 f"{created_at_str}: {self.created_by}"
-                f"{self.type}-{content_type}:{self.model_id}"  # noqa: E501
+                f"{self.type}-{content_type}:{self.model_id}"
             )
         else:
             return (

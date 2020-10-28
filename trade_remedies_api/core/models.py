@@ -579,7 +579,7 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
             case_specs = json.loads(case_specs)
         for case_spec in case_specs:
             case_id = case_spec.get("case")
-            case = get_case(case_id)
+            case = get_case(case_spec.get("case"))
             primary = case_spec.get("primary", False)
             self.assign_to_case(case, organisation=organisation, created_by=request_user)
             contact.add_to_case(
@@ -719,7 +719,7 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
     @transaction.atomic
     def load_attributes(self, attrs):
         user_keys = ["name", "email"]
-        # contact_keys = ["phone", "country_code"]
+        contact_keys = ["phone", "country_code"]
         profile_keys = ["timezone", "colour", "contact"]
         for key in user_keys:
             if attrs.get(key):
@@ -1249,7 +1249,7 @@ class SystemParameter(models.Model):
         elif self.data_type == "int":
             try:
                 self.value = int(value)
-            except:  # noqa: E722
+            except:
                 self.value = 0
         else:
             self.value = value
