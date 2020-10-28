@@ -1,7 +1,6 @@
 from django.test import TestCase
 from django.utils import timezone
 from freezegun import freeze_time
-
 from core.user_context import UserContext
 from audit.models import Audit
 from audit.utils import audit_log

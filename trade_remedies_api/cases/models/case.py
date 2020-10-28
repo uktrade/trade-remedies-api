@@ -1,3 +1,4 @@
+import logging
 import datetime
 from django.db import models, transaction
 from django.db.models import Q, OuterRef, Exists
@@ -54,6 +55,8 @@ from .casestage import CaseStage
 from .submission import SubmissionType, Submission
 from .submissiondocument import SubmissionDocumentType
 from .workflow import CaseWorkflow, CaseWorkflowState
+
+logger = logging.getLogger(__name__)
 
 
 class CaseManager(models.Manager):
@@ -957,7 +960,7 @@ class Case(BaseModel):
                 name.append(first_export_country.country.name)
             return " ".join(name)
         except Exception as exc:
-            print(f"Error deriving case name: {exc}")
+            logger.error(f"Error deriving case name", exc_info=True)
             return None
 
     def notify_all_participants(

@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
+from django.conf import settings
 from audit import AUDIT_TYPE_DELIVERED
 from audit.models import Audit
 from audit.tasks import audit_log_task
@@ -63,7 +64,10 @@ def audit_log(
         milestone=milestone,
     )
 
-    audit_log_task.delay(audit_dict)
+    if settings.RUN_ASYNC:
+        audit_log_task.delay(audit_dict)
+    else:
+        audit_log_task(audit_dict)
 
 
 def get_notify_fail_report(case=None, detail=False):

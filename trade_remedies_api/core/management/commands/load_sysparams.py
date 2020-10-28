@@ -1,8 +1,11 @@
+import logging
 import json
 from core.models import SystemParameter
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -25,18 +28,18 @@ class Command(BaseCommand):
         parser.add_argument(
             "--path",
             type=str,
-            default=f"{settings.SITE_ROOT}/trade_remedies_api/core/system/parameters.json",
+            default="core/system/parameters.json",
         )
 
     def handle(self, *args, **options):
-        print("Loading system parameters")
+        logger.info("Loading system parameters")
         path = options.get("path")
         with open(path) as json_data:
             objects = json.loads(str(json_data.read()))
         count_created, count_updated, count_removed = SystemParameter.load_parameters(objects)
         if count_updated:
-            print(f"Upadted {count_updated} row(s)")
+            logger.info(f"Upadted {count_updated} row(s)")
         if count_created:
-            print(f"Created {count_created} row(s)")
+            logger.info(f"Created {count_created} row(s)")
         if count_removed:
-            print(f"Removed {count_removed} rows(s)")
+            logger.info(f"Removed {count_removed} rows(s)")

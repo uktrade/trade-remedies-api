@@ -2,6 +2,7 @@ import logging
 from dateutil.parser import parse
 from celery import shared_task
 from django.utils import timezone
+from django.conf import settings
 from cases.models import TimeGateStatus, Case
 from audit.utils import audit_log
 from audit.models import AUDIT_TYPE_EVENT
@@ -17,7 +18,10 @@ def process_timegate_actions():
 
     for workflow_state_id in workflow_state_ids:
         logger.info("Processing timegate action: %s", workflow_state_id)
-        process_timegate_action.delay(workflow_state_id)
+        if settings.RUN_ASYNC:
+            process_timegate_action.delay(workflow_state_id)
+        else:
+            process_timegate_action(workflow_state_id)
 
 
 @shared_task()
@@ -48,11 +52,11 @@ def check_measure_expiry():
     for case in cases:
         latest_expiry = case.get_state_key("LATEST_MEASURE_EXPIRY")
         if latest_expiry and latest_expiry.value:
-            print(
-                timezone.now().date() <= parse(latest_expiry.value).date(),
-                timezone.now().date(),
-                parse(latest_expiry.value).date(),
-            )
+            # print( TODO - remove if not needed
+            #     timezone.now().date() <= parse(latest_expiry.value).date(),
+            #     timezone.now().date(),
+            #     parse(latest_expiry.value).date(),
+            # )
             if timezone.now().date() >= parse(latest_expiry.value).date():
                 case.set_stage_by_key("MEASURES_EXPIRED")
                 audit_log(
