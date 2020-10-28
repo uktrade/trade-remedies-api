@@ -14,6 +14,8 @@ from dirtyfields import DirtyFieldsMixin
 from django.contrib.contenttypes.models import ContentType
 from .user_context import user_context
 
+logger = logging.getLogger(__name__)
+
 
 class SimpleBaseModel(models.Model, DirtyFieldsMixin, AuditableMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -61,7 +63,8 @@ class SimpleBaseModel(models.Model, DirtyFieldsMixin, AuditableMixin):
         Set the case context of this model.
         In cases where the model has no direct association with a case at the point of creation
         or otherwise, there is a conceptual case context (as it is likely it was created in relation
-        to a case). In those scenarios it is advised to manually set the case context by calling this
+        to a case). In those scenarios it is advised to manually set
+        the case context by calling this
         method. This will ensure that the audit record created is associated with the case it
         related or originated from.
         """
@@ -113,7 +116,9 @@ class SimpleBaseModel(models.Model, DirtyFieldsMixin, AuditableMixin):
                                 value = json.loads(value)  # to remove escaping
                             setattr(self, key, value)
                         except Exception:
-                            logger.error(f"Invalid field type {key}, {value}, {data_type}", exc_info=True)
+                            logger.error(
+                                f"Invalid field type {key}, {value}, {data_type}", exc_info=True
+                            )
                     report["set"].append((key, value))
             else:
                 report["invalid"].append((key, value))
@@ -242,7 +247,7 @@ class BaseModel(SimpleBaseModel):
         )
         return json.loads(json_str)
 
-    def to_json(self, fields, obj=None, context=None, *args, **kwargs):
+    def to_json(self, fields, obj=None, context=None, *args, **kwargs):  # noqa: C901
         obj = obj or self
         out = {}
         for field, subField in fields.items():
@@ -271,7 +276,7 @@ class BaseModel(SimpleBaseModel):
                 if subField and isinstance(subField, dict):
                     if hasattr(val, "to_json"):
                         val = val.to_json(fields=subField, context=self)
-                    elif val != None:
+                    elif val is not None:
                         val = self.to_json(fields=subField, obj=val, context=self)
                 elif hasattr(val, "to_dict"):
                     val = val.to_dict()

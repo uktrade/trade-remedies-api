@@ -1,4 +1,3 @@
-from time import time
 import datetime
 import json
 import re
@@ -41,9 +40,6 @@ from trade_remedies_api.constants import (
     STATE_COMPLETE,
 )
 from cases.constants import (
-    CASE_TYPE_ANTI_DUMPING,
-    CASE_TYPE_SAFEGUARDING,
-    CASE_TYPE_ANTI_SUBSIDY,
     ALL_COUNTRY_CASE_TYPES,
     SUBMISSION_NOTICE_TYPES,
     SUBMISSION_NOTICE_TYPE_INVITE,
@@ -53,10 +49,8 @@ from cases.constants import (
     SUBMISSION_TYPE_APPLICATION,
     SUBMISSION_STATUS_APPLICATION_SUBMIT_REVIEW,
     SUBMISSION_APPLICATION_TYPES,
-    REGISTRATION_OF_INTEREST_DOCUMENT_TYPES,
     DIRECTION_BOTH,
     DIRECTION_TRA_TO_PUBLIC,
-    SUBMISSION_DOCUMENT_TYPE_TRA,
     SUBMISSION_DOCUMENT_TYPE_DEFICIENCY,
     DECISION_TO_INITIATE_KEY,
     TRA_ORGANISATION_ID,
@@ -77,7 +71,6 @@ from contacts.models import Contact
 from security.models import UserCase, OrganisationCaseRole, CaseRole
 from security.constants import (
     SECURITY_GROUPS_TRA,
-    SECURITY_GROUPS_TRA_ADMINS,
     ROLE_PREPARING,
 )
 from security.exceptions import InvalidAccess
@@ -89,7 +82,6 @@ from audit.utils import audit_log
 from workflow.models import WorkflowTemplate
 from django_countries import countries
 from django.utils import timezone
-from titlecase import titlecase
 
 # from silk.profiling.profiler import silk_profile
 
@@ -207,7 +199,9 @@ class CasesAPIView(TradeRemediesApiView):
     all_cases = False  # set by the url def. to denote all cases
 
     # @silk_profile(name="CW Cases")
-    def get(self, request, organisation_id=None, case_id=None, user_id=None, *args, **kwargs):
+    def get(  # noqa: C901
+        self, request, organisation_id=None, case_id=None, user_id=None, *args, **kwargs,
+    ):
         archived = request.query_params.get("archived", "false")
         new_cases = request.query_params.get("new_cases", "false") in TRUTHFUL_INPUT_VALUES
         all_cases = request.query_params.get("all", self.all_cases)
@@ -414,7 +408,7 @@ class CasesAPIView(TradeRemediesApiView):
                         manager=True
                     )
                     case_stage = CaseStage.objects.get(id=request.data["stage_id"])
-                    new_stage = case.set_stage(case_stage, ignore_flow=ignore_flow)
+                    case.set_stage(case_stage, ignore_flow=ignore_flow)
                 # Reset the workflow if the type has changed
                 if (
                     not case.initiated_at
@@ -455,11 +449,11 @@ class CasesCountAPIView(TradeRemediesApiView):
 
 
 class CaseInitiationAPIView(TradeRemediesApiView):
-    @transaction.atomic
+    @transaction.atomic  # noqa: C901
     def post(self, request, *args, **kwargs):
         product = None
         export_source = None
-        case_id = request.data.get("id")
+        # case_id = request.data.get("id")
         request_params = request.data.dict()
         case_name = request.data.get("case_name")
         # case_type_id = request.data.get('case_type_id')
@@ -567,7 +561,7 @@ class CaseInterestAPI(TradeRemediesApiView):
 
     def get(self, request, *args, **kwargs):
         show_archived = request.query_params.get("archived", "false") == "true"
-        show_preparing = request.query_params.get("preparing", "false") == "true"
+        # show_preparing = request.query_params.get("preparing", "false") == "true"
         all_interests = request.query_params.get("all", "false") == "true"
         interest_type = SubmissionType.objects.get(id=SUBMISSION_TYPE_REGISTER_INTEREST)
         # TODO: Clean up role_keys
@@ -638,13 +632,18 @@ class CaseInterestAPI(TradeRemediesApiView):
             link = None
             for roi in existing:
                 if roi.created_by.id == request.user.id:
-                    link = f"/case/{roi.case.id}/organisation/{roi.organisation.id}/submission/{roi.id}/"
+                    link = (
+                        f"/case/{roi.case.id}/organisation/"
+                        f"{roi.organisation.id}/submission/{roi.id}/"
+                    )
             if link:
                 raise InvalidRequestParams(
-                    f'You have already registered interest in this case on behalf of: {organisation.name}. <a href="{link}">View your registration</a>'
+                    f"You have already registered interest in this case on behalf of: "
+                    f'{organisation.name}. <a href="{link}">View your registration</a>'
                 )
             raise InvalidRequestParams(
-                f"The organisation {organisation.name} has already registered interest in this case."
+                f"The organisation {organisation.name} "
+                f"has already registered interest in this case."
             )
         # make this contact primary in the case
         contact.set_primary(case=case, organisation=organisation, request_by=self.user)
@@ -867,7 +866,7 @@ class SubmissionsAPIView(TradeRemediesApiView):
         else:
             submission_status = get_submission_status(submission_status_id)
         deficiency_notice_params = json.loads(request.data.get("deficiency_notice_params") or "{}")
-        send_to = deficiency_notice_params.get("send_to")
+        # send_to = deficiency_notice_params.get("send_to")
         # If the organisation isn't set, an it's a public submission, it's the TRA
         if not self.organisation and request.data.get("public") and _is_tra:
             self.organisation = Organisation.objects.get(id=TRA_ORGANISATION_ID)
@@ -914,7 +913,8 @@ class SubmissionsAPIView(TradeRemediesApiView):
         submission = Submission.objects.get_submission(id=submission_id, case=case)
         submission.set_user_context(request.user)
         # Tidy up any loose ends
-        # If the case is not initiated, and this application is the only submission, delete the case as well
+        # If the case is not initiated, and this application is the only submission,
+        # delete the case as well
         if submission.case.stage.key in ["CASE_CREATED"] and len(submission.case.submissions) == 1:
             submission.case.delete()
         # If this is a registration of interest, we need to remove the caserole too
@@ -1103,7 +1103,7 @@ class SubmissionStatusAPIView(TradeRemediesApiView):
         statuses = statuses.order_by("order")
         return ResponseSuccess({"results": [status.to_dict() for status in statuses]})
 
-    @transaction.atomic
+    @transaction.atomic  # noqa: C901
     def post(
         self, request, organisation_id=None, case_id=None, submission_id=None, *args, **kwargs
     ):
@@ -1143,7 +1143,8 @@ class SubmissionStatusAPIView(TradeRemediesApiView):
         submission_status = None
         original_submission_status = submission.status
         was_in_review = original_submission_status.review if original_submission_status else False
-        # If the submission status is sufficient but submission was previously in review, adjust to review_ok
+        # If the submission status is sufficient but submission was previously in review,
+        # adjust to review_ok
         if submission_status_context == "sufficient" and was_in_review:
             submission_status_context = "review_ok"
         submission_user = (
@@ -1209,9 +1210,11 @@ class SubmissionStatusAPIView(TradeRemediesApiView):
                 submission.received_at = timezone.now()
                 submission.received_from = request.user
                 submission.save()
-            # If the submission came out of review, has a notification preset, or a final application success, notify the user
+            # If the submission came out of review, has a notification preset,
+            # or a final application success, notify the user
             # if was_in_review:
-            #     submission.notify_received(user=submission_user, template_id='NOTIFY_DRAFT_APPLICATION_REVIEWED')
+            #     submission.notify_received(user=submission_user,
+            #     template_id='NOTIFY_DRAFT_APPLICATION_REVIEWED')
             # el
             if submission.status.send_confirmation_notification:
                 submission.notify_received(user=submission_user or request.user)
@@ -1269,7 +1272,8 @@ class SubmissionStatusAPIView(TradeRemediesApiView):
             for subdoc in subdocs:
                 subdoc.sufficient = True
                 subdoc.save()
-        # if submission_status and not submission_status.draft and submission_status.send_confirmation_notification:
+        # if submission_status and not submission_status.draft
+        # and submission_status.send_confirmation_notification:
         #     submission.notify_received(user=request.user)
 
         result = {
@@ -1415,7 +1419,7 @@ class ExportSourceAPIView(TradeRemediesApiView):
     @transaction.atomic
     def post(self, request, organisation_id=None, case_id=None, *args, **kwargs):
         case = get_case(str(case_id))
-        original_case_type = case.type
+        # original_case_type = case.type
         sources = request.data.get("sources")
         evidence_of_subsidy = request.data.get("evidence_of_subsidy")
         export_sources = []
@@ -1469,7 +1473,7 @@ class ReviewTypeAPIView(TradeRemediesApiView):
         case_type_id = request.data.get("case_type")
         case = get_case(str(case_id))
         if case_type_id:
-            modified = case.modify_case_type(case_type_id, requested_by=request.user)
+            case.modify_case_type(case_type_id, requested_by=request.user)
         if reference_case_id:
             if reference_case_id.startswith("notice:"):
                 case.notice = Notice.objects.get(id=reference_case_id)
@@ -1492,7 +1496,7 @@ class ApplicationStateAPIView(TradeRemediesApiView):
         application_submission = None
         product = None
         source = None
-        export_source = None
+        # export_source = None
         documents = []
         if not submission_id:
             # TODO: handle multiple application submissions? Only one active?
@@ -1661,7 +1665,7 @@ class CaseWorkflowAPI(TradeRemediesApiView):
         case = get_case(case_id)
         case.set_user_context(request.user)
         case_state = case.workflow.as_workflow()
-        key_index = case_state.key_index
+        # key_index = case_state.key_index
         node_key = [node_key] if node_key else request.data.getlist("nodes", [])
         if node_key:
             # update one or many workflow states
@@ -1870,7 +1874,7 @@ class CaseMilestoneDatesAPI(TradeRemediesApiView):
 class CaseReviewTypesAPI(TradeRemediesApiView):
     def get(self, request, case_id):
         case = Case.objects.get(id=case_id)
-        summary = request.query_params.get("summary")
+        # summary = request.query_params.get("summary")
         available_review_types = CaseType.objects.available_case_review_types(case)
         return ResponseSuccess({"results": available_review_types})
 

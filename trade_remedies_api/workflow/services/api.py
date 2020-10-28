@@ -1,9 +1,4 @@
 from core.services.base import TradeRemediesApiView, ResponseSuccess
-from core.services.exceptions import (
-    InvalidRequestParams,
-    IntegrityErrorRequest,
-    NotFoundApiExceptions,
-)
 from rest_framework import status
 from workflow.models import WorkflowTemplate, Workflow
 
@@ -24,6 +19,7 @@ class WorkflowTemplateAPI(TradeRemediesApiView):
             template = WorkflowTemplate.objects.create(
                 name=request.data.get("template_name", "Untitled"), template=Workflow.BOILERPLATE
             )
+        # TODO flake8 fix F821 undefined name 'item'
         item_type = request.data.get("name")
         item_id = request.data.get("value")
         index = int(request.data.get("index", -1))
@@ -31,7 +27,7 @@ class WorkflowTemplateAPI(TradeRemediesApiView):
 
         workflow = template.workflow
         _index = index if index > -1 else None
-        workflow.set(item, parent_id, _index)
+        workflow.set(item, parent_id, _index)  # noqa: F821
         template.template = workflow.shrink()
         template.save()
         return ResponseSuccess(

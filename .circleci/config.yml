@@ -57,11 +57,18 @@ jobs:
           paths:
             - "venv"
       - run:
-          name: Run tests
+          name: Run black
           command: |
             . venv/bin/activate
             cd trade_remedies_api
-            python manage.py test --verbosity=2
+            black . --check
+      - run:
+          name: Run Flake8
+          command: |
+            . venv/bin/activate
+            cd trade_remedies_api
+            python -m flake8
+
 
 workflows:
   version: 2
