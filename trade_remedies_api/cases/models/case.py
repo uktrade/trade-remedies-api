@@ -43,7 +43,8 @@ from security.models import (
 from security.exceptions import InvalidAccess
 from organisations.models import Organisation, get_organisation
 from contacts.models import Contact
-from core.models import BaseModel, SystemParameter
+from core.base import BaseModel
+from core.models import SystemParameter
 from .casetype import CaseType
 from .casestage import CaseStage
 from .submission import SubmissionType, Submission
@@ -196,8 +197,8 @@ class CaseManager(models.Manager):
             filters["case__archived_at__isnull"] = not bool(archived)
         if all_cases and not user.has_perm("core.can_view_all_org_cases"):
             all_cases = False
-        # elif all_cases:
-        #     user_filter = {"user__in": user.organisation_users}
+        elif all_cases:
+            user_filter = {"user__in": user.organisation_users}
         case_set = set([])
         user_cases = UserCase.objects.filter(
             case__deleted_at__isnull=True, **filters
@@ -955,7 +956,7 @@ class Case(BaseModel):
                 name.append("from")
                 name.append(first_export_country.country.name)
             return " ".join(name)
-        except Exception:
+        except Exception as exc:
             logger.error("Error deriving case name", exc_info=True)
             return None
 
@@ -1071,7 +1072,7 @@ class Case(BaseModel):
         if self.initiated_at:
             raise Exception("Case type cannot change after initiation")
         case_type_id = self.type.id or CASE_TYPE_ANTI_DUMPING
-        # original_case_type = self.type
+        original_case_type = self.type
         modified = False
         if all_countries is True and self.type.id == CASE_TYPE_ANTI_DUMPING:
             case_type_id = CASE_TYPE_SAFEGUARDING

@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from logging import getLogger
-from core.models import SimpleBaseModel
+from core.base import SimpleBaseModel
 from core.decorators import method_cache
 from cases.constants import (
     SUBMISSION_DOCUMENT_TYPE_CUSTOMER,
@@ -135,7 +135,7 @@ class SubmissionDocument(SimpleBaseModel):
             self.submission.save()
         non_conf = not self.document.confidential
         own = self.document.created_by.id == user.id
-        # published = self.submission.issued_at
+        published = self.submission.issued_at
         not_locked = not self.submission.locked
         is_case_document = self.type.id in (
             SUBMISSION_DOCUMENT_TYPE_TRA,

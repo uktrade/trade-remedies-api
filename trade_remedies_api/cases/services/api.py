@@ -408,7 +408,7 @@ class CasesAPIView(TradeRemediesApiView):
                         manager=True
                     )
                     case_stage = CaseStage.objects.get(id=request.data["stage_id"])
-                    case.set_stage(case_stage, ignore_flow=ignore_flow)
+                    new_stage = case.set_stage(case_stage, ignore_flow=ignore_flow)
                 # Reset the workflow if the type has changed
                 if (
                     not case.initiated_at
@@ -453,10 +453,10 @@ class CaseInitiationAPIView(TradeRemediesApiView):
     def post(self, request, *args, **kwargs):
         product = None
         export_source = None
-        # case_id = request.data.get("id")
+        case_id = request.data.get("id")
         request_params = request.data.dict()
         case_name = request.data.get("case_name")
-        # case_type_id = request.data.get('case_type_id')
+        case_type_id = request.data.get("case_type_id")
         product_name = request.data.get("product_name")
         product_description = request.data.get("product_description")
         sector_id = request.data.get("sector_id")
@@ -561,7 +561,7 @@ class CaseInterestAPI(TradeRemediesApiView):
 
     def get(self, request, *args, **kwargs):
         show_archived = request.query_params.get("archived", "false") == "true"
-        # show_preparing = request.query_params.get("preparing", "false") == "true"
+        show_preparing = request.query_params.get("preparing", "false") == "true"
         all_interests = request.query_params.get("all", "false") == "true"
         interest_type = SubmissionType.objects.get(id=SUBMISSION_TYPE_REGISTER_INTEREST)
         # TODO: Clean up role_keys
@@ -866,7 +866,7 @@ class SubmissionsAPIView(TradeRemediesApiView):
         else:
             submission_status = get_submission_status(submission_status_id)
         deficiency_notice_params = json.loads(request.data.get("deficiency_notice_params") or "{}")
-        # send_to = deficiency_notice_params.get("send_to")
+        send_to = deficiency_notice_params.get("send_to")
         # If the organisation isn't set, an it's a public submission, it's the TRA
         if not self.organisation and request.data.get("public") and _is_tra:
             self.organisation = Organisation.objects.get(id=TRA_ORGANISATION_ID)
@@ -1419,7 +1419,7 @@ class ExportSourceAPIView(TradeRemediesApiView):
     @transaction.atomic
     def post(self, request, organisation_id=None, case_id=None, *args, **kwargs):
         case = get_case(str(case_id))
-        # original_case_type = case.type
+        original_case_type = case.type
         sources = request.data.get("sources")
         evidence_of_subsidy = request.data.get("evidence_of_subsidy")
         export_sources = []
@@ -1496,7 +1496,7 @@ class ApplicationStateAPIView(TradeRemediesApiView):
         application_submission = None
         product = None
         source = None
-        # export_source = None
+        export_source = None
         documents = []
         if not submission_id:
             # TODO: handle multiple application submissions? Only one active?
@@ -1665,7 +1665,7 @@ class CaseWorkflowAPI(TradeRemediesApiView):
         case = get_case(case_id)
         case.set_user_context(request.user)
         case_state = case.workflow.as_workflow()
-        # key_index = case_state.key_index
+        key_index = case_state.key_index
         node_key = [node_key] if node_key else request.data.getlist("nodes", [])
         if node_key:
             # update one or many workflow states
@@ -1874,7 +1874,7 @@ class CaseMilestoneDatesAPI(TradeRemediesApiView):
 class CaseReviewTypesAPI(TradeRemediesApiView):
     def get(self, request, case_id):
         case = Case.objects.get(id=case_id)
-        # summary = request.query_params.get("summary")
+        summary = request.query_params.get("summary")
         available_review_types = CaseType.objects.available_case_review_types(case)
         return ResponseSuccess({"results": available_review_types})
 

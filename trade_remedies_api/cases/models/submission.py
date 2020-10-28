@@ -6,7 +6,8 @@ from django.conf import settings
 from django.utils import timezone
 from titlecase import titlecase
 from core.utils import deep_index_items_by, public_login_url
-from core.models import BaseModel, SystemParameter
+from core.base import BaseModel
+from core.models import SystemParameter
 from core.tasks import send_mail
 from audit import AUDIT_TYPE_NOTIFY
 from notes.models import Note

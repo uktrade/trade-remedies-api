@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models import Q
 from django.conf import settings
 from elasticsearch.exceptions import NotFoundError
-from core.models import BaseModel, SimpleBaseModel
+from core.base import BaseModel, SimpleBaseModel
 from functools import singledispatch
 from core.elastic import get_elastic
 from core.utils import file_md5_checksum
