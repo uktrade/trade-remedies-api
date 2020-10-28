@@ -9,168 +9,47 @@ Back end API to support the Trade Remedies service.
 Live Services Team use [Black](https://black.readthedocs.io/en/stable/index.html) for python code formatting and
 [flake8](https://flake8.pycqa.org/en/latest/) for code analysis. 
 
-#### Useful commands:
+## Development
 
-```
-make docker_code_quality
-```
-runs black and flake8 in a container the same as circle ci
+#### Set up
 
-#### Running locally without docker
+Firstly, you should copy local.env.example to local.env and add the necessary environment variables for a local development environment.  local.env is in .gitignore and should not be committed to the repo.
 
-```shell script
-    # ensure you have a virtualenv
-    python3 -m venv env
-    pip install -r requirements-dev.txt
-  
-
-    black trade_remedies_api --check
-
-    flake8
-
-```
-
-Please format your django templates using PyCharm's built in formatter. (Unless you can find a suitable alternative)
-
-### Running via Docker
-
-#### Development
-
-The stack can be brought up using docker-compose, backed with a Postgresql 10 database and Redis instance.
-
-Firstly, you should copy example.env to local.env and add the necessary
-environment variables for a local development environment.  local.env is in
-.gitignore and should not be committed to the repo.
-
-```
-make docker-cli
-```
-
-This will drop you into a terminal session within the container where you can
-run the usual commands eg
-
-```
-# Run the development server
-python manage.py runserver_plus 0.0.0.0:8000
-# Use the python / django shell
-python manage.py shell_plus
-# Run the django test suite
-python manage.py test
-```
-
-Any changes made to source files on your local computer will be reflected in
-the container.
-
-The Postgresql database is available from your host machine on port 5432.
-The Redis database is available from your host machine on port 6379.
-
-#### Connect to a running container
-
-You can start additional terminal sessions on an already running container as
-follows:
-
-```
-make docker-cli-connect
-```
-
-#### Run celery tasks in a separate worker
-
-By default the celery tasks are configured to run *eagerly* ie in the same
-process as django within the development container.
-To test tasks in a separate celery worker you should change
-CELERY_TASK_ALWAYS_EAGER in your *local.env* file and stop your *cli* container.
-
-Then restart a new *cli* and *celery-worker* container.
-
-```
-make docker-cli
-make docker-celery-worker
-```
-
-If you want to test periodic tasks with full celery integration you can also
-run celery beat.
-
-```
-make docker-celery-beat
-```
-
-### Full Dockerised environment
-
-The repository at https://github.com/uktrade/trade-remedies-docker contains
-a fully dockerised environment containerised and integrated together.
-To use it, clone the repository at the same level of the api, caseworker and public
-repositories and run `docker-compose-up` to bring it up.
-More information is within the repository.
-
-#### Unit tests
-
-The unit tests can also be executed in an isolated docker environment.
-
-```
-make docker-test
-```
-
-### Running standalone
-
-It's also possible to run the environment as a standalone local app, using virtualenv.
-This assumes you have virtualenvwrapper installed, and a virtual env is created (either
-via `mkvirtualenv trade-remedies-api` for example).
-Use Python 3.6+ as your interpretor.
-Make sure to install PostgreSql and Redis locally to use the service.
-
-```
-workon trade-remedies-api
-./manage.py runserver
-```
-
-
-
-## Deployment
-
-Trade Remedies API configuration is performed via the following environment variables:
-
+Populate the following environment variables in the local.env file:
 
 | Variable name | Required | Description |
 | ------------- | ------------- | ------------- |
-| `ALLOWED_HOSTS` | Yes | Comma-separated list of hostnames at which the app is accessible |
-| `DEBUG`  | Yes | Whether Django's debug mode should be enabled. |
-| `DJANGO_SECRET_KEY`  | Yes | |
-| `DJANGO_SETTINGS_MODULE`  | Yes | |
-| `DB_HOST` | Yes | The postgres database host |
-| `DB_PORT` | Yes | The postgres database port |
-| `DB_NAME` | Yes | The postgres databse name |
-| `DB_USER` | Yes | The postgres database user |
-| `DB_PASSWORD` | Yes | The postgres database password |
-| `MASTER_ADMIN_EMAIL` | Yes | Admin super user email (login) |
-| `MASTER_ADMIN_PASSWORD` | Yes | Admin super use password
-| `SENTRY_DSN` | Yes | URL For Sentry logging |
-| `HEALTH_CHECK_USER_TOKEN` | Yes | Auth token to use for the health check (trusted) user |
-| `HEALTH_CHECK_USER_EMAIL` | No | default: `_healthcheckuser_@gov.uk` |
-| `S3_STORAGE_KEY` | Yes | AWS S3 key |
-| `S3_STORAGE_SECRET` | Yes | AWS S3 secret |
-| `S3_BUCKET_NAME` | No | Defaults to `trade-remedies-file-storage-dev` |
-| `AV_SERVICE_URL` | Yes | Url for the Antivirus service |
-| `AV_SERVICE_USERNAME` | Yes | Username for the Antivirus service |
-| `AV_SERVICE_PASSWORD` | Yes | Password for the Antivirus service |
-| `GOV_NOTIFY_API_KEY`  | Yes | API Key for GOV Notify |
-| `GOV_NOTIFY_SERVICE_ID` | Yes | Service ID for GOV Notify |
-| `GOV_NOTIFY_SERVICE_API_KEY` | Yes | Service API Key for GOV Notify |
-| `PUBLIC_ROOT_URL` | Yes | Root URL for the Customer facing app |
-| `CASE_WORKER_ENVIRONMENT_KEY` | Yes | Unique identifier of the Case Worker environment used for API access restriction (Default value set) |
-| `PUBLIC_ENVIRONMENT_KEY` | Yes | Unique identifier of the Customer environment used  |for API access restriction (Default value set) |
-| `VCAP_SERVICES` | Yes | [CloudFoundry-compatible ](https://docs.run.pivotal.io/devguide/deploy-apps/environment-variable.html#VCAP-SERVICES)/[GDS PaaS-compatible](https://docs.cloud.service.gov.uk/deploying_apps.html#system-provided-environment-variables) configuration. The connection string at `redis[0].credentials.uri` is used to connect to Redis, which must include the password if required. It should _not_ end a forward slash. The connection string at `elasticsearch[0].credentials.uri` is used for Elasticsearch. When not present the dedicated HOST/PORT settings below will be used. |
-| `REDIS_DATABASE_NUMBER` | Yes | The database number in the Redis instance connected to by the details in `VCAP_SERVICES`. |
-| `DJANGO_ADMIN` | No | Set to True to turn on Django's admin site. Not for production environment! |
-| `ELASTIC_HOST` | No | Optional host for Elasticsearch host, for when VCAP_SERVICES does not provide credentials (local development). |
-| `ELASTIC_PORT` | No | Optional host for Elasticsearch port, for when VCAP_SERVICES does not provide credentials (local development). |
+| `S3_BUCKET_NAME` | Yes | S3 bucket name of bucket used for local dev |
+| `S3_STORAGE_KEY`  | Yes | AWS access key ID |
+| `S3_STORAGE_SECRET`  | Yes | AWS secret access key | |
+| `AWS_REGION`  | Yes | Change if different from "eu-west-2" |
+| `GECKOBOARD_API_KEY`  | Yes | Dev/other API key for Gecko board service |
+| `GECKOBOARD_ENV`  | Yes | Change if different to "dev" |
+| `AV_SERVICE_URL`  | Yes | URL of ClamAV antivirus service |
+| `AV_SERVICE_USERNAME`  | Yes | ClamAV antivirus service usermame |
+| `AV_SERVICE_PASSWORD`  | Yes | ClamAV antivirus service password |
+| `GOV_NOTIFY_API_KEY`  | Yes | API key for accessing Gov UK notify service  |
+| `COMPANIES_HOUSE_API_KEY`  | Yes | Companies House API key |
 
-### Scripts
+The project for running ClamAV locally can be found here: https://github.com/uktrade/dit-clamav-rest
 
-After the system is deployed for the first, the `bootstrap.sh` script will facilitate
-running the migrations, and setting up the data including running `fixtures.sh` which is setting up all fixtures. On an ongoing basis, only `fixtures.sh` is needed whenever fixtures are updated.
+GOV.UK notify: https://www.notifications.service.gov.uk/
 
---- 
+Companies House API: https://developer.company-information.service.gov.uk/api/docs/
 
+If you are not sure what to use for one of the values above, ask a colleague or contact the SRE team.
+
+#### Running the project
+
+This project should be run using the Trade Remedies orchestration project available at: https://github.com/uktrade/trade-remedies-docker
+
+## Compiling requirements
+
+We use pip-compile from https://github.com/jazzband/pip-tools to manage pip dependencies. This runs from the make file when generating requirements:
+
+Run `make all-requirements`
+
+This needs to be run from the host machine as it does not run in a container.
 
 ## Contributors ✨
 

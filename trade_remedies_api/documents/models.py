@@ -177,7 +177,11 @@ class DocumentManager(models.Manager):
         elif not settings.ASYNC_DOC_PREPARE and document.safe is None:
             prepare_document.run(document.id, case.id if case else None)
         # index the document
-        index_document.delay(str(document.id), case_id=case.id if case else None)
+        if settings.RUN_ASYNC:
+            index_document.delay(str(document.id), case_id=case.id if case else None)
+        else:
+            index_document(str(document.id), case_id=case.id if case else None)
+
         return document
 
 

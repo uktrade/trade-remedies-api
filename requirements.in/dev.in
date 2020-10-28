@@ -1,0 +1,14 @@
+# Constrain to base requirements
+-r ../requirements/base.txt
+
+# add packages needed only for development
+
+ipython==7.10
+traitlets==4.2
+black==19.10b0
+flake8
+coverage
+pytest
+pytest-cov
+pytest-django
+pytest-xdist

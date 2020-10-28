@@ -1,6 +1,9 @@
 import logging
 
 from celery import shared_task
+
+from django.conf import settings
+
 from notifications_python_client.errors import HTTPError
 
 from audit import AUDIT_TYPE_NOTIFY
@@ -33,7 +36,12 @@ def send_mail(email, context, template_id, reference=None, audit_kwargs=None):
     if audit_kwargs:
         audit_kwargs.setdefault("audit_type", AUDIT_TYPE_NOTIFY)
         audit_kwargs = new_audit_record_to_dict(**audit_kwargs)
-    send_mail_task.delay(email, context, template_id, reference, audit_kwargs)
+
+    if settings.RUN_ASYNC:
+        send_mail_task.delay(email, context, template_id, reference, audit_kwargs)
+    else:
+        send_mail_task(email, context, template_id, reference, audit_kwargs)
+
     return {
         "email": email,
         "context": context,
@@ -50,7 +58,7 @@ def send_mail_task(self, email, context, template_id, reference=None, audit_kwar
     audit_data = {}
     try:
         send_report = sync_send_mail(email, context, template_id, reference)
-        print("SEND", send_report)
+        logger.info(f"Send email: {send_report}")
     except HTTPError as err:
         error_report, error_status = extract_error_from_api_exception(err)
         if error_status in (500, 503):
@@ -71,6 +79,7 @@ def send_mail_task(self, email, context, template_id, reference=None, audit_kwar
                 else error_report,
             }
             logger.error("Notify request failed: %s", send_report)
+
     if audit_kwargs:
         audit_data = audit_kwargs.get("data", {})
         if not isinstance(audit_data, dict):
@@ -79,5 +88,11 @@ def send_mail_task(self, email, context, template_id, reference=None, audit_kwar
     else:
         audit_kwargs = {}
         audit_data = send_report
+
     audit_kwargs["data"] = audit_data
-    audit_log_task.delay(audit_kwargs)
+
+    if settings.RUN_ASYNC:
+        audit_log_task.delay(audit_kwargs)
+    else:
+        audit_log_task(audit_kwargs)
+

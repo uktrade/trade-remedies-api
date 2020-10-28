@@ -104,6 +104,7 @@ ENV/
 db.sqlite3
 
 # docker
+.env
 local.env
 
 # vim
@@ -118,3 +119,9 @@ workflow.gv.pdf
 
 .idea
 node_modules
+
+# Mac
+.DS_Store
+
+# static
+trade_remedies_api/trade_remedies_api/staticfiles/
