@@ -19,7 +19,6 @@ class WorkflowTemplateAPI(TradeRemediesApiView):
             template = WorkflowTemplate.objects.create(
                 name=request.data.get("template_name", "Untitled"), template=Workflow.BOILERPLATE
             )
-        # TODO flake8 fix F821 undefined name 'item'
         item_type = request.data.get("name")
         item_id = request.data.get("value")
         index = int(request.data.get("index", -1))

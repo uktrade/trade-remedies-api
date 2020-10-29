@@ -327,7 +327,6 @@ class StateManager(models.Manager):
         elif isinstance(workflow, dict):
             workflow = Workflow(workflow)
         for key in workflow.key_index:
-            # TODO fix F821 (undefined name 'state') instead of using noqa
             state.key_index[key]["value"] = self.current_value(key, **kwargs)  # noqa: F821
             # due_date = CaseWorkflowState.objects.current_due_date(self.case, key)
             # if due_date:

@@ -149,9 +149,7 @@ urlpatterns = [
         "<uuid:case_id>/organisation/<uuid:organisation_id>/exportsource/<uuid:export_source_id>/",
         ExportSourceAPIView.as_view(),
     ),
-    path(
-        "<uuid:case_id>/submission/<uuid:submission_id>/reviewtype/", ReviewTypeAPIView.as_view()
-    ),  # noqa: E501
+    path("<uuid:case_id>/submission/<uuid:submission_id>/reviewtype/", ReviewTypeAPIView.as_view()),
     # Set Review
     path(
         "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/review/",  # noqa: E501
