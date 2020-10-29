@@ -2,6 +2,7 @@ import logging
 import json
 from core.models import SystemParameter
 from django.core.management.base import BaseCommand
+from django.conf import settings  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
