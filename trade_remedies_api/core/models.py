@@ -28,6 +28,7 @@ from security.constants import (
     DEFAULT_ADMIN_PERMISSIONS,
     DEFAULT_USER_PERMISSIONS,
     SOS_SECURITY_GROUPS,
+    SECURITY_GROUP_THIRD_PARTY_USER,
 )
 from security.models import CaseSecurityMixin, UserCase, OrganisationUser
 from core.notifier import send_sms, send_mail as mail_2fa
@@ -48,11 +49,15 @@ logger = logging.getLogger(__name__)
 
 @singledispatch
 def get_groups(groups):
+    print( "get_groups at line 51: " + str( groups ) )
     return groups
 
 
 @get_groups.register(list)  # noqa
 def _(groups):
+    print( "_ function: " + str(groups) )
+    gg = Group.objects.filter(name__in=groups)
+    print( "Group.objects.filter(name__in=groups) = " + str(gg) )
     return Group.objects.filter(name__in=groups)
 
 
@@ -109,13 +114,31 @@ class UserManager(BaseUserManager):
         validate_password(password)
         user.set_password(password)
         user.save()
+
+        print( "groups: " + str(groups) )
+        print( "assign_default_groups: " + str( assign_default_groups) )
+
         if assign_default_groups and not groups:
             permissions = DEFAULT_ADMIN_PERMISSIONS if admin is True else DEFAULT_USER_PERMISSIONS
             groups = Group.objects.filter(name__in=permissions)
+        print( "get_old_group_permissions: " + str( user.permission_map ) )
+        print( "groups: " + str(groups) )
         if groups:
+            print( "hi from the groups clause...")
+            g = get_groups(groups)
+            print( "get_groups(groups): " + str(g)  )
             for group in get_groups(groups):
-                user.groups.add(group)
+                print( "group: " + str(group) )
+                k = user.groups.add(group)
+                print( "k=" + str( k ) )
+                print( "user.groups:" + str( user.groups ) )
+            print( "get_new_group_permissions: " + str( user.permission_map ) )
+        print( "groups: " + str(groups) )
         self.evaluate_sos_membership(user, groups)
+        print( "groups: " + str(groups) )
+        print( "user:" + str( user ) )
+        print( "user.groups: ")
+        print( user.groups )
         # Organisation
         organisation_name = kwargs.get("organisation_name")
         organisation = kwargs.get("organisation")
@@ -133,6 +156,8 @@ class UserManager(BaseUserManager):
 
         contact = kwargs.get("contact")
         if not contact:
+            print( "creating contact..." )
+            print( str( kwargs.get( "contact_address" )))
             contact = Contact.objects.create(
                 name=user.name,
                 email=user.email,
@@ -143,6 +168,7 @@ class UserManager(BaseUserManager):
                 country=country,
                 created_by=user,
             )
+            print( "creating contact...DONE" )
         else:
             contact.phone = phone
             contact.address = kwargs.get("contact_address") or contact.address

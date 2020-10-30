@@ -13,6 +13,7 @@ GROUPS = [
     ("Lead Investigator", "Lead Investigator"),
     ("Organisation Owner", "A member of an organisation with owner access"),
     ("Organisation User", "A member of an organisation with standard access"),
+    ("Third Party User", "A member of a third party organisation with standard access"),
 ]
 
 GROUP_PERMISSIONS = {}
@@ -24,6 +25,7 @@ GROUP_PERMISSIONS["TRA Administrator"] = GROUP_PERMISSIONS["TRA Investigator"] +
 ]
 GROUP_PERMISSIONS["Organisation User"] = []
 GROUP_PERMISSIONS["Organisation Owner"] = GROUP_PERMISSIONS["Organisation User"] + []
+GROUP_PERMISSIONS["Third Party User"] = GROUP_PERMISSIONS["Organisation User"] + []
 
 
 PERMISSION_MODELS = [

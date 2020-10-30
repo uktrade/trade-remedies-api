@@ -38,8 +38,8 @@ def index_document(document_id, case_id=None):
     from documents.models import Document
 
     document = Document.objects.get(id=document_id)
-    result = document.elastic_index(case=case_id)
-    logger.info(result)
+    #result = document.elastic_index(case=case_id)
+    #logger.info(result)
 
 
 @shared_task()

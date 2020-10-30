@@ -218,9 +218,14 @@ class RegistrationAPIView(APIView):
                             user, accept=False, register_interest=register_interest
                         )
                 else:
+                    print( "creating user...")
+                    print( str( user_data))
+                    ___groups=[SECURITY_GROUP_ORGANISATION_OWNER]
+                    print( str( ___groups ))
                     user = User.objects.create_user(
                         groups=[SECURITY_GROUP_ORGANISATION_OWNER], **user_data
                     )
+                    print( "creating user...DONE")
                     profile = user.userprofile
                     profile.verify_email()
 
