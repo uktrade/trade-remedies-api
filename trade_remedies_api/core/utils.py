@@ -1,3 +1,4 @@
+import logging
 import hashlib
 import phonenumbers
 import dpath
@@ -6,6 +7,8 @@ from django.conf import settings
 from django.db import connection
 from django.contrib.contenttypes.models import ContentType
 from trade_remedies_api.constants import STATE_INCOMPLETE
+
+logger = logging.getLogger(__name__)
 
 
 def deep_index_items_by(items, key):
@@ -88,7 +91,7 @@ def convert_to_e164(raw_phone, country=None):
             phone_representation, phonenumbers.PhoneNumberFormat.E164
         )
     except Exception:
-        print(f"Invalid phone number: {raw_phone} / {country}")
+        logger.debug(f"Invalid phone number: {raw_phone} / {country}")
         raise
     return e164_phone
 
@@ -121,7 +124,7 @@ def file_md5_checksum(file):
         md5 = hashlib.md5()
         for chunk in iter(lambda: file.read(65536), b""):
             md5.update(chunk)
-            gevent.sleep(0)
+            gevent.sleep(0) # TODO find out from Mark what this is
 
         return md5.hexdigest()
     except Exception:

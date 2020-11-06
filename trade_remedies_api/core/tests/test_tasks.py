@@ -40,7 +40,6 @@ class SendMailTest(TestCase):
     fixtures = ["submission_types.json"]
 
     def setUp(self):
-
         self.user = User.objects.create(email="test@user.com", name="Joe Public")
         self.user_context = UserContext(self.user)
         self.case = Case.objects.create(
@@ -63,7 +62,6 @@ class SendMailTest(TestCase):
     def test_task(self, sync_send):
         sync_send.return_value = notify_response
         send_mail(self.email, self.context, self.template_id, audit_kwargs=self.audit_kwargs)
-
         sync_send.assert_called_once_with(
             self.email, self.context, self.template_id, self.reference
         )

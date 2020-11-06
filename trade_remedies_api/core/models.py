@@ -689,7 +689,7 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         try:
             _dict.update(self.userprofile.to_dict())
         except Exception as exc:
-            print(f"Cannot expand user profile: {exc}")
+            logger.error(f"Cannot expand user profile", exc_info=True)
         return _dict
 
     def get_cases(self, organisation=None):

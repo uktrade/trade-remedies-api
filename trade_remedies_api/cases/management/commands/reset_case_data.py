@@ -1,3 +1,5 @@
+import logging
+
 import os
 from cases.models import (
     Case,
@@ -23,6 +25,8 @@ from core.models import User, UserProfile
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.db import connection
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -75,4 +79,4 @@ class Command(BaseCommand):
             | Q(email=os.environ.get("HEALTH_CHECK_USER_EMAIL"))
             | Q(groups__name__in=SECURITY_GROUPS_TRA)
         ).delete()
-        print("CLEAR")
+        logger.info("Completed reset_case_data command")
