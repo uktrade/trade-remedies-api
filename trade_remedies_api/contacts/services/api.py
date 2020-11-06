@@ -122,8 +122,12 @@ class ContactLookup(TradeRemediesApiView):
     def get(self, request):
         term = request.query_params.get("term")
         contacts = Contact.objects.filter(email__istartswith=term)
+        #results = [
+        #    {"email": contact.email, "name": contact.name, "id": contact.id, 
+        #    "organisation_id": contact.organisation_id,  "user_id": contact.user.id } for contact in contacts
+        #]
         results = [
             {"email": contact.email, "name": contact.name, "id": contact.id, 
-            "organisation_id": contact.organisation_id,  "user_id": contact.user.id } for contact in contacts
+            "organisation_id": contact.organisation_id } for contact in contacts
         ]
         return ResponseSuccess({"results": results}, http_status=status.HTTP_201_CREATED)

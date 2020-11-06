@@ -21,6 +21,7 @@ from security.constants import (
 )
 from .exceptions import InvitationFailure, InviteAlreadyAccepted
 
+import logging
 
 class InvitationManager(models.Manager):
     def _validate_invitation(self, organisation, email, user_id=None):
@@ -106,6 +107,7 @@ class InvitationManager(models.Manager):
         :param organisation: The organisation invited to
         :param invited_by: The user creating the invitation.
         """
+        logging.info("create_user_invite : " + user_email + " " + str(organisation)  )
         created = True
         user_email = user_email.lower()
         try:
