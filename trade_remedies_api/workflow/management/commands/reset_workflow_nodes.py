@@ -1,5 +1,9 @@
+import loggimg
+
 from workflow.models import Node
 from django.core.management.base import BaseCommand
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -8,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        print("+ Deleting workflow nodes")
+        logger.info("+ Deleting workflow nodes")
         nodes = Node.objects.all()
         # using a raw delete because we don't want the self-reference checks getting in the way.
         nodes._raw_delete(nodes.db)

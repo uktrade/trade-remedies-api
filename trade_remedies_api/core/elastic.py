@@ -24,4 +24,5 @@ class ESWrapper(object):
 def get_elastic():
     if settings.ELASTIC_URI or settings.ELASTIC_HOST:
         return ESWrapper.get_client()
+
     return None

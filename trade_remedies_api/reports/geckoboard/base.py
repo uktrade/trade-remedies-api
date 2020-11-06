@@ -1,7 +1,10 @@
+import logging
 import geckoboard
 from django.conf import settings
 from reports.geckoboard.datasets import get_dataset, DATASETS
 from reports.queries import REPORT_REGISTRY
+
+logger = logging.getLogger(__name__)
 
 
 def get_client():
@@ -30,9 +33,9 @@ def update_geckoboard_datasets():
     """
     Update (or replace) all geckboard datasets
     """
-    print(f"Initiating report update for {settings.GECKOBOARD_ENV}")
+    logger.info(f"Initiating report update for {settings.GECKOBOARD_ENV}")
     for key in DATASETS:
-        print(f"Report key: {key} (in registry: {key in REPORT_REGISTRY})")
+        logger.info(f"Report key: {key} (in registry: {key in REPORT_REGISTRY})")
         if key in REPORT_REGISTRY:
             data = REPORT_REGISTRY[key]()
             _dataset = dataset(key)
@@ -42,4 +45,4 @@ def update_geckoboard_datasets():
                 elif DATASETS[key]["mode"] == "append":
                     result = _dataset.post(data)
                 if result:
-                    print("Dataset updated")
+                    logger.info("Dataset updated")

@@ -27,7 +27,10 @@ def prepare_pending_documents():
         Q(checksum__isnull=True) | Q(safe__isnull=True)
     ).values_list("id", flat=True)
     for doc_id in pending_docs:
-        prepare_document.delay(doc_id)
+        if settings.RUN_ASYNC:
+            prepare_document.delay(doc_id)
+        else:
+            prepare_document(doc_id)
 
 
 @shared_task()
@@ -36,7 +39,7 @@ def index_document(document_id, case_id=None):
 
     document = Document.objects.get(id=document_id)
     result = document.elastic_index(case=case_id)
-    print(result)
+    logger.info(result)
 
 
 @shared_task()
@@ -49,4 +52,7 @@ def index_documents(force=False):
         document_ids = Document.objects.filter(index_state=INDEX_STATE_NOT_INDEXED)
     document_ids = document_ids.values_list("id", flat=True)
     for document_id in document_ids:
-        index_document.delay(document_id)
+        if settings.RUN_ASYNC:
+            index_document.delay(document_id)
+        else:
+            index_document(document_id)

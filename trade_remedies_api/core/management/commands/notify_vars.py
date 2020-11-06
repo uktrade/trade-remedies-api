@@ -1,5 +1,9 @@
+import logging
+
 from core.notifier import get_client
 from django.core.management.base import BaseCommand
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -18,11 +22,11 @@ class Command(BaseCommand):
                 vars.setdefault(template_name, set([]))
                 vars[template_name].add(key)
                 keys.add(key)
-        print("-" * 80)
-        print("All keys: ")
-        print(", ".join(keys))
-        print("-" * 80)
-        print("By Template")
+        logger.info("-" * 80)
+        logger.info("All keys: ")
+        logger.info(", ".join(keys))
+        logger.info("-" * 80)
+        logger.info("By Template")
         for template_key in vars:
-            print(f"+ {template_key}: ")
-            print(f"        {', '.join(vars[template_key])}")
+            logger.info(f"+ {template_key}: ")
+            logger.info(f"        {', '.join(vars[template_key])}")

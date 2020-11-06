@@ -1,3 +1,5 @@
+import logging
+
 from celery import shared_task
 from notifications_python_client.errors import HTTPError
 from urllib.parse import urlparse, parse_qs
@@ -6,6 +8,8 @@ from django.db.utils import OperationalError, IntegrityError
 from core.notifier import get_client
 from audit import AUDIT_TYPE_NOTIFY, AUDIT_TYPE_DELIVERED
 from audit.models import Audit
+
+logger = logging.getLogger(__name__)
 
 
 @shared_task(bind=True)
@@ -39,7 +43,7 @@ def check_notify_send_status():
     ORDER BY a.created_at DESC
     """
     audits = Audit.objects.raw(SQL)
-    print(f"Total pending audits: {len(audits)}")
+    logger.debug(f"Total pending audits: {len(audits)}")
     notify = get_client()
     for audit in audits:
         delivery_id = audit.data.get("send_report", {}).get("id")
@@ -67,4 +71,4 @@ def check_notify_send_status():
                         "completed_at": status.get("completed_at"),
                     },
                 )
-                print(f"Created {delivery_audit} / {delivery_audit.data}")
+                logger.info(f"Created {delivery_audit} / {delivery_audit.data}")
