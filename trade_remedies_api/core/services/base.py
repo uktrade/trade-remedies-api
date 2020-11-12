@@ -1,3 +1,4 @@
+import logging
 import json
 from time import time
 from rest_framework.views import APIView
@@ -18,6 +19,8 @@ from django.http.multipartparser import (
 )
 from core.feature_flags import FeatureFlags
 from .exceptions import AccessDenied
+
+logger = logging.getLogger(__name__)
 
 
 class GroupPermission(BasePermission):
@@ -110,15 +113,16 @@ class TradeRemediesApiView(APIView):
             if response.exception is True:
                 response["error"] = True
                 if settings.DEBUG:
-                    print(f"Exception: {response.data}")
+                    logger.error(f"Error: {response.data}")
             else:
                 response.data["version"] = __version__
                 response.data["process_time"] = time() - time_recv
                 if hasattr(self, "queryset"):
                     response.data["start"] = self._start
                     response.data["limit"] = self._limit
-                if settings.DEBUG:
-                    print(f"Time: {response.data['process_time']}")
+                # TODO - talk to Mark re the below
+                # if settings.DEBUG:
+                #     logger.info(f"Time: {response.data['process_time']}")
         return response
 
     def validate_required_fields(self, request):

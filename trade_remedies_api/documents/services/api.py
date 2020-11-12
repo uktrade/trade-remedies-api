@@ -1,3 +1,4 @@
+import logging
 from core.services.base import TradeRemediesApiView, ResponseSuccess
 from documents.models import Document, DocumentBundle
 from documents.exceptions import InvalidFile
@@ -32,6 +33,9 @@ from notes.models import Note
 from security.constants import SECURITY_GROUPS_TRA
 from audit import AUDIT_TYPE_ATTACH
 import json
+
+
+logger = logging.getLogger(__name__)
 
 
 class CaseDocumentCountAPI(TradeRemediesApiView):
@@ -173,6 +177,7 @@ class DocumentAPIView(TradeRemediesApiView):
             if submission_id:
                 doc_kwargs["submissiondocument__submission"] = submission_id
             document = Document.objects.select_related("parent", "created_by").get(**doc_kwargs)
+
             return ResponseSuccess({"result": document.to_dict()})
         documents = Document.objects.select_related("parent", "created_by",).filter(
             deleted_at__isnull=True
@@ -372,7 +377,10 @@ class DocumentAPIView(TradeRemediesApiView):
                         }
                     )
             # schedule the index not
-            index_document.delay(str(document.id))
+            if settings.RUN_ASYNC:
+                index_document.delay(str(document.id))
+            else:
+                index_document(str(document.id))
             return ResponseSuccess({"result": result}, http_status=status.HTTP_201_CREATED)
         elif document_id:
             # We just want to attach a document
@@ -449,6 +457,7 @@ class DocumentStreamDownloadAPIView(TradeRemediesApiView):
     def get(self, request, document_id, submission_id=None, *args, **kwargs):
         document = Document.objects.get(id=document_id)
         is_tra = request.user.is_tra()
+
         if (
             not is_tra
             and not submission_id

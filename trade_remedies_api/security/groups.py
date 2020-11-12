@@ -1,4 +1,8 @@
+import logging
+
 from django.contrib.auth.models import Group, Permission
+
+logger = logging.getLogger(__name__)
 
 
 GROUPS = [
@@ -45,13 +49,13 @@ DEFAULT_ADMIN_PERMISSIONS = DEFAULT_USER_PERMISSIONS + [
 def create_groups():
     for group_data in GROUPS:
         group, created = Group.objects.get_or_create(name=group_data[0])
-        print("\t{0} created? {1}".format(group_data[0], created))
+        logger.info("\t{0} created? {1}".format(group_data[0], created))
 
 
 def assign_group_permissions():
     all_permissions = []
     for group_name in GROUP_PERMISSIONS:
-        print(
+        logger.info(
             "Assigning {0} permissions to {1}".format(
                 len(GROUP_PERMISSIONS[group_name]), group_name
             )
@@ -64,8 +68,8 @@ def assign_group_permissions():
                 permission = Permission.objects.get(codename=perm, content_type__app_label=app)
                 group.permissions.add(permission)
             except Permission.DoesNotExist:
-                print("\t{0} -> Does not exist".format(permission_name))
-    print("Assigning {0} Super User permissions".format(len(all_permissions)))
+                logger.error("\t{0} -> Does not exist".format(permission_name), exc_info=True)
+    logger.info("Assigning {0} Super User permissions".format(len(all_permissions)))
     superuser = Group.objects.get(name="Super User")
     for permission_name in all_permissions + ADDITIONAL_PERMISSIONS:
         try:
@@ -73,4 +77,4 @@ def assign_group_permissions():
             permission = Permission.objects.get(codename=perm, content_type__app_label=app)
             superuser.permissions.add(permission)
         except Permission.DoesNotExist:
-            print("{0} permission not found".format(permission_name))
+            logger.error("{0} permission not found".format(permission_name), exc_info=True)

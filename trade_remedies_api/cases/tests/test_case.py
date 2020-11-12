@@ -36,7 +36,7 @@ def get_case_fixtures(*extra):
 
 
 def load_system_params():
-    path = f"{settings.SITE_ROOT}/trade_remedies_api/core/system/parameters.json"
+    path = "core/system/parameters.json"
     with open(path) as json_data:
         objects = json.loads(str(json_data.read()))
     return SystemParameter.load_parameters(objects)
