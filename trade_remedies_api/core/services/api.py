@@ -349,9 +349,9 @@ class PublicUserApiView(TradeRemediesApiView):
                 raise NotFoundApiExceptions("Invalid parameters of access denied")
         request_data = request.data.dict()
         if invitation:
-            request_data["group"] = invitation.meta["group"]
-            request_data["active"] = invitation.meta["is_active"]
-            request_data["case_spec"] = invitation.meta["case_spec"]
+            # request_data["group"] = invitation.meta["group"]
+            # request_data["active"] = invitation.meta["is_active"]
+            # request_data["case_spec"] = invitation.meta["case_spec"]
             request_data["email"] = invitation.email
             request_data["contact"] = invitation.contact
             organisation = invitation.organisation
@@ -484,7 +484,13 @@ class AssignUserToCaseView(TradeRemediesApiView):
             if not request.user.groups.filter(name=SECURITY_GROUP_ORGANISATION_OWNER).exists():
                 raise InvalidAccess("Only organisation owners can update other members")
         case = get_case(case_id)
-        user = User.objects.get(id=user_id, organisationuser__organisation=user_organisation)
+        import logging
+        logging.info( user_id )
+        logging.info( user_organisation )
+        try:
+            user = User.objects.get(id=user_id, organisationuser__organisation=user_organisation)
+        except Exception as e:
+            user = User.objects.get( id=user_id)
         if not remove:
             user.assign_to_case(case=case, organisation=representing, created_by=request.user)
             user.contact.add_to_case(

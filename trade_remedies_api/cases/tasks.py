@@ -52,7 +52,6 @@ def check_measure_expiry():
     for case in cases:
         latest_expiry = case.get_state_key("LATEST_MEASURE_EXPIRY")
         if latest_expiry and latest_expiry.value:
-            # print( TODO - remove if not needed
             #     timezone.now().date() <= parse(latest_expiry.value).date(),
             #     timezone.now().date(),
             #     parse(latest_expiry.value).date(),

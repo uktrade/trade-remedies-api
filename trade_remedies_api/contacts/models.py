@@ -109,7 +109,6 @@ class Contact(BaseModel):
         return base_dict
 
     def to_embedded_dict(self, case=None):
-        print( "Contact: to_embedded_dict" )
         has_user = self.has_user
         _dict = self.to_minimal_dict()
         _dict.update(

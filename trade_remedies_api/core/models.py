@@ -49,15 +49,12 @@ logger = logging.getLogger(__name__)
 
 @singledispatch
 def get_groups(groups):
-    print( "get_groups at line 51: " + str( groups ) )
     return groups
 
 
 @get_groups.register(list)  # noqa
 def _(groups):
-    print( "_ function: " + str(groups) )
     gg = Group.objects.filter(name__in=groups)
-    print( "Group.objects.filter(name__in=groups) = " + str(gg) )
     return Group.objects.filter(name__in=groups)
 
 

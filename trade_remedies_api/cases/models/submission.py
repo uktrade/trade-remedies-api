@@ -67,8 +67,6 @@ class SubmissionManager(models.Manager):
 
         import time
         start = time.time()
-        print( "getSubmissions....")
-
 
         from .utils import get_case
 
@@ -104,8 +102,6 @@ class SubmissionManager(models.Manager):
         elif submission_id:
             submissions = submissions.filter(id=submission_id)
 
-        print( "t2: " + str( time.time() - start) )
-
         # TRA users filter by global (sent to all orgs) submissions
         if not show_global and not submission_id and requested_by.is_tra():
             submissions = submissions.exclude(organisation__isnull=True)
@@ -121,15 +117,12 @@ class SubmissionManager(models.Manager):
                 | Q(organisation__isnull=True)
             ).distinct()
 
-        print( "t3: " + str( time.time() - start) )
         # TODO: Exclude drafts from CW (include in public - needs switch)
         # submissions = submissions.exclude(type=SUBMISSION_TYPE_REGISTER_INTEREST, status=SUBMISSION_STATUS_REGISTER_INTEREST_DRAFT)
         submissions = submissions.order_by("-created_at")
 
-        print( "t4: " + str( time.time() - start) )
 
 
-        print( "getSubmissions....DONE")
         return submissions
 
 

@@ -780,7 +780,6 @@ class SubmissionsAPIView(TradeRemediesApiView):
 
         import time
         start = time.time()
-        print( "SubmissionsApiView:get...")
         case = None
         private = request.query_params.get("private", "false").lower() in ("true", "1", "t", "y")
         self.show_global = self.show_global or request.query_params.get(
@@ -796,7 +795,6 @@ class SubmissionsAPIView(TradeRemediesApiView):
             except Case.DoesNotExist:
                 raise NotFoundApiExceptions("Case not found or access denied")
         
-        print( "SubmissionsApiView:get...t1=" + str(time.time() - start ))
         submissions = Submission.objects.get_submissions(
             case=case,
             requested_by=request.user,
@@ -806,7 +804,6 @@ class SubmissionsAPIView(TradeRemediesApiView):
             show_global=self.show_global,
             sampled_only=sampled_only,
         )
-        print( "SubmissionsApiView:get...t2=" + str(time.time() - start ))
         if submission_id:
             if submissions:
                 submission = submissions.get(id=submission_id)
@@ -822,15 +819,10 @@ class SubmissionsAPIView(TradeRemediesApiView):
                 )
             else:
                 raise NotFoundApiExceptions("Submission not found or invalid access")
-        print( "SubmissionsApiView:get...t3=" + str(time.time() - start ))
         submissions = submissions.order_by("created_at")
-        print( "SubmissionsApiView:get...t4=" + str(time.time() - start ))
         
         _result_list = []
         for submission in submissions:
-            print( "SubmissionsApiView:get...t5=" + str(time.time() - start ))
-            # print( str( submission ) )
-            print( type( submission ) )
             _result_list.append( submission.to_embedded_dict(
                 requested_by=request.user, requested_for=self.organisation, fields=fields
             ) )
@@ -842,7 +834,6 @@ class SubmissionsAPIView(TradeRemediesApiView):
             for submission in submissions
         ]
         '''
-        print( "SubmissionsApiView:get...DONE: " + str(time.time() - start))
         return ResponseSuccess({"results": _result_list})
 
     @transaction.atomic
