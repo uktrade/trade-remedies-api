@@ -51,6 +51,30 @@ Run `make all-requirements`
 
 This needs to be run from the host machine as it does not run in a container.
 
+## Updating the organisation name
+
+This command is specific to the transition of the rebranding from "Trade Remedies Investigations Directorate" to "Trade Remedies Authority".  The underlying code will have to be adapted if there are future changes of branding. 
+
+For information on the command:
+
+ `python manage.py rename_trade_authority_organisation`
+
+To check that the operation can proceed:
+
+ `python manage.py rename_trade_authority_organisation --nocommit`
+
+To proceed with the operation:
+
+`python manage.py rename_trade_authority_organisation --commit`
+
+To undo the operation, including committing the result:
+
+`python manage.py rename_trade_authority_organisation --undo`
+
+You are advised to perform a dress rehearsal prior to using the command on the live database.  To do so (e.g. on UAT), execute the commands in the above order, checking the database entries after the commit operation and using the undo operation to return to the initial state.
+
+The command has been developed and tested on a best efforts basis against an example database.  The state of the live database will differ from that against which it was developed and any differences may be relevant to the operation of the command.  You are advised to back up the database before proceeding with the operation.  You are advised to run the `--nocommit` first to check that the state of the database is such that the operation can proceed smoothly and to investigate any issues before proceeding with the `--commit`.
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people who contributed to this repo before it was open-sourced ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
