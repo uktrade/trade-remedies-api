@@ -1,16 +1,13 @@
 import datetime
 from dateutil.relativedelta import relativedelta
 from django.db import models
-from django.db.models import Q
 from django.contrib.postgres import fields
-from django.utils import timezone
 from django.conf import settings
 from core.decorators import method_cache
-from core.utils import gt, lt
 
 
 class CaseTypeManager(models.Manager):
-    def available_case_review_types(self, case):
+    def available_case_review_types(self, case):  # noqa:C901
         """
         Return all available review case types available for a given case,
         based on the milestone dates associated with it and the case type criteria.

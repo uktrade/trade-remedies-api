@@ -1,9 +1,7 @@
 import json
-from django.conf import settings
 from core.services.base import TradeRemediesApiView, ResponseSuccess
 from notes.models import Note
 from documents.models import Document
-from core.utils import file_md5_checksum, update_object_from_request
 from rest_framework import status
 from audit import AUDIT_TYPE_ATTACH
 from core.services.exceptions import InvalidRequestParams, NotFoundApiExceptions
@@ -18,7 +16,8 @@ class NoteAPIView(TradeRemediesApiView):
     ### GET
 
     `GET /api/v1/notes/case/{CASE_UUID}/` Get all case notes
-    `GET /api/v1/notes/case/{CASE_UUID}/on/{CONTENT_TYPE_IDENTIFIER}/{MODEL_ID}/` Get all notes for a particular model
+    `GET /api/v1/notes/case/{CASE_UUID}/on/{CONTENT_TYPE_IDENTIFIER}/{MODEL_ID}/`
+    Get all notes for a particular model
     `GET /api/v1/notes/{NOTE_UUID}/` Get a specific note
 
     ### POST
@@ -63,7 +62,7 @@ class NoteAPIView(TradeRemediesApiView):
         notes = notes.order_by("created_at")
         return ResponseSuccess({"results": [_note.to_dict() for _note in notes]})
 
-    def post(
+    def post(  # noqa: C901
         self,
         request,
         case_id=None,

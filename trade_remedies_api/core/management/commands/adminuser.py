@@ -1,12 +1,10 @@
 import logging
 import os
-import pytz
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from django.conf import settings
 from django.utils import crypto
 from security.utils import create_groups, assign_group_permissions
-from core.models import User, UserProfile
+from core.models import User
 from django.contrib.auth.models import Group
 from rest_framework.authtoken.models import Token
 
@@ -73,7 +71,9 @@ class Command(BaseCommand):
             token = Token.objects.create(user=user, key=health_check_user_token)
             logger.info(f"Health check user created with token {health_check_user_token}")
         else:
-            logger.info(f"Health check user exists. Regenerating token as {health_check_user_token}")
+            logger.info(
+                f"Health check user exists. Regenerating token as {health_check_user_token}"
+            )
             Token.objects.filter(user=health_user[0]).delete()
             Token.objects.create(user=health_user[0], key=health_check_user_token)
         logger.info("Completed admin user set up")

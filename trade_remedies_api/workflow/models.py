@@ -1,13 +1,16 @@
 import uuid
 from copy import deepcopy
-from functools import singledispatch
 import logging
 
 from django.db import models
 from django.contrib.postgres import fields
 from graphviz import Digraph
 from core.utils import rekey
-from .exceptions import InvalidParentType, DuplicateNode, InvalidArgument, InvalidNode
+from .exceptions import (
+    DuplicateNode,
+    InvalidArgument,
+    InvalidNode,
+)
 from .outcomes import OUTCOME_REGISTRY
 from .response_types import RESPONSE_TYPES
 
@@ -150,7 +153,8 @@ class Workflow(dict):
             #     del node['parent']
             # if 'order' in node:
             #     del node['order']
-            # if node.get('response_type') and 'id' in node['response_type'] and node['response_type']['id'] in RT:
+            # if node.get('response_type') and 'id' in node['response_type']
+            # and node['response_type']['id'] in RT:
             #     rt = RT[node['response_type']['id']]
             #     if 'id' in rt:
             #         del rt['id']
@@ -323,16 +327,16 @@ class StateManager(models.Manager):
         elif isinstance(workflow, dict):
             workflow = Workflow(workflow)
         for key in workflow.key_index:
-            state.key_index[key]["value"] = self.current_value(key, **kwargs)
+            state.key_index[key]["value"] = self.current_value(key, **kwargs)  # noqa: F821
             # due_date = CaseWorkflowState.objects.current_due_date(self.case, key)
             # if due_date:
             #     state.key_index[key]['due_date'] = due_date
 
-        state["meta"] = {}
+        state["meta"] = {}  # noqa: F821
         for key in State.BUILT_IN_STATE_KEYS:
             value = self.current_value(key, **kwargs)
-            state["meta"][key] = value
-        return state
+            state["meta"][key] = value  # noqa: F821
+        return state  # noqa: F821
 
 
 class State(models.Model):

@@ -1,5 +1,5 @@
 from django.db import models
-from core.models import BaseModel
+from core.base import BaseModel
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres import fields
 

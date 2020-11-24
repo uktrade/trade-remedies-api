@@ -2,6 +2,7 @@ from celery import shared_task
 from celery.utils.log import get_task_logger
 from django.db.models import Q
 from documents.constants import INDEX_STATE_NOT_INDEXED
+from django.conf import settings
 
 logger = get_task_logger(__name__)
 

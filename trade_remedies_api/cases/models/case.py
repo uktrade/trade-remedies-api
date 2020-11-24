@@ -19,25 +19,19 @@ from security.constants import (
     SECURITY_GROUPS_TRA,
     ROLE_AWAITING_APPROVAL,
     ROLE_APPLICANT,
-    SECURITY_GROUPS_PUBLIC,
 )
 from cases.constants import (
     CASE_TYPE_ANTI_DUMPING,
     CASE_TYPE_SAFEGUARDING,
     CASE_TYPE_ANTI_SUBSIDY,
     ALL_COUNTRY_CASE_TYPES,
-    SUBMISSION_DOCUMENT_TYPE_CUSTOMER,
-    SUBMISSION_DOCUMENT_TYPE_TRA,
-    SUBMISSION_DOCUMENT_TYPE_DEFICIENCY,
     DIRECTION_TRA_TO_PUBLIC,
     DIRECTION_PUBLIC_TO_TRA,
-    SUBMISSION_TYPE_EX_OFFICIO,
     SUBMISSION_TYPE_APPLICATION,
     SUBMISSION_TYPE_NOTICE_OF_INITIATION,
     SUBMISSION_APPLICATION_TYPES,
     DECISION_TO_INITIATE_KEY,
     EVIDENCE_OF_SUBSIDY_KEY,
-    TRA_ORGANISATION_ID,
     CASE_MILESTONE_DATES,
 )
 from security.models import (
@@ -49,7 +43,8 @@ from security.models import (
 from security.exceptions import InvalidAccess
 from organisations.models import Organisation, get_organisation
 from contacts.models import Contact
-from core.models import BaseModel, SystemParameter
+from core.base import BaseModel
+from core.models import SystemParameter
 from .casetype import CaseType
 from .casestage import CaseStage
 from .submission import SubmissionType, Submission
@@ -409,7 +404,7 @@ class Case(BaseModel):
             if sub:
                 self._latest_noi_url = (
                     sub.url
-                    or f"{settings.PUBLIC_ROOT_URL}/public/case/{self.reference}/submission/{sub.id}/"
+                    or f"{settings.PUBLIC_ROOT_URL}/public/case/{self.reference}/submission/{sub.id}/"  # noqa: E501
                 )
         return self._latest_noi_url
 
@@ -832,7 +827,8 @@ class Case(BaseModel):
         return self.submission_set.filter(organisation=organisation).order_by("created_at")
 
     def organisation_submissions_state(self, organisation):
-        # We flag all submissions that sent by the TRA and are not locked - because the customer has to do some more work on them
+        # We flag all submissions that sent by the TRA and are not locked -
+        # because the customer has to do some more work on them
         org_subs = (
             self.submission_set.filter(
                 organisation=organisation,
@@ -942,7 +938,8 @@ class Case(BaseModel):
                     user=created_by,
                     case=self,
                     data={
-                        "message": f"User {user} removed from case {self}, representing {user_case.organisation.name}"
+                        "message": f"User {user} removed from case {self}, "
+                        f"representing {user_case.organisation.name}"
                     },
                 )
             return True
@@ -960,7 +957,7 @@ class Case(BaseModel):
                 name.append(first_export_country.country.name)
             return " ".join(name)
         except Exception as exc:
-            logger.error(f"Error deriving case name", exc_info=True)
+            logger.error("Error deriving case name", exc_info=True)
             return None
 
     def notify_all_participants(

@@ -1,7 +1,7 @@
 from django.core.management import BaseCommand
 from django.utils import timezone
 
-from core.models import UserProfile, User
+from core.models import UserProfile
 
 
 class Command(BaseCommand):

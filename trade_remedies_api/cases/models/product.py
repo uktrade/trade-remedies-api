@@ -2,7 +2,10 @@ from django.db import models, transaction
 from django.utils import timezone
 from django_countries.fields import CountryField
 from core.decorators import method_cache
-from core.models import SimpleBaseModel, BaseModel
+from core.base import (
+    SimpleBaseModel,
+    BaseModel,
+)
 
 
 class Sector(models.Model):

@@ -95,4 +95,3 @@ def send_mail_task(self, email, context, template_id, reference=None, audit_kwar
         audit_log_task.delay(audit_kwargs)
     else:
         audit_log_task(audit_kwargs)
-

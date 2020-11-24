@@ -2,7 +2,6 @@ import logging
 
 import os
 from cases.models import (
-    Case,
     SubmissionDocument,
     Submission,
     Product,
@@ -20,7 +19,7 @@ from invitations.models import Invitation
 from security.models import UserCase, OrganisationUser, OrganisationCaseRole
 from security.constants import SECURITY_GROUPS_TRA
 from documents.models import Document, DocumentBundle
-from organisations.models import Organisation
+from organisations.models import Organisation, OrganisationName
 from core.models import User, UserProfile
 from django.core.management.base import BaseCommand
 from django.db.models import Q

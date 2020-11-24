@@ -1,5 +1,4 @@
 from django.db.models import FileField
-from django.conf import settings
 
 
 class S3FileField(FileField):

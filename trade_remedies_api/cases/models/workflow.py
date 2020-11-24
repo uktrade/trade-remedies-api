@@ -2,8 +2,7 @@ import logging
 
 from django.db import models
 from django.contrib.postgres import fields
-from core.models import BaseModel
-from notes.models import Note
+from core.base import BaseModel
 from workflow.models import Workflow
 
 
@@ -108,7 +107,8 @@ class CaseWorkflowStateManager(models.Manager):
     def set_next_notice(self, case, value, due_date=None, requested_by=None, reset_due_date=False):
         """
         Set the next action state key and it's due date if provided.
-        If the reset_due_date argument is True, the due date will be reset to None regardless of due date provided
+        If the reset_due_date argument is True,
+        the due date will be reset to None regardless of due date provided
         """
         return self.set_forward_value(
             "NEXT_NOTICE",
@@ -146,8 +146,10 @@ class CaseWorkflowStateManager(models.Manager):
         Set a value on a case state item.
         Returns a tuple of the state model and a boolean if it was created
         (new state value) or updated.
-        If mutate is False, and a value already exists, it will be marked deleted and a new one created.
-        If reset_due_date is True, the due date will be set to None regardless of the due date provided
+        If mutate is False, and a value already exists,
+        it will be marked deleted and a new one created.
+        If reset_due_date is True,
+        the due date will be set to None regardless of the due date provided
         """
         created = None
         try:
