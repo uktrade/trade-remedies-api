@@ -58,7 +58,7 @@ urlpatterns = [
         DocumentStreamDownloadAPIView.as_view(),
     ),
     path(
-        "organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/download/<uuid:document_id>/",
+        "organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/download/<uuid:document_id>/",  # noqa: E501
         DocumentStreamDownloadAPIView.as_view(),
     ),
     # Document bundles

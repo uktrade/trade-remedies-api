@@ -1,7 +1,6 @@
 import json
-import pytz
 import mimetypes
-from .base import TradeRemediesApiView, ResponseSuccess, ResponseError
+from .base import TradeRemediesApiView, ResponseSuccess
 from .exceptions import InvalidRequestParams, IntegrityErrorRequest, NotFoundApiExceptions
 from django.contrib.auth.models import Group
 from django.db import transaction
@@ -16,10 +15,9 @@ from rest_framework.views import APIView
 from feedback.models import FeedbackForm
 from audit import AUDIT_TYPE_NOTIFY
 from core.feature_flags import is_enabled, FeatureFlagNotFound
-from core.models import User, UserProfile, SystemParameter, JobTitle
+from core.models import User, SystemParameter, JobTitle
 from core.utils import convert_to_e164, pluck, public_login_url
 from core.notifier import get_template, get_preview
-from core.exceptions import UserExists
 from core.constants import TRUTHFUL_INPUT_VALUES
 from core.tasks import send_mail
 from core.feedback import feedback_export
@@ -28,7 +26,6 @@ from invitations.models import Invitation
 from security.exceptions import InvalidAccess
 from security.constants import (
     GROUPS,
-    SECURITY_GROUP_SUPER_USER,
     SECURITY_GROUP_SUPER_USER,
     SECURITY_GROUPS_TRA_ADMINS,
     SECURITY_GROUPS_TRA,
@@ -323,9 +320,8 @@ class PublicUserApiView(TradeRemediesApiView):
                 {"results": [user.to_dict(organisation=organisation) for user in users]}
             )
 
-    @transaction.atomic
+    @transaction.atomic  # noqa: C901
     def post(self, request, organisation_id, user_id=None, invitation_id=None, *args, **kwargs):
-        from cases.models import get_case
 
         group = None
         password = None
@@ -564,7 +560,8 @@ class CreatePendingUserAPI(TradeRemediesApiView):
     and the user is notified that this has happened.
 
     If an invitation id is provided, the existing invite, if valid, not yet accepted, and the email
-    still matches the request, will update it's parameters. If the invite id is not found a 404 exception
+    still matches the request, will update it's parameters.
+    If the invite id is not found a 404 exception
     will be raise, otherwise a new invite will be created.
 
     The case spec is a list of dicts in the following format, specifying which cases to assign the
@@ -574,7 +571,7 @@ class CreatePendingUserAPI(TradeRemediesApiView):
             ]
     """
 
-    def post(self, request, organisation_id, invitation_id=None, *args, **kwargs):
+    def post(self, request, organisation_id, invitation_id=None, *args, **kwargs):  # noqa: C901
         from invitations.models import Invitation
 
         case_spec = request.data.get("case_spec") or []
@@ -663,5 +660,5 @@ class FeedbackExport(TradeRemediesApiView):
         export_file = feedback_export(form)
         mime_type = mimetypes.guess_type(export_file.name, False)[0]
         response = HttpResponse(export_file.read(), content_type=mime_type)
-        response["Content-Disposition"] = f"attachment; filename=Feedback-export.xls"
+        response["Content-Disposition"] = "attachment; filename=Feedback-export.xls"
         return response

@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models import Q
 from django.conf import settings
 from elasticsearch.exceptions import NotFoundError
-from core.models import BaseModel, SimpleBaseModel
+from core.base import BaseModel, SimpleBaseModel
 from functools import singledispatch
 from core.elastic import get_elastic
 from core.utils import file_md5_checksum
@@ -23,12 +23,11 @@ from .constants import (
     INDEX_STATE_FULL_INDEX,
     INDEX_STATES,
 )
-from .utils import upload_document_to, s3_client
+from .utils import s3_client
 from .exceptions import InvalidFile
 from .fields import S3FileField
 from .tasks import prepare_document, index_document
 from .parsers import parsers
-from pprint import pprint
 
 # initialise the mimetypes module
 mimetypes.init()
@@ -108,7 +107,8 @@ class DocumentManager(models.Manager):
             - case_id: filter within a specific case
             - query: search term to include
             - confidential_stats: True = Conf, False=Non-Conf, None=All
-            - fields: defaults to filter using name, file name and organisation name. A list of allowed search term filters
+            - fields: defaults to filter using name, file name and organisation name.
+                 A list of allowed search term filters
         """
         # create the case filter if required
         # case_filter = {
@@ -438,7 +438,7 @@ class Document(BaseModel):
         except NotFoundError:
             return None
 
-    def elastic_index(self, submission=None, case=None, **kwargs):
+    def elastic_index(self, submission=None, case=None, **kwargs):  # noqa: C901
         """
         Create an elasticsearch indexed document for this record
         """
@@ -527,7 +527,8 @@ class DocumentBundle(SimpleBaseModel):
     """
     Document bundles are a versioned collection of documents which can be used for various
     purposes, e.g., as a template for providing douments to new case applications.
-    A bundle is associated with either a case type, or a combination of case_id and submission type.
+    A bundle is associated with either a case type,
+    or a combination of case_id and submission type.
     Only one live version is availabe per case type. Once a bundle is set to live, all
     previous version of it are ensured to be set to archived.
     """
@@ -625,7 +626,8 @@ class DocumentBundle(SimpleBaseModel):
         """
 
         if self.status == "LIVE":
-            # We only need to create a new version if this one is live - otherwise, just return this
+            # We only need to create a new version if this one is live -
+            # otherwise, just return this
             self.id = None
             self.description = None
             self.version += 1

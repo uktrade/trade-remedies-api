@@ -1,8 +1,8 @@
-from django.db import models, transaction
+from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from logging import getLogger
-from core.models import SimpleBaseModel
+from core.base import SimpleBaseModel
 from core.decorators import method_cache
 from cases.constants import (
     SUBMISSION_DOCUMENT_TYPE_CUSTOMER,

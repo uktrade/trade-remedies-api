@@ -228,6 +228,7 @@ class LogHumaniser:
             if isinstance(spec, dict) and "to" in spec and "from" in spec:
                 to_text = self.limit_chars(extract_text(spec["to"]))
                 diff.append(
-                    f"{key} changed from `{extract_text(spec['from']) or 'empty value'}` to `{to_text}`."
+                    f"{key} changed from `{extract_text(spec['from']) or 'empty value'}` "
+                    f"to `{to_text}`."
                 )
         return self.separator.join(diff)

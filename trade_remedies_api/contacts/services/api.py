@@ -1,12 +1,10 @@
 from core.services.base import TradeRemediesApiView, ResponseSuccess
 from core.services.exceptions import (
-    InvalidRequestParams,
-    IntegrityErrorRequest,
     NotFoundApiExceptions,
     RequestValidationError,
 )
 from cases.models import get_case
-from core.utils import pluck, is_valid_email, sql_get_list
+from core.utils import pluck, is_valid_email
 from rest_framework import status
 from contacts.models import Contact, CaseContact
 from organisations.models import Organisation
@@ -42,7 +40,9 @@ class ContactsAPI(TradeRemediesApiView):
             contacts = Contact.objects.filter(**filter_kwargs)
         return ResponseSuccess({"results": [_contact.to_dict() for _contact in contacts]})
 
-    def post(self, request, contact_id=None, organisation_id=None, case_id=None, *args, **kwargs):
+    def post(  # noqa: C901
+        self, request, contact_id=None, organisation_id=None, case_id=None, *args, **kwargs
+    ):
         self.required_keys = ["contact_name"]
         if not self.feature_flags("contact_email_read_only"):
             self.required_keys.append("contact_email")
@@ -68,7 +68,7 @@ class ContactsAPI(TradeRemediesApiView):
                 raise NotFoundApiExceptions("Contact does not exist or access is denied")
             if organisation_id:
                 organisation = Organisation.objects.get(id=organisation_id)
-                ccs = CaseContact.objects.get_or_create(
+                CaseContact.objects.get_or_create(
                     case=case, contact=contact, organisation=organisation, primary=False
                 )
         else:
@@ -97,7 +97,7 @@ class ContactsAPI(TradeRemediesApiView):
             )
         except Contact.DoesNotExist:
             raise NotFoundApiExceptions("Contact does not exist or access is denied")
-        result = CaseContact.objects.filter(contact=contact).delete()
+        CaseContact.objects.filter(contact=contact).delete()
         contact.delete()
         return ResponseSuccess({"result": {"deleted": True}}, http_status=status.HTTP_200_OK)
 
