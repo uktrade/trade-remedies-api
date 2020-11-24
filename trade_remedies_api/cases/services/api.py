@@ -360,6 +360,7 @@ class CasesAPIView(TradeRemediesApiView):
         role = request.data.get("organisation_role")
         case_fields = [
             "name",
+            "case_email",
             "initiated_at",
             "archived_at",
             "archive_reason_id",
@@ -456,6 +457,7 @@ class CaseInitiationAPIView(TradeRemediesApiView):
         case_id = request.data.get("id")
         request_params = request.data.dict()
         case_name = request.data.get("case_name")
+        case_email = request.data.get("case_email")
         # case_type_id = request.data.get("case_type_id")
         product_name = request.data.get("product_name")
         product_description = request.data.get("product_description")
@@ -504,6 +506,7 @@ class CaseInitiationAPIView(TradeRemediesApiView):
         case_name = case_name or case.derive_case_name()
         if case_name:
             case.name = case_name
+            case.case_email = case_email
             case.save()
         submission.deficiency_notice_params = submission.deficiency_notice_params or {}
         submission.deficiency_notice_params["organisation_role"] = request_params.get(

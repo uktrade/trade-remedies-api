@@ -299,6 +299,7 @@ class Case(BaseModel):
     initiated_sequence = models.IntegerField(null=True, blank=True, unique=True)
     type = models.ForeignKey(CaseType, null=True, blank=True, on_delete=models.PROTECT)
     name = models.CharField(max_length=250, null=True, blank=True)
+    case_email = models.CharField(max_length=250, null=True, blank=True)
     stage = models.ForeignKey(CaseStage, null=True, blank=True, on_delete=models.PROTECT)
     initiated_at = models.DateTimeField(null=True, blank=True)
     submitted_at = models.DateTimeField(null=True, blank=True)
