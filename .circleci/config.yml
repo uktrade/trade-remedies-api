@@ -61,7 +61,7 @@ jobs:
           command: |
             . venv/bin/activate
             cd trade_remedies_api
-            python manage.py test --verbosity=2
+            pytest --ignore=staticfiles -n 4
 
 workflows:
   version: 2
