@@ -51,6 +51,10 @@ Run `make all-requirements`
 
 This needs to be run from the host machine as it does not run in a container.
 
+## Updating the organisation name
+
+Run `python manage.py rename_trade_authority_organisation <old_name> <new_name>`
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people who contributed to this repo before it was open-sourced ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
