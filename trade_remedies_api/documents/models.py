@@ -236,7 +236,7 @@ class Document(BaseModel):
         _dict = self.to_embedded_dict(case=case, submission=submission)
         if submission and not case:
             case = submission.case
-        _dict["submissions"] = ([sub.to_embedded_dict() for sub in self.submissions(case)],)
+        # _dict["submissions"] = ([sub.to_embedded_dict() for sub in self.submissions(case)],)
         return _dict
 
     def delete_elastic_document(self):
