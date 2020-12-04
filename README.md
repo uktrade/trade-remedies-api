@@ -75,6 +75,26 @@ You are advised to perform a dress rehearsal prior to using the command on the l
 
 The command has been developed and tested on a best efforts basis against an example database.  The state of the live database will differ from that against which it was developed and any differences may be relevant to the operation of the command.  You are advised to back up the database before proceeding with the operation.  You are advised to run the `--nocommit` first to check that the state of the database is such that the operation can proceed smoothly and to investigate any issues before proceeding with the `--commit`.
 
+A similar command with identical arguments has been implemented on a best efforts basis to update
+the Trade Authority initialism in the Workflow Templates stored in the database from "TRID" to "TRA".  All the above caveats apply.
+
+For information on the command:
+
+ `python manage.py rebrand_workflow_templates`
+
+To check that the operation can proceed:
+
+ `python manage.py rebrand_workflow_templates --nocommit`
+
+To proceed with the operation:
+
+`python manage.py rebrand_workflow_templates --commit`
+
+To undo the operation, including committing the result:
+
+`python manage.py rebrand_workflow_templates --undo`
+
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people who contributed to this repo before it was open-sourced ([emoji key](https://allcontributors.org/docs/en/emoji-key)):

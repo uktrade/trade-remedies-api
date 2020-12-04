@@ -14,7 +14,7 @@ class Command(BaseCommand):
         "organisation in the Django Database"
         ' from "Trade Remedies Investigations Directorate" '
         'to "Trade Remedies Authority" and from '
-        '"TRA" to "TRID".'
+        '"TRID" to "TRA".'
     )
 
     def add_arguments(self, parser):
@@ -175,15 +175,9 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.ERROR(
-                "Now please consider applying changes to the following files to the databse:\n"
-                "- trade_remedies_api/cases/fixtures/workflow_template_anti_dumping.json;\n"
-                "- trade_remedies_api/cases/fixtures/workflow_template_anti_subsidy.json;\n"
-                "- trade_remedies_api/cases/fixtures/workflow_template_safeguards.json;\n"
-                "- trade_remedies_api/cases/fixtures/"
-                "workflow_template_trans_anti_dumping.json;\n"
-                "- trade_remedies_api/cases/fixtures/"
-                "workflow_template_trans_anti_subsidy.json\n"
-                "- trade_remedies_api/cases/fixtures/workflow_template_trans_safeguards.json."
+                "Now please consider running:\n"
+                "\tpython manage.py rebrand_workflow_templates\n"
+                "to update the Workflow Templates."
             )
         )
         return
