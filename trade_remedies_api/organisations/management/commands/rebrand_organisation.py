@@ -26,6 +26,12 @@ def convert(from_initialism, to_initialism):
     tra_document.name = f"{to_initialism} Document"
     tra_document.save()
 
+    self.stdout.write(
+        self.style.SUCCESS(
+            f"Updated {tra_document}"
+        )
+    )
+
     # workflow_template_anti_dumping.json
     # workflow_template_anti_subsidy.json
     # workflow_template_safeguards.json
@@ -55,6 +61,12 @@ def convert(from_initialism, to_initialism):
         workflow.template = json.loads(updated_json_txt)
         workflow.save()
 
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Updated {workflow}"
+            )
+        )
+
     # job_titles.json
     job_title = JobTitle.objects.filter(
         name=f"{from_initialism} Other",
@@ -63,6 +75,12 @@ def convert(from_initialism, to_initialism):
     job_title.name = f"{to_initialism} Other"
     job_title.save()
 
+    self.stdout.write(
+        self.style.SUCCESS(
+            f"Updated {job_title}"
+        )
+    )
+
     # tra_organisations.json 
     organisation = Organisation.objects.filter(
         name=from_name,
@@ -70,6 +88,12 @@ def convert(from_initialism, to_initialism):
 
     organisation.name = to_name
     organisation.save()
+
+    self.stdout.write(
+        self.style.SUCCESS(
+            f"Updated {organisation}"
+        )
+    )
 
 
 def update_brand():

@@ -51,49 +51,15 @@ Run `make all-requirements`
 
 This needs to be run from the host machine as it does not run in a container.
 
-## Updating the organisation name
+## Updating organisation branding
 
-This command is specific to the transition of the rebranding from "Trade Remedies Investigations Directorate" to "Trade Remedies Authority".  The underlying code will have to be adapted if there are future changes of branding. 
+Update to new branding:
 
-For information on the command:
+ `python manage.py rebrand_organisation`
 
- `python manage.py rename_trade_authority_organisation`
+Revert to old branding
 
-To check that the operation can proceed:
-
- `python manage.py rename_trade_authority_organisation --nocommit`
-
-To proceed with the operation:
-
-`python manage.py rename_trade_authority_organisation --commit`
-
-To undo the operation, including committing the result:
-
-`python manage.py rename_trade_authority_organisation --undo`
-
-You are advised to perform a dress rehearsal prior to using the command on the live database.  To do so (e.g. on UAT), execute the commands in the above order, checking the database entries after the commit operation and using the undo operation to return to the initial state.
-
-The command has been developed and tested on a best efforts basis against an example database.  The state of the live database will differ from that against which it was developed and any differences may be relevant to the operation of the command.  You are advised to back up the database before proceeding with the operation.  You are advised to run the `--nocommit` first to check that the state of the database is such that the operation can proceed smoothly and to investigate any issues before proceeding with the `--commit`.
-
-A similar command with identical arguments has been implemented on a best efforts basis to update
-the Trade Authority initialism in the Workflow Templates stored in the database from "TRID" to "TRA".  All the above caveats apply.
-
-For information on the command:
-
- `python manage.py rebrand_workflow_templates`
-
-To check that the operation can proceed:
-
- `python manage.py rebrand_workflow_templates --nocommit`
-
-To proceed with the operation:
-
-`python manage.py rebrand_workflow_templates --commit`
-
-To undo the operation, including committing the result:
-
-`python manage.py rebrand_workflow_templates --undo`
-
+ `python manage.py rebrand_organisation --revert`
 
 ## Contributors ✨
 
