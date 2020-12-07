@@ -17,103 +17,6 @@ LEGACY_ORGANISATION_NAME = "Trade Remedies Investigations Directorate"
 ORGANISATION_NAME = "Trade Remedies Authority"
 
 
-def convert(from_initialism, to_initialism):
-    # cases.submissiondocumenttype
-    tra_document = SubmissionDocumentType.object.filter(
-        name=f"{from_initialism} Document"
-    ).first()
-
-    tra_document.name = f"{to_initialism} Document"
-    tra_document.save()
-
-    self.stdout.write(
-        self.style.SUCCESS(
-            f"Updated {tra_document}"
-        )
-    )
-
-    # workflow_template_anti_dumping.json
-    # workflow_template_anti_subsidy.json
-    # workflow_template_safeguards.json
-    # workflow_template_trans_anti_dumping.json
-    # workflow_template_trans_anti_subsidy.json 
-    # workflow_template_trans_safeguards.json
-    workflows = [
-        "Anti-dumping Review",
-        "Anti-subsidy investigation",
-        "Safeguarding",
-        "Transitional Anti-dumping Review",
-        "Transitional Anti-subsidy Review",
-        "Transition safeguarding review",
-    ]
-
-    for workflow_name in workflows:
-        workflow = WorkflowTemplate.objects.filter(
-            name=workflow_name
-        ).first()
-
-        updated_json_txt = json.dumps(
-            workflow.template
-        ).replace(
-            f"{from_initialism} approval of the decision",
-            f"{to_initialism} approval of the decision",
-        )
-        workflow.template = json.loads(updated_json_txt)
-        workflow.save()
-
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"Updated {workflow}"
-            )
-        )
-
-    # job_titles.json
-    job_title = JobTitle.objects.filter(
-        name=f"{from_initialism} Other",
-    )
-
-    job_title.name = f"{to_initialism} Other"
-    job_title.save()
-
-    self.stdout.write(
-        self.style.SUCCESS(
-            f"Updated {job_title}"
-        )
-    )
-
-    # tra_organisations.json 
-    organisation = Organisation.objects.filter(
-        name=from_name,
-    )
-
-    organisation.name = to_name
-    organisation.save()
-
-    self.stdout.write(
-        self.style.SUCCESS(
-            f"Updated {organisation}"
-        )
-    )
-
-
-def update_brand():
-    convert(
-        LEGACY_INITALISM,
-        INITALISM,
-        LEGACY_ORGANISATION_NAME,
-        ORGANISATION_NAME,
-    )
-
-
-def revert_brand():
-    convert(
-        INITALISM,
-        LEGACY_INITALISM,
-        ORGANISATION_NAME,
-        LEGACY_ORGANISATION_NAME,
-    )
-
-
 class Command(BaseCommand):
     help = (
         "Update system branding."
@@ -126,10 +29,96 @@ class Command(BaseCommand):
             help='Reverts brand to old version',
         )
 
+    def print_success(self, msg):
+        self.stdout.write(
+            self.style.SUCCESS(
+                msg
+            )
+        )
+
+    def convert(self, from_initialism, to_initialism):
+        # cases.submissiondocumenttype
+        tra_document = SubmissionDocumentType.object.filter(
+            name=f"{from_initialism} Document"
+        ).first()
+
+        tra_document.name = f"{to_initialism} Document"
+        tra_document.save()
+
+        self.print_success(f"Updated {tra_document}")
+
+        # workflow_template_anti_dumping.json
+        # workflow_template_anti_subsidy.json
+        # workflow_template_safeguards.json
+        # workflow_template_trans_anti_dumping.json
+        # workflow_template_trans_anti_subsidy.json 
+        # workflow_template_trans_safeguards.json
+        workflows = [
+            "Anti-dumping Review",
+            "Anti-subsidy investigation",
+            "Safeguarding",
+            "Transitional Anti-dumping Review",
+            "Transitional Anti-subsidy Review",
+            "Transition safeguarding review",
+        ]
+
+        for workflow_name in workflows:
+            workflow = WorkflowTemplate.objects.filter(
+                name=workflow_name
+            ).first()
+
+            updated_json_txt = json.dumps(
+                workflow.template
+            ).replace(
+                f"{from_initialism} approval of the decision",
+                f"{to_initialism} approval of the decision",
+            )
+            workflow.template = json.loads(updated_json_txt)
+            workflow.save()
+
+            self.print_success(f"Updated {workflow}")
+
+        # job_titles.json
+        job_title = JobTitle.objects.filter(
+            name=f"{from_initialism} Other",
+        )
+
+        job_title.name = f"{to_initialism} Other"
+        job_title.save()
+
+        self.print_success(f"Updated {job_title}")
+
+        # tra_organisations.json 
+        organisation = Organisation.objects.filter(
+            name=from_name,
+        )
+
+        organisation.name = to_name
+        organisation.save()
+
+        self.print_success(f"Updated {organisation}")
+
+    def update_brand(self):
+        self.convert(
+            LEGACY_INITALISM,
+            INITALISM,
+            LEGACY_ORGANISATION_NAME,
+            ORGANISATION_NAME,
+        )
+
+
+    def revert_brand(self):
+        self.convert(
+            INITALISM,
+            LEGACY_INITALISM,
+            ORGANISATION_NAME,
+            LEGACY_ORGANISATION_NAME,
+        )
+
     def handle(self, *args, **options):
         if options["revert"]:
-            revert_brand()
+            self.revert_brand()
             return
 
-        update_brand()
+        self.update_brand()
         return
