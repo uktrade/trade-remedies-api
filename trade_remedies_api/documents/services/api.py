@@ -4,7 +4,6 @@ from documents.models import Document, DocumentBundle
 from documents.exceptions import InvalidFile
 from documents.utils import stream_s3_file_download
 from documents.constants import (
-    SEARCH_FIELD_MAP,
     SEARCH_CONFIDENTIAL_STATUS_MAP,
     INDEX_STATE_NOT_INDEXED,
     INDEX_STATE_UNKONWN_TYPE,
@@ -14,7 +13,11 @@ from documents.constants import (
 from documents.tasks import index_document
 from django.utils import timezone
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import (
+    Q,
+    Count,
+)
+
 from django.conf import settings
 from rest_framework import status
 from rest_framework.parsers import JSONParser, FormParser
@@ -70,7 +73,7 @@ class CaseDocumentAPI(TradeRemediesApiView):
     Return all documents for a case
     """
 
-    def get(self, request, case_id, organisation_id=None, source=None):
+    def get(self, request, case_id, organisation_id=None, source=None):  # noqa: C901
         case = Case.objects.get(id=case_id)
         submission_id = request.query_params.get("submission_id")
         sub_documents = SubmissionDocument.objects.filter(
@@ -150,7 +153,7 @@ class DocumentAPIView(TradeRemediesApiView):
     system = None
     public = False
 
-    def get(
+    def get(  # noqa: C901
         self,
         request,
         organisation_id=None,
@@ -217,7 +220,7 @@ class DocumentAPIView(TradeRemediesApiView):
             {"results": [doc.to_dict(case=case, fields=fields) for doc in documents]}
         )
 
-    @transaction.atomic
+    @transaction.atomic  # noqa: C901
     def post(
         self,
         request,

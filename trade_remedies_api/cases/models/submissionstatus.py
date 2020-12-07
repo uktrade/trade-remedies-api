@@ -7,13 +7,15 @@ class SubmissionStatus(models.Model):
     A status of a submission. Each submission type can have their own set of status
     indicators. Certain statuses can be designated as "locking", which will cause the
     underlying submission to go into a locked state.
-    'version', when true will archive the submission and clone it as a new version. This denotes deficiency.
+    'version', when true will archive the submission and clone it as a new version.
+    This denotes deficiency.
     'duration' specifies the number of days from setting the status of the due date.
     'default designates this status to be the default status for new submissions of this type.
     'sufficient' designates this status denotes sufficiency to proceed when true.
     'sent' denotes a "sent to customer" status
     'received' denotes a "received from customer" status
-    'draft' denotes that a submission is being drafted (files added or removed) by customer since it was last sent.
+    'draft' denotes that a submission is being drafted (files added or removed)
+    by customer since it was last sent.
     """
 
     type = models.ForeignKey(

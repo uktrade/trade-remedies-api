@@ -1,6 +1,5 @@
 from core.services.base import TradeRemediesApiView, ResponseSuccess
 from content.models import Content
-from django.db import transaction
 from rest_framework import status
 from cases.models import Case
 from core.utils import update_object_from_request

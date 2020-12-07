@@ -2,12 +2,13 @@ import json
 from django.utils import timezone
 from django.conf import settings
 from core.services.base import TradeRemediesApiView, ResponseSuccess
-from core.services.exceptions import (
-    InvalidRequestParams,
-    NotFoundApiExceptions,
+from core.services.exceptions import NotFoundApiExceptions
+from core.utils import (
+    public_login_url,
+    filter_dict,
+    get,
+    pluck,
 )
-from django.core.exceptions import ObjectDoesNotExist
-from core.utils import public_login_url, filter_dict, deep_index_items_by, get, pluck
 from core.constants import TRUTHFUL_INPUT_VALUES
 from audit import AUDIT_TYPE_EVENT
 from audit.utils import audit_log
@@ -16,11 +17,7 @@ from django.db.models import Count, Q
 
 from rest_framework import status
 from organisations.models import Organisation
-from organisations.constants import (
-    CONTRIBUTOR_ORG_CASE_ROLE,
-    APPLICANT_ORG_CASE_ROLE,
-    REJECTED_ORG_CASE_ROLE,
-)
+from organisations.constants import REJECTED_ORG_CASE_ROLE
 from cases.models import Case, get_case, Submission
 from contacts.models import Contact, CaseContact
 from security.models import OrganisationUser, OrganisationCaseRole, CaseRole, UserCase
@@ -62,8 +59,10 @@ class OrganisationsAPIView(TradeRemediesApiView):
             try:
                 organisation = Organisation.objects.get(id=organisation_id)
                 # if not is_tra:
-                #     user_case = UserCase.objects.filter(user=request.user, organisation__id=organisation_id)
-                #     org_user = OrganisationUser.objects.filter(organisation_id=organisation_id, user=request.user)
+                #     user_case = UserCase.objects.
+                #     filter(user=request.user, organisation__id=organisation_id)
+                #     org_user = OrganisationUser.objects.
+                #     filter(organisation_id=organisation_id, user=request.user)
                 #     if not user_case and not org_user:
                 #         raise NotFoundApiExceptions('Invalid organisation or access denied')
                 org_data = organisation.to_dict(case=case)
@@ -220,7 +219,7 @@ class OrganisationContactsAPI(TradeRemediesApiView):
     Gets all contacts for this organisation flagged as approprate
     """
 
-    def get(self, request, organisation_id, case_id=None, *args, **kwargs):
+    def get(self, request, organisation_id, case_id=None, *args, **kwargs):  # noqa: C901
 
         contacts = {}
         case = Case.objects.get(id=case_id) if case_id else None
@@ -228,7 +227,7 @@ class OrganisationContactsAPI(TradeRemediesApiView):
         def add_contact(case_contact, case):
             if not get(case_contact, "contact").deleted_at:
                 contact_id = str(get(case_contact, "contact").id)
-                if not contact_id in contacts:
+                if contact_id not in contacts:
                     contact = get(case_contact, "contact")
                     contacts[contact_id] = contact.to_dict(case)
                     contacts[contact_id]["cases"] = {}
@@ -450,7 +449,8 @@ class OrganisationApprovalNotifyAPI(TradeRemediesApiView):
                 milestone=True,
                 data={
                     "action": "assign_user",
-                    "message": f"User {user_granted_access} was granted access to the case for {organisation}",
+                    "message": f"User {user_granted_access} "
+                    f"was granted access to the case for {organisation}",
                 },
             )
         return ResponseSuccess({"result": values})
@@ -531,7 +531,7 @@ class OrganisationCaseRoleAPI(TradeRemediesApiView):
             return ResponseSuccess({"result": None})
         return ResponseSuccess({"result": caserole.to_dict()})
 
-    @transaction.atomic
+    @transaction.atomic  # noqa: C901
     def post(self, request, case_id, organisation_id, role_key=None, *args, **kwargs):
         sampled = request.data.get("sampled", "true") == "true"
         organisation = Organisation.objects.get(id=organisation_id)
@@ -676,7 +676,7 @@ class OrganisationMatchingAPI(TradeRemediesApiView):
                 }
             )
 
-    def get(self, request, organisation_id=None):
+    def get(self, request, organisation_id=None):  # noqa: C901
         # Get a list of matching orgs
         all_details = request.GET.get("with_details", "all")
         query = Q(id=None)
@@ -703,7 +703,8 @@ class OrganisationMatchingAPI(TradeRemediesApiView):
         organisation_matches = Organisation.objects.filter(query)
         if all_details != "none":
             detail_matches = organisation_matches
-            # If all_details parameter is set false, only the details on the primary org will be furnished
+            # If all_details parameter is set false,
+            # only the details on the primary org will be furnished
             if all_details != "all" and organisation_id:
                 detail_matches = Organisation.objects.filter(id=organisation_id)
 

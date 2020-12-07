@@ -24,15 +24,19 @@ class SubmissionType(models.Model):
     """
     A type of submission.
     The key is a string that determines which representations the submission type should use.
-    (i.e., which templates, routes, logic etc. For example, Ex Officion applications and Applications
+    (i.e., which templates, routes, logic etc.
+    For example, Ex Officion applications and Applications
     should use the same templates and logic).
     A type can require another type to exist in the case. For example, Response to statement of
     essential facts can be created by customers only if the Statement of essential facts was
     published to the case.
-    Submissions can have a direction which determines the potential source and target of the submissio.
+    Submissions can have a direction which determines the potential source
+    and target of the submission.
     Some can be created by Public to the TRA, some the other way around and some are bi-directional.
-    Most submissions will use a standard Notify template to alert deficiencies or success to the customer.
-    However, if deficiency/success_template are defined (as a system parameter key holding the actual notify id),
+    Most submissions will use a standard Notify template to alert deficiencies
+    or success to the customer.
+    However, if deficiency/success_template are defined
+    (as a system parameter key holding the actual notify id),
     they will be used instead.
     """
 

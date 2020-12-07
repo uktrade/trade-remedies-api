@@ -1,10 +1,7 @@
 from django.test import TestCase
-from core.user_context import UserContext
 from content.models import Content
 from cases.models import Case
 from core.models import User
-from organisations.models import Organisation
-from security.constants import SECURITY_GROUP_ORGANISATION_OWNER
 
 
 PASSWORD = "A7Hhfa!jfaw@f"

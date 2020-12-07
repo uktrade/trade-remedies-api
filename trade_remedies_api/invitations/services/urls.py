@@ -3,7 +3,6 @@ from .api import (
     InvitationsAPIView,
     ValidateInvitationAPIView,
     InvitationDetailsAPI,
-    InvitationAPIView,
     InviteThirdPartyAPI,
     NotifyInviteThirdPartyAPI,
     ValidateUserInviteAPIView,
@@ -38,11 +37,11 @@ urlpatterns = [
         "invite/case/<uuid:case_id>/submission/<uuid:submission_id>/", InviteThirdPartyAPI.as_view()
     ),
     path(
-        "invite/case/<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/",
+        "invite/case/<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/",  # noqa: E501
         InviteThirdPartyAPI.as_view(),
     ),
     path(
-        "case/<uuid:case_id>/submission/<uuid:submission_id>/invite/contact/<uuid:contact_id>/notify/",
+        "case/<uuid:case_id>/submission/<uuid:submission_id>/invite/contact/<uuid:contact_id>/notify/",  # noqa: E501
         NotifyInviteThirdPartyAPI.as_view(),
     ),
 ]

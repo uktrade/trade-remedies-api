@@ -1,5 +1,5 @@
 from django.db import models
-from core.models import BaseModel
+from core.base import BaseModel
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres import fields
 from core.utils import get
@@ -7,7 +7,8 @@ from core.utils import get
 
 class Task(BaseModel):
     """
-    Tasks provide an achor for an activity. They are assigned to one user at a time, have a due date, a status and can be nested
+    Tasks provide an achor for an activity.
+    They are assigned to one user at a time, have a due date, a status and can be nested
     Tasks can be anchored to any content type in the system
     """
 
