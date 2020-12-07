@@ -36,8 +36,10 @@ GROUPS = [
     (SECURITY_GROUP_TRA_HEAD_OF_INVESTIGATION, SECURITY_GROUP_TRA_HEAD_OF_INVESTIGATION),
     (SECURITY_GROUP_ORGANISATION_OWNER, "A member of an organisation with owner access"),
     (SECURITY_GROUP_ORGANISATION_USER, "A member of an organisation with standard access"),
-    (SECURITY_GROUP_THIRD_PARTY_USER,
-     "A member of a third party organisation with standard access"),
+    (
+        SECURITY_GROUP_THIRD_PARTY_USER,
+        "A member of a third party organisation with standard access",
+    ),
 ]
 
 GROUP_PERMISSIONS = {}
