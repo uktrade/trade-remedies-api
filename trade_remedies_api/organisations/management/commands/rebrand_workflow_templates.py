@@ -1,401 +1,111 @@
-from django.core.management.base import BaseCommand, CommandError
-from workflow.models import WorkflowTemplate
 import json
 
-# BEST EFFORTS CODE - FOR REVIEW
+from django.core.management.base import BaseCommand, CommandError
+
+from cases.models.submissiondocument import SubmissionDocumentType
+
+from core.models import JobTitle
+
+from organisations.models import Organisation
+
+from workflow.models import WorkflowTemplate
+
+
+LEGACY_INITALISM = "TRID"
+INITALISM = "TRA"
+LEGACY_ORGANISATION_NAME = "Trade Remedies Investigations Directorate"
+ORGANISATION_NAME = "Trade Remedies Authority"
+
+
+def convert(from_initialism, to_initialism):
+    # cases.submissiondocumenttype
+    tra_document = SubmissionDocumentType.object.filter(
+        name=f"{from_initialism} Document"
+    ).first()
+
+    tra_document.name = f"{to_initialism} Document"
+    tra_document.save()
+
+    # workflow_template_anti_dumping.json
+    # workflow_template_anti_subsidy.json
+    # workflow_template_safeguards.json
+    # workflow_template_trans_anti_dumping.json
+    # workflow_template_trans_anti_subsidy.json 
+    # workflow_template_trans_safeguards.json
+    workflows = [
+        "Anti-dumping Review",
+        "Anti-subsidy investigation",
+        "Safeguarding",
+        "Transitional Anti-dumping Review",
+        "Transitional Anti-subsidy Review",
+        "Transition safeguarding review",
+    ]
+
+    for workflow_name in workflows:
+        workflow = WorkflowTemplate.objects.filter(
+            name=workflow_name
+        ).first()
+
+        updated_json_txt = json.dumps(
+            workflow.template
+        ).replace(
+            f"{from_initialism} approval of the decision",
+            f"{to_initialism} approval of the decision",
+        )
+        workflow.template = json.loads(updated_json_txt)
+        workflow.save()
+
+    # job_titles.json
+    job_title = JobTitle.objects.filter(
+        name=f"{from_initialism} Other",
+    )
+
+    job_title.name = f"{to_initialism} Other"
+    job_title.save()
+
+    # tra_organisations.json 
+    organisation = Organisation.objects.filter(
+        name=from_name,
+    )
+
+    organisation.name = to_name
+    organisation.save()
+
+
+def update_brand():
+    convert(
+        LEGACY_INITALISM,
+        INITALISM,
+        LEGACY_ORGANISATION_NAME,
+        ORGANISATION_NAME,
+    )
+
+
+def revert_brand():
+    convert(
+        INITALISM,
+        LEGACY_INITALISM,
+        ORGANISATION_NAME,
+        LEGACY_ORGANISATION_NAME,
+    )
 
 
 class Command(BaseCommand):
-    """ Implementation of a custom django-admin command.
-    Reference: https://docs.djangoproject.com/en/3.1/howto/custom-management-commands/
-    """
-
     help = (
-        "Update the initialism of the Trade Authority "
-        "organisation in the Workflow Templates in the Django Database"
-        'from "TRID" to "TRA".'
+        "Update system branding."
     )
 
     def add_arguments(self, parser):
-        """ Arguments to allow:
-        1) a dry run without commit (--nocommit);
-        2) a full run with commit (--commit);
-        3) an undo with the undo changes commited (--undo).
-        The code sanity checks for an appropriate combination of arguments.
-        Commits only occur if all objects are found.
-        Rational for the --nocommit is to check that all will be well before committing.
-        Rational for the --undo is to allow for a full dress rehearsal in advance:
-         - e.g. in UAT environment.
-        """
-
         parser.add_argument(
-            "--commit",
-            action="store_true",
-            help="Formulate updates and commit them to the database",
+            "--revert",
+            action="revert",
+            help='Reverts brand to old version',
         )
-        parser.add_argument(
-            "--nocommit",
-            action="store_true",
-            help="Formulate updates but do not commit them to the database",
-        )
-
-        parser.add_argument(
-            "--undo",
-            action="store_true",
-            help='Formulate updates to undo the "--commit" changes and commit them to the database',
-        )
-
-    def handle_undo(self):
-        """ Method to undo the commit operation to facilitate dry run prior to end of year."""
-
-        workflow_template_transition_safeguarding_review = WorkflowTemplate.objects.filter(
-            name="Transition safeguarding review"
-        ).first()
-        if workflow_template_transition_safeguarding_review:
-            old_text = json.dumps( workflow_template_transition_safeguarding_review.template )
-            new_text = old_text.replace( "TRA approval of the decision", "TRID approval of the decision" )
-            if new_text == old_text:
-                raise CommandError( 'String "TRA approval of the decision" not found')
-            workflow_template_transition_safeguarding_review.template = json.loads(new_text)
-
-            self.stdout.write(
-                self.style.SUCCESS(
-                    "undo: Can update one WorkflowTemplate object with name "
-                    '"Transition safeguarding review"'
-                )
-            )
-        else:
-            self.stdout.write(
-                self.style.ERROR(
-                    "WorkflowTemplate object with name "
-                    '"Transition safeguarding review" not found'
-                )
-            )
-
-        workflow_template_anti_subsidy_investigation = WorkflowTemplate.objects.filter(
-            name="Anti-subsidy investigation"
-        ).first()
-        if workflow_template_anti_subsidy_investigation:
-            old_text = json.dumps( workflow_template_anti_subsidy_investigation.template )
-            new_text = old_text.replace( "TRA approval of the decision", "TRID approval of the decision" )
-            if new_text == old_text:
-                raise CommandError( 'String "TRA approval of the decision" not found')
-            workflow_template_anti_subsidy_investigation.template = json.loads(new_text)
-            self.stdout.write(
-                self.style.SUCCESS(
-                    "undo: Can update one WorkflowTemplate object with name "
-                    '"Anti-subsidy investigation"'
-                )
-            )
-        else:
-            raise CommandError(
-                "WorkflowTemplate object with name "
-                '"Anti-subsidy investigation" not found'
-            )
-
-        workflow_template_transitional_anti_subsidy_review = WorkflowTemplate.objects.filter(
-            name="Transitional Anti-subsidy Review"
-        ).first()
-        if workflow_template_transitional_anti_subsidy_review:
-            old_text = json.dumps( workflow_template_transitional_anti_subsidy_review.template )
-            new_text = old_text.replace( "TRA approval of the decision", "TRID approval of the decision"  )
-            if new_text == old_text:
-                raise CommandError( 'String "TRA approval of the decision" not found')
-            workflow_template_transitional_anti_subsidy_review.template = json.loads(new_text)
-            self.stdout.write(
-                self.style.SUCCESS(
-                    "undo: Can update one WorkflowTemplate object with name "
-                    '"Transitional Anti-subsidy Review"'
-                )
-            )
-        else:
-            raise CommandError(
-                "WorkflowTemplate object with name "
-                '"Transitional Anti-subsidy Review" not found'
-            )
-
-        workflow_template_anti_dumping_review = WorkflowTemplate.objects.filter(
-            name="Anti-dumping Review"
-        ).first()
-        if workflow_template_anti_dumping_review:
-            old_text = json.dumps( workflow_template_anti_dumping_review.template )
-            new_text = old_text.replace( "TRA approval of the decision", "TRID approval of the decision" )
-            if new_text == old_text:
-                raise CommandError( 'String "TRA approval of the decision" not found')
-            workflow_template_anti_dumping_review.template = json.loads(new_text)
-            self.stdout.write(
-                self.style.SUCCESS(
-                    "undo: Can update one WorkflowTemplate object with name "
-                    '"Anti-dumping Review"'
-                )
-            )
-        else:
-            raise CommandError(
-                "WorkflowTemplate object with name "
-                '"Anti-dumping Review" not found'
-            )
-
-        workflow_template_transitional_anti_dumping_review = WorkflowTemplate.objects.filter(
-            name="Transitional Anti-dumping Review"
-        ).first()
-        if workflow_template_transitional_anti_dumping_review:
-            old_text = json.dumps( workflow_template_transitional_anti_dumping_review.template )
-            new_text = old_text.replace( "TRA approval of the decision", "TRID approval of the decision" )
-            if new_text == old_text:
-                raise CommandError( 'String "TRA approval of the decision" not found')
-            workflow_template_transitional_anti_dumping_review.template = json.loads(new_text)
-            self.stdout.write(
-                self.style.SUCCESS(
-                    "undo: Can update one WorkflowTemplate object with name "
-                    '"Transitional Anti-dumping Review"'
-                )
-            )
-        else:
-            raise CommandError(
-                "WorkflowTemplate object with name "
-                '"Transitional Anti-dumping Review" not found'
-            )
-
-        workflow_template_safeguarding = WorkflowTemplate.objects.filter(
-            name="Safeguarding"
-        ).first()
-        if workflow_template_safeguarding:
-            old_text = json.dumps( workflow_template_safeguarding.template )
-            new_text = old_text.replace( "TRA approval of the decision", "TRID approval of the decision" )
-            if new_text == old_text:
-                raise CommandError( 'String "TRA approval of the decision" not found')
-            workflow_template_safeguarding.template = json.loads(new_text)
-            self.stdout.write(
-                self.style.SUCCESS(
-                    "undo: Can update one WorkflowTemplate object with name "
-                    '"Safeguarding"'
-                )
-            )
-        else:
-            raise CommandError(
-                "WorkflowTemplate object with name "
-                '"Safeguarding" not found'
-            )
-
-        self.handle_commit( workflow_template_transition_safeguarding_review,
-            workflow_template_anti_subsidy_investigation,
-            workflow_template_transitional_anti_subsidy_review,
-            workflow_template_anti_dumping_review,
-            workflow_template_transitional_anti_dumping_review,
-            workflow_template_safeguarding
-             )
-        return
-
-    def handle_lookups(self):
-        """ Method to look up the objects to be updated in the database."""
-
-        workflow_template_transition_safeguarding_review = WorkflowTemplate.objects.filter(
-            name="Transition safeguarding review"
-        ).first()
-        if workflow_template_transition_safeguarding_review:
-            old_text = json.dumps( workflow_template_transition_safeguarding_review.template )
-            new_text = old_text.replace( "TRID approval of the decision", "TRA approval of the decision" )
-            if new_text == old_text:
-                raise CommandError( 'String "TRID approval of the decision" not found')
-            workflow_template_transition_safeguarding_review.template = json.loads(new_text)
-            self.stdout.write(
-                self.style.SUCCESS(
-                    "Can update one WorkflowTemplate object with name "
-                    '"Transition safeguarding review"'
-                )
-            )
-        else:
-            raise CommandError(
-                "WorkflowTemplate object with name "
-                '"Transition safeguarding review" not found'
-            )
-
-        workflow_template_anti_subsidy_investigation = WorkflowTemplate.objects.filter(
-            name="Anti-subsidy investigation"
-        ).first()
-        if workflow_template_anti_subsidy_investigation:
-            old_text = json.dumps( workflow_template_anti_subsidy_investigation.template )
-            new_text = old_text.replace( "TRID approval of the decision", "TRA approval of the decision" )
-            if new_text == old_text:
-                raise CommandError( 'String "TRID approval of the decision" not found')
-            workflow_template_anti_subsidy_investigation.template = json.loads(new_text)
-            self.stdout.write(
-                self.style.SUCCESS(
-                    "Can update one WorkflowTemplate object with name "
-                    '"Anti-subsidy investigation"'
-                )
-            )
-        else:
-            raise CommandError(
-                "WorkflowTemplate object with name "
-                '"Anti-subsidy investigation" not found'
-            )
-
-        workflow_template_transitional_anti_subsidy_review = WorkflowTemplate.objects.filter(
-            name="Transitional Anti-subsidy Review"
-        ).first()
-        if workflow_template_transitional_anti_subsidy_review:
-            old_text = json.dumps( workflow_template_transitional_anti_subsidy_review.template )
-            new_text = old_text.replace( "TRID approval of the decision", "TRA approval of the decision" )
-            if new_text == old_text:
-                raise CommandError( 'String "TRID approval of the decision" not found')
-            workflow_template_transitional_anti_subsidy_review.template = json.loads(new_text)
-            self.stdout.write(
-                self.style.SUCCESS(
-                    "Can update one WorkflowTemplate object with name "
-                    '"Transitional Anti-subsidy Review"'
-                )
-            )
-        else:
-            raise CommandError(
-                "WorkflowTemplate object with name "
-                '"Anti-subsidy investigation" not found'
-            )
-
-        workflow_template_anti_dumping_review = WorkflowTemplate.objects.filter(
-            name="Anti-dumping Review"
-        ).first()
-        if workflow_template_anti_dumping_review:
-            old_text = json.dumps( workflow_template_anti_dumping_review.template )
-            new_text = old_text.replace( "TRID approval of the decision", "TRA approval of the decision" )
-            if new_text == old_text:
-                raise CommandError( 'String "TRID approval of the decision" not found')
-            workflow_template_anti_dumping_review.template = json.loads(new_text)
-            self.stdout.write(
-                self.style.SUCCESS(
-                    "Can update one WorkflowTemplate object with name "
-                    '"Anti-dumping Review"'
-                )
-            )
-        else:
-            raise CommandError(
-                "WorkflowTemplate object with name "
-                '"Anti-dumping Review" not found'
-            )
-
-        workflow_template_transitional_anti_dumping_review = WorkflowTemplate.objects.filter(
-            name="Transitional Anti-dumping Review"
-        ).first()
-        if workflow_template_transitional_anti_dumping_review:
-            old_text = json.dumps( workflow_template_transitional_anti_dumping_review.template )
-            new_text = old_text.replace( "TRID approval of the decision", "TRA approval of the decision" )
-            if new_text == old_text:
-                raise CommandError( 'String "TRID approval of the decision" not found')
-            workflow_template_transitional_anti_dumping_review.template = json.loads(new_text)
-            self.stdout.write(
-                self.style.SUCCESS(
-                    "Can update one WorkflowTemplate object with name "
-                    '"Transitional Anti-dumping Review"'
-                )
-            )
-        else:
-            raise CommandError(
-                "WorkflowTemplate object with name "
-                '"Transitional Anti-dumping Review" not found'
-            )
-
-        workflow_template_safeguarding = WorkflowTemplate.objects.filter(
-            name="Safeguarding"
-        ).first()
-        if workflow_template_safeguarding:
-            old_text = json.dumps( workflow_template_safeguarding.template )
-            new_text = old_text.replace( "TRID approval of the decision", "TRA approval of the decision" )
-            if new_text == old_text:
-                raise CommandError( 'String "TRID approval of the decision" not found')
-            workflow_template_safeguarding.template = json.loads(new_text)
-            self.stdout.write(
-                self.style.SUCCESS(
-                    "Can update one WorkflowTemplate object with name "
-                    '"Safeguarding"'
-                )
-            )
-        else:
-            raise CommandError(
-                "WorkflowTemplate object with name "
-                '"Safeguarding" not found'
-            )
-
-        return workflow_template_transition_safeguarding_review, \
-        workflow_template_anti_subsidy_investigation,\
-        workflow_template_transitional_anti_subsidy_review, \
-        workflow_template_anti_dumping_review, \
-        workflow_template_transitional_anti_dumping_review, \
-        workflow_template_safeguarding
-
-
-    def handle_commit(self, workflow_template_transition_safeguarding_review,
-        workflow_template_anti_subsidy_investigation,
-        workflow_template_transitional_anti_subsidy_review,
-        workflow_template_anti_dumping_review,
-        workflow_template_transitional_anti_dumping_review,
-        workflow_template_safeguarding
-    ):
-        """ Method to handle commit."""
-
-        self.stdout.write(self.style.SUCCESS("Committing updates to django database"))
-        try:
-            workflow_template_transition_safeguarding_review.save()
-            workflow_template_anti_subsidy_investigation.save()
-            workflow_template_transitional_anti_subsidy_review.save()
-            workflow_template_anti_dumping_review.save()
-            workflow_template_transitional_anti_dumping_review.save()
-            workflow_template_safeguarding.save()
-        except Exception as e:
-            raise CommandError(str(e))
-        return
 
     def handle(self, *args, **options):
-        """ Master method for the command implementing option handling logic,
-        main commit and printing of reminder message about WorflowTemplate objects."""
-
-        if options["undo"] and options["commit"]:
-            raise CommandError("Cannot run with --commit and --undo")
-
-        if options["undo"] and options["nocommit"]:
-            raise CommandError("Cannot run with --nocommit and --undo")
-
-        if options["undo"]:
-            self.handle_undo()
+        if options["revert"]:
+            revert_brand()
             return
 
-        if not options["commit"] and not options["nocommit"]:
-            raise CommandError("Must run with --commit, --nocommit or --undo")
-
-        if options["commit"] and options["nocommit"]:
-            raise CommandError("Can't  run with both --commit and --nocommit")
-
-        if options["nocommit"] or options["commit"]:
-            (
-                workflow_template_transition_safeguarding_review,
-                workflow_template_anti_subsidy_investigation,
-                workflow_template_transitional_anti_subsidy_review,
-                workflow_template_anti_dumping_review,
-                workflow_template_transitional_anti_dumping_review,
-                workflow_template_safeguarding
-            ) = self.handle_lookups()
-
-        if options["nocommit"]:
-            self.stdout.write(
-                self.style.ERROR("nocommit Option selected: UPDATES NOT COMMITTED TO DATABASE")
-            )
-            return
-
-        if not options["commit"]:
-            return
-
-        # do all or none
-        if not (workflow_template_transition_safeguarding_review):
-            raise CommandError(
-                "commit:  NO UPDATES COMMITTED as not all objects "
-                "that require update were found."
-            )
-
-        self.handle_commit(
-            workflow_template_transition_safeguarding_review, 
-            workflow_template_anti_subsidy_investigation, 
-            workflow_template_transitional_anti_subsidy_review,
-            workflow_template_anti_dumping_review,
-            workflow_template_transitional_anti_dumping_review,
-            workflow_template_safeguarding
-        )
+        update_brand()
         return
