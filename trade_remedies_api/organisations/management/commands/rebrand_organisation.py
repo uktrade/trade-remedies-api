@@ -25,7 +25,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--revert",
-            action="revert",
+            action="store_true",
             help='Reverts brand to old version',
         )
 
@@ -36,9 +36,9 @@ class Command(BaseCommand):
             )
         )
 
-    def convert(self, from_initialism, to_initialism):
+    def convert(self, from_initialism, to_initialism, from_org_name, to_org_name):
         # cases.submissiondocumenttype
-        tra_document = SubmissionDocumentType.object.filter(
+        tra_document = SubmissionDocumentType.objects.filter(
             name=f"{from_initialism} Document"
         ).first()
 
@@ -81,7 +81,7 @@ class Command(BaseCommand):
         # job_titles.json
         job_title = JobTitle.objects.filter(
             name=f"{from_initialism} Other",
-        )
+        ).first()
 
         job_title.name = f"{to_initialism} Other"
         job_title.save()
@@ -90,10 +90,10 @@ class Command(BaseCommand):
 
         # tra_organisations.json 
         organisation = Organisation.objects.filter(
-            name=from_name,
-        )
+            name=from_org_name,
+        ).first()
 
-        organisation.name = to_name
+        organisation.name = to_org_name
         organisation.save()
 
         self.print_success(f"Updated {organisation}")
