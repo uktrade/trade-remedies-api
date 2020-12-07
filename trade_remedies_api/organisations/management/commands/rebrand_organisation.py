@@ -11,8 +11,8 @@ from organisations.models import Organisation
 from workflow.models import WorkflowTemplate
 
 
-LEGACY_INITALISM = "TRID"
-INITALISM = "TRA"
+LEGACY_INITIALISM = "TRID"
+INITIALISM = "TRA"
 LEGACY_ORGANISATION_NAME = "Trade Remedies Investigations Directorate"
 ORGANISATION_NAME = "Trade Remedies Authority"
 
@@ -100,8 +100,8 @@ class Command(BaseCommand):
 
     def update_brand(self):
         self.convert(
-            LEGACY_INITALISM,
-            INITALISM,
+            LEGACY_INITIALISM,
+            INITIALISM,
             LEGACY_ORGANISATION_NAME,
             ORGANISATION_NAME,
         )
@@ -109,8 +109,8 @@ class Command(BaseCommand):
 
     def revert_brand(self):
         self.convert(
-            INITALISM,
-            LEGACY_INITALISM,
+            INITIALISM,
+            LEGACY_INITIALISM,
             ORGANISATION_NAME,
             LEGACY_ORGANISATION_NAME,
         )
