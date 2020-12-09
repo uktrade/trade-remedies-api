@@ -49,6 +49,9 @@ DJANGO_ADMIN = os.environ.get("DJANGO_ADMIN", "FALSE").upper() == "TRUE"
 
 ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
 
+ORGANISATION_NAME = os.environ.get("ORGANISATION_NAME", "Organisation name placeholder")
+
+ORGANISATION_INITIALISM = os.environ.get("ORGANISATION_INITIALISM", "PLACEHOLDER")
 
 # Application definition
 

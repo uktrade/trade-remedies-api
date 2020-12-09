@@ -59,7 +59,7 @@
     "model": "core.jobtitle",
     "pk": 9,
     "fields": {
-      "name": "TRID Other"
+      "name": "TRA Other"
     }
   }
 ]
