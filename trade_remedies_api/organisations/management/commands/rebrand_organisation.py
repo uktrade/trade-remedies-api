@@ -36,16 +36,26 @@ class Command(BaseCommand):
             )
         )
 
+    def print_warning(self, msg):
+        self.stdout.write(
+            self.style.WARNING(
+                msg
+            )
+        )
+
     def convert(self, from_initialism, to_initialism, from_org_name, to_org_name):
         # cases.submissiondocumenttype
         tra_document = SubmissionDocumentType.objects.filter(
             name=f"{from_initialism} Document"
         ).first()
 
-        tra_document.name = f"{to_initialism} Document"
-        tra_document.save()
+        if not tra_document:
+            self.print_warning(f"'{from_initialism} Document' not found")
+        else:
+            tra_document.name = f"{to_initialism} Document"
+            tra_document.save()
 
-        self.print_success(f"Updated {tra_document}")
+            self.print_success(f"Updated {tra_document}")
 
         # workflow_template_anti_dumping.json
         # workflow_template_anti_subsidy.json
@@ -67,36 +77,53 @@ class Command(BaseCommand):
                 name=workflow_name
             ).first()
 
-            updated_json_txt = json.dumps(
-                workflow.template
-            ).replace(
-                f"{from_initialism} approval of the decision",
-                f"{to_initialism} approval of the decision",
-            )
-            workflow.template = json.loads(updated_json_txt)
-            workflow.save()
+            if not workflow:
+                self.print_warning(f"'{workflow_name}' not found")
+            else:
+                json_txt = json.dumps(
+                    workflow.template
+                )
 
-            self.print_success(f"Updated {workflow}")
+                if f"{from_initialism} approval of the decision" not in json_txt:
+                    self.print_warning(
+                        f"'{from_initialism}' not found in '{workflow_name}'"
+                    )
+                else:
+                    updated_json_txt = json_txt.replace(
+                        f"{from_initialism} approval of the decision",
+                        f"{to_initialism} approval of the decision",
+                    )
+
+                    workflow.template = json.loads(updated_json_txt)
+                    workflow.save()
+
+                    self.print_success(f"Updated {workflow}")
 
         # job_titles.json
         job_title = JobTitle.objects.filter(
             name=f"{from_initialism} Other",
         ).first()
 
-        job_title.name = f"{to_initialism} Other"
-        job_title.save()
+        if not job_title:
+            self.print_warning(f"'{from_initialism} Other' not found")
+        else:
+            job_title.name = f"{to_initialism} Other"
+            job_title.save()
 
-        self.print_success(f"Updated {job_title}")
+            self.print_success(f"Updated {job_title}")
 
         # tra_organisations.json 
         organisation = Organisation.objects.filter(
             name=from_org_name,
         ).first()
 
-        organisation.name = to_org_name
-        organisation.save()
+        if not job_title:
+            self.print_warning(f"'{from_org_name}' not found")
+        else:
+            organisation.name = to_org_name
+            organisation.save()
 
-        self.print_success(f"Updated {organisation}")
+            self.print_success(f"Updated {organisation}")
 
     def update_brand(self):
         self.convert(
