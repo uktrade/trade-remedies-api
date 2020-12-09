@@ -25,7 +25,7 @@ GROUP_PERMISSIONS["TRA Administrator"] = GROUP_PERMISSIONS["TRA Investigator"] +
 ]
 GROUP_PERMISSIONS["Organisation User"] = []
 GROUP_PERMISSIONS["Organisation Owner"] = GROUP_PERMISSIONS["Organisation User"] + []
-GROUP_PERMISSIONS["Third Party User"] = GROUP_PERMISSIONS["Organisation User"] + []
+GROUP_PERMISSIONS["Third Party User"] = []
 
 PERMISSION_MODELS = [
     "core",
