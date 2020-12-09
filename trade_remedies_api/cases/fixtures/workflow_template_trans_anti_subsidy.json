@@ -3338,7 +3338,7 @@
                   },
                   {
                     "key": "RECON_INIT_DECISION_TRA",
-                    "label": "TRID approval of the decision",
+                    "label": "TRA approval of the decision",
                     "active": true,
                     "required": true,
                     "time_gate": null,
