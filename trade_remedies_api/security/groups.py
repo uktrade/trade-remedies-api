@@ -16,7 +16,7 @@ GROUPS = [
     ("Third Party User", "A member of a third party organisation with standard access"),
 ]
 
-GROUP_PERMISSIONS = dict()
+GROUP_PERMISSIONS = {}
 GROUP_PERMISSIONS["TRA Investigator"] = []
 GROUP_PERMISSIONS["TRA Administrator"] = GROUP_PERMISSIONS["TRA Investigator"] + [
     "core.add_user",
