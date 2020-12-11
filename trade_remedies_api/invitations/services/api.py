@@ -339,7 +339,7 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
             http_status=status.HTTP_201_CREATED,
         )
 
-    def delete(self, request, case_id, organisation_id, submission_id, invite_id, *args, **kwargs):
+    def delete(self, request, case_id, submission_id, invite_id, *args, **kwargs):
         case = Case.objects.get(id=case_id)
         submission = Submission.objects.get(id=submission_id, case=case)
         invite = Invitation.objects.get(submission=submission, id=invite_id)
