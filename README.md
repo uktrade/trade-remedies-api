@@ -55,9 +55,11 @@ Revert to old branding
 
 ## BDD testing
 
-Behavioural testing is provided by Behave Django - https://github.com/behave/behave-django and can be triggered by:
+Behavioural testing is provided by Behave Django - https://github.com/behave/behave-django and can be triggered by running:
 
-`make bdd` from the Trade Remedies orchestration project directory.
+`make bdd`
+
+from the Trade Remedies orchestration project directory.
 
 You can make test objects available for BDD testing by creating views that create them in the 'api_test' app in this project.
 
