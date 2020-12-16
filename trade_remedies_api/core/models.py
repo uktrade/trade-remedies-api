@@ -13,13 +13,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import PermissionsMixin, Group, Permission
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
-from django_countries.fields import CountryField
 from django.contrib.postgres import fields
 from rest_framework.authtoken.models import Token
 from security.constants import (
     SECURITY_GROUP_TRA_HEAD_OF_INVESTIGATION,
-    SECURITY_GROUP_SUPER_USER,
     SECURITY_GROUPS_TRA,
     SECURITY_GROUPS_TRA_ADMINS,
     SECURITY_GROUPS_PUBLIC,
@@ -30,17 +27,14 @@ from security.constants import (
     SOS_SECURITY_GROUPS,
 )
 from security.models import CaseSecurityMixin, UserCase, OrganisationUser
-from core.notifier import send_sms, send_mail as mail_2fa
+from core.notifier import send_sms
 from timezone_field import TimeZoneField
 from phonenumbers.phonenumberutil import NumberParseException
-from functools import lru_cache
 from .exceptions import UserExists
 from .tasks import send_mail
 from .decorators import method_cache
 from .constants import SAFE_COLOURS, DEFAULT_USER_COLOUR, TRUTHFUL_INPUT_VALUES
-from .user_context import UserContext, user_context
 from .utils import convert_to_e164, filter_dict
-from .base import SimpleBaseModel, BaseModel
 
 
 logger = logging.getLogger(__name__)
@@ -193,7 +187,8 @@ class UserManager(BaseUserManager):
         The required attributes are the email, name and organisation for the user.
         However, optional fields for the security group (defaults to regular user), phone
         and a case spec can be provided.
-        The case spec is a list of dicts in the following format, specifying which cases to assign the
+        The case spec is a list of dicts in the following format,
+        specifying which cases to assign the
         contact to, and if they are the primary contact for that case.
             [
                 {'case': 'CASE-ID|CASE INSTANCE', 'primary': True|False}
@@ -220,7 +215,7 @@ class UserManager(BaseUserManager):
             user.set_cases(organisation, cases, request.user)
         return user, contact
 
-    @transaction.atomic
+    @transaction.atomic  # noqa: C901
     def update_user(self, user_id, password=None, groups=None, **kwargs):
         """
         Update a user model
@@ -366,10 +361,10 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
 
     def purge_related(self):
         """
-        This method will hard delete all related models of this user. 
+        This method will hard delete all related models of this user.
         For safety, an explicit re-check of the ability to do so is performed first.
-        I.e., no non-draft submissions created. 
-        Returnes True if the deletion was successful. 
+        I.e., no non-draft submissions created.
+        Returnes True if the deletion was successful.
         """
         from audit.models import Audit
 
@@ -386,9 +381,9 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
 
     def anonymize(self):
         """
-        anonymize this user and related contact. 
+        anonymize this user and related contact.
         The user and contact are not saved, but are returned
-        read to be saved by the caller. 
+        read to be saved by the caller.
         """
         self.email = crypto.get_random_string(len(self.email))
         self.name = crypto.get_random_string(len(self.name))
@@ -661,7 +656,6 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
             "name": self.name,
             "initials": self.initials,
             "active": self.is_active,
-            "name": self.name,
             "groups": [group.name for group in self.get_groups()],
             "tra": self.is_tra(),
             "manager": self.is_tra(manager=True),
@@ -689,7 +683,7 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         try:
             _dict.update(self.userprofile.to_dict())
         except Exception as exc:
-            logger.error(f"Cannot expand user profile", exc_info=True)
+            logger.error("Cannot expand user profile", exc_info=True)
         return _dict
 
     def get_cases(self, organisation=None):
@@ -812,7 +806,8 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
 
     def get_all_permissions(self):
         """
-        Return all user permissions, either directly associated or indirectly via it's security group
+        Return all user permissions,
+        either directly associated or indirectly via it's security group
         """
         return set(Permission.objects.filter(user=self)).union(
             set(Permission.objects.filter(group__user=self))
@@ -830,7 +825,6 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         Returns:
             list -- User models
         """
-        from security.models import OrganisationUser
 
         org_users = OrganisationUser.objects.filter(
             organisation=self.organisation.organisation, user__deleted_at__isnull=True
@@ -878,8 +872,10 @@ class UserProfile(models.Model):
     """
     Additional information about a user.
     A user is also associated with a contact.
-    NOTE: If an existing user is following an invite process, the invite contact might be replaced with the
-    user's one, or alternatively merged. This is not yet implemented as invites are not direct-to-case at the moment.
+    NOTE: If an existing user is following an invite process,
+    the invite contact might be replaced with the
+    user's one, or alternatively merged.
+    This is not yet implemented as invites are not direct-to-case at the moment.
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -974,7 +970,7 @@ class UserProfile(models.Model):
         template_id = SystemParameter.get("NOTIFY_VERIFY_EMAIL")
         context = {
             "name": self.user.name,
-            "verification_link": f"{settings.PUBLIC_ROOT_URL}/email/verify/?code={self.email_verify_code}",
+            "verification_link": f"{settings.PUBLIC_ROOT_URL}/email/verify/?code={self.email_verify_code}",  # noqa: E501
         }
         send_report = send_mail(self.user.email, context, template_id)
         return send_report
@@ -1173,7 +1169,7 @@ class PasswordResetRequest(models.Model):
 
     def get_link(self):
         if self.user.is_tra():
-            return f"{settings.CASEWORKER_ROOT_URL}/accounts/password/reset/{self.user.id}!{self.code}/"
+            return f"{settings.CASEWORKER_ROOT_URL}/accounts/password/reset/{self.user.id}!{self.code}/"  # noqa: E501
         else:
             return f"{settings.PUBLIC_ROOT_URL}/accounts/password/reset/{self.user.id}!{self.code}/"
 
@@ -1308,7 +1304,7 @@ class SystemParameter(models.Model):
     def load_parameters(param_spec):
         """
         Loads a system param spec, similiar to the one
-        defined in ./system/parameters.json. 
+        defined in ./system/parameters.json.
         Returns a tuple of (created, updated, removed)
         """
         count_updated = 0
@@ -1343,7 +1339,8 @@ class SystemParameter(models.Model):
                     this_object.set_value(load_object["value"])
                     this_object.save()
                 if "editable" in load_object and load_object["editable"] != this_object.editable:
-                    # allow updates to the editable state only if it is different than what is currently set.
+                    # allow updates to the editable state only
+                    # if it is different than what is currently set.
                     this_object.editable = load_object["editable"]
                     this_object.save()
         return count_created, count_updated, count_removed

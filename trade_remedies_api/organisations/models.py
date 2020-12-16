@@ -12,7 +12,10 @@ from contacts.models import Contact, CaseContact
 from functools import singledispatch
 from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
 from organisations.constants import NOT_IN_CASE_ORG_CASE_ROLES
-from core.utils import deep_index_items_by, sql_get_list, public_login_url
+from core.utils import (
+    sql_get_list,
+    public_login_url,
+)
 from django_countries.fields import CountryField
 from django.utils import timezone
 from cases.constants import TRA_ORGANISATION_ID
@@ -55,7 +58,7 @@ class OrganisationManager(models.Manager):
             rows = cursor.fetchall()
         return rows
 
-    @transaction.atomic
+    @transaction.atomic  # noqa: C901
     def merge_organisation_records(
         self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
     ):
@@ -125,7 +128,8 @@ class OrganisationManager(models.Manager):
                         clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
                         and org_case.role.key != clash.role.key
                     ):
-                        # Argh, both orgs are in the same case with different, non awaiting roles - blow up!
+                        # Argh, both orgs are in the same case with different,
+                        # non awaiting roles - blow up!
                         raise ValueError(
                             "Cannot merge as organisations have different roles in a case",
                             org_case.case.name,
@@ -188,7 +192,7 @@ class OrganisationManager(models.Manager):
             context["login_url"] = public_login_url()
             send_mail(user.contact.email, context, template_id, audit_kwargs=audit_kwargs)
 
-    @transaction.atomic
+    @transaction.atomic  # noqa: C901
     def create_or_update_organisation(
         self,
         user,

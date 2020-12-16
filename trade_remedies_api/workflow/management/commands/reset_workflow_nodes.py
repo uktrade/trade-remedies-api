@@ -1,4 +1,4 @@
-import loggimg
+import logging
 
 from workflow.models import Node
 from django.core.management.base import BaseCommand

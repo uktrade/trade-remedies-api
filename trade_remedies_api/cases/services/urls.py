@@ -10,7 +10,6 @@ from .api import (
     ExportSourceAPIView,
     ApplicationStateAPIView,
     RequestReviewAPIView,
-    TemplateDownloadAPIView,
     DocumentDownloadAPIView,
     SubmissionStatusAPIView,
     SubmissionCloneAPIView,
@@ -94,29 +93,32 @@ urlpatterns = [
         SubmissionsAPIView.as_view(),
     ),
     path(
-        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/notify/<str:notice_type>/",
+        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/notify/<str:notice_type>/",  # noqa: E501
         SubmissionNotifyAPI.as_view(),
     ),
     path(
-        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/status/",
+        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/status/",  # noqa: E501
         SubmissionStatusAPIView.as_view(),
     ),
     path(
         "<uuid:case_id>/submission/<uuid:submission_id>/status/", SubmissionStatusAPIView.as_view()
     ),
-    path("<uuid:case_id>/submission/<uuid:submission_id>/clone/", SubmissionCloneAPIView.as_view()),
+    path(
+        "<uuid:case_id>/submission/<uuid:submission_id>/clone/", SubmissionCloneAPIView.as_view()
+    ),  # noqa: E501
     path(
         "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/"
         "<uuid:submission_id>/document/<uuid:document_id>/download/",
         DocumentDownloadAPIView.as_view(),
     ),  # TODO: Consolidate the two
     # Organisation Submissions
-    # path('organisation/<uuid:organisation_id>/submissions/<int:submission_type_id>/', SubmissionsAPIView.as_view()),
+    # path('organisation/<uuid:organisation_id>/submissions/
+    # <int:submission_type_id>/', SubmissionsAPIView.as_view()),
     # Submission Status
     path("submission/status/", SubmissionStatusAPIView.as_view()),
     # Submission exists
     path(
-        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/type/<int:submission_type_id>/",
+        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/type/<int:submission_type_id>/",  # noqa: E501
         SubmissionExistsAPI.as_view(),
     ),
     # Submission Document Status
@@ -135,7 +137,7 @@ urlpatterns = [
         ProductsAPIView.as_view(),
     ),
     path(
-        "<uuid:case_id>/organisation/<uuid:organisation_id>/product/<uuid:product_id>/hscode/<uuid:code_id>/",
+        "<uuid:case_id>/organisation/<uuid:organisation_id>/product/<uuid:product_id>/hscode/<uuid:code_id>/",  # noqa: E501
         ProductHSCodeAPI.as_view(),
     ),
     # Export Source
@@ -150,7 +152,7 @@ urlpatterns = [
     path("<uuid:case_id>/submission/<uuid:submission_id>/reviewtype/", ReviewTypeAPIView.as_view()),
     # Set Review
     path(
-        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/review/",
+        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/review/",  # noqa: E501
         RequestReviewAPIView.as_view(),
     ),
     # Application state
@@ -160,7 +162,7 @@ urlpatterns = [
         ApplicationStateAPIView.as_view(),
     ),
     path(
-        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/state/",
+        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/state/",  # noqa: E501
         ApplicationStateAPIView.as_view(),
     ),
     # case workflow

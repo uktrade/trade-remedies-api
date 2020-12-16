@@ -1,7 +1,6 @@
 import os
 import openpyxl
 import csv
-import datetime
 import tempfile
 from django.conf import settings
 from django.utils import timezone

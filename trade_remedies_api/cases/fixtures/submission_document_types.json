@@ -3,7 +3,7 @@
     "model": "cases.submissiondocumenttype",
     "pk": 1,
     "fields": {
-      "name": "TRID Document",
+      "name": "TRA Document",
       "key": "caseworker"
     }
   },

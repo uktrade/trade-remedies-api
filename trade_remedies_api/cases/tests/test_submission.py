@@ -3,10 +3,17 @@ from datetime import datetime
 from django.test import TestCase
 from freezegun import freeze_time
 
-from cases.models import CaseWorkflowState, SubmissionType, Submission
+from cases.constants import (
+    DIRECTION_BOTH,
+    DIRECTION_PUBLIC_TO_TRA,
+    SUBMISSION_TYPE_HEARING_REQUEST,
+)
+from cases.models import (
+    CaseWorkflowState,
+    SubmissionType,
+    Submission,
+)
 from cases.tests.test_case import CaseTestMixin, get_case_fixtures
-
-from cases.constants import DIRECTION_BOTH, DIRECTION_PUBLIC_TO_TRA, SUBMISSION_TYPE_HEARING_REQUEST
 
 
 PASSWORD = "A7Hhfa!jfaw@f"

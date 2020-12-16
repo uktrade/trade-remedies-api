@@ -1,7 +1,6 @@
 import json
 from django.test import TestCase
 from django.contrib.auth.models import Group
-from django.conf import settings
 from core.models import User, SystemParameter
 from organisations.models import Organisation
 from cases.models import Case, CaseType, CaseStage, CaseWorkflow

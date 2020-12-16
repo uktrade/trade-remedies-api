@@ -36,7 +36,8 @@ class AuditableMixin(object):
 
     def format_diff_map(self, changes):
         """
-        Format a diff struct describing what fields have changed in the model and the change form/to.
+        Format a diff struct describing what fields have changed
+        in the model and the change form/to.
 
         The diff data looks like:
 
@@ -59,7 +60,7 @@ class AuditableMixin(object):
             diff[key] = {"from": _from_value, "to": _to_value}
         return diff
 
-    def _normalise_diff_value(self, value):
+    def _normalise_diff_value(self, value):  # noqa: C901
         """
         Normalise a date/time field to its isoformat when its destined for a json/diff field.
         :param value: the value to normalise

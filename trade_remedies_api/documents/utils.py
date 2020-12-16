@@ -6,7 +6,6 @@ from pathlib import Path
 from django.utils import timezone
 from django.conf import settings
 from django.http import StreamingHttpResponse
-from wsgiref.util import FileWrapper
 
 
 logger = logging.getLogger(__name__)

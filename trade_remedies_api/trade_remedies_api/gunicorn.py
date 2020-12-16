@@ -1,4 +1,3 @@
-import gc
 import os
 from psycogreen.gevent import patch_psycopg
 

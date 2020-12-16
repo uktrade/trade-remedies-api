@@ -11,15 +11,12 @@ A mixin is provided to be mixed in to the user model providing handy
 shortcuts to determine this access for any given model or to assign it.
 """
 
-import uuid
 from django.db import models
 from functools import singledispatch
 from django.contrib.auth.models import Group
-from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.utils import timezone
 from core.base import SimpleBaseModel
-from core.decorators import method_cache
 from organisations.constants import CONTRIBUTOR_ORG_CASE_ROLE
 
 
@@ -307,8 +304,10 @@ class OrganisationUserManager(models.Manager):
 class OrganisationUser(SimpleBaseModel):
     """
     A membership of a user in an organisation and the security group associated with it.
-    Note that a user might be a member of multiple organisations, but assigned only once to each organisation,
-    although this is not currently in use and a user is considered a direct employee of one organisation.
+    Note that a user might be a member of multiple organisations,
+    but assigned only once to each organisation,
+    although this is not currently in use and a user is considered
+    a direct employee of one organisation.
     """
 
     organisation = models.ForeignKey(
