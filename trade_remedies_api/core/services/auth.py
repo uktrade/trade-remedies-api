@@ -1,25 +1,17 @@
-import time
 import datetime
 import logging
 from rest_framework.views import APIView
 from rest_framework import status
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
-from django.utils import timezone, crypto
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from rest_framework.authtoken.models import Token
-from axes.models import AccessAttempt
-from django.contrib.auth.models import Group
 from core.models import User, UserProfile, SystemParameter, PasswordResetRequest
-from core.notifier import send_sms, send_mail
-from core.utils import convert_to_e164
-from organisations.models import Organisation
+from core.notifier import send_mail
 from invitations.models import Invitation
-from contacts.models import Contact
-from security.models import get_security_group
 from django.conf import settings
 from notifications_python_client.errors import HTTPError
 from axes.utils import reset
@@ -27,12 +19,11 @@ from axes.decorators import axes_dispatch
 from security.constants import (
     SECURITY_GROUP_ORGANISATION_OWNER,
     ENVIRONMENT_GROUPS,
-    GROUPS,
 )
 from core.constants import CONTENT_EMAIL_EXISTS
 from trade_remedies_api.version import __version__
 from .base import TradeRemediesApiView, ResponseSuccess, ResponseError
-from .exceptions import InvalidRequestParams, ServerError, AccessDenied, InvalidRequestLockout
+from .exceptions import InvalidRequestParams, AccessDenied, InvalidRequestLockout
 
 
 logger = logging.getLogger(__name__)
@@ -149,7 +140,7 @@ class AuthenticationView(APIView):
 class RegistrationAPIView(APIView):
     authentication_classes = []
 
-    @transaction.atomic
+    @transaction.atomic  # noqa: C901
     def post(self, request, *args, **kwargs):
         email = request.data.get("email")
         password = request.data.get("password")
@@ -165,7 +156,8 @@ class RegistrationAPIView(APIView):
                 _key = key.replace("_", " ").capitalize()
                 errors[key] = f"{_key} is required"
         try:
-            # If the email already exists, notify the original user and pretend registration completed ok.
+            # If the email already exists,
+            # notify the original user and pretend registration completed ok.
             user = User.objects.get(email=email.strip().lower())
             template_id = SystemParameter.get("NOTIFY_EMAIL_EXISTS")
             send_mail(user.email, {"full_name": user.name}, template_id)
@@ -250,7 +242,7 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
             return ResponseSuccess(
                 {
                     "result": {
-                        "error": "You have entered an incorrect code too many times and we have temporarily locked your account.",
+                        "error": "You have entered an incorrect code too many times and we have temporarily locked your account.",  # noqa: E501
                         "locked_until": locked_until.strftime(settings.API_DATETIME_FORMAT),
                         "locked_for_seconds": locked_for_seconds,
                     }
@@ -274,7 +266,8 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
         two_factor = request.user.two_factor
         if two_factor.is_locked():
             raise InvalidRequestLockout(
-                "You have entered an incorrect code too many times and we have temporarily locked your account."
+                "You have entered an incorrect code too many times "
+                "and we have temporarily locked your account."
             )
         if two_factor.validate(code):
             two_factor.success(user_agent=user_agent)

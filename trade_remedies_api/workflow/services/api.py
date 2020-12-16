@@ -1,9 +1,4 @@
 from core.services.base import TradeRemediesApiView, ResponseSuccess
-from core.services.exceptions import (
-    InvalidRequestParams,
-    IntegrityErrorRequest,
-    NotFoundApiExceptions,
-)
 from rest_framework import status
 from workflow.models import WorkflowTemplate, Workflow
 
@@ -31,7 +26,7 @@ class WorkflowTemplateAPI(TradeRemediesApiView):
 
         workflow = template.workflow
         _index = index if index > -1 else None
-        workflow.set(item, parent_id, _index)
+        workflow.set(item, parent_id, _index)  # noqa: F821
         template.template = workflow.shrink()
         template.save()
         return ResponseSuccess(

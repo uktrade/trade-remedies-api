@@ -49,6 +49,9 @@ DJANGO_ADMIN = os.environ.get("DJANGO_ADMIN", "FALSE").upper() == "TRUE"
 
 ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
 
+ORGANISATION_NAME = os.environ.get("ORGANISATION_NAME", "Organisation name placeholder")
+
+ORGANISATION_INITIALISM = os.environ.get("ORGANISATION_INITIALISM", "PLACEHOLDER")
 
 # Application definition
 
@@ -129,25 +132,19 @@ AUTHENTICATION_BACKENDS = [
 
 WSGI_APPLICATION = "trade_remedies_api.wsgi.application"
 
-_VCAP_SERVICES = env.json('VCAP_SERVICES', default={})
+_VCAP_SERVICES = env.json("VCAP_SERVICES", default={})
 
-if 'postgres' in _VCAP_SERVICES:
+if "postgres" in _VCAP_SERVICES:
     _database_uri = f"{_VCAP_SERVICES['postgres'][0]['credentials']['uri']}"
     DATABASES = {
         "default": {
-            **dj_database_url.parse(
-                _database_uri,
-                engine="postgresql",
-                conn_max_age=0,
-            ),
+            **dj_database_url.parse(_database_uri, engine="postgresql", conn_max_age=0,),
             "ENGINE": "django_db_geventpool.backends.postgresql_psycopg2",
             "OPTIONS": {"MAX_CONNS": int(os.environ.get("DB_MAX_CONNS", "10")),},
         },
     }
 else:
-    DATABASES = {
-        "default": env.db()
-    }
+    DATABASES = {"default": env.db()}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -209,13 +206,13 @@ REST_FRAMEWORK = {
 # Public Django cache - 2
 # Caseworker Django cache - 1
 # API Django cache - 0
-# API Celery - 2 TODO find out if this should be a different value to public
+#  API Celery - 2 TODO find out if this should be a different value to public
 
 # Redis
-if 'redis' in _VCAP_SERVICES:
-    REDIS_BASE_URL = _VCAP_SERVICES['redis'][0]['credentials']['uri']
+if "redis" in _VCAP_SERVICES:
+    REDIS_BASE_URL = _VCAP_SERVICES["redis"][0]["credentials"]["uri"]
 else:
-    REDIS_BASE_URL = os.getenv('REDIS_BASE_URL')
+    REDIS_BASE_URL = os.getenv("REDIS_BASE_URL")
 
 CACHES = {
     "default": {
@@ -235,7 +232,9 @@ TRUSTED_USER_EMAIL = os.environ.get("HEALTH_CHECK_USER_EMAIL")
 AWS_ACCESS_KEY_ID = AWS_S3_ACCESS_KEY_ID = os.environ.get("S3_STORAGE_KEY")
 AWS_SECRET_ACCESS_KEY = AWS_S3_SECRET_ACCESS_KEY = os.environ.get("S3_STORAGE_SECRET")
 AWS_STORAGE_BUCKET_NAME = os.environ.get("S3_BUCKET_NAME")
-AWS_S3_REGION_NAME = AWS_DEFAULT_REGION = os.environ.get("AWS_REGION", "eu-west-1")  # "eu-west-1" looks like a legacy setting, TODO investigate if used in prod
+AWS_S3_REGION_NAME = AWS_DEFAULT_REGION = os.environ.get(
+    "AWS_REGION", "eu-west-1"
+)  # "eu-west-1" looks like a legacy setting, TODO investigate if used in prod
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_ENCRYPTION = True
 # S3 client library to use
@@ -340,15 +339,13 @@ GOV_NOTIFY_API_KEY = os.environ.get("GOV_NOTIFY_API_KEY")
 # Public Django cache - 2
 # Caseworker Django cache - 1
 # API Django cache - 0
-# API Celery - 2 TODO find out if this should be a different value to public
+#  API Celery - 2 TODO find out if this should be a different value to public
 
-if 'redis' in _VCAP_SERVICES:
-    credentials = _VCAP_SERVICES['redis'][0]['credentials']
+if "redis" in _VCAP_SERVICES:
+    credentials = _VCAP_SERVICES["redis"][0]["credentials"]
 
     CELERY_BROKER_URL = "rediss://:{}@{}:{}/2?ssl_cert_reqs=required".format(
-        credentials['password'],
-        credentials['host'],
-        credentials['port'],
+        credentials["password"], credentials["host"], credentials["port"],
     )
 else:
     CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=None)
@@ -364,29 +361,18 @@ if DEBUG:
     LOGGING = {
         "version": 1,
         "disable_existing_loggers": False,
-        'handlers': {
-            'stdout': {
-                'class': 'logging.StreamHandler',
-                'stream': sys.stdout,
-            },
-            'null': {
-                'class': 'logging.NullHandler',
-            },
+        "handlers": {
+            "stdout": {"class": "logging.StreamHandler", "stream": sys.stdout,},
+            "null": {"class": "logging.NullHandler",},
         },
-        'root': {
-            'handlers': ['stdout'],
-            'level': os.getenv('ROOT_LOG_LEVEL', 'INFO'),
-        },
-        'loggers': {
-            'django': {
-                'handlers': ['stdout', ],
-                'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-                'propagate': True,
+        "root": {"handlers": ["stdout"], "level": os.getenv("ROOT_LOG_LEVEL", "INFO"),},
+        "loggers": {
+            "django": {
+                "handlers": ["stdout",],
+                "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+                "propagate": True,
             },
-            'django.server': {
-                'handlers': ['null'],
-                'propagate': False,
-            },
+            "django.server": {"handlers": ["null"], "propagate": False,},
         },
     }
 else:

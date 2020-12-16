@@ -54,9 +54,11 @@ outcome_spec:
     ]
 
 
-In the following example, we trigger a termination and archiving of a case, if all parties were notified.
+In the following example, we trigger a termination and archiving of a case,
+if all parties were notified.
 The case is then archived using the given `value` as archiving reason.
-This rule defines two outcomes: archving if the case is simply complete, or failed due to insufficient
+This rule defines two outcomes: archving if the case is simply complete,
+or failed due to insufficient
 evidence. In both cases all parties and users should be acknowledged as notified.
 
 Action: Terminate and Archive Case
@@ -285,8 +287,8 @@ class BaseOutcome:
     def all_variate_rule(self, rule):
         """
         Similar to all rule, but requires at least one of each of values checked (i.e., must include
-        a variation of the values). This is usable when using the in_list operator as otherwise variation
-        is not possible
+        a variation of the values). This is usable when using the in_list operator
+        as otherwise variation is not possible
         """
         operator_name, operator_value = self.get_operator(rule.get("operator"))
         if operator_name not in ("in_list",):

@@ -124,7 +124,7 @@ def file_md5_checksum(file):
         md5 = hashlib.md5()
         for chunk in iter(lambda: file.read(65536), b""):
             md5.update(chunk)
-            gevent.sleep(0) # TODO find out from Mark what this is
+            gevent.sleep(0)  #  TODO find out from Mark what this is
 
         return md5.hexdigest()
     except Exception:

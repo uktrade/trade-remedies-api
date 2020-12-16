@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.contrib.auth.models import Group
 from django.utils import timezone
 from core.models import User, PasswordResetRequest
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 from django.conf import settings
 
 

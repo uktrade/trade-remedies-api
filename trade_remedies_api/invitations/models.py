@@ -67,7 +67,8 @@ class InvitationManager(models.Manager):
 
     def validate_public_invite(self, short_code, user):
         """
-        Validate a public invite not issued to a specific organisation, but to the general public via
+        Validate a public invite not issued to a specific organisation,
+        but to the general public via
         a code. Members of this invite will by default go to the awaiting approval group and
         will not have access to the case while in that group.
         Returns a tuple of the invite model and the organisation used.
@@ -119,7 +120,7 @@ class InvitationManager(models.Manager):
             )
         if invite.accepted_at:
             raise InviteAlreadyAccepted(
-                f"The user {user_email} has already been invited to {organisation} and has accepted the invite."
+                f"The user {user_email} has already been invited to {organisation} and has accepted the invite."  # noqa: E501
             )
         if (
             not created
@@ -146,14 +147,15 @@ class InvitationManager(models.Manager):
             direct=False,
             template_key="NOTIFY_INVITE_ORGANISATION_USER",
             context={
-                "login_url": f"{settings.PUBLIC_ROOT_URL}/invitation/{invite.code}/for/{organisation.id}/"
+                "login_url": f"{settings.PUBLIC_ROOT_URL}/invitation/{invite.code}/for/{organisation.id}/"  # noqa: E501
             },
         )
         return invite
 
     @transaction.atomic
     def invite_existing_user(self, user, organisation, invited_by, name=None, meta=None):
-        """Create an invitation for an existing user. The invite is accepted, but marked invalid at the start
+        """Create an invitation for an existing user.
+        The invite is accepted, but marked invalid at the start
         in order to mask the fact the user already exists.
 
         Arguments:
@@ -217,12 +219,15 @@ class Invitation(BaseModel):
     An invitation can be made by a TRA user or an organisation owner user. The latter would also be
     bound to an invite submission used to facilitate the invite.
     An invitation can also be made by an organisation owner to invite a user to their organisation
-    as a direct employee. In this scenario the user is already created and associated with the invite
-    and will confirm the account details, set a password etc. via a special login link. These direct
-    invites are not associated with a specific case.
+    as a direct employee.
+    In this scenario the user is already created and associated with the invite
+    and will confirm the account details, set a password etc. via a special login link.
+    These direct invites are not associated with a specific case.
 
-    An invite can be marked invalid which can happen if for example an existing public user is invited.
-    A record of the invite still exists, but the user exercise it. Any temporary/permanent meta data
+    An invite can be marked invalid which can happen
+    if for example an existing public user is invited.
+    A record of the invite still exists,
+    but the user exercise it. Any temporary/permanent meta data
     related to the invite can be saved in the meta dict.
     """
 
@@ -420,7 +425,7 @@ class Invitation(BaseModel):
         )
         return organisation.assign_user(user, SECURITY_GROUP_ORGANISATION_OWNER)
 
-    @transaction.atomic
+    @transaction.atomic  # noqa:C901
     def process_invitation(
         self,
         user,
@@ -451,8 +456,10 @@ class Invitation(BaseModel):
         a registration of interest will not be created.
         In the case where the invite originated from the caseworker, the organisation will
         be pre-approved to the case, thus retaining their role even as the user
-        follows through the registration of interest (what would normally make them 'awaiting approval').
-        The organisation will still require verification by the TRA before they are approved to the case.
+        follows through the registration of interest
+        (what would normally make them 'awaiting approval').
+        The organisation will still require verification
+        by the TRA before they are approved to the case.
         """
         from cases.models import Submission, SubmissionType
         from security.models import OrganisationCaseRole, CaseRole
@@ -503,7 +510,8 @@ class Invitation(BaseModel):
                 )
                 case_role = existing_case_role.role
             except OrganisationCaseRole.DoesNotExist:
-                # otherwise set the draft to preparing, falling back on the default process (preparing->awaiting)
+                # otherwise set the draft to preparing,
+                # falling back on the default process (preparing->awaiting)
                 case_role = CaseRole.objects.get(id=ROLE_PREPARING)
             org_case, created = OrganisationCaseRole.objects.assign_organisation_case_role(
                 organisation=organisation,
