@@ -516,6 +516,9 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         found_role = self.groups.filter(name=role)
         if len(found_role):
             self.groups.remove(found_role[0])
+            # TEST: run this command and check that the user has a group
+            if not self.groups.all():
+                self.groups.add(Group.objects.get(name=SECURITY_GROUP_ORGANISATION_USER))
         else:
             self.groups.add(Group.objects.get(name=role))
 
