@@ -39,5 +39,5 @@ class UserTest(TestCase):
         user.toggle_role(SECURITY_GROUP_ORGANISATION_OWNER)
         user_obj = User.objects.get(id=user.id)
         group_queryset = user_obj.groups.all()
-        # assigned to 1 group before the command
+        # still assigned to 1 group after the command
         assert group_queryset.count() == 1
