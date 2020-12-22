@@ -1,6 +1,6 @@
 import json
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from cases.models.submissiondocument import SubmissionDocumentType
 
@@ -18,30 +18,18 @@ ORGANISATION_NAME = "Trade Remedies Authority"
 
 
 class Command(BaseCommand):
-    help = (
-        "Update system branding."
-    )
+    help = "Update system branding."
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--revert",
-            action="store_true",
-            help='Reverts brand to old version',
+            "--revert", action="store_true", help="Reverts brand to old version",
         )
 
     def print_success(self, msg):
-        self.stdout.write(
-            self.style.SUCCESS(
-                msg
-            )
-        )
+        self.stdout.write(self.style.SUCCESS(msg))
 
     def print_warning(self, msg):
-        self.stdout.write(
-            self.style.WARNING(
-                msg
-            )
-        )
+        self.stdout.write(self.style.WARNING(msg))
 
     def convert(self, from_initialism, to_initialism, from_org_name, to_org_name):
         # cases.submissiondocumenttype
@@ -61,7 +49,7 @@ class Command(BaseCommand):
         # workflow_template_anti_subsidy.json
         # workflow_template_safeguards.json
         # workflow_template_trans_anti_dumping.json
-        # workflow_template_trans_anti_subsidy.json 
+        # workflow_template_trans_anti_subsidy.json
         # workflow_template_trans_safeguards.json
         workflows = [
             "Anti-dumping Review",
@@ -73,21 +61,15 @@ class Command(BaseCommand):
         ]
 
         for workflow_name in workflows:
-            workflow = WorkflowTemplate.objects.filter(
-                name=workflow_name
-            ).first()
+            workflow = WorkflowTemplate.objects.filter(name=workflow_name).first()
 
             if not workflow:
                 self.print_warning(f"'{workflow_name}' not found")
             else:
-                json_txt = json.dumps(
-                    workflow.template
-                )
+                json_txt = json.dumps(workflow.template)
 
                 if f"{from_initialism} approval of the decision" not in json_txt:
-                    self.print_warning(
-                        f"'{from_initialism}' not found in '{workflow_name}'"
-                    )
+                    self.print_warning(f"'{from_initialism}' not found in '{workflow_name}'")
                 else:
                     updated_json_txt = json_txt.replace(
                         f"{from_initialism} approval of the decision",
@@ -100,9 +82,7 @@ class Command(BaseCommand):
                     self.print_success(f"Updated {workflow}")
 
         # job_titles.json
-        job_title = JobTitle.objects.filter(
-            name=f"{from_initialism} Other",
-        ).first()
+        job_title = JobTitle.objects.filter(name=f"{from_initialism} Other",).first()
 
         if not job_title:
             self.print_warning(f"'{from_initialism} Other' not found")
@@ -112,10 +92,8 @@ class Command(BaseCommand):
 
             self.print_success(f"Updated {job_title}")
 
-        # tra_organisations.json 
-        organisation = Organisation.objects.filter(
-            name=from_org_name,
-        ).first()
+        # tra_organisations.json
+        organisation = Organisation.objects.filter(name=from_org_name,).first()
 
         if not job_title:
             self.print_warning(f"'{from_org_name}' not found")
@@ -127,19 +105,12 @@ class Command(BaseCommand):
 
     def update_brand(self):
         self.convert(
-            LEGACY_INITIALISM,
-            INITIALISM,
-            LEGACY_ORGANISATION_NAME,
-            ORGANISATION_NAME,
+            LEGACY_INITIALISM, INITIALISM, LEGACY_ORGANISATION_NAME, ORGANISATION_NAME,
         )
-
 
     def revert_brand(self):
         self.convert(
-            INITIALISM,
-            LEGACY_INITIALISM,
-            ORGANISATION_NAME,
-            LEGACY_ORGANISATION_NAME,
+            INITIALISM, LEGACY_INITIALISM, ORGANISATION_NAME, LEGACY_ORGANISATION_NAME,
         )
 
     def handle(self, *args, **options):

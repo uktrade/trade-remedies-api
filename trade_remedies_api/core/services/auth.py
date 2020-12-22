@@ -94,6 +94,14 @@ class AuthenticationView(APIView):
             # ensure the origin of the request is allowed for this user group
             env_key = request.META.get("HTTP_X_ORIGIN_ENVIRONMENT")
             if not env_key or not user.has_groups(groups=ENVIRONMENT_GROUPS[env_key]):
+                if not env_key:
+                    logger.error(f"env_key not defined while logging  {user.email} ")
+                else:
+                    logger.error(
+                        f" env_key = {env_key};"
+                        f" {user.email} does not have access "
+                        f"to {ENVIRONMENT_GROUPS[env_key]}"
+                    )
                 raise AccessDenied("Invalid access to environment")
             login_outcome = login(request, user)
             auth_token = user.get_access_token()
