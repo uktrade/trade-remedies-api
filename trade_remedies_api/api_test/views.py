@@ -3,7 +3,6 @@ from rest_framework.response import Response
 
 from core.models import User
 
-
 @api_view()
 @authentication_classes([])
 @permission_classes([])
@@ -24,5 +23,4 @@ def create_test_user(request, email, password, group):
         timezone="Europe/London",
         phone="012345678",
     )
-
     return Response({"message": "success"})
