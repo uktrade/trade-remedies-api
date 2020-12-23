@@ -28,20 +28,3 @@ def create_standard_user(request):
         phone="077931231234",
     )
     return Response({"message": "success"})
-
-
-@api_view()
-@authentication_classes([])
-@permission_classes([])
-def create_test_user(request, email, password, group):
-    user = User.objects.create_user(
-        name="test user",
-        email=email,
-        password=password,
-        groups=[group],
-        country="GB",
-        timezone="Europe/London",
-        phone="077931231234",
-    )
-
-    return Response({"message": "success"})
