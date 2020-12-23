@@ -14,25 +14,6 @@ def create_test_case(request):
 @api_view()
 @authentication_classes([])
 @permission_classes([])
-def create_standard_user(request):
-    email = "t.t@test.co.uk"
-    password = "seCret*12345"
-    group = "Organisation User"
-    user = User.objects.create_user(
-        name="test user",
-        email=email,
-        password=password,
-        groups=[group],
-        country="GB",
-        timezone="Europe/London",
-        phone="077931231234",
-    )
-    return Response({"message": "success"})
-
-
-@api_view()
-@authentication_classes([])
-@permission_classes([])
 def create_test_user(request, email, password, group):
     user = User.objects.create_user(
         name="test user",
