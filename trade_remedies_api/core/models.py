@@ -516,6 +516,11 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         found_role = self.groups.filter(name=role)
         if len(found_role):
             self.groups.remove(found_role[0])
+            if role == SECURITY_GROUP_ORGANISATION_OWNER and not self.groups.all():
+                # A user without a group cannot log on to the public site
+                # when this  function is  used to remove 'organisation owner'
+                # it is safe to grant 'organisation user' instead
+                self.groups.add(Group.objects.get(name=SECURITY_GROUP_ORGANISATION_USER))
         else:
             self.groups.add(Group.objects.get(name=role))
 
