@@ -11,15 +11,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class TestUserSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=False)
+    email = serializers.EmailField(default=TEST_EMAIL)
     id = serializers.CharField(required=False)
 
     def create(self, validated_data):
-        try:
-            email = validated_data.pop("email")
-        except KeyError:
-            email = TEST_EMAIL
-
+        email = validated_data.pop("email")
         user = User.objects.create_user(
             name="test user",
             email=email,

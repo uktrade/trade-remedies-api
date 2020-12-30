@@ -35,6 +35,8 @@ def create_test_user(request, email, password, group):
     return Response({"message": "success"})
 
 
+@authentication_classes([])
+@permission_classes([])
 class Users(APIView):
     def get(self, request, format=None):
         # Return all users

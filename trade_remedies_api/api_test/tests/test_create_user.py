@@ -7,7 +7,7 @@ from api_test.serializers import TEST_EMAIL
 
 
 class CreateUserTest(TestCase):
-    def test_can_create_user(self):
+    def test_can_create_specific_user(self):
         factory = APIRequestFactory()
         test_email = "test@test.com"
         request = factory.post("/users/", {"email": test_email})
