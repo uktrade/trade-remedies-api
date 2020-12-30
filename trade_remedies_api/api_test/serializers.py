@@ -7,7 +7,7 @@ TEST_EMAIL= "ttt.aaa@d.com"
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "email", "group"]
+        fields = ["id", "email"]
 
 
 class TestUserSerializer(serializers.Serializer):

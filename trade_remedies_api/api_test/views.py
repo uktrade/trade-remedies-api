@@ -44,11 +44,11 @@ class Users(APIView):
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
-    def get(self, request, pk, format=None):
-        # Return single user
-        user = self.get_object(pk)
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
+    # def get(self, request, pk, format=None):
+    #     # Return single user
+    #     user = User.objects.get(pk=pk)
+    #     serializer = UserSerializer(user)
+    #     return Response(serializer.data)
 
     def post(self, request, format=None):
         # Create a test user
