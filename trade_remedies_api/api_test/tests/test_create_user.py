@@ -25,3 +25,9 @@ class CreateUserTest(TestCase):
         # Check the user was created as expected
         user = User.objects.last()
         assert user.email == TEST_EMAIL
+        # now use get to read the user
+        request = factory.get("/users/")
+        response = Users.as_view()(request)
+        print(f"response.data[0] = {response.data[0]['email']}")
+        assert response.status_code == 200
+        assert response.data[0]["email"] == TEST_EMAIL
