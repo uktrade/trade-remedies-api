@@ -1,12 +1,11 @@
 from rest_framework import serializers
 from core.models import User
 
-from security.constants import (
-    SECURITY_GROUP_ORGANISATION_USER,
-)
+from security.constants import SECURITY_GROUP_ORGANISATION_USER
 
-TEST_PASSWORD= "A7Hhfa!jfaw@f"
-TEST_EMAIL= "ttt.aaa@d.com"
+TEST_PASSWORD = "A7Hhfa!jfaw@f"
+TEST_EMAIL = "ttt.aaa@d.com"
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
