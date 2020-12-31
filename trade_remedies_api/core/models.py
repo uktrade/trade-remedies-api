@@ -15,6 +15,7 @@ from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.postgres import fields
 from rest_framework.authtoken.models import Token
+from audit.models import Audit
 from security.constants import (
     SECURITY_GROUP_TRA_HEAD_OF_INVESTIGATION,
     SECURITY_GROUPS_TRA,
@@ -366,16 +367,16 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         I.e., no non-draft submissions created.
         Returnes True if the deletion was successful.
         """
-        from audit.models import Audit
 
         user_stats = self.statistics()
         if user_stats.get("non_draft_subs") == 0:
             Audit.objects.filter(created_by_id=self.id).delete()
             self.invitation_set.all().delete()
             organisation = self.organisation.organisation
-            self.organisation.delete()
-            if len(organisation.users) == 1:
-                organisation.delete()
+            if organisation:
+                self.organisation.delete()
+                if len(organisation.users) == 1:
+                    organisation.delete()
             return True
         return False
 
