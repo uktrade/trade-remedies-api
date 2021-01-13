@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from core.models import User
 
-from security.constants import SECURITY_GROUP_ORGANISATION_USER
+from security.constants import SECURITY_GROUP_ORGANISATION_USER, SECURITY_GROUP_ORGANISATION_OWNER
 
 TEST_PASSWORD = "A7Hhfa!jfaw@f"
 TEST_EMAIL = "ttt.aaa@d.com"
@@ -23,9 +23,14 @@ class TestUserSerializer(serializers.Serializer):
             name="test user",
             email=email,
             password=TEST_PASSWORD,
-            groups=[SECURITY_GROUP_ORGANISATION_USER],
+            groups=[SECURITY_GROUP_ORGANISATION_OWNER],
             country="GB",
             timezone="Europe/London",
             phone="012345678",
+            organisation_name= 'Test Organisation',
+            organisation_country= 'GB',
+            companies_house_id= 'TE5 TS1',
+            organisation_address= 'Test address',
         )
         return user
+
