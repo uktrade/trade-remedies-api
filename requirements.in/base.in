@@ -30,6 +30,7 @@ phonenumbers==8.10.20
 psycopg2-binary==2.8.3
 python-docx==0.8.10
 python-pptx==0.6.18
+lxml>=4.6.2
 PyPDF2==1.26.0
 pytz
 sentry-sdk==0.13.1
