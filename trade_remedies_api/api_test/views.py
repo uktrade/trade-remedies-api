@@ -7,7 +7,13 @@ from rest_framework import status
 
 from core.models import User
 
-from api_test.serializers import UserSerializer, TestUserSerializer
+from organisations.models import Organisation
+
+from api_test.serializers import (
+    UserSerializer,
+    TestUserSerializer,
+    OrganisationSerializer,
+)
 
 from django.core import management
 
@@ -30,7 +36,6 @@ class UserList(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED,)
 
-        print(f"serializer.errors = {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST,)
 
 
@@ -57,6 +62,54 @@ class UserDetail(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED,)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST,)
+
+
+@authentication_classes([])
+@permission_classes([])
+class OrganisationList(APIView):
+    def get(self, request, format=None):
+        # Return all organisations
+        organisations = Organisation.objects.all()
+        serializer = OrganisationSerializer(organisations, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        # Create a test organisation
+        print(f"request = {request.data}")
+        serializer = OrganisationSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED,)
+
+        print(f"serializer.errors = {serializer.errors}")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST,)
+
+
+@authentication_classes([])
+@permission_classes([])
+class OrganisationDetail(APIView):
+    def get_object(self, name):
+        try:
+            return Organisation.objects.get(name=name)
+        except Organisation.DoesNotExist:
+            raise Http404
+
+    def get(self, request, name, format=None):
+        # Return single user
+        organisation = self.get_object(name)
+        serializer = OrganisationSerializer(organisation)
+        return Response(serializer.data)
+
+    def put(self, request, name, format=None):
+        user = self.get_object(name)
+        serializer = OrganisationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED,)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST,)
+
 
 
 @api_view()
