@@ -13,7 +13,7 @@ class ExcelWriter(BaseWriter):
         """
         self.wb = None
         self.ws = None
-        super().__init__("wb+", prefix, ".xls")
+        super().__init__("wb+", prefix, ".xlsx")
 
     def setup(self):
         """Setup override.
