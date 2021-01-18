@@ -66,6 +66,7 @@ def rows(row):
 
 @pytest.fixture
 def audits():
+    """Set of audit records"""
     Audit.objects.create(type="CREATE").save()
     Audit.objects.create(type="UPDATE").save()
     Audit.objects.create(type="DELETE").save()
@@ -73,6 +74,19 @@ def audits():
     Audit.objects.create(type="RESTORE").save()
     Audit.objects.create(type="READ").save()
     return Audit.objects.all().iterator()
+
+
+@pytest.fixture
+def batched_export(audits):
+    """CSV Exporter with a custom batch size"""
+    QuerysetExporter.BATCH_SIZE = 2
+
+    def fake_writer(rows):
+        assert len(rows) <= QuerysetExporter.BATCH_SIZE
+
+    export = QuerysetExporter(queryset=audits, file_format="csv")
+    export.writer.write_rows = fake_writer
+    return export
 
 
 class TestWriters:
@@ -159,7 +173,7 @@ class TestExporters:
         export_file = export.do_export()
         export_file.seek(0)
         entries = [row for row in export_file.readlines()]
-        assert len(entries) == 4  # 3 audits + header
+        assert len(entries) == 7  # 6 audits + header
 
     @pytest.mark.django_db
     def test_export_format_excel(self, audits):
@@ -168,7 +182,7 @@ class TestExporters:
         wb = load_workbook(filename=export_file.name)
         ws = wb.active
         entries = [item for item in ws.iter_rows()]
-        assert len(entries) == 4  # 3 audits + header
+        assert len(entries) == 7  # 6 audits + header
 
     @pytest.mark.django_db
     def test_export_queryset_invalid(self):
@@ -196,13 +210,9 @@ class TestExporters:
         assert entry.strip("\n") == ",".join(Audit.row_columns())
 
     @pytest.mark.django_db
-    def test_export_batch_size(self, audits):
+    def test_export_batch_size_generic(self, batched_export):
+        batched_export.do_export()
 
-        QuerysetExporter.BATCH_SIZE = 2
-
-        def fake_writer(rows):
-            assert len(rows) <= QuerysetExporter.BATCH_SIZE
-
-        export = QuerysetExporter(queryset=audits, file_format="csv")
-        export.writer.write_rows = fake_writer
-        export.do_export()
+    @pytest.mark.django_db
+    def test_export_batch_size_compatible(self, batched_export):
+        batched_export.do_export(compatible=True)
