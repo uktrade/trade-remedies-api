@@ -50,7 +50,7 @@ class BaseWriter:
     def close(self):
         """Close writer.
 
-        Override to perform any post-write actions before scratch file handle
-        is returned.
+        Override this to perform any post-write actions. Ensure scratch file
+        handle is returned.
         """
         return self.file
