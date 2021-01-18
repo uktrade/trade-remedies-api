@@ -63,9 +63,9 @@ class AuditTrailExport(TradeRemediesApiView):
         :param (HTTPRequest) request: request object.
         :param (str) case_id: case id to filter report on.
         :returns (HTTPResponse): Audit trail export file in requested format (if specified).
-          Default is `xls`.
+          Default is `xlsx`.
         """
-        file_format = request.query_params.get("format", "xls")
+        file_format = request.query_params.get("format", "xlsx")
         audit_trail = Audit.objects.filter(case_id=case_id).order_by("created_at").iterator()
         export = QuerysetExporter(queryset=audit_trail, file_format=file_format,
                                   prefix="tr-audit-export")
