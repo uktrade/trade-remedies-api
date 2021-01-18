@@ -22,16 +22,16 @@ class QuerysetExporter:
     NB: The class expects a generator provided by django.db.models.query.QuerySet.iterator
     """
 
-    FILE_FORMATS = {"csv": CSVWriter, "xls": ExcelWriter}
+    FILE_FORMATS = {"csv": CSVWriter, "xlsx": ExcelWriter}
     BATCH_SIZE = 2000
 
-    def __init__(self, queryset, file_format="xls", prefix="tr-export"):
+    def __init__(self, queryset, file_format="xlsx", prefix="tr-export"):
         """Constructor.
 
         Initialise a queryset export.
 
         :param (generator) queryset: A generator for the queryset to export.
-        :param file_format: The type of export. One of csv|xls
+        :param file_format: The type of export. One of csv|xlsx
         :raises:
           ValueError if an unsupported export format is specified
           ValueError if queryset is not a generator
@@ -52,10 +52,10 @@ class QuerysetExporter:
         fields = first.row_columns()
         batch = [fields, first.row_values()]
         for item in self.queryset:
-            batch.append(item.row_values())
-            if len(batch) > self.BATCH_SIZE:
+            if len(batch) >= self.BATCH_SIZE:
                 self.writer.write_rows(batch)
                 batch = []
+            batch.append(item.row_values())
         self.writer.write_rows(batch)
 
     def publish_generic_model(self, first):
@@ -68,10 +68,10 @@ class QuerysetExporter:
         first = fmt.format(item=first).split(',')
         batch = [fields, first]
         for item in self.queryset:
-            batch.append(fmt.format(item=item).split(','))
-            if len(batch) > self.BATCH_SIZE:
+            if len(batch) >= self.BATCH_SIZE:
                 self.writer.write_rows(batch)
                 batch = []
+            batch.append(fmt.format(item=item).split(','))
         self.writer.write_rows(batch)
 
     def do_export(self, compatible=False):
@@ -80,7 +80,7 @@ class QuerysetExporter:
         A 'compatible' model set can be supplied, which has `row_columns` and
         `row_values` helper methods. `row_columns` should return a list of
         strings representing export column names. `row_values` should be an equal
-        length list, containing values for each column. Pay slecial attention to
+        length list, containing values for each column. Pay special attention to
         the performance of these helpers if the data is large.
 
         :param (bool) compatible: True if the models provided are 'compatible',
