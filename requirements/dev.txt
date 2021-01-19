@@ -63,7 +63,7 @@ jedi==0.17.2              # via ipython
 jinja2==2.11.2            # via -r requirements.in/../requirements/base.txt, django-silk
 jmespath==0.10.0          # via -r requirements.in/../requirements/base.txt, boto3, botocore
 kombu==4.6.11             # via -r requirements.in/../requirements/base.txt, celery
-lxml==4.5.2               # via -r requirements.in/../requirements/base.txt, python-docx, python-pptx
+lxml==4.6.2               # via -r requirements.in/../requirements/base.txt, python-docx, python-pptx
 markdown==3.1.1           # via -r requirements.in/../requirements/base.txt
 markupsafe==1.1.1         # via -r requirements.in/../requirements/base.txt, jinja2
 mccabe==0.6.1             # via flake8
