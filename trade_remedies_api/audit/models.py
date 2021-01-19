@@ -94,12 +94,11 @@ class Audit(models.Model):
     data: dict = fields.JSONField(null=True, blank=True)
 
     def _case_title(self):
-        if self.data:
-            if "case_title" not in self.data:
-                self.data["case_title"] = f"{self.case}" if self.case else ""
-                self.save()
-            return self.data["case_title"]
-        return None
+        if not self.data:
+            self.data = {}
+        if "case_title" not in self.data:
+            self.data["case_title"] = f"{self.case}" if self.case else ""
+        return self.data["case_title"]
 
     case_title = property(_case_title)
 
@@ -125,6 +124,12 @@ class Audit(models.Model):
             return None
 
     def save(self, *args, **kwargs):
+        """Save model override.
+
+        Ensures precomputed properties are populated, serialises `data` json
+        field and invokes base implementation.
+        """
+        self.case_title  # noqa
         self.serialise_data()
         super().save(*args, **kwargs)
 
