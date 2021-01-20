@@ -26,6 +26,39 @@ def check_notify_send_status():
     """
     Task to evaluate the send status of notify emails, and update the status
     when available from notify service
+
+    Query from below made clearer:
+
+    SELECT
+        parent.id,
+        parent.data,
+        parent.created_by_id,
+        parent.case_id,
+        parent.model_id,
+        parent.content_type_id
+    FROM
+        audit_audit parent
+    LEFT JOIN
+        audit_audit child
+    ON
+        parent.id=child.parent_id
+    WHERE
+        parent.type = 'NOTIFY'
+    AND
+        parent.parent_id is null
+    AND (
+            child.id is null
+        OR
+            child.data->>'status' NOT IN (
+                'delivered',
+                'unknown',
+                'permanent-failure',
+                'temporary-failure'
+            )
+        )
+    ORDER BY
+        parent.created_at
+    DESC;    
     """
     SQL = """
     SELECT a.id, a.data, a.created_by_id, a.case_id, a.model_id, a.content_type_id
