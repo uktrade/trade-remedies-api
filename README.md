@@ -65,6 +65,16 @@ You can make test objects available for BDD testing by creating views that creat
 
 For more information on the setup of BDD tests see the readme at https://github.com/uktrade/trade-remedies-docker
 
+## Updating organisation branding
+
+Update to new branding:
+
+ `python manage.py rebrand_organisation`
+
+Revert to old branding
+
+ `python manage.py rebrand_organisation --revert`
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people who contributed to this repo before it was open-sourced ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
