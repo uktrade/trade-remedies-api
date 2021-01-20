@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   code_quality:
     docker:
-      - image: circleci/python:3.6.10
+      - image: circleci/python:3.6.11
     steps:
       - checkout
       - restore_cache:
