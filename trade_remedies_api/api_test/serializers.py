@@ -8,6 +8,7 @@ from security.constants import SECURITY_GROUP_ORGANISATION_OWNER
 TEST_PASSWORD = "A7Hhfa!jfaw@f"
 TEST_EMAIL = "ttt.aaa@d.com"
 
+
 class OrganisationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organisation
@@ -15,7 +16,8 @@ class OrganisationSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    organisations=OrganisationSerializer(many=True, read_only=True)
+    organisations = OrganisationSerializer(many=True, read_only=True)
+
     class Meta:
         model = User
         fields = ["id", "email", "organisations"]
@@ -24,7 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
 class TestUserSerializer(serializers.Serializer):
     email = serializers.EmailField(default=TEST_EMAIL)
     id = serializers.CharField(required=False)
-    organisations=OrganisationSerializer(many=True, read_only=True)
+    organisations = OrganisationSerializer(many=True, read_only=True)
 
     def create(self, validated_data):
         email = validated_data.pop("email")
@@ -36,11 +38,9 @@ class TestUserSerializer(serializers.Serializer):
             country="GB",
             timezone="Europe/London",
             phone="012345678",
-            organisation_name= 'Test Organisation',
-            organisation_country= 'GB',
-            companies_house_id= 'TE5 TS1',
-            organisation_address= 'Test address',
+            organisation_name="Test Organisation",
+            organisation_country="GB",
+            companies_house_id="TE5 TS1",
+            organisation_address="Test address",
         )
         return user
-
-

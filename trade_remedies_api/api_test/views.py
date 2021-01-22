@@ -111,7 +111,6 @@ class OrganisationDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST,)
 
 
-
 @api_view()
 @authentication_classes([])
 @permission_classes([])
