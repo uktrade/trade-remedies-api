@@ -2,7 +2,6 @@ from django.urls import path
 
 from api_test.views import (
     OrganisationDetail,
-    OrganisationList,
     UserDetail,
     UserList,
     restore_database,
