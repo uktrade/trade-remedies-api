@@ -212,3 +212,26 @@ class AuditModelHelpersTest(TestCase, AuditTestMixin):
         saved_audit = Audit.objects.filter(id=audit_id)[0]
         self.assertEqual(saved_audit.data["case_title"], case_title)
         self.assertEqual(saved_audit.case_title, case_title)
+
+    def test_existing_data_preserved(self):
+        Audit.objects.all().delete()
+        # Create a case which elicits an audit log
+        case = Case.objects.create(created_by=self.user, name="Foobar")
+        assert case
+        case_title = str(case)
+        audit = Audit.objects.filter(created_by=self.user).first()
+        assert audit
+        # Clumsily update JSON field
+        audit.data = {"my-data": 123}
+        audit.save()
+        audit = Audit.objects.filter(created_by=self.user).first()
+        self.assertEqual(audit.data, {"my-data": 123, "case_title": case_title})
+        # Update JSON field
+        audit.data["more-data"] = "foobar"
+        self.assertEqual(audit.case_title, case_title)
+        # Prove JSON field preserved after case title property access
+        self.assertEqual(audit.data,
+                         {"my-data": 123,
+                          "case_title": case_title,
+                          "more-data": "foobar"}
+                         )
