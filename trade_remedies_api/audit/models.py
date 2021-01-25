@@ -1,6 +1,8 @@
+import datetime
 import uuid
 import json
 from functools import singledispatch
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres import fields
@@ -89,7 +91,16 @@ class Audit(models.Model):
     content_type = models.ForeignKey(ContentType, null=True, blank=True, on_delete=models.PROTECT)
     milestone = models.BooleanField(default=False)
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.PROTECT)
-    data = fields.JSONField(null=True, blank=True)
+    data: dict = fields.JSONField(null=True, blank=True)
+
+    def _case_title(self):
+        if not self.data:
+            self.data = {}
+        if "case_title" not in self.data:
+            self.data["case_title"] = f"{self.case}" if self.case else ""
+        return self.data["case_title"]
+
+    case_title = property(_case_title)
 
     def __str__(self):
         content_type = self.content_type.model if self.content_type else ""
@@ -107,13 +118,18 @@ class Audit(models.Model):
     @property
     def case(self):
         from cases.models import Case
-
         try:
             return Case.objects.get_case(id=self.case_id)
         except Case.DoesNotExist:
             return None
 
     def save(self, *args, **kwargs):
+        """Save model override.
+
+        Ensures precomputed properties are populated, serialises `data` json
+        field and invokes base implementation.
+        """
+        self.case_title  # noqa
         self.serialise_data()
         super().save(*args, **kwargs)
 
@@ -134,12 +150,10 @@ class Audit(models.Model):
             "type": self.type,
             "case_id": str(self.case_id),
             "created_at": self.created_at,
-            "created_by": {"id": str(self.created_by.id), "user": self.created_by.email,}
-            if self.created_by
-            else None,
-            "assisted_by": {"id": str(self.assisted_by.id), "user": self.assisted_by.email,}
-            if self.assisted_by
-            else None,
+            "created_by": {"id": str(self.created_by.id), "user": self.created_by.email}
+            if self.created_by else {"id": None, "user": None},
+            "assisted_by": {"id": str(self.assisted_by.id), "user": self.assisted_by.email}
+            if self.assisted_by else {"id": None, "user": None},
             "model_id": str(self.model_id) if self.model_id else None,
             "content_type": self.content_type.model if self.content_type else None,
             "milestone": str(self.milestone),
@@ -147,26 +161,59 @@ class Audit(models.Model):
             "humanised": self.humanise(),
         }
 
-    def to_row(self):
+    @staticmethod
+    def row_columns():
+        """Get model column names.
+
+        Get model column names for reporting purposes.
+        :returns (list): A list of column names.
+        """
         return [
-            ("Audit ID", str(self.id)),
-            ("Audit Type", self.type),
-            ("Created At", self.created_at.strftime(settings.API_DATETIME_FORMAT)),
-            ("Created By", self.created_by.email if self.created_by else None),
-            ("Assisted By", self.assisted_by.email if self.assisted_by else None),
-            ("Case Id", str(self.case.id) if self.case else None),
-            ("Case", f"{self.case.sequence}: {self.case.name}" if self.case else None),
-            ("Record Id", str(self.model_id)),
-            ("Record Type", self.content_type.model if self.content_type else None),
-            ("Audit Content", self.humanise()),
-            ("Change Data", json.dumps(self.data) if self.data else None),
+            "Audit ID", "Audit Type", "Created At", "Created By", "Assisted By",
+            "Case Id", "Case", "Record Id", "Record Type", "Audit Content",
+            "Change Data"
         ]
+
+    def row_values(self):
+        """Get model row values.
+
+        Get model column values for reporting purposes.
+        :returns (list): A list of row values.
+        """
+        row_data = self.to_dict()
+        return [
+            row_data.get("id"),
+            row_data.get("type"),
+            row_data.get("created_at", datetime.datetime.min).strftime(
+                settings.API_DATETIME_FORMAT
+            ),
+            row_data.get("created_by").get("email"),
+            row_data.get("assisted_by").get("email"),
+            row_data.get("case_id"),
+            self.case_title,
+            row_data.get("model_id"),
+            row_data.get("content_type"),
+            row_data.get("humanised"),
+            json.dumps(row_data.get("data")),
+        ]
+
+    def to_row(self):
+        """Get row.
+
+        :returns (list): Returns a list of tuples representing a row, each
+            tuple is a column name and column value i.e.
+            [(column, value), (column, value)...]
+        """
+        columns = self.row_columns()
+        values = self.row_values()
+        merged = map(lambda i: (columns[i], values[i]), range(len(columns)))
+        return [item for item in merged]
 
     def serialise_data(self):
         if self.data:
             for key, value in self.data.items():
                 if hasattr(value, "to_dict"):
-                    self.data[key] = value.to_dict()
+                    self.data[key] = value.to_dict()  # noqa
                 elif value and not isinstance(value, (str, int, dict, list)):
                     self.data[key] = str(value)
                 else:
@@ -182,7 +229,7 @@ class LogHumaniser:
         self.type = audit.type
         self.message = []
 
-    def humanise(self, separator=None):
+    def humanise(self):
         try:
             if self.has_message:
                 self.message.append(self.data["message"])
@@ -195,7 +242,7 @@ class LogHumaniser:
 
     def humanise_attach(self):
         if self.data.get("id"):
-            return f"Attached to {self.audit.content_type} id {self.data['id']}"
+            return f"Attached to {self.audit.content_type} id {self.data.get('id','unknown')}"
         return ""
 
     def humanise_update(self):
@@ -206,16 +253,17 @@ class LogHumaniser:
             try:
                 model = self.audit.get_model()
                 return f"Created: {model}"
-            except Exception:
-                return f"Created ID: {self.data['id']}"
+            except ObjectDoesNotExist:
+                return f"Created ID: {self.data.get('id','unknown id')}"
         return ""
 
     def humanise_delete(self):
         if self.data.get("id"):
-            return f"Deleted ID: {self.data['id']}"
+            return f"Deleted ID: {self.data.get('id','unknown id')}"
         return ""
 
-    def limit_chars(self, text, limit=None):
+    @staticmethod
+    def limit_chars(text, limit=None):
         limit = limit or 25
         text = str(text)
         if text and len(text) > limit:

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 from freezegun import freeze_time
@@ -141,7 +142,96 @@ class AuditTasksTest(TestCase, AuditTestMixin):
         audit = Audit.objects.first()
         self.assertEqual(audit.created_by, self.user)
         self.assertTrue(audit.milestone)
-        self.assertEqual(audit.data, {"a": "b"})
+        self.assertIn("a", audit.data)
         self.assertEqual(audit.case_id, self.assisted_case.id)
         self.assertEqual(audit.get_model(), self.unassisted_case)
         self.assertEqual(audit.created_at, timezone.now())
+
+
+class AuditModelHelpersTest(TestCase, AuditTestMixin):
+    def setUp(self):
+        self.setup_test()
+
+    def test_row_values(self):
+        audit = Audit.objects.first()
+        row = audit.row_values()
+        # Check some of the important values
+        self.assertEqual(row[0], str(audit.id))
+        self.assertEqual(row[1], audit.type)
+        self.assertEqual(row[2], audit.created_at.strftime(settings.API_DATETIME_FORMAT))
+        self.assertEqual(row[5], str(audit.case_id))
+        self.assertEqual(row[6], str(audit.case))
+        self.assertEqual(row[7], str(audit.model_id))
+
+    def test_row_columns(self):
+        audit = Audit.objects.first()
+        expected = [
+            "Audit ID", "Audit Type", "Created At", "Created By", "Assisted By",
+            "Case Id", "Case", "Record Id", "Record Type", "Audit Content",
+            "Change Data"
+        ]
+        self.assertEqual(audit.row_columns(), expected)
+
+    def test_to_row(self):
+        audit = Audit.objects.first()
+        # Check some of the important values
+        expected = [("Audit ID", str(audit.id)),
+                    ("Audit Type", audit.type),
+                    ("Created At", audit.created_at.strftime(settings.API_DATETIME_FORMAT)),
+                    ("Case Id", str(audit.case_id)),
+                    ("Case", str(audit.case)),
+                    ("Record Id", str(audit.model_id)),
+                    ]
+        row = audit.to_row()
+        self.assertEqual(row[0], expected[0])
+        self.assertEqual(row[1], expected[1])
+        self.assertEqual(row[2], expected[2])
+        self.assertEqual(row[5], expected[3])
+        self.assertEqual(row[6], expected[4])
+        self.assertEqual(row[7], expected[5])
+
+    def test_case_title(self):
+        audit = Audit.objects.first()
+        # Check case_title property is as expected
+        self.assertEqual(audit.case_title, str(audit.case))
+
+    def test_case_title_saved(self):
+        Audit.objects.all().delete()
+        case = Case.objects.create(created_by=self.user, name="Foobar")
+        case_title = str(case)
+        audit = Audit(type="CREATE", case_id=case.id)
+        audit_id = audit.id
+        # Unsaved, there should be no json field data
+        assert not audit.data
+        # But we should get a case title
+        self.assertEqual(audit.case_title, case_title)
+        # That auto-populates the json field
+        assert audit.data.get("case_title")
+        audit.save()
+        # That we see in a retrieved model
+        saved_audit = Audit.objects.filter(id=audit_id)[0]
+        self.assertEqual(saved_audit.data["case_title"], case_title)
+        self.assertEqual(saved_audit.case_title, case_title)
+
+    def test_existing_data_preserved(self):
+        Audit.objects.all().delete()
+        # Create a case which elicits an audit log
+        case = Case.objects.create(created_by=self.user, name="Foobar")
+        assert case
+        case_title = str(case)
+        audit = Audit.objects.filter(created_by=self.user).first()
+        assert audit
+        # Clumsily update JSON field
+        audit.data = {"my-data": 123}
+        audit.save()
+        audit = Audit.objects.filter(created_by=self.user).first()
+        self.assertEqual(audit.data, {"my-data": 123, "case_title": case_title})
+        # Update JSON field
+        audit.data["more-data"] = "foobar"
+        self.assertEqual(audit.case_title, case_title)
+        # Prove JSON field preserved after case title property access
+        self.assertEqual(audit.data,
+                         {"my-data": 123,
+                          "case_title": case_title,
+                          "more-data": "foobar"}
+                         )
