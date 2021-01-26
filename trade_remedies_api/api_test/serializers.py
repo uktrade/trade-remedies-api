@@ -6,7 +6,6 @@ from core.models import User
 from cases.models import (
     Case,
     CaseType,
-    CaseStage,
     CaseWorkflow,
 )
 
