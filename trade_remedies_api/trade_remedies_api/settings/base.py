@@ -373,10 +373,7 @@ if DEBUG:
                 "propagate": True,
             },
             "django.server": {"handlers": ["stdout"], "propagate": False,},
-            'django.db.backends': {
-                    'level': 'DEBUG',
-                    'handlers': ["stdout"],
-                },
+            "django.db.backends": {"level": "DEBUG", "handlers": ["stdout"],},
         },
     }
 else:

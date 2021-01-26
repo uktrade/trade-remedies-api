@@ -6,9 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
-from cases.models import (
-    Case,
-)
+from cases.models import Case
 
 from core.models import User
 
@@ -27,7 +25,6 @@ from django.core import management
 @authentication_classes([])
 @permission_classes([])
 class UserList(APIView):
-
     def get(self, request, format=None):
         # Return all users
         users = User.objects.all()
@@ -37,7 +34,7 @@ class UserList(APIView):
     def post(self, request, format=None):
         # Create a test user
         if not request.data or len(request.data) == 0:
-            data = {"email":TEST_EMAIL}
+            data = {"email": TEST_EMAIL}
         else:
             data = request.data
         serializer = UserSerializer(data=data)
@@ -52,7 +49,6 @@ class UserList(APIView):
 @authentication_classes([])
 @permission_classes([])
 class UserDetail(APIView):
-
     def get_object(self, email):
         try:
             return User.objects.get(email=email)
@@ -129,7 +125,7 @@ class CaseList(APIView):
 
     def post(self, request, format=None):
         if not request.data or len(request.data) == 0:
-            data = {"email":TEST_EMAIL}
+            data = {"email": TEST_EMAIL}
         else:
             data = request.data
 
