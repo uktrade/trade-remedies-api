@@ -1,10 +1,8 @@
-import tempfile
-from core.writers.spreadsheet import ExcelWriter
+from core.exporters.writers.excel_writer import ExcelWriter
 
 
 def feedback_export(form):
-    outfile = tempfile.NamedTemporaryFile(mode="wb+", prefix="feedback-export", suffix=".xls")
-    writer = ExcelWriter(outfile.name)
+    writer = ExcelWriter(prefix="feedback-export")
     elements = form.formelement_set.all().order_by("order", "created_at")
     collections = form.collections
     headers = ["Form", "Submitted", "Placement"] + [
@@ -17,5 +15,4 @@ def feedback_export(form):
             value = collection.feedbackdata_set.filter(element=element).first()
             row.append(value.value if value else "")
         writer.write_row(row)
-    writer.close()
-    return outfile
+    return writer.close()
