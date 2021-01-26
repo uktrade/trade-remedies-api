@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from rest_framework.test import APIRequestFactory
 from core.models import User
-from api_test.views import UserDetail, UserList
+from api_test.views import UserList
 from api_test.serializers import TEST_EMAIL
 from django.contrib.auth.models import Group
 from security.constants import (
