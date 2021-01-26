@@ -207,11 +207,7 @@ class CaseManager(models.Manager):
         )
         for user_case in user_cases:
 
-            q = user_case.case.organisationcaserole_set.filter(
-                organisation=user_case.organisation
-            ).select_related("role", "organisation", "case")
-
-            org_role = (
+             org_role = (
                 user_case.case.organisationcaserole_set.filter(organisation=user_case.organisation)
                 .select_related("role", "organisation", "case")
                 .first()
