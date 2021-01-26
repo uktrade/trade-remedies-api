@@ -206,6 +206,9 @@ class CaseManager(models.Manager):
             "case", "case__stage", "case__created_by", "case__archive_reason", "case__workflow"
         )
         for user_case in user_cases:
+
+            q = user_case.case.organisationcaserole_set.filter(organisation=user_case.organisation).select_related("role", "organisation", "case")
+
             org_role = (
                 user_case.case.organisationcaserole_set.filter(organisation=user_case.organisation)
                 .select_related("role", "organisation", "case")

@@ -372,7 +372,11 @@ if DEBUG:
                 "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
                 "propagate": True,
             },
-            "django.server": {"handlers": ["null"], "propagate": False,},
+            "django.server": {"handlers": ["stdout"], "propagate": False,},
+            'django.db.backends': {
+                    'level': 'DEBUG',
+                    'handlers': ["stdout"],
+                },
         },
     }
 else:
