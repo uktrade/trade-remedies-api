@@ -5,14 +5,17 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
+from cases.models import Case
+
 from core.models import User
 
 from organisations.models import Organisation
 
 from api_test.serializers import (
+    TEST_EMAIL,
     UserSerializer,
-    TestUserSerializer,
     OrganisationSerializer,
+    CaseSerializer,
 )
 
 from django.core import management
@@ -29,8 +32,11 @@ class UserList(APIView):
 
     def post(self, request, format=None):
         # Create a test user
-        print(f"request = {request.data}")
-        serializer = TestUserSerializer(data=request.data)
+        if not request.data or len(request.data) == 0:
+            data = {"email": TEST_EMAIL}
+        else:
+            data = request.data
+        serializer = UserSerializer(data=data)
 
         if serializer.is_valid():
             serializer.save()
@@ -56,7 +62,7 @@ class UserDetail(APIView):
 
     def put(self, request, email, format=None):
         user = self.get_object(email)
-        serializer = TestUserSerializer(data=request.data)
+        serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED,)
@@ -75,14 +81,12 @@ class OrganisationList(APIView):
 
     def post(self, request, format=None):
         # Create a test organisation
-        print(f"request = {request.data}")
         serializer = OrganisationSerializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED,)
 
-        print(f"serializer.errors = {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST,)
 
 
@@ -96,14 +100,58 @@ class OrganisationDetail(APIView):
             raise Http404
 
     def get(self, request, name, format=None):
-        # Return single user
         organisation = self.get_object(name)
         serializer = OrganisationSerializer(organisation)
         return Response(serializer.data)
 
     def put(self, request, name, format=None):
-        user = self.get_object(name)
         serializer = OrganisationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED,)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST,)
+
+
+@authentication_classes([])
+@permission_classes([])
+class CaseList(APIView):
+    def get(self, request, format=None):
+        # Return all organisations
+        cases = Case.objects.all()
+        serializer = CaseSerializer(cases, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        if not request.data or len(request.data) == 0:
+            data = {"email": TEST_EMAIL}
+        else:
+            data = request.data
+
+        serializer = CaseSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED,)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST,)
+
+
+@authentication_classes([])
+@permission_classes([])
+class CaseDetail(APIView):
+    def get_object(self, name):
+        try:
+            return Case.objects.get(name=name)
+        except Case.DoesNotExist:
+            raise Http404
+
+    def get(self, request, name, format=None):
+        case = self.get_object(name)
+        serializer = CaseSerializer(case)
+        return Response(serializer.data)
+
+    def put(self, request, name, format=None):
+        serializer = CaseSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED,)

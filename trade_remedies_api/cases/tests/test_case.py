@@ -3,7 +3,13 @@ from django.test import TestCase
 from django.contrib.auth.models import Group
 from core.models import User, SystemParameter
 from organisations.models import Organisation
-from cases.models import Case, CaseType, CaseStage, CaseWorkflow
+from cases.models import (
+    Case,
+    CaseType,
+    CaseStage,
+    CaseWorkflow,
+)
+
 from security.constants import (
     SECURITY_GROUP_ORGANISATION_OWNER,
     SECURITY_GROUP_ORGANISATION_USER,
