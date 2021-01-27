@@ -35,6 +35,9 @@ class OrganisationSerializer(serializers.ModelSerializer):
 
 
 def create_user(email):
+    """create a user.
+    It creates a test organisation for the user.
+    """
     user = User.objects.create_user(
         name="test user",
         email=email,
@@ -69,6 +72,17 @@ class CaseSerializer(serializers.ModelSerializer):
         fields = ["id", "name"]
 
     def create(self, validated_data):
+        """create.
+
+        Creates a test Case for an organisation user.
+        Creates the organisation user if it doesn't exist. The user is the applicant.
+        Creates all the objects required for a valid case:
+            workflow
+            product
+            export source
+        The case is initiated so it will be available in the list of cases in public
+        :param (dict) validated_data: user email.
+        """
         user_email = validated_data.get("email", TEST_EMAIL)
 
         user_owner = User.objects.filter(email=user_email).first()
