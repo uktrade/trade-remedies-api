@@ -1,7 +1,6 @@
 import os
 from .base import *
 
-
 INSTALLED_APPS += [
     "api_test",
 ]

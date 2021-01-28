@@ -69,7 +69,8 @@ class SendMailTest(TestCase):
         audit = Audit.objects.first()
         self.assertEqual(audit.type, AUDIT_TYPE_EVENT)
         self.assertEqual(audit.created_by, self.user)
-        self.assertEqual(audit.data, {"k-1": "v-1", "send_report": notify_response})
+        self.assertEqual(audit.data["k-1"], "v-1")
+        self.assertEqual(audit.data["send_report"], notify_response)
 
     @patch("core.tasks.sync_send_mail")
     def test_task_with_default_audit_type(self, sync_send):
@@ -96,6 +97,7 @@ class SendMailTest(TestCase):
         self.assertEqual(
             audit.data,
             {
+                "case_title": str(self.case),
                 "k-1": "v-1",
                 "send_report": {
                     "email": self.email,
