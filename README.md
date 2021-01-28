@@ -43,13 +43,37 @@ If you are not sure what to use for one of the values above, ask a colleague or 
 
 This project should be run using the Trade Remedies orchestration project available at: https://github.com/uktrade/trade-remedies-docker
 
-## Compiling requirements
+## Updating organisation branding
 
-We use pip-compile from https://github.com/jazzband/pip-tools to manage pip dependencies. This runs from the make file when generating requirements:
+Update to new branding:
 
-Run `make all-requirements`
+ `python manage.py rebrand_organisation`
 
-This needs to be run from the host machine as it does not run in a container.
+Revert to old branding
+
+ `python manage.py rebrand_organisation --revert`
+
+## BDD testing
+
+Behavioural testing is provided by [Behave Django](https://github.com/behave/behave-django) and can be triggered by running:
+
+`make bdd`
+
+from the Trade Remedies orchestration project directory.
+
+You can make test objects available for BDD testing by creating views that create them in the 'api_test' app in this project.
+
+For more information on the setup of BDD tests see the readme at https://github.com/uktrade/trade-remedies-docker
+
+## Updating organisation branding
+
+Update to new branding:
+
+ `python manage.py rebrand_organisation`
+
+Revert to old branding
+
+ `python manage.py rebrand_organisation --revert`
 
 ## Updating organisation branding
 

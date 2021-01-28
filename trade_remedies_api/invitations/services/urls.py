@@ -37,6 +37,10 @@ urlpatterns = [
         "invite/case/<uuid:case_id>/submission/<uuid:submission_id>/", InviteThirdPartyAPI.as_view()
     ),
     path(
+        "case/<uuid:case_id>/submission/<uuid:submission_id>/remove/<uuid:invite_id>",
+        InviteThirdPartyAPI.as_view(),
+    ),
+    path(
         "invite/case/<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/",  # noqa: E501
         InviteThirdPartyAPI.as_view(),
     ),
