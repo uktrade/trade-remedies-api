@@ -13,11 +13,6 @@ logger = logging.getLogger(__name__)
 
 @receiver(pre_delete, sender=UserCase)
 def log_deleted_usercase(sender, instance, **kwargs):
-    """There is bug where users cannot see their cases in the public portal.
-        The bug is caused by them not having a record in UserCase table.
-        This function logs the deletion of a record: with the Audit log,
-        it may help to identify the chain of events causing the bug.
-    """
     logger.info(
         f"UserCase record deleted: "
         f"user_id = {instance.user.id}, "
