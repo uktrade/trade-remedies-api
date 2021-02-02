@@ -21,7 +21,8 @@ django-countries==5.5     # via -r requirements.in/base.in
 django-dirtyfields==1.4   # via -r requirements.in/base.in
 django-environ==0.4.5     # via -r requirements.in/base.in
 django-extensions==2.2.3  # via -r requirements.in/base.in
-django-ipware==3.0.1      # via django-axes
+django-ipware==3.0.1      # via django-axes, django-log-formatter-ecs
+django-log-formatter-ecs==0.0.5  # via -r requirements.in/base.in
 django-redis==4.10.0      # via -r requirements.in/base.in
 django-silk==3.0.1        # via -r requirements.in/base.in
 django-storages==1.9.1    # via -r requirements.in/base.in
@@ -48,9 +49,11 @@ jdcal==1.4.1              # via openpyxl
 jinja2==2.11.2            # via django-silk
 jmespath==0.10.0          # via boto3, botocore
 kombu==4.6.11             # via celery
+kubi-ecs-logger==0.1.0    # via django-log-formatter-ecs
 lxml==4.6.2               # via -r requirements.in/base.in, python-docx, python-pptx
 markdown==3.1.1           # via -r requirements.in/base.in
 markupsafe==1.1.1         # via jinja2
+marshmallow==3.6.1        # via kubi-ecs-logger
 minio==4.0.11             # via -r requirements.in/base.in
 monotonic==1.5            # via notifications-python-client
 notifications-python-client==5.3.0  # via -r requirements.in/base.in
