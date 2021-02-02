@@ -2,7 +2,6 @@ import logging
 
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-from django.utils import timezone
 from security.models import UserCase
 from organisations.models import Organisation
 from cases.models import Case
@@ -21,24 +20,33 @@ def log_deleted_usercase(sender, instance, **kwargs):
     """
     logger.info(
         f"UserCase record deleted: "
-        f"user_id = {instance.user.id}, email = {instance.user.email}, "
-        f"case_id = {instance.case.id}, case = {instance.case.name}, "
-        f"organisation_id = {instance.organisation.id}, organisation = {instance.organisation.name} "
+        f"user_id = {instance.user.id}, "
+        f"email = {instance.user.email}, "
+        f"case_id = {instance.case.id}, "
+        f"case = {instance.case.name}, "
+        f"organisation_id = {instance.organisation.id}, "
+        f"organisation = {instance.organisation.name} "
     )
 
 
 @receiver(pre_delete, sender=User)
 def log_deleted_user(sender, instance, **kwargs):
-    logger.info(f"User record deleted: user_id = {instance.id}, email = {instance.email}, ")
+    logger.info(f"User record deleted: "
+                f"user_id = {instance.id}, "
+                f"email = {instance.email}, ")
 
 
 @receiver(pre_delete, sender=Case)
 def log_deleted_case(sender, instance, **kwargs):
-    logger.info(f"Case record deleted: case_id = {instance.id}, case = {instance.name}, ")
+    logger.info(f"Case record deleted: "
+                f"case_id = {instance.id},"
+                f" case = {instance.name}, ")
 
 
 @receiver(pre_delete, sender=Organisation)
 def log_deleted_organisation(sender, instance, **kwargs):
     logger.info(
-        f"Organisation record deleted: organisation_id = {instance.id}, organisation = {instance.name}, "
+        f"Organisation record deleted: "
+        f"organisation_id = {instance.id}, "
+        f"organisation = {instance.name}, "
     )
