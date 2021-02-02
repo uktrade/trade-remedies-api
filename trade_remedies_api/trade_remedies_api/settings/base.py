@@ -354,7 +354,7 @@ else:
 
 CELERY_TASK_ALWAYS_EAGER = os.environ.get("CELERY_TASK_ALWAYS_EAGER", "FALSE").upper() == "TRUE"
 CELERY_WORKER_LOG_FORMAT = (
-    "[PPPPPP %(asctime)s: %(levelname)s/%(processName)s] [%(name)s] %(message)s"
+    "[%(asctime)s: %(levelname)s/%(processName)s] [%(name)s] %(message)s"
 )
 
 RUN_ASYNC = True
