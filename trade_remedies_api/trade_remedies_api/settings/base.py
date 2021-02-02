@@ -353,7 +353,9 @@ else:
     CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=None)
 
 CELERY_TASK_ALWAYS_EAGER = os.environ.get("CELERY_TASK_ALWAYS_EAGER", "FALSE").upper() == "TRUE"
-CELERY_WORKER_LOG_FORMAT = "[%(asctime)s: %(levelname)s/%(processName)s] [%(name)s] %(message)s"
+CELERY_WORKER_LOG_FORMAT = (
+    "[PPPPPP %(asctime)s: %(levelname)s/%(processName)s] [%(name)s] %(message)s"
+)
 
 RUN_ASYNC = True
 
@@ -362,37 +364,26 @@ AXES_ENABLED = os.environ.get("AXES_ENABLED", True)
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {"simple": {"format": "{asctime} {levelname} {message}", "style": "{",},},
     "handlers": {
-        "stdout": {
-            "class": "logging.StreamHandler",
-            "stream": sys.stdout,
-        },
+        "stdout": {"class": "logging.StreamHandler", "stream": sys.stdout, "formatter": "simple",},
     },
-    "root": {
-        "handlers": ["stdout"],
-        "level": os.getenv("ROOT_LOG_LEVEL", "INFO"),
-    },
+    "root": {"handlers": ["stdout"], "level": os.getenv("ROOT_LOG_LEVEL", "INFO"),},
     "loggers": {
         "django": {
-            "handlers": [
-                "stdout",
-            ],
+            "handlers": ["stdout",],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
             "propagate": True,
         },
         "django.server": {
-            "handlers": [
-                "stdout",
-            ],
-            "level": os.getenv("DJANGO_SERVER_LOG_LEVEL", "ERROR"),
+            "handlers": ["stdout",],
+            "level": os.getenv("DJANGO_SERVER_LOG_LEVEL", "INFO"),
             "propagate": False,
         },
         "django.db.backends": {
-            "handlers": [
-                "stdout",
-            ],
-            "level": os.getenv("DJANGO_DB_LOG_LEVEL", "ERROR"),
-            "propagate": False,
+            "handlers": ["stdout",],
+            "level": os.getenv("DJANGO_DB_LOG_LEVEL", "INFO"),
+            "propagate": True,
         },
     },
 }
@@ -401,54 +392,30 @@ ENVIRONMENT_LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "ecs_formatter": {
-            "()": ECSFormatter,
-        },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
-        },
+        "ecs_formatter": {"()": ECSFormatter,},
+        "simple": {"format": "%(levelname)s %(message)s"},
     },
     "handlers": {
-        'ecs': {
-            'class': 'logging.StreamHandler',
-            'stream': sys.stdout,
-            'formatter': 'ecs_formatter',
-        },
-        "stdout": {
+        "ecs": {
             "class": "logging.StreamHandler",
             "stream": sys.stdout,
-            'formatter': 'simple',
+            "formatter": "ecs_formatter",
         },
     },
-    "root": {
-        "handlers": [
-            "ecs",
-            "stdout",
-        ],
-        "level": os.getenv("ROOT_LOG_LEVEL", "INFO"),
-    },
+    "root": {"handlers": ["ecs",], "level": os.getenv("ROOT_LOG_LEVEL", "INFO"),},
     "loggers": {
         "django": {
-            "handlers": [
-                "ecs",
-                "stdout",
-            ],
+            "handlers": ["ecs",],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
-            "propagate": True,
+            "propagate": False,
         },
         "django.server": {
-            "handlers": [
-                "ecs",
-                "stdout",
-            ],
-            "level": os.getenv("DJANGO_SERVER_LOG_LEVEL", "INFO"),
+            "handlers": ["ecs",],
+            "level": os.getenv("DJANGO_SERVER_LOG_LEVEL", "ERROR"),
             "propagate": False,
         },
         "django.db.backends": {
-            "handlers": [
-                "ecs",
-                "stdout",
-            ],
+            "handlers": ["ecs",],
             "level": os.getenv("DJANGO_DB_LOG_LEVEL", "ERROR"),
             "propagate": False,
         },
