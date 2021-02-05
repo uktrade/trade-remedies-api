@@ -315,6 +315,7 @@ class PublicUserApiView(TradeRemediesApiView):
                 .exclude(deleted_at__isnull=False)
                 .filter(groups__name__in=SECURITY_GROUPS_PUBLIC)
                 .filter(organisationuser__organisation__id=organisation_id)
+                .distinct()
             )
             return ResponseSuccess(
                 {"results": [user.to_dict(organisation=organisation) for user in users]}
