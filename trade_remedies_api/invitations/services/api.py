@@ -6,7 +6,8 @@ from django.db import transaction
 from rest_framework import status
 from invitations.models import Invitation
 from contacts.models import Contact
-from security.models import get_role, CaseRole
+from security.models import get_role, CaseRole, Group
+from security.constants import SECURITY_GROUP_THIRD_PARTY_USER
 from cases.models import (
     Case,
     Submission,
@@ -292,7 +293,7 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
                     issued=False,
                     issued_by=request.user,
                 )
-        invite_organisation = Organisation.objects.create_or_update_organisation(
+        invitee_organisation = Organisation.objects.create_or_update_organisation(
             user=request.user,
             name=request.data.get("organisation_name"),
             companies_house_id=request.data.get("companies_house_id"),
@@ -304,8 +305,8 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
             )
             contact = invite.contact
             contact.load_attributes(request.data, ["name", "email"])
-            if contact.organisation != invite_organisation:
-                contact.organisation = invite_organisation
+            if contact.organisation != invitee_organisation:
+                contact.organisation = invitee_organisation
             if request.data.get("phone"):
                 contact.phone = convert_to_e164(request.data.phone)
             if contact.is_dirty():
@@ -314,18 +315,20 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
             contact = Contact.objects.create(
                 name=request.data.get("name"),
                 email=request.data.get("email", "").lower(),
-                organisation=invite_organisation,
+                organisation=invitee_organisation,
                 created_by=request.user,
             )
+            third_party_group = Group.objects.get(name=SECURITY_GROUP_THIRD_PARTY_USER)
             invite = Invitation.objects.create(
                 created_by=request.user,
                 case=case,
                 submission=submission,
-                organisation=contact.organisation,
+                organisation=organisation,
                 short_code=crypto.get_random_string(8),
                 code=str(uuid.uuid4()),
                 contact=contact,
                 email=contact.email,
+                organisation_security_group=third_party_group,
             )
         return ResponseSuccess(
             {
@@ -363,6 +366,7 @@ class NotifyInviteThirdPartyAPI(TradeRemediesApiView):
             direct=True,
             template_key="NOTIFY_THIRD_PARTY_INVITE",
         )
+        invite.email_sent = True
         invite.sent_at = timezone.now()
         invite.approved_by = request.user
         invite.save()

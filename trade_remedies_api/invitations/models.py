@@ -96,16 +96,18 @@ class InvitationManager(models.Manager):
     def create_user_invite(self, user_email, organisation, invited_by, meta):
         """
         Create an invite for a user to join an organisation as a direct employee.
-        The invite's meta data contains all the parameteres required to create the user
+        The invite's meta data contains all the parameters required to create the user
         record once the user accepts the invite.
         A contact record will be created for this user, which will later be re-assigned
         to the user upon completing registration. Note that at this stage the organisation is NOT
         set against the contact, to prevent it appearing until the user accepts. Then the org
         assignment is made.
         If an invite is already present and not responded to it will be refreshed.
-        :param user: The user to be invited.
-        :param organisation: The organisation invited to
-        :param invited_by: The user creating the invitation.
+
+        :param (str) user_email: The user to be invited.
+        :param (Organisation) organisation: The organisation invited to
+        :param (User) invited_by: The user creating the invitation.
+        :param (dict) meta: invite meta data.
         """
         created = True
         user_email = user_email.lower()
@@ -116,11 +118,14 @@ class InvitationManager(models.Manager):
             created = False
         except Invitation.DoesNotExist:
             invite = Invitation.objects.create(
-                organisation=organisation, email=user_email, user_context=invited_by,
+                organisation=organisation,
+                email=user_email,
+                user_context=invited_by,
             )
         if invite.accepted_at:
             raise InviteAlreadyAccepted(
-                f"The user {user_email} has already been invited to {organisation} and has accepted the invite."  # noqa: E501
+                f"The user {user_email} has already been invited to {organisation} "
+                "and has accepted the invite."
             )
         if (
             not created
@@ -195,7 +200,8 @@ class InvitationManager(models.Manager):
         )
         return invite
 
-    def get_user_invite(self, invite_id, requested_by):
+    @staticmethod
+    def get_user_invite(invite_id, requested_by):
         """Return a user invite model by id, if the requested_by user is allowed to see it.
 
         Arguments:
@@ -410,10 +416,14 @@ class Invitation(BaseModel):
         return assigned
 
     def assign_organisation_user(self, user=None, organisation=None):
-        """
+        """Assign Organisation User.
+
         Assign the user (or the invitation user) to the invitation organisation.
-        If an owner exists already for this organisation, use the USER group. Otherwise,
-        the uesr becomes the new owner of this organisation.
+        If an owner exists already for this organisation, use the USER group,
+        Otherwise the user becomes the new owner of this organisation.
+
+        :param (User) user: User to add.
+        :param (Organisation) organisation: Organisation for user.
         """
         user = user or self.user
         organisation = organisation or self.organisation
@@ -423,7 +433,7 @@ class Invitation(BaseModel):
             if not existing_owner
             else SECURITY_GROUP_ORGANISATION_USER
         )
-        return organisation.assign_user(user, SECURITY_GROUP_ORGANISATION_OWNER)
+        return organisation.assign_user(user, group)
 
     @transaction.atomic  # noqa:C901
     def process_invitation(
@@ -439,17 +449,17 @@ class Invitation(BaseModel):
         inviting this user to his view of the case (silo).
         The user will be added to the case under the inviting organisation.
 
-        By default the invitaiton is not accepted unless accept is True. This is
+        By default the invitation is not accepted unless accept is True. This is
         done on first login where all pending invites are accepted.
         Generic invites, which are not tied to a specific user will not be updated
         with the invite details.
 
         By default, the user will not become a user of the organisation. This is only reserved for
-        situations where the TRA are inviting a user they have added as a party themeselves.
+        situations where the TRA are inviting a user they have added as a party themselves.
 
         If register_interest is True, a registration of interest will be created for this user
         for the case represented in the invite. If the user arrives without an organisation
-        it will be becuase they have arrived via the invite flow and elected that they
+        it will be because they have arrived via the invite flow and elected that they
         are the organisation invited. In this scenario the organisation invited will be their
         organisation.
         If the user already has an organisation, that differs from the one invited,
@@ -482,7 +492,10 @@ class Invitation(BaseModel):
                         "name": user.name,
                         "email": user.email,
                     },
-                    "accepted_as_contact": {"id": str(user.contact.id), "name": user.contact.name,},
+                    "accepted_as_contact": {
+                        "id": str(user.contact.id),
+                        "name": user.contact.name,
+                    },
                 }
             )
             if user.organisation.organisation != organisation:
@@ -513,7 +526,7 @@ class Invitation(BaseModel):
                 # otherwise set the draft to preparing,
                 # falling back on the default process (preparing->awaiting)
                 case_role = CaseRole.objects.get(id=ROLE_PREPARING)
-            org_case, created = OrganisationCaseRole.objects.assign_organisation_case_role(
+            OrganisationCaseRole.objects.assign_organisation_case_role(
                 organisation=organisation,
                 case=self.case,
                 role=case_role,
@@ -529,10 +542,9 @@ class Invitation(BaseModel):
             assigned = True
             accept = True
         else:
-            assigned = True
-        #     assigned = self.assign_case_user(user=user, organisation=organisation)
+            assigned = self.assign_case_user(user=user, organisation=organisation)
         if assign_to_organisation:
-            orguser = self.assign_organisation_user(user=user, organisation=organisation)
+            self.assign_organisation_user(user=user, organisation=organisation)
         if assigned:
             self.user = user
             if self.contact != user.contact and self.contact.email == user.contact.email:
