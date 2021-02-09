@@ -3,6 +3,7 @@
 from django.db import migrations, models
 
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -12,7 +13,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='submissiontype',
-            name='extra_field',
+            name='extra_info_required',
             field=models.BooleanField(default=False),
         ),
     ]

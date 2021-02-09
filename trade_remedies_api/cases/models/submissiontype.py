@@ -51,7 +51,7 @@ class SubmissionType(models.Model):
     notify_template = models.CharField(max_length=100, null=True, blank=True)
     time_window_key = models.CharField(max_length=100, blank=True)
     order = models.SmallIntegerField(default=0)
-    extra_field = models.BooleanField(default=False)
+    extra_info_required = models.BooleanField(default=False)
     meta = fields.JSONField(default=dict)
 
     objects = SubmissionTypeManager()
