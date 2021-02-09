@@ -39,7 +39,7 @@ class SubmissionType(models.Model):
     (as a system parameter key holding the actual notify id),
     they will be used instead.
     """
-
+    id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=150, null=False, blank=False)
     key = models.CharField(max_length=50, null=True, blank=True)
     requires = models.ForeignKey("self", null=True, blank=True, on_delete=models.PROTECT)
@@ -51,6 +51,7 @@ class SubmissionType(models.Model):
     notify_template = models.CharField(max_length=100, null=True, blank=True)
     time_window_key = models.CharField(max_length=100, blank=True)
     order = models.SmallIntegerField(default=0)
+    extra_info_required = models.BooleanField(default=False)
     meta = fields.JSONField(default=dict)
 
     objects = SubmissionTypeManager()
