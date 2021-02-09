@@ -142,4 +142,6 @@ class Migration(migrations.Migration):
         ("cases", "0051_submissiontype_extra_field"),
     ]
 
-    operations = []
+    operations = [
+        create_update_submissiontype(),
+    ]
