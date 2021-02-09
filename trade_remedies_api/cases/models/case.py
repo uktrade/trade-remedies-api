@@ -736,7 +736,7 @@ class Case(BaseModel):
             self._applicant = None
             application = (
                 self.submissions.select_related("organisation",)
-                .filter(type__id__in=SUBMISSION_APPLICATION_TYPES)
+                .filter(type__name__in=SUBMISSION_APPLICATION_TYPES)
                 .first()
             )
             if application:
@@ -802,14 +802,14 @@ class Case(BaseModel):
                     Q(type__direction=DIRECTION_TRA_TO_PUBLIC)
                     | Q(type__direction=DIRECTION_PUBLIC_TO_TRA)
                 )
-                .filter(Q(type__in=SUBMISSION_APPLICATION_TYPES) | Q(status__default=False))
+                .filter(Q(name__in=SUBMISSION_APPLICATION_TYPES) | Q(status__default=False))
                 .count()
             )
         return self._submission_count
 
     @property
     def application(self):
-        return self.submission_set.filter(type_id__in=SUBMISSION_APPLICATION_TYPES).first()
+        return self.submission_set.filter(type__name__in=SUBMISSION_APPLICATION_TYPES).first()
 
     @property
     def product(self):

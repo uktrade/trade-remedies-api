@@ -2,117 +2,134 @@
 
 from django.db import migrations
 
+from cases.constants import (
+    SUBMISSION_TYPE_APPLICATION_NAME,
+    SUBMISSION_TYPE_EX_OFFICIO_NAME,
+    SUBMISSION_TYPE_NOTICE_OF_INITIATION_NAME,
+    SUBMISSION_TYPE_REGISTER_INTEREST_NAME,
+    SUBMISSION_TYPE_INVITE_3RD_PARTY_NAME,
+    SUBMISSION_TYPE_HEARING_REQUEST_NAME ,
+    SUBMISSION_TYPE_STATEMENT_OF_ESSENTIAL_FACTS_NAME,
+    SUBMISSION_TYPE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION_NAME,
+    SUBMISSION_TYPE_FINAL_DETERMINATION_NAME,
+    SUBMISSION_TYPE_PROVISIONAL_DETERMINATION_NAME,
+)
+
+PUBLIC_KEY = "public"
+AD_HOC_KEY= "adhoc"
+QUESTIONNAIRE_KEY= "questionnaire"
+
 submissiontype_values = {
-    "Application": {
+    SUBMISSION_TYPE_APPLICATION_NAME: {
         "key": "application",
         "direction": 1,
         "deficiency_template": "NOTIFY_APPLICATION_INSUFFICIENT",
         "success_template": "NOTIFY_APPLICATION_SUCCESSFUL",
     },
-    "Questionnaire": {"key": "questionnaire", "direction": 2},
+    "Questionnaire": {"key": QUESTIONNAIRE_KEY, "direction": 2},
     "General": {
-        "key": "adhoc",
+        "key": AD_HOC_KEY,
         "direction": 1,
         "notify_template": "NOTIFY_AD_HOC_EMAIL",
         "time_window_key": "GENERAL_SUBMISSION_TIMER",
     },
-    "Ex Officio Application": {"key": "application", "direction": 0},
-    "Notice of Initiation": {"key": "public", "direction": 0, "order": 1},
-    "Pre-Sampling Questionnaire": {"key": "questionnaire", "direction": 2},
-    "Registration of Interest": {
+    SUBMISSION_TYPE_EX_OFFICIO_NAME: {"key": "application", "direction": 0},
+    SUBMISSION_TYPE_NOTICE_OF_INITIATION_NAME: {"key": PUBLIC_KEY, "direction": 0, "order": 1},
+    "Pre-Sampling Questionnaire": {"key": QUESTIONNAIRE_KEY, "direction": 2},
+    SUBMISSION_TYPE_REGISTER_INTEREST_NAME: {
         "key": "interest",
         "direction": 1,
         "time_window_key": "REGISTRATION_OF_INTEREST_TIMER",
         "meta": {"bundle_files_limit": "case"},
     },
-    "The Statement of Essential Facts": {"key": "public", "direction": 0, "order": 30},
+    SUBMISSION_TYPE_STATEMENT_OF_ESSENTIAL_FACTS_NAME: {"key": PUBLIC_KEY, "direction": 0, "order": 30},
     "Response to the Statement of Essential Facts": {
-        "key": "adhoc",
+        "key": AD_HOC_KEY,
         "direction": 1,
         "time_window_key": "PROV_FACTS_HEARINGS_RESPONSE_TIMER",
     },
-    "Final determination": {"key": "public", "direction": 0, "order": 35},
-    "Provisional determination": {"key": "public", "direction": 0, "order": 25},
+    SUBMISSION_TYPE_FINAL_DETERMINATION_NAME: {"key": PUBLIC_KEY, "direction": 0, "order": 35},
+    SUBMISSION_TYPE_PROVISIONAL_DETERMINATION_NAME: {"key": PUBLIC_KEY, "direction": 0, "order": 25},
     "Visit Report": {
         "key": "visitreport",
         "direction": 2,
         "notify_template": "NOTIFY_REPORT_ISSUED",
     },
     "Application report": {
-        "key": "questionnaire",
+        "key": QUESTIONNAIRE_KEY,
         "direction": 2,
         "notify_template": "NOTIFY_REPORT_ISSUED",
     },
     "Hearing notification": {
-        "key": "questionnaire",
+        "key": QUESTIONNAIRE_KEY,
         "direction": 2,
         "notify_template": "NOTIFY_HEARING_ARRANGEMENTS",
     },
-    "Reconsideration report": {"key": "public", "direction": 0, "order": 40},
+    "Reconsideration report": {"key": PUBLIC_KEY, "direction": 0, "order": 40},
     "Response to the Provisional Determination": {
-        "key": "adhoc",
+        "key": AD_HOC_KEY,
         "direction": 1,
         "time_window_key": "PROV_PUBLISH_PUBLISHED",
     },
-    "Hearing request": {
-        "key": "adhoc",
+    SUBMISSION_TYPE_HEARING_REQUEST_NAME: {
+        "key": AD_HOC_KEY,
         "direction": 1,
         "time_window_key": "PROV_FACTS_HEARINGS_TIMER",
     },
-    "Response to the Full Determination": {"key": "adhoc", "direction": 1},
+    "Response to the Full Determination": {"key": AD_HOC_KEY, "direction": 1},
     "Reconsideration request": {
-        "key": "adhoc",
+        "key": AD_HOC_KEY,
         "direction": 1,
         "time_window_key": "RECON_REQUEST_SUBMISSION_TIMER",
     },
-    "Ad-hoc": {"key": "questionnaire", "direction": 2, "notify_template": "NOTIFY_AD_HOC_EMAIL"},
-    "Invite 3rd party": {"key": "invite", "direction": 1},
-    "Statement of intended final determination": {"key": "public", "direction": 0, "order": 30},
+    "Ad-hoc": {"key": QUESTIONNAIRE_KEY, "direction": 2, "notify_template": "NOTIFY_AD_HOC_EMAIL"},
+    SUBMISSION_TYPE_INVITE_3RD_PARTY_NAME: {"key": "invite", "direction": 1},
+    SUBMISSION_TYPE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION_NAME: {"key": PUBLIC_KEY, "direction": 0, "order": 30},
     "Authentication report": {
-        "key": "questionnaire",
+        "key": QUESTIONNAIRE_KEY,
         "direction": 2,
         "notify_template": "NOTIFY_REPORT_ISSUED",
     },
     "Response to the statement of intended final determination": {
-        "key": "adhoc",
+        "key": AD_HOC_KEY,
         "direction": 1,
         "time_window_key": "RESPOND_SOIFD_SUBMISSION_TIMER",
     },
     "Request appeal": {
-        "key": "adhoc",
+        "key": AD_HOC_KEY,
         "direction": 1,
         "time_window_key": "REQUEST_APPEAL_SUBMISSION_TIMER",
     },
     "Additional User Request": {"key": "assign", "direction": 1},
     "General publication - Extra": {
-        "key": "public",
+        "key": PUBLIC_KEY,
         "direction": 0,
         "order": 29,
         "extra_info_required": True,
     },
-    "General publication - Application": {"key": "public", "direction": 0, "order": 3,},
-    "General publication - Note of meeting": {"key": "public", "direction": 0, "order": 5,},
-    "General publication - Notice of extension": {"key": "public", "direction": 0, "order": 7,},
+    "General publication - Application": {"key": PUBLIC_KEY, "direction": 0, "order": 3,},
+    "General publication - Note of meeting": {"key": PUBLIC_KEY, "direction": 0, "order": 5,},
+    "General publication - Notice of extension": {"key": PUBLIC_KEY, "direction": 0, "order": 7,},
     "General publication - Notice of proposed sample": {
-        "key": "public",
+        "key": PUBLIC_KEY,
         "direction": 0,
         "order": 9,
     },
-    "General publication - Case timeline": {"key": "public", "direction": 0, "order": 11,},
+    "General publication - Case timeline": {"key": PUBLIC_KEY, "direction": 0, "order": 11,},
     "General publication - Submission (from an interested party)": {
-        "key": "public",
+        "key": PUBLIC_KEY,
         "direction": 0,
         "order": 15,
     },
     "General publication - Pre-sampling questionnaire": {
-        "key": "public",
+        "key": PUBLIC_KEY,
         "direction": 0,
         "order": 17,
     },
-    "General publication - Questionnaire": {"key": "public", "direction": 0, "order": 19,},
-    "General publication - Verification report": {"key": "public", "direction": 0, "order": 21,},
-    "General publication - Final reports": {"key": "public", "direction": 0, "order": 23,},
-    "General publication - Termination reports": {"key": "public", "direction": 0, "order": 27,},
+    "General publication - Questionnaire": {"key": PUBLIC_KEY, "direction": 0, "order": 19,},
+    "General publication - Verification report": {"key": PUBLIC_KEY, "direction": 0, "order": 21,},
+    "General publication - Final reports": {"key": PUBLIC_KEY, "direction": 0, "order": 23,},
+    "General publication - Termination reports": {"key": PUBLIC_KEY, "direction": 0, "order": 27,},
 }
 
 type_requires = {

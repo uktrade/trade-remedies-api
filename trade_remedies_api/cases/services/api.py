@@ -44,9 +44,9 @@ from cases.constants import (
     SUBMISSION_NOTICE_TYPES,
     SUBMISSION_NOTICE_TYPE_INVITE,
     SUBMISSION_NOTICE_TYPE_DEFICIENCY,
-    SUBMISSION_TYPE_REGISTER_INTEREST,
-    SUBMISSION_TYPE_INVITE_3RD_PARTY,
-    SUBMISSION_TYPE_APPLICATION,
+    SUBMISSION_TYPE_REGISTER_INTEREST_NAME,
+    SUBMISSION_TYPE_INVITE_3RD_PARTY_NAME,
+    SUBMISSION_TYPE_APPLICATION_NAME,
     SUBMISSION_STATUS_APPLICATION_SUBMIT_REVIEW,
     SUBMISSION_APPLICATION_TYPES,
     DIRECTION_BOTH,
@@ -563,7 +563,7 @@ class CaseInterestAPI(TradeRemediesApiView):
         show_archived = request.query_params.get("archived", "false") == "true"
         show_preparing = request.query_params.get("preparing", "false") == "true"
         all_interests = request.query_params.get("all", "false") == "true"
-        interest_type = SubmissionType.objects.get(id=SUBMISSION_TYPE_REGISTER_INTEREST)
+        interest_type = SubmissionType.objects.get(name=SUBMISSION_TYPE_REGISTER_INTEREST_NAME)
         # TODO: Clean up role_keys
         # role_keys = ['awaiting_approval', 'rejected']
         user_filter = {"created_by": request.user}
@@ -654,7 +654,7 @@ class CaseInterestAPI(TradeRemediesApiView):
             sampled=True,
             created_by=request.user,
         )
-        submission_type = SubmissionType.objects.get(id=SUBMISSION_TYPE_REGISTER_INTEREST)
+        submission_type = SubmissionType.objects.get(name=SUBMISSION_TYPE_REGISTER_INTEREST_NAME)
         submission = Submission.objects.create(
             name=submission_type.name,
             type=submission_type,
@@ -924,7 +924,7 @@ class SubmissionsAPIView(TradeRemediesApiView):
         submission.delete(purge=purge)
         notify_template = (
             "NOTIFY_APPLICATION_CANCELLED"
-            if submission.type.id in SUBMISSION_APPLICATION_TYPES
+            if submission.type.name in SUBMISSION_APPLICATION_TYPES
             else "DRAFT_SUBMISSION_CANCELLED"
         )
         if organisation_id:
@@ -1218,7 +1218,7 @@ class SubmissionStatusAPIView(TradeRemediesApiView):
             # el
             if submission.status.send_confirmation_notification:
                 submission.notify_received(user=submission_user or request.user)
-                if submission.type_id == SUBMISSION_TYPE_APPLICATION:
+                if submission.type.name == SUBMISSION_TYPE_APPLICATION_NAME:
                     due_date = timezone.now() + datetime.timedelta(
                         days=settings.DEADLINE_AFTER_ASSESSMENT_RECEIPT_DAYS
                     )
@@ -1236,7 +1236,7 @@ class SubmissionStatusAPIView(TradeRemediesApiView):
                         milestone=True,
                         data={"message": "Full application submitted"},
                     )
-            elif submission.type_id == SUBMISSION_TYPE_APPLICATION and submission.status.sufficient:
+            elif submission.type.name == SUBMISSION_TYPE_APPLICATION_NAME and submission.status.sufficient:
                 submission.notify_received(
                     user=submission_user, template_id="NOTIFY_APPLICATION_SUCCESSFUL"
                 )
@@ -1825,7 +1825,7 @@ class ThirdPartyInvitesAPI(TradeRemediesApiView):
     """
 
     def get(self, request, organisation_id=None, case_id=None, *args, **kwargs):
-        invite_type = SubmissionType.objects.get(id=SUBMISSION_TYPE_INVITE_3RD_PARTY)
+        invite_type = SubmissionType.objects.get(name=SUBMISSION_TYPE_INVITE_3RD_PARTY_NAME)
         _filter_kwargs = {}
         if organisation_id:
             _filter_kwargs["organisation"] = Organisation.objects.get(id=organisation_id)
