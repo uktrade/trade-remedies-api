@@ -20,7 +20,7 @@ PASSWORD = "A7Hhfa!jfaw@f"
 
 
 class SubmissionTypeTest(TestCase, CaseTestMixin):
-    fixtures = get_case_fixtures("submission_types.json")
+    fixtures = get_case_fixtures()
 
     def setUp(self):
         self.setup_test()
