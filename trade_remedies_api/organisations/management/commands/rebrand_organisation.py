@@ -62,7 +62,6 @@ class Command(BaseCommand):
 
         for workflow_name in workflows:
             workflow = WorkflowTemplate.objects.filter(name=workflow_name).first()
-
             if not workflow:
                 self.print_warning(f"'{workflow_name}' not found")
             else:
@@ -83,7 +82,6 @@ class Command(BaseCommand):
 
         # job_titles.json
         job_title = JobTitle.objects.filter(name=f"{from_initialism} Other",).first()
-
         if not job_title:
             self.print_warning(f"'{from_initialism} Other' not found")
         else:
@@ -94,7 +92,6 @@ class Command(BaseCommand):
 
         # tra_organisations.json
         organisation = Organisation.objects.filter(name=from_org_name,).first()
-
         if not job_title:
             self.print_warning(f"'{from_org_name}' not found")
         else:
