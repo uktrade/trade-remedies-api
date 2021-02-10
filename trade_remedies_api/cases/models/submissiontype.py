@@ -25,7 +25,7 @@ class SubmissionType(models.Model):
     A type of submission.
     The key is a string that determines which representations the submission type should use.
     (i.e., which templates, routes, logic etc.
-    For example, Ex Officion applications and Applications
+    For example, Ex Officio applications and Applications
     should use the same templates and logic).
     A type can require another type to exist in the case. For example, Response to statement of
     essential facts can be created by customers only if the Statement of essential facts was
@@ -68,6 +68,7 @@ class SubmissionType(models.Model):
             "direction": self.direction,
             "requires": self.requires.to_dict() if self.requires else None,
             "has_requirement": False,
+            "extra_info_required": self.extra_info_required,
             "notify_template": self.notify_template,
             "meta": self.meta,
         }
