@@ -24,26 +24,43 @@ logger = logging.getLogger(__name__)
 
 
 class GroupPermission(BasePermission):
-    def user_in_group(self, user, group):
-        """Returns True if the user is in a given group"""
-        return Group.objects.get(name=group).user_set.filter(id=user.id).exists()
+
+    @staticmethod
+    def _user_in_group(user, group):
+        """Check is a user is in a group.
+
+        :param (User) user: User to check.
+        :param (Group) group: Group to check membership of.
+        :returns (bool): True if the user is in a given group, False otherwise.
+        """
+        try:
+            return Group.objects.get(name=group).user_set.filter(id=user.id).exists()
+        except Group.DoesNotExist:
+            return False
 
     def has_permission(self, request, view):
-        """
-        Check if the user is in the right group (or is a superuser)
+        """Check user's permission override.
+
+        Check if the user in this request is in an allowed group for the request
+        method invoked on the view (or is a superuser, or the view doesn't specify
+        allowed groups).
+        :param (HTTPRequest) request: API request.
+        :param (TradeRemediesApiView) view: View to check permission for.
+
+        :returns (bool): True
         """
         allowed_groups_mapping = getattr(view, "allowed_groups", {})
         allowed_groups = allowed_groups_mapping.get(request.method, [])
         if request.user.is_superuser or not allowed_groups:
             return True
-        return any([self.user_in_group(request.user, group) for group in allowed_groups])
+        return any([self._user_in_group(request.user, group) for group in allowed_groups])
 
 
 class TradeRemediesApiView(APIView):
-    """
-    Base class for all Trade Remedies API calls.
-    Api responses should always return ResponseSuccess
-    objects if successful or raise an API Exception otherwise.
+    """Base class for all Trade Remedies API Views.
+
+    Api responses should always return ResponseSuccess objects if successful, or
+    raise an API Exception otherwise.
 
     The base API class assigns some instance attributes to the
     APIView instance and the response data, in order to conform
@@ -67,29 +84,45 @@ class TradeRemediesApiView(APIView):
     permission_classes = (IsAuthenticated, GroupPermission)
     allowed_groups = {}
 
+    def __init__(self):
+        self.case_id = None
+        self.user = None
+        self.organisation = None
+        self._start = 0
+        self._limit = settings.DEFAULT_QUERYSET_PAGE_SIZE
+        self._search = None
+        self._order_by = ""
+        self._order_dir = "asc"
+        self.feature_flags = None
+        super().__init__()
+
     def initial(self, request, *args, **kwargs):
-        """
+        """Initial override.
+
         Override initial to collect some standard
-        request paramters into the API View Object.
+        request parameters into the API View Object.
+        :param (HttpRequest) request: Request object.
         """
         super().initial(request, *args, **kwargs)
-        self.organisation_id = kwargs.get("organisation_id")
+        organisation_id = kwargs.get("organisation_id")
         self.case_id = kwargs.get("case_id")
         self.user = request.user
         if self.allowed_groups:
             self.raise_on_invalid_access()
-        self.organisation = get_organisation(self.organisation_id)
+        self.organisation = get_organisation(organisation_id)
         if self.organisation:
             self.organisation.set_user_context(request.user)
-        self._start = int(request.query_params.get("start") or 0)
-        self._limit = int(request.query_params.get("limit") or settings.DEFAULT_QUERYSET_PAGE_SIZE)
+        self._start = int(request.query_params.get("start", 0))
+        self._limit = int(request.query_params.get("limit", settings.DEFAULT_QUERYSET_PAGE_SIZE))
         self._search = request.query_params.get("q")
         self._order_by = request.query_params.get("order_by")
         self._order_dir = request.query_params.get("order_dir", "asc")
 
     def raise_on_invalid_access(self):
-        """
-        Raise an AccessDenied API exception if the user is not allowed to access the organisation
+        """Check user organisation authorisation.
+
+        Raise an AccessDenied API exception if the user is not allowed to
+        access the organisation.
         """
         is_valid = False
         if self.user.has_group(SECURITY_GROUP_SUPER_USER):
@@ -98,14 +131,18 @@ class TradeRemediesApiView(APIView):
             self.allowed_groups[self.request.method]
         ):
             is_valid = True
-        elif self.case_id and self.organisation_id:
-            is_valid = validate_user_case(self.user, self.case_id, self.organisation_id)
-        elif self.organisation_id:
-            is_valid = validate_user_organisation(self.user, self.organisation_id)
+        elif self.case_id and self.organisation.id:
+            is_valid = validate_user_case(self.user, self.case_id, self.organisation.id)
+        elif self.organisation.id:
+            is_valid = validate_user_organisation(self.user, self.organisation.id)
         if not is_valid:
             raise AccessDenied("User does not have access to organisation")
 
     def dispatch(self, request, *args, **kwargs):
+        """Dispatch override.
+
+        :param (HttpRequest) request: Request object.
+        """
         time_recv = time()
         self.feature_flags = FeatureFlags()
         response = super().dispatch(request, *args, **kwargs)
@@ -120,15 +157,11 @@ class TradeRemediesApiView(APIView):
                 if hasattr(self, "queryset"):
                     response.data["start"] = self._start
                     response.data["limit"] = self._limit
-                #  TODO - talk to Mark re the below
-                # if settings.DEBUG:
-                #     logger.info(f"Time: {response.data['process_time']}")
         return response
 
     def validate_required_fields(self, request):
         if hasattr(self, "required_keys"):
             missing_keys = [key for key in self.required_keys if not request.data.get(key)]
-            # missing_keys = set(self.required_keys) - set(request.data.keys())
             return missing_keys
         return []
 
@@ -141,11 +174,10 @@ class TradeRemediesApiView(APIView):
 
 
 class ResponseSuccess(Response):
-    """
-    Common response object, managing a standard response format
-    for all API calls.
-    """
+    """Common response object.
 
+    Manages a standard response format for all API calls.
+    """
     def __init__(self, data=None, http_status=None, content_type=None):
         _status = http_status or status.HTTP_200_OK
         data = data or {}
@@ -155,11 +187,12 @@ class ResponseSuccess(Response):
 
 
 class ResponseError(Response):
-    """
-    When an exception is not sufficient and a response can still be returned (e.g., certain
-    errors to correct etc.), we can use ResponseError to standardise this response format.
-    """
+    """Common error response object.
 
+    When an exception is not sufficient and a response can still be returned
+    (e.g. certain errors to correct) we can use ResponseError to standardise
+    this response format.
+    """
     def __init__(
         self,
         error,
@@ -180,24 +213,29 @@ class ResponseError(Response):
 
 
 class MultiPartJSONParser(BaseParser):
-    """
-    Parser for multipart form data which might contain JSON values
-    in some fields as well as file data.
-    This is a variation of MultiPartJSONParser, which goes through submitted fields
-    and attempts to decode them as JSON where a value exists.
+    """Parser for multipart form data.
+
+    Parser for multipart form data which might contain JSON values in some fields
+    as well as file data. This is a variation of MultiPartJSONParser, which goes
+    through submitted fields and attempts to decode them as JSON where a value exists.
     It is not to be used as a replacement for MultiPartParser, only in cases where
     MultiPart AND JSON data are expected.
     """
-
     media_type = "multipart/form-data"
 
     def parse(self, stream, media_type=None, parser_context=None):
-        """
-        Parses the incoming bytestream as a multipart encoded form,
-        and returns a DataAndFiles object.
+        """Parse the incoming bytestream.
+
+        Parses the incoming bytestream as a multipart encoded form and returns a
+        DataAndFiles object.
+
         `.data` will be a `QueryDict` containing all the form parameters,
         and JSON decoded where available.
         `.files` will be a `QueryDict` containing all the form files.
+
+        :param (bytes) stream: Incoming byte stream.
+        :param (str) media_type: Media Type.
+        :param (dict) parser_context: Context.
         """
         parser_context = parser_context or {}
         request = parser_context["request"]
