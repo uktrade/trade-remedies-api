@@ -84,7 +84,7 @@ class TradeRemediesApiView(APIView):
     permission_classes = (IsAuthenticated, GroupPermission)
     allowed_groups = {}
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.case_id = None
         self.user = None
         self.organisation = None
@@ -94,7 +94,7 @@ class TradeRemediesApiView(APIView):
         self._order_by = ""
         self._order_dir = "asc"
         self.feature_flags = None
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
     def initial(self, request, *args, **kwargs):
         """Initial override.
