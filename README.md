@@ -75,6 +75,16 @@ Revert to old branding
 
  `python manage.py rebrand_organisation --revert`
 
+## Updating organisation branding
+
+Update to new branding:
+
+ `python manage.py rebrand_organisation`
+
+Revert to old branding
+
+ `python manage.py rebrand_organisation --revert`
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people who contributed to this repo before it was open-sourced ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
