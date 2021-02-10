@@ -80,7 +80,7 @@ submissiontype_values = {
         "time_window_key": "PROV_FACTS_HEARINGS_RESPONSE_TIMER",
     },
     "Final determination": {"id": SUBMISSION_TYPE_FINAL_DETERMINATION, "key": PUBLIC_KEY, "direction": 0, "order": 35},
-    "Provisional determination": {"id": SUBMISSION_TYPE_PROVISIONAL_DETERMINATION, "key": PUBLIC_KEY, "direction": 0, "order": 25},
+    "Provisional determination": {"id": SUBMISSION_TYPE_PROVISIONAL_DETERMINATION, "key": PUBLIC_KEY, "direction": 0, "order": 32},
     "Visit Report": {
         "id": SUBMISSION_TYPE_VISIT_REPORT, "key": "visitreport",
         "direction": 2,
@@ -138,7 +138,7 @@ submissiontype_values = {
         "time_window_key": "REQUEST_APPEAL_SUBMISSION_TIMER",
     },
     "Additional User Request": {"id": SUBMISSION_TYPE_ASSIGN_TO_CASE, "key": "assign", "direction": 1},
-    "General publication - Application": {"id": SUBMISSION_TYPE_GENERAL_PUBLICATION_APPLICATION, "key": PUBLIC_KEY, "direction": 0, "order": 3,},
+    "General publication - Application": {"id": SUBMISSION_TYPE_GENERAL_PUBLICATION_APPLICATION, "key": PUBLIC_KEY, "direction": 0, "order": 4,},
     "General publication - Note of meeting": {"id": SUBMISSION_TYPE_GENERAL_PUBLICATION_NOTE_OF_MEETING, "key": PUBLIC_KEY, "direction": 0, "order": 5,},
     "General publication - Notice of extension": {"id": SUBMISSION_TYPE_GENERAL_PUBLICATION_NOTICE_OF_EXTENSION, "key": PUBLIC_KEY, "direction": 0, "order": 7,},
     "General publication - Notice of proposed sample": {
