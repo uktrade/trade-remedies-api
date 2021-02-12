@@ -20,4 +20,9 @@ class Migration(migrations.Migration):
             name='id',
             field=models.IntegerField(primary_key=True, serialize=False),
         ),
+        migrations.AlterField(
+            model_name='submissionstatus',
+            name='id',
+            field=models.IntegerField(primary_key=True, serialize=False),
+        ),
     ]

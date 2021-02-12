@@ -166,6 +166,19 @@ class SubmissionType(models.Model):
             return case.submission_set.filter(type=self.requires).exists()
         return True
 
+
+    def name_display(self, extra=""):
+        name_return = self.name
+        if not self.extra_info_required:
+            return name_return
+
+        dash_pos = name_return.find(" -")
+        if dash_pos > -1:
+            name_return = name_return[:dash_pos]
+        if extra:
+            name_return = f"{name_return} - {extra}"
+        return name_return
+
     @staticmethod
     def submission_status_map():
         """
@@ -178,3 +191,4 @@ class SubmissionType(models.Model):
             no_id = no.id if no else None
             sub_types[str(subtype.id)] = {"YES": yes_id, "NO": no_id, "keys": [yes_id, no_id]}
         return sub_types
+

@@ -17,7 +17,7 @@ class SubmissionStatus(models.Model):
     'draft' denotes that a submission is being drafted (files added or removed)
     by customer since it was last sent.
     """
-
+    id = models.IntegerField(primary_key=True)
     type = models.ForeignKey(
         "cases.SubmissionType", null=False, blank=False, on_delete=models.PROTECT
     )
@@ -76,3 +76,4 @@ class SubmissionStatus(models.Model):
         Based on this status, is a deficiency notice able to be sent?
         """
         return (self.version or self.review) and not self.sufficient
+

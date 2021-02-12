@@ -121,6 +121,7 @@ class PublicNoticeView(APIView):
                         "url": submission.url,
                         "issued_at": submission.issued_at,
                         "type": submission.type.name,
+                        "type_display":submission.type.name_display(submission.type_extra_info),
                         "case": submission.case.to_minimal_dict(),
                         "case_initiated": bool(submission.case.initiated_at),
                     }

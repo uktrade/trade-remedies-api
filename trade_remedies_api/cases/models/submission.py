@@ -5,6 +5,7 @@ from django.contrib.postgres import fields
 from django.conf import settings
 from django.utils import timezone
 from titlecase import titlecase
+
 from core.utils import deep_index_items_by, public_login_url
 from core.base import BaseModel
 from core.models import SystemParameter
@@ -65,7 +66,6 @@ class SubmissionManager(models.Manager):
         When incoming is True, only incoming submissions will be shown
         """
         from .utils import get_case
-
         case = get_case(case)
         submissions = self.filter(case=case, deleted_at__isnull=True).select_related(
             "type",
@@ -133,6 +133,7 @@ class Submission(BaseModel):
     type = models.ForeignKey(
         "cases.SubmissionType", null=False, blank=False, on_delete=models.PROTECT
     )
+    type_extra_info = models.TextField(null=True, blank=True)
     status = models.ForeignKey(
         "cases.SubmissionStatus", null=True, blank=True, on_delete=models.PROTECT
     )
@@ -423,10 +424,11 @@ class Submission(BaseModel):
             documents = self.submission_documents(
                 requested_by=requested_by, requested_for=requested_for
             )
+        type_name = self.type.name_display(self.type_extra_info)
         _previous_versions = [
             {
                 "id": str(version.id),
-                "type": self.type.name,
+                "type": type_name,
                 "name": version.name,
                 "version": version.version,
                 "deficiency_sent_at": version.deficiency_sent_at.strftime(
@@ -522,6 +524,7 @@ class Submission(BaseModel):
             if self.case.initiated_at
             else None
         )
+        type_name_display = self.type.name_display(self.type_extra_info)
 
         return {
             "id": str(self.id),
@@ -553,6 +556,8 @@ class Submission(BaseModel):
             else None,
             "locked": self.locked,
             "created_at": self.created_at.strftime(settings.API_DATETIME_FORMAT),
+            "type_extra_info": self.type_extra_info,
+            "type_display":type_name_display,
         }
 
     # single property dictionary methods
@@ -636,6 +641,7 @@ class Submission(BaseModel):
                 "case_name": self.case.name,
                 "case_type": self.case.type.name,
                 "submission_type": self.type.name,
+                "submission_type_display": self.type.name_display(self.type_extra_info),
             }
             self.notify(
                 sent_by=user, contact=user.contact, context=context, template_id=template_id
@@ -681,6 +687,7 @@ class Submission(BaseModel):
             "company_name": company_name,
             "login_url": public_login_url(),
             "submission_type": self.type.name,
+            "submission_type_display": self.type.name_display(self.type_extra_info),
             "deadline": self.due_at.strftime(settings.FRIENDLY_DATE_FORMAT) if self.due_at else "",
             "dumped_or_subsidised": self.case.dumped_or_subsidised(),
             "case_title": case_name,  # TODO: merge the two identicals
@@ -728,6 +735,7 @@ class Submission(BaseModel):
             "case_name": case_name,
             "tra_contact_name": "us",
             "submission_type": self.type.name,
+            "submission_type_display": self.type.name_display(self.type_extra_info),
             "login_url": public_login_url(),
             "deadline": self.due_at.strftime(settings.FRIENDLY_DATE_FORMAT)
             if self.due_at
