@@ -48,119 +48,119 @@ AD_HOC_KEY= "adhoc"
 QUESTIONNAIRE_KEY= "questionnaire"
 
 submissiontype_values = {
-    "Application": {
-        "id": SUBMISSION_TYPE_APPLICATION,
+    SUBMISSION_TYPE_APPLICATION: {
+        "name": "Application",
         "key": "application",
         "direction": 1,
         "deficiency_template": "NOTIFY_APPLICATION_INSUFFICIENT",
         "success_template": "NOTIFY_APPLICATION_SUCCESSFUL",
     },
-    "Questionnaire": {"id": SUBMISSION_TYPE_QUESTIONNAIRE, "key": QUESTIONNAIRE_KEY, "direction": 2},
-    "General": {
-        "id": SUBMISSION_TYPE_GENERAL,
+    SUBMISSION_TYPE_QUESTIONNAIRE: {"name": "Questionnaire", "key": QUESTIONNAIRE_KEY, "direction": 2},
+    SUBMISSION_TYPE_GENERAL: {
+        "name": "General",
         "key": AD_HOC_KEY,
         "direction": 1,
         "notify_template": "NOTIFY_AD_HOC_EMAIL",
         "time_window_key": "GENERAL_SUBMISSION_TIMER",
     },
-    "Ex Officio Application": {"id": SUBMISSION_TYPE_EX_OFFICIO, "key": "application", "direction": 0},
-    "Notice of Initiation": {"id": SUBMISSION_TYPE_NOTICE_OF_INITIATION, "key": PUBLIC_KEY, "direction": 0, "order": 1},
-    "Pre-Sampling Questionnaire": {"id": SUBMISSION_TYPE_PRE_SAMPLING_QUESTIONNAIRE, "key": QUESTIONNAIRE_KEY, "direction": 2},
-    "Registration of Interest": {
-        "id": SUBMISSION_TYPE_REGISTER_INTEREST,
+    SUBMISSION_TYPE_EX_OFFICIO: {"name": "Ex Officio Application", "key": "application", "direction": 0},
+    SUBMISSION_TYPE_NOTICE_OF_INITIATION: {"name": "Notice of Initiation", "key": PUBLIC_KEY, "direction": 0, "order": 1},
+    SUBMISSION_TYPE_PRE_SAMPLING_QUESTIONNAIRE: {"name": "Pre-Sampling Questionnaire", "key": QUESTIONNAIRE_KEY, "direction": 2},
+    SUBMISSION_TYPE_REGISTER_INTEREST: {
+        "name": "Registration of Interest",
         "key": "interest",
         "direction": 1,
         "time_window_key": "REGISTRATION_OF_INTEREST_TIMER",
         "meta": {"bundle_files_limit": "case"},
     },
-    "The Statement of Essential Facts": {"id": SUBMISSION_TYPE_STATEMENT_OF_ESSENTIAL_FACTS, "key": PUBLIC_KEY, "direction": 0, "order": 30},
-    "Response to the Statement of Essential Facts": {
-        "id": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_ESSENTIAL_FACTS, "key": AD_HOC_KEY,
+    SUBMISSION_TYPE_STATEMENT_OF_ESSENTIAL_FACTS: {"name": "The Statement of Essential Facts", "key": PUBLIC_KEY, "direction": 0, "order": 30},
+    SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_ESSENTIAL_FACTS: {
+        "name": "Response to the Statement of Essential Facts", "key": AD_HOC_KEY,
         "direction": 1,
         "time_window_key": "PROV_FACTS_HEARINGS_RESPONSE_TIMER",
     },
-    "Final determination": {"id": SUBMISSION_TYPE_FINAL_DETERMINATION, "key": PUBLIC_KEY, "direction": 0, "order": 35},
-    "Provisional determination": {"id": SUBMISSION_TYPE_PROVISIONAL_DETERMINATION, "key": PUBLIC_KEY, "direction": 0, "order": 32},
-    "Visit Report": {
-        "id": SUBMISSION_TYPE_VISIT_REPORT, "key": "visitreport",
+    SUBMISSION_TYPE_FINAL_DETERMINATION: {"name": "Final determination", "key": PUBLIC_KEY, "direction": 0, "order": 35},
+    SUBMISSION_TYPE_PROVISIONAL_DETERMINATION: {"name": "Provisional determination", "key": PUBLIC_KEY, "direction": 0, "order": 32},
+    SUBMISSION_TYPE_VISIT_REPORT: {
+        "name": "Visit Report", "key": "visitreport",
         "direction": 2,
         "notify_template": "NOTIFY_REPORT_ISSUED",
     },
-    "Application report": {
-        "id": SUBMISSION_TYPE_APPLICATION_REPORT, "key": QUESTIONNAIRE_KEY,
+    SUBMISSION_TYPE_APPLICATION_REPORT: {
+        "name": "Application report", "key": QUESTIONNAIRE_KEY,
         "direction": 2,
         "notify_template": "NOTIFY_REPORT_ISSUED",
     },
-    "Hearing notification": {
-        "id": SUBMISSION_TYPE_HEARING_NOTIFICATION, "key": QUESTIONNAIRE_KEY,
+    SUBMISSION_TYPE_HEARING_NOTIFICATION: {
+        "name": "Hearing notification", "key": QUESTIONNAIRE_KEY,
         "direction": 2,
         "notify_template": "NOTIFY_HEARING_ARRANGEMENTS",
     },
-    "Reconsideration report": {"id": SUBMISSION_TYPE_RECONSIDERATION_REPORT, "key": PUBLIC_KEY, "direction": 0, "order": 40},
-    "Response to the Provisional Determination": {
-        "id": SUBMISSION_TYPE_RESPONSE_TO_THE_PROVISIONAL_DETERMINATION, "key": AD_HOC_KEY,
+    SUBMISSION_TYPE_RECONSIDERATION_REPORT: {"name": "Reconsideration report", "key": PUBLIC_KEY, "direction": 0, "order": 40},
+    SUBMISSION_TYPE_RESPONSE_TO_THE_PROVISIONAL_DETERMINATION: {
+        "name": "Response to the Provisional Determination", "key": AD_HOC_KEY,
         "direction": 1,
         "time_window_key": "PROV_PUBLISH_PUBLISHED",
     },
-    "Hearing request": {
-        "id": SUBMISSION_TYPE_HEARING_REQUEST, "key": AD_HOC_KEY,
+    SUBMISSION_TYPE_HEARING_REQUEST: {
+        "name": "Hearing request", "key": AD_HOC_KEY,
         "direction": 1,
         "time_window_key": "PROV_FACTS_HEARINGS_TIMER",
     },
-    "Response to the Full Determination": {"id": SUBMISSION_TYPE_RESPONSE_TO_THE_FULL_DETERMINATION, "key": AD_HOC_KEY, "direction": 1},
-    "Reconsideration request": {
-        "id": SUBMISSION_TYPE_RECONSIDERATION_REQUEST, "key": AD_HOC_KEY,
+    SUBMISSION_TYPE_RESPONSE_TO_THE_FULL_DETERMINATION: {"name": "Response to the Full Determination", "key": AD_HOC_KEY, "direction": 1},
+    SUBMISSION_TYPE_RECONSIDERATION_REQUEST: {
+        "name": "Reconsideration request", "key": AD_HOC_KEY,
         "direction": 1,
         "time_window_key": "RECON_REQUEST_SUBMISSION_TIMER",
     },
-    "Ad-hoc": {"id": SUBMISSION_TYPE_AD_HOC, "key": QUESTIONNAIRE_KEY, "direction": 2, "notify_template": "NOTIFY_AD_HOC_EMAIL"},
-    "Invite 3rd party": {"id": SUBMISSION_TYPE_INVITE_3RD_PARTY, "key": "invite", "direction": 1},
-    "General publication - other": {
-        "id": SUBMISSION_TYPE_GENERAL_PUBLICATION, "key": PUBLIC_KEY,
+    SUBMISSION_TYPE_AD_HOC: {"name": "Ad-hoc", "key": QUESTIONNAIRE_KEY, "direction": 2, "notify_template": "NOTIFY_AD_HOC_EMAIL"},
+    SUBMISSION_TYPE_INVITE_3RD_PARTY: {"name": "Invite 3rd party", "key": "invite", "direction": 1},
+    SUBMISSION_TYPE_GENERAL_PUBLICATION: {
+        "name": "General publication - other", "key": PUBLIC_KEY,
         "direction": 0,
         "order": 29,
         "extra_info_required": True,
     },
-    "Statement of intended final determination": {"id": SUBMISSION_TYPE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION, "key": PUBLIC_KEY, "direction": 0, "order": 30},
-    "Authentication report": {
-        "id": SUBMISSION_TYPE_AUTHENTICATION_REPORT, "key": QUESTIONNAIRE_KEY,
+    SUBMISSION_TYPE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION: {"name": "Statement of intended final determination", "key": PUBLIC_KEY, "direction": 0, "order": 30},
+    SUBMISSION_TYPE_AUTHENTICATION_REPORT: {
+        "name": "Authentication report", "key": QUESTIONNAIRE_KEY,
         "direction": 2,
         "notify_template": "NOTIFY_REPORT_ISSUED",
     },
-    "Response to the statement of intended final determination": {
-        "id": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION, "key": AD_HOC_KEY,
+    SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION: {
+        "name": "Response to the statement of intended final determination", "key": AD_HOC_KEY,
         "direction": 1,
         "time_window_key": "RESPOND_SOIFD_SUBMISSION_TIMER",
     },
-    "Request appeal": {
-        "id": SUBMISSION_TYPE_REQUEST_APPEAL, "key": AD_HOC_KEY,
+    SUBMISSION_TYPE_REQUEST_APPEAL: {
+        "name": "Request appeal", "key": AD_HOC_KEY,
         "direction": 1,
         "time_window_key": "REQUEST_APPEAL_SUBMISSION_TIMER",
     },
-    "Additional User Request": {"id": SUBMISSION_TYPE_ASSIGN_TO_CASE, "key": "assign", "direction": 1},
-    "General publication - Application": {"id": SUBMISSION_TYPE_GENERAL_PUBLICATION_APPLICATION, "key": PUBLIC_KEY, "direction": 0, "order": 4,},
-    "General publication - Note of meeting": {"id": SUBMISSION_TYPE_GENERAL_PUBLICATION_NOTE_OF_MEETING, "key": PUBLIC_KEY, "direction": 0, "order": 5,},
-    "General publication - Notice of extension": {"id": SUBMISSION_TYPE_GENERAL_PUBLICATION_NOTICE_OF_EXTENSION, "key": PUBLIC_KEY, "direction": 0, "order": 7,},
-    "General publication - Notice of proposed sample": {
-        "id": SUBMISSION_TYPE_GENERAL_PUBLICATION_NOTICE_OF_PROPOSED_SAMPLE, "key": PUBLIC_KEY,
+    SUBMISSION_TYPE_ASSIGN_TO_CASE: {"name": "Additional User Request", "key": "assign", "direction": 1},
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_APPLICATION: {"name": "General publication - Application", "key": PUBLIC_KEY, "direction": 0, "order": 4,},
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_NOTE_OF_MEETING: {"name": "General publication - Note of meeting", "key": PUBLIC_KEY, "direction": 0, "order": 5,},
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_NOTICE_OF_EXTENSION: {"name": "General publication - Notice of extension", "key": PUBLIC_KEY, "direction": 0, "order": 7,},
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_NOTICE_OF_PROPOSED_SAMPLE: {
+        "name": "General publication - Notice of proposed sample", "key": PUBLIC_KEY,
         "direction": 0,
         "order": 9,
     },
-    "General publication - Case timeline": {"id": SUBMISSION_TYPE_GENERAL_PUBLICATION_CASE_TIMELINE, "key": PUBLIC_KEY, "direction": 0, "order": 11,},
-    "General publication - Submission (from an interested party)": {
-        "id": SUBMISSION_TYPE_GENERAL_PUBLICATION_SUBMISSION_FROM_AN_INTERESTED_PARTY, "key": PUBLIC_KEY,
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_CASE_TIMELINE: {"name": "General publication - Case timeline", "key": PUBLIC_KEY, "direction": 0, "order": 11,},
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_SUBMISSION_FROM_AN_INTERESTED_PARTY: {
+        "name": "General publication - Submission (from an interested party)", "key": PUBLIC_KEY,
         "direction": 0,
         "order": 15,
     },
-    "General publication - Pre-sampling questionnaire": {
-        "id": SUBMISSION_TYPE_GENERAL_PUBLICATION_PRE_SAMPLING_QUESTIONNAIRE, "key": PUBLIC_KEY,
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_PRE_SAMPLING_QUESTIONNAIRE: {
+        "name": "General publication - Pre-sampling questionnaire", "key": PUBLIC_KEY,
         "direction": 0,
         "order": 17,
     },
-    "General publication - Questionnaire": {"id": SUBMISSION_TYPE_GENERAL_PUBLICATION_QUESTIONNAIRE, "key": PUBLIC_KEY, "direction": 0, "order": 19,},
-    "General publication - Verification report": {"id": SUBMISSION_TYPE_GENERAL_PUBLICATION_VERIFICATION_REPORT, "key": PUBLIC_KEY, "direction": 0, "order": 21,},
-    "General publication - Final reports": {"id": SUBMISSION_TYPE_GENERAL_PUBLICATION_FINAL_REPORTS, "key": PUBLIC_KEY, "direction": 0, "order": 23,},
-    "General publication - Termination reports": {"id": SUBMISSION_TYPE_GENERAL_PUBLICATION_TERMINATION_REPORTS, "key": PUBLIC_KEY, "direction": 0, "order": 27,},
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_QUESTIONNAIRE: {"name": "General publication - Questionnaire", "key": PUBLIC_KEY, "direction": 0, "order": 19,},
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_VERIFICATION_REPORT: {"name": "General publication - Verification report", "key": PUBLIC_KEY, "direction": 0, "order": 21,},
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_FINAL_REPORTS: {"name": "General publication - Final reports", "key": PUBLIC_KEY, "direction": 0, "order": 23,},
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_TERMINATION_REPORTS: {"name": "General publication - Termination reports", "key": PUBLIC_KEY, "direction": 0, "order": 27,},
 }
 
 type_requires = {
@@ -175,11 +175,11 @@ type_requires = {
 def create_update_submissiontype(apps, schema_editor):
     SubmissionType = apps.get_model('cases', 'SubmissionType')
     for key, values in submissiontype_values.items():
-        SubmissionType.objects.update_or_create(name=key, defaults=values)
+        SubmissionType.objects.update_or_create(id=key, defaults=values)
 
     for key, value in type_requires.items():
-        obj_requiring = SubmissionType.objects.get(name= key)
-        obj_required = SubmissionType.objects.get(name= value)
+        obj_requiring = SubmissionType.objects.get(name=key)
+        obj_required = SubmissionType.objects.get(name=value)
         obj_requiring.requires = obj_required
         obj_requiring.save()
 
