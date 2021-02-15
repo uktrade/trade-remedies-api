@@ -860,6 +860,7 @@ class SubmissionsAPIView(TradeRemediesApiView):
             )
 
         submission_type = request.data.get("submission_type")
+        submission_type_extra_info = request.data.get("extra_info")
         submission_status_id = request.data.get("submission_status_id")
         submission_type = get_submission_type(submission_type)
         if not submission_status_id:
@@ -882,6 +883,7 @@ class SubmissionsAPIView(TradeRemediesApiView):
                 user_contact = request.user.contact.id if request.user.contact else None
             submission = Submission.objects.create(
                 type=submission_type,
+                type_extra_info=submission_type_extra_info,
                 status=submission_status,
                 case=case,
                 name=request.data.get("name"),
