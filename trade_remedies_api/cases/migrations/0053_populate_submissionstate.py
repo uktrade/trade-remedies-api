@@ -45,12 +45,11 @@ from cases.constants import (
 
 
 
-list = [
+submissionstatus_values = [
 {
-    
     "pk": 1,
     "fields": {
-        "type": SUBMISSION_TYPE_APPLICATION,
+        "type_id": SUBMISSION_TYPE_APPLICATION,
         "name": "Draft",
         "public_name": "Draft",
         "order": 1,
@@ -70,7 +69,7 @@ list = [
     
     "pk": 2,
     "fields": {
-        "type": SUBMISSION_TYPE_APPLICATION,
+        "type_id": SUBMISSION_TYPE_APPLICATION,
         "name": "Review draft",
         "public_name": "In review",
         "order": 2,
@@ -90,7 +89,7 @@ list = [
     
     "pk": 3,
     "fields": {
-        "type": SUBMISSION_TYPE_APPLICATION,
+        "type_id": SUBMISSION_TYPE_APPLICATION,
         "name": "Awaiting information",
         "public_name": "Awaiting information",
         "order": 3,
@@ -109,7 +108,7 @@ list = [
     
     "pk": 4,
     "fields": {
-        "type": SUBMISSION_TYPE_APPLICATION,
+        "type_id": SUBMISSION_TYPE_APPLICATION,
         "name": "Completing",
         "public_name": "Proceed",
         "order": 4,
@@ -130,7 +129,7 @@ list = [
     
     "pk": 5,
     "fields": {
-        "type": SUBMISSION_TYPE_QUESTIONNAIRE,
+        "type_id": SUBMISSION_TYPE_QUESTIONNAIRE,
         "name": "Draft",
         "public_name": "",
         "order": 1,
@@ -149,7 +148,7 @@ list = [
     
     "pk": 6,
     "fields": {
-        "type": SUBMISSION_TYPE_QUESTIONNAIRE,
+        "type_id": SUBMISSION_TYPE_QUESTIONNAIRE,
         "name": "Sent",
         "public_name": "Received",
         
@@ -168,7 +167,7 @@ list = [
     
     "pk": 7,
     "fields": {
-        "type": SUBMISSION_TYPE_QUESTIONNAIRE,
+        "type_id": SUBMISSION_TYPE_QUESTIONNAIRE,
         "name": "Received",
         "public_name": "Submitted",
         "order": 3,
@@ -188,7 +187,7 @@ list = [
     
     "pk": 8,
     "fields": {
-        "type": SUBMISSION_TYPE_QUESTIONNAIRE,
+        "type_id": SUBMISSION_TYPE_QUESTIONNAIRE,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 4,
@@ -207,7 +206,7 @@ list = [
     
     "pk": 9,
     "fields": {
-        "type": SUBMISSION_TYPE_QUESTIONNAIRE,
+        "type_id": SUBMISSION_TYPE_QUESTIONNAIRE,
         "name": "Deficient",
         "public_name": "Deficient",
         "order": 5,
@@ -226,7 +225,7 @@ list = [
     
     "pk": 10,
     "fields": {
-        "type": SUBMISSION_TYPE_GENERAL,
+        "type_id": SUBMISSION_TYPE_GENERAL,
         "name": "In progress",
         "public_name": "Draft",
         "order": 1,
@@ -245,7 +244,7 @@ list = [
     
     "pk": 11,
     "fields": {
-        "type": SUBMISSION_TYPE_GENERAL,
+        "type_id": SUBMISSION_TYPE_GENERAL,
         "name": "Received",
         "public_name": "Submitted",
         "order": 3,
@@ -265,7 +264,7 @@ list = [
     
     "pk": 12,
     "fields": {
-        "type": SUBMISSION_TYPE_GENERAL,
+        "type_id": SUBMISSION_TYPE_GENERAL,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 4,
@@ -284,7 +283,7 @@ list = [
     
     "pk": 13,
     "fields": {
-        "type": SUBMISSION_TYPE_GENERAL,
+        "type_id": SUBMISSION_TYPE_GENERAL,
         "name": "Deficient",
         "public_name": "Deficient",
         "order": 5,
@@ -303,7 +302,7 @@ list = [
     
     "pk": 14,
     "fields": {
-        "type": SUBMISSION_TYPE_HEARING_NOTIFICATION,
+        "type_id": SUBMISSION_TYPE_HEARING_NOTIFICATION,
         "name": "Draft",
         "public_name": "",
         "order": 0,
@@ -322,7 +321,7 @@ list = [
     
     "pk": 15,
     "fields": {
-        "type": SUBMISSION_TYPE_PRE_SAMPLING_QUESTIONNAIRE,
+        "type_id": SUBMISSION_TYPE_PRE_SAMPLING_QUESTIONNAIRE,
         "name": "Sent",
         "public_name": "Received",
         "order": 2,
@@ -341,7 +340,7 @@ list = [
     
     "pk": 16,
     "fields": {
-        "type": SUBMISSION_TYPE_PRE_SAMPLING_QUESTIONNAIRE,
+        "type_id": SUBMISSION_TYPE_PRE_SAMPLING_QUESTIONNAIRE,
         "name": "Received",
         "public_name": "Submitted",
         "order": 3,
@@ -361,7 +360,7 @@ list = [
     
     "pk": 17,
     "fields": {
-        "type": SUBMISSION_TYPE_PRE_SAMPLING_QUESTIONNAIRE,
+        "type_id": SUBMISSION_TYPE_PRE_SAMPLING_QUESTIONNAIRE,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 4,
@@ -380,7 +379,7 @@ list = [
     
     "pk": 18,
     "fields": {
-        "type": SUBMISSION_TYPE_PRE_SAMPLING_QUESTIONNAIRE,
+        "type_id": SUBMISSION_TYPE_PRE_SAMPLING_QUESTIONNAIRE,
         "name": "Deficient",
         "public_name": "Deficient",
         
@@ -399,7 +398,7 @@ list = [
     
     "pk": 19,
     "fields": {
-        "type": SUBMISSION_TYPE_REGISTER_INTEREST,
+        "type_id": SUBMISSION_TYPE_REGISTER_INTEREST,
         "name": "In progress",
         "public_name": "Draft",
         "order": 1,
@@ -418,7 +417,7 @@ list = [
     
     "pk": 20,
     "fields": {
-        "type": SUBMISSION_TYPE_REGISTER_INTEREST,
+        "type_id": SUBMISSION_TYPE_REGISTER_INTEREST,
         "name": "Received",
         "public_name": "Submitted",
         "order": 3,
@@ -438,7 +437,7 @@ list = [
     
     "pk": 21,
     "fields": {
-        "type": SUBMISSION_TYPE_REGISTER_INTEREST,
+        "type_id": SUBMISSION_TYPE_REGISTER_INTEREST,
         "name": "Sufficient",
         "public_name": "Accepted",
         "order": 4,
@@ -457,7 +456,7 @@ list = [
     
     "pk": 22,
     "fields": {
-        "type": SUBMISSION_TYPE_REGISTER_INTEREST,
+        "type_id": SUBMISSION_TYPE_REGISTER_INTEREST,
         "name": "Deficient",
         "public_name": "Deficient",
         "order": 5,
@@ -476,7 +475,7 @@ list = [
     
     "pk": 23,
     "fields": {
-        "type": SUBMISSION_TYPE_GENERAL,
+        "type_id": SUBMISSION_TYPE_GENERAL,
         "name": "Sent",
         "public_name": "Received",
         "order": 2,
@@ -496,7 +495,7 @@ list = [
     
     "pk": 24,
     "fields": {
-        "type": SUBMISSION_TYPE_STATEMENT_OF_ESSENTIAL_FACTS,
+        "type_id": SUBMISSION_TYPE_STATEMENT_OF_ESSENTIAL_FACTS,
         "name": "Created",
         "public_name": "",
         "order": 1,
@@ -515,7 +514,7 @@ list = [
     
     "pk": 25,
     "fields": {
-        "type": SUBMISSION_TYPE_STATEMENT_OF_ESSENTIAL_FACTS,
+        "type_id": SUBMISSION_TYPE_STATEMENT_OF_ESSENTIAL_FACTS,
         "name": "Published",
         "public_name": "Published",
         "order": 2,
@@ -534,7 +533,7 @@ list = [
     
     "pk": 26,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_ESSENTIAL_FACTS,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_ESSENTIAL_FACTS,
         "name": "In progress",
         "public_name": "Draft",
         "order": 1,
@@ -553,7 +552,7 @@ list = [
     
     "pk": 27,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_ESSENTIAL_FACTS,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_ESSENTIAL_FACTS,
         "name": "Sent",
         "public_name": "Received",
         "order": 2,
@@ -572,13 +571,12 @@ list = [
     
     "pk": 28,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_ESSENTIAL_FACTS,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_ESSENTIAL_FACTS,
         "name": "Received",
         "public_name": "Submitted",
         "order": 2,
         "locking": True,
         "version": False,
-        
         "default": False,
         "sent": False,
         "received": True,
@@ -589,10 +587,9 @@ list = [
     }
 },
 {
-    
     "pk": 29,
     "fields": {
-        "type": SUBMISSION_TYPE_APPLICATION,
+        "type_id": SUBMISSION_TYPE_APPLICATION,
         "name": "Received",
         "public_name": "Submitted",
         "order": 4,
@@ -609,10 +606,9 @@ list = [
     }
 },
 {
-    
     "pk": 30,
     "fields": {
-        "type": SUBMISSION_TYPE_VISIT_REPORT,
+        "type_id": SUBMISSION_TYPE_VISIT_REPORT,
         "name": "Received",
         "public_name": "Submitted",
         "order": 3,
@@ -629,10 +625,9 @@ list = [
     }
 },
 {
-    
     "pk": 31,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_PROVISIONAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_PROVISIONAL_DETERMINATION,
         "name": "In progress",
         "public_name": "Draft",
         "order": 0,
@@ -648,10 +643,9 @@ list = [
     }
 },
 {
-    
     "pk": 32,
     "fields": {
-        "type": SUBMISSION_TYPE_RECONSIDERATION_REPORT,
+        "type_id": SUBMISSION_TYPE_RECONSIDERATION_REPORT,
         "name": "Created",
         "public_name": "",
         "order": 1,
@@ -667,16 +661,14 @@ list = [
     }
 },
 {
-    
     "pk": 33,
     "fields": {
-        "type": SUBMISSION_TYPE_RECONSIDERATION_REPORT,
+        "type_id": SUBMISSION_TYPE_RECONSIDERATION_REPORT,
         "name": "Published",
         "public_name": "Published",
         "order": 3,
         "locking": True,
         "version": False,
-        
         "default": False,
         "sent": True,
         "received": False,
@@ -686,10 +678,9 @@ list = [
     }
 },
 {
-    
     "pk": 34,
     "fields": {
-        "type": SUBMISSION_TYPE_APPLICATION,
+        "type_id": SUBMISSION_TYPE_APPLICATION,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 4,
@@ -706,16 +697,14 @@ list = [
     }
 },
 {
-    
     "pk": 35,
     "fields": {
-        "type": SUBMISSION_TYPE_FINAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_FINAL_DETERMINATION,
         "name": "Published",
         "public_name": "Published",
         "order": 1,
         "locking": False,
         "version": False,
-        
         "default": False,
         "sent": True,
         "received": False,
@@ -725,10 +714,9 @@ list = [
     }
 },
 {
-    
     "pk": 36,
     "fields": {
-        "type": SUBMISSION_TYPE_AD_HOC,
+        "type_id": SUBMISSION_TYPE_AD_HOC,
         "name": "Deficient",
         "public_name": "Deficient",
         "order": 0,
@@ -744,16 +732,14 @@ list = [
     }
 },
 {
-    
     "pk": 37,
     "fields": {
-        "type": SUBMISSION_TYPE_HEARING_NOTIFICATION,
+        "type_id": SUBMISSION_TYPE_HEARING_NOTIFICATION,
         "name": "Sent",
         "public_name": "Sent",
         "order": 0,
         "locking": False,
         "version": False,
-        
         "default": False,
         "sent": True,
         "received": False,
@@ -763,10 +749,9 @@ list = [
     }
 },
 {
-    
     "pk": 38,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_PROVISIONAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_PROVISIONAL_DETERMINATION,
         "name": "Received",
         "public_name": "Submitted",
         "order": 3,
@@ -783,10 +768,9 @@ list = [
     }
 },
 {
-    
     "pk": 39,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_PROVISIONAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_PROVISIONAL_DETERMINATION,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 4,
@@ -802,10 +786,9 @@ list = [
     }
 },
 {
-    
     "pk": 40,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_PROVISIONAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_PROVISIONAL_DETERMINATION,
         "name": "Deficient",
         "public_name": "Deficient",
         
@@ -821,16 +804,14 @@ list = [
     }
 },
 {
-    
     "pk": 41,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_PROVISIONAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_PROVISIONAL_DETERMINATION,
         "name": "Sent",
         "public_name": "Received",
         "order": 2,
         "locking": True,
         "version": False,
-        
         "default": False,
         "sent": True,
         "received": False,
@@ -840,16 +821,14 @@ list = [
     }
 },
 {
-    
     "pk": 42,
     "fields": {
-        "type": SUBMISSION_TYPE_RECONSIDERATION_REQUEST,
+        "type_id": SUBMISSION_TYPE_RECONSIDERATION_REQUEST,
         "name": "Received",
         "public_name": "Submitted",
         "order": 1,
         "locking": True,
         "version": False,
-        
         "default": False,
         "sent": False,
         "received": True,
@@ -860,16 +839,14 @@ list = [
     }
 },
 {
-    
     "pk": 43,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_FULL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_FULL_DETERMINATION,
         "name": "In progress",
         "public_name": "Draft",
         "order": 3,
         "locking": False,
         "version": False,
-        
         "default": True,
         "sent": False,
         "received": False,
@@ -879,16 +856,14 @@ list = [
     }
 },
 {
-    
     "pk": 44,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_ESSENTIAL_FACTS,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_ESSENTIAL_FACTS,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 4,
         "locking": True,
         "version": False,
-        
         "default": False,
         "sent": False,
         "received": False,
@@ -898,13 +873,11 @@ list = [
     }
 },
 {
-    
     "pk": 45,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_ESSENTIAL_FACTS,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_ESSENTIAL_FACTS,
         "name": "Deficient",
         "public_name": "Deficient",
-        
         "order": 5,
         "locking": False,
         "version": True,
@@ -917,10 +890,9 @@ list = [
     }
 },
 {
-    
     "pk": 46,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_FULL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_FULL_DETERMINATION,
         "name": "Received",
         "public_name": "Submitted",
         "order": 2,
@@ -937,10 +909,9 @@ list = [
     }
 },
 {
-    
     "pk": 47,
     "fields": {
-        "type": SUBMISSION_TYPE_VISIT_REPORT,
+        "type_id": SUBMISSION_TYPE_VISIT_REPORT,
         "name": "Draft",
         "public_name": "Draft",
         "order": 1,
@@ -959,7 +930,7 @@ list = [
     
     "pk": 48,
     "fields": {
-        "type": SUBMISSION_TYPE_VISIT_REPORT,
+        "type_id": SUBMISSION_TYPE_VISIT_REPORT,
         "name": "Sent",
         "public_name": "Received",
         "order": 2,
@@ -978,7 +949,7 @@ list = [
     
     "pk": 49,
     "fields": {
-        "type": SUBMISSION_TYPE_HEARING_NOTIFICATION,
+        "type_id": SUBMISSION_TYPE_HEARING_NOTIFICATION,
         "name": "Received",
         "public_name": "Submitted",
         "order": 0,
@@ -998,7 +969,7 @@ list = [
     
     "pk": 50,
     "fields": {
-        "type": SUBMISSION_TYPE_VISIT_REPORT,
+        "type_id": SUBMISSION_TYPE_VISIT_REPORT,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 4,
@@ -1017,7 +988,7 @@ list = [
     
     "pk": 51,
     "fields": {
-        "type": SUBMISSION_TYPE_VISIT_REPORT,
+        "type_id": SUBMISSION_TYPE_VISIT_REPORT,
         "name": "Deficient",
         "public_name": "Deficient",
         
@@ -1036,7 +1007,7 @@ list = [
     
     "pk": 52,
     "fields": {
-        "type": SUBMISSION_TYPE_RECONSIDERATION_REQUEST,
+        "type_id": SUBMISSION_TYPE_RECONSIDERATION_REQUEST,
         "name": "In progress",
         "public_name": "Draft",
         "order": 0,
@@ -1055,7 +1026,7 @@ list = [
     
     "pk": 53,
     "fields": {
-        "type": SUBMISSION_TYPE_HEARING_REQUEST,
+        "type_id": SUBMISSION_TYPE_HEARING_REQUEST,
         "name": "In progress",
         "public_name": "Draft",
         "order": 1,
@@ -1074,7 +1045,7 @@ list = [
     
     "pk": 54,
     "fields": {
-        "type": SUBMISSION_TYPE_HEARING_REQUEST,
+        "type_id": SUBMISSION_TYPE_HEARING_REQUEST,
         "name": "Received",
         "public_name": "Submitted",
         "order": 3,
@@ -1094,7 +1065,7 @@ list = [
     
     "pk": 55,
     "fields": {
-        "type": SUBMISSION_TYPE_HEARING_REQUEST,
+        "type_id": SUBMISSION_TYPE_HEARING_REQUEST,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 4,
@@ -1113,7 +1084,7 @@ list = [
     
     "pk": 56,
     "fields": {
-        "type": SUBMISSION_TYPE_HEARING_REQUEST,
+        "type_id": SUBMISSION_TYPE_HEARING_REQUEST,
         "name": "Deficient",
         "public_name": "Deficient",
         "order": 5,
@@ -1132,7 +1103,7 @@ list = [
     
     "pk": 57,
     "fields": {
-        "type": SUBMISSION_TYPE_APPLICATION_REPORT,
+        "type_id": SUBMISSION_TYPE_APPLICATION_REPORT,
         "name": "Draft",
         "public_name": "",
         "order": 1,
@@ -1151,7 +1122,7 @@ list = [
     
     "pk": 58,
     "fields": {
-        "type": SUBMISSION_TYPE_APPLICATION_REPORT,
+        "type_id": SUBMISSION_TYPE_APPLICATION_REPORT,
         "name": "Sent",
         "public_name": "Received",
         "order": 2,
@@ -1170,7 +1141,7 @@ list = [
     
     "pk": 59,
     "fields": {
-        "type": SUBMISSION_TYPE_APPLICATION_REPORT,
+        "type_id": SUBMISSION_TYPE_APPLICATION_REPORT,
         "name": "Received",
         "public_name": "Submitted",
         "order": 3,
@@ -1190,7 +1161,7 @@ list = [
     
     "pk": 60,
     "fields": {
-        "type": SUBMISSION_TYPE_AD_HOC,
+        "type_id": SUBMISSION_TYPE_AD_HOC,
         "name": "Sent",
         "public_name": "Received",
         "order": 0,
@@ -1209,7 +1180,7 @@ list = [
     
     "pk": 61,
     "fields": {
-        "type": SUBMISSION_TYPE_AD_HOC,
+        "type_id": SUBMISSION_TYPE_AD_HOC,
         "name": "In progress",
         "public_name": "Draft",
         "order": 0,
@@ -1228,7 +1199,7 @@ list = [
     
     "pk": 62,
     "fields": {
-        "type": SUBMISSION_TYPE_AD_HOC,
+        "type_id": SUBMISSION_TYPE_AD_HOC,
         "name": "Draft",
         "public_name": "",
         "order": 0,
@@ -1247,7 +1218,7 @@ list = [
     
     "pk": 63,
     "fields": {
-        "type": SUBMISSION_TYPE_AD_HOC,
+        "type_id": SUBMISSION_TYPE_AD_HOC,
         "name": "Received",
         "public_name": "Submitted",
         "order": 0,
@@ -1267,7 +1238,7 @@ list = [
     
     "pk": 64,
     "fields": {
-        "type": SUBMISSION_TYPE_QUESTIONNAIRE,
+        "type_id": SUBMISSION_TYPE_QUESTIONNAIRE,
         "name": "In progress",
         "public_name": "Draft",
         "order": 0,
@@ -1286,7 +1257,7 @@ list = [
     
     "pk": 65,
     "fields": {
-        "type": SUBMISSION_TYPE_APPLICATION_REPORT,
+        "type_id": SUBMISSION_TYPE_APPLICATION_REPORT,
         "name": "In progress",
         "public_name": "Draft",
         "order": 0,
@@ -1305,7 +1276,7 @@ list = [
     
     "pk": 66,
     "fields": {
-        "type": SUBMISSION_TYPE_PRE_SAMPLING_QUESTIONNAIRE,
+        "type_id": SUBMISSION_TYPE_PRE_SAMPLING_QUESTIONNAIRE,
         "name": "In progress",
         "public_name": "Draft",
         "order": 0,
@@ -1324,7 +1295,7 @@ list = [
     
     "pk": 67,
     "fields": {
-        "type": SUBMISSION_TYPE_VISIT_REPORT,
+        "type_id": SUBMISSION_TYPE_VISIT_REPORT,
         "name": "Draft",
         "public_name": "Draft",
         "order": 0,
@@ -1343,7 +1314,7 @@ list = [
     
     "pk": 68,
     "fields": {
-        "type": SUBMISSION_TYPE_HEARING_NOTIFICATION,
+        "type_id": SUBMISSION_TYPE_HEARING_NOTIFICATION,
         "name": "In progress",
         "public_name": "Draft",
         "order": 0,
@@ -1362,7 +1333,7 @@ list = [
     
     "pk": 69,
     "fields": {
-        "type": SUBMISSION_TYPE_INVITE_3RD_PARTY,
+        "type_id": SUBMISSION_TYPE_INVITE_3RD_PARTY,
         "name": "Invite draft",
         "order": 1,
         "locking": False,
@@ -1380,7 +1351,7 @@ list = [
     
     "pk": 70,
     "fields": {
-        "type": SUBMISSION_TYPE_INVITE_3RD_PARTY,
+        "type_id": SUBMISSION_TYPE_INVITE_3RD_PARTY,
         "name": "Invite requested",
         "order": 2,
         "locking": True,
@@ -1398,7 +1369,7 @@ list = [
     
     "pk": 71,
     "fields": {
-        "type": SUBMISSION_TYPE_INVITE_3RD_PARTY,
+        "type_id": SUBMISSION_TYPE_INVITE_3RD_PARTY,
         "name": "Invites sent",
         "order": 3,
         "locking": True,
@@ -1416,7 +1387,7 @@ list = [
     
     "pk": 72,
     "fields": {
-        "type": SUBMISSION_TYPE_INVITE_3RD_PARTY,
+        "type_id": SUBMISSION_TYPE_INVITE_3RD_PARTY,
         "name": "Invites declined",
         "order": 4,
         "locking": True,
@@ -1434,7 +1405,7 @@ list = [
     
     "pk": 73,
     "fields": {
-        "type": SUBMISSION_TYPE_EX_OFFICIO,
+        "type_id": SUBMISSION_TYPE_EX_OFFICIO,
         "name": "Created",
         "public_name": "Created",
         "order": 1,
@@ -1453,7 +1424,7 @@ list = [
     
     "pk": 74,
     "fields": {
-        "type": SUBMISSION_TYPE_NOTICE_OF_INITIATION,
+        "type_id": SUBMISSION_TYPE_NOTICE_OF_INITIATION,
         "name": "Created",
         "public_name": "",
         "order": 1,
@@ -1472,7 +1443,7 @@ list = [
     
     "pk": 75,
     "fields": {
-        "type": SUBMISSION_TYPE_FINAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_FINAL_DETERMINATION,
         "name": "Created",
         "public_name": "",
         "order": 1,
@@ -1491,7 +1462,7 @@ list = [
     
     "pk": 76,
     "fields": {
-        "type": SUBMISSION_TYPE_PROVISIONAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_PROVISIONAL_DETERMINATION,
         "name": "Created",
         "public_name": "",
         "order": 1,
@@ -1510,7 +1481,7 @@ list = [
     
     "pk": 77,
     "fields": {
-        "type": SUBMISSION_TYPE_PROVISIONAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_PROVISIONAL_DETERMINATION,
         "name": "Published",
         "public_name": "Published",
         "order": 1,
@@ -1529,7 +1500,7 @@ list = [
     
     "pk": 78,
     "fields": {
-        "type": SUBMISSION_TYPE_PRE_SAMPLING_QUESTIONNAIRE,
+        "type_id": SUBMISSION_TYPE_PRE_SAMPLING_QUESTIONNAIRE,
         "name": "Draft",
         "public_name": "",
         "order": 0,
@@ -1548,7 +1519,7 @@ list = [
     
     "pk": 79,
     "fields": {
-        "type": SUBMISSION_TYPE_NOTICE_OF_INITIATION,
+        "type_id": SUBMISSION_TYPE_NOTICE_OF_INITIATION,
         "name": "Published",
         "public_name": "Published",
         "order": 1,
@@ -1567,7 +1538,7 @@ list = [
     
     "pk": 80,
     "fields": {
-        "type": SUBMISSION_TYPE_GENERAL_PUBLICATION,
+        "type_id": SUBMISSION_TYPE_GENERAL_PUBLICATION,
         "name": "Created",
         "public_name": "",
         "order": 1,
@@ -1586,7 +1557,7 @@ list = [
 
     "pk": 81,
     "fields": {
-        "type": SUBMISSION_TYPE_GENERAL_PUBLICATION,
+        "type_id": SUBMISSION_TYPE_GENERAL_PUBLICATION,
         "name": "Published",
         "public_name": "Published",
         "order": 1,
@@ -1605,7 +1576,7 @@ list = [
     
     "pk": 82,
     "fields": {
-        "type": 23,
+        "type_id": SUBMISSION_TYPE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
         "name": "Created",
         "public_name": "",
         "order": 1,
@@ -1624,7 +1595,7 @@ list = [
     
     "pk": 83,
     "fields": {
-        "type": 23,
+        "type_id": SUBMISSION_TYPE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
         "name": "Published",
         "public_name": "Published",
         "order": 2,
@@ -1643,7 +1614,7 @@ list = [
     
     "pk": 84,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
         "name": "In progress",
         "public_name": "Draft",
         "order": 1,
@@ -1662,7 +1633,7 @@ list = [
     
     "pk": 85,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
         "name": "Sent",
         "public_name": "Received",
         "order": 2,
@@ -1681,7 +1652,7 @@ list = [
     
     "pk": 86,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
         "name": "Received",
         "public_name": "Submitted",
         "order": 2,
@@ -1701,7 +1672,7 @@ list = [
     
     "pk": 87,
     "fields": {
-        "type": SUBMISSION_TYPE_REQUEST_APPEAL,
+        "type_id": SUBMISSION_TYPE_REQUEST_APPEAL,
         "name": "In progress",
         "public_name": "Draft",
         "order": 0,
@@ -1720,7 +1691,7 @@ list = [
     
     "pk": 88,
     "fields": {
-        "type": SUBMISSION_TYPE_REQUEST_APPEAL,
+        "type_id": SUBMISSION_TYPE_REQUEST_APPEAL,
         "name": "Received",
         "public_name": "Submitted",
         "order": 1,
@@ -1740,7 +1711,7 @@ list = [
     
     "pk": 89,
     "fields": {
-        "type": SUBMISSION_TYPE_AD_HOC,
+        "type_id": SUBMISSION_TYPE_AD_HOC,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 0,
@@ -1759,7 +1730,7 @@ list = [
     
     "pk": 90,
     "fields": {
-        "type": SUBMISSION_TYPE_RECONSIDERATION_REQUEST,
+        "type_id": SUBMISSION_TYPE_RECONSIDERATION_REQUEST,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 0,
@@ -1778,7 +1749,7 @@ list = [
     
     "pk": 91,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_FULL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_FULL_DETERMINATION,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 0,
@@ -1797,7 +1768,7 @@ list = [
     
     "pk": 92,
     "fields": {
-        "type": SUBMISSION_TYPE_INVITE_3RD_PARTY,
+        "type_id": SUBMISSION_TYPE_INVITE_3RD_PARTY,
         "name": "Deficient",
         "public_name": "Deficient",
         "order": 5,
@@ -1816,7 +1787,7 @@ list = [
     
     "pk": 93,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_FULL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_FULL_DETERMINATION,
         "name": "Deficient",
         "public_name": "Deficient",
         "order": 5,
@@ -1832,10 +1803,9 @@ list = [
     }
 },
 {
-    
     "pk": 94,
     "fields": {
-        "type": SUBMISSION_TYPE_RECONSIDERATION_REQUEST,
+        "type_id": SUBMISSION_TYPE_RECONSIDERATION_REQUEST,
         "name": "Deficient",
         "public_name": "Deficient",
         "order": 5,
@@ -1851,16 +1821,14 @@ list = [
     }
 },
 {
-    
     "pk": 95,
     "fields": {
-        "type": SUBMISSION_TYPE_GENERAL_PUBLICATION,
+        "type_id": SUBMISSION_TYPE_GENERAL_PUBLICATION,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 0,
         "locking": True,
         "version": False,
-        
         "default": False,
         "sent": False,
         "received": False,
@@ -1873,13 +1841,12 @@ list = [
     
     "pk": 96,
     "fields": {
-        "type": SUBMISSION_TYPE_GENERAL_PUBLICATION,
+        "type_id": SUBMISSION_TYPE_GENERAL_PUBLICATION,
         "name": "Deficient",
         "public_name": "Deficient",
         "order": 5,
         "locking": False,
         "version": True,
-        
         "default": False,
         "sent": False,
         "received": False,
@@ -1889,10 +1856,9 @@ list = [
     }
 },
 {
-    
     "pk": 97,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 0,
@@ -1910,7 +1876,7 @@ list = [
 {   
     "pk": 98,
     "fields": {
-        "type": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_RESPONSE_TO_THE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
         "name": "Deficient",
         "public_name": "Deficient",
         "order": 5,
@@ -1928,13 +1894,12 @@ list = [
 {   
     "pk": 99,
     "fields": {
-        "type": SUBMISSION_TYPE_REQUEST_APPEAL,
+        "type_id": SUBMISSION_TYPE_REQUEST_APPEAL,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 0,
         "locking": True,
         "version": False,
-        
         "default": False,
         "sent": False,
         "received": False,
@@ -1946,13 +1911,12 @@ list = [
 {   
     "pk": 100,
     "fields": {
-        "type": SUBMISSION_TYPE_REQUEST_APPEAL,
+        "type_id": SUBMISSION_TYPE_REQUEST_APPEAL,
         "name": "Deficient",
         "public_name": "Deficient",
         "order": 5,
         "locking": False,
         "version": True,
-        
         "default": False,
         "sent": False,
         "received": False,
@@ -1964,13 +1928,12 @@ list = [
 {
     "pk": 101,
     "fields": {
-        "type": SUBMISSION_TYPE_APPLICATION_REPORT,
+        "type_id": SUBMISSION_TYPE_APPLICATION_REPORT,
         "name": "Deficient",
         "public_name": "Deficient",
         "order": 5,
         "locking": False,
         "version": True,
-        
         "default": False,
         "sent": False,
         "received": False,
@@ -1982,13 +1945,12 @@ list = [
 {   
     "pk": 102,
     "fields": {
-        "type": SUBMISSION_TYPE_HEARING_NOTIFICATION,
+        "type_id": SUBMISSION_TYPE_HEARING_NOTIFICATION,
         "name": "Deficient",
         "public_name": "Deficient",
         "order": 5,
         "locking": False,
         "version": True,
-        
         "default": False,
         "sent": False,
         "received": False,
@@ -2000,7 +1962,7 @@ list = [
 {   
     "pk": 103,
     "fields": {
-        "type": SUBMISSION_TYPE_APPLICATION_REPORT,
+        "type_id": SUBMISSION_TYPE_APPLICATION_REPORT,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 4,
@@ -2018,13 +1980,12 @@ list = [
 {   
     "pk": 104,
     "fields": {
-        "type": SUBMISSION_TYPE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_AUTHENTICATION_REPORT,
         "name": "Draft",
         "public_name": "",
         "order": 1,
         "locking": False,
         "version": False,
-        
         "default": True,
         "sent": False,
         "received": False,
@@ -2034,17 +1995,14 @@ list = [
     }
 },
 {
-    
     "pk": 105,
     "fields": {
-        "type": SUBMISSION_TYPE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_AUTHENTICATION_REPORT,
         "name": "Sent",
         "public_name": "Received",
-        
         "order": 2,
         "locking": False,
         "version": False,
-        
         "default": False,
         "sent": True,
         "received": False,
@@ -2054,16 +2012,14 @@ list = [
     }
 },
 {
-    
     "pk": 106,
     "fields": {
-        "type": SUBMISSION_TYPE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_AUTHENTICATION_REPORT,
         "name": "Received",
         "public_name": "Submitted",
         "order": 3,
         "locking": True,
         "version": False,
-        
         "default": False,
         "sent": False,
         "received": True,
@@ -2074,16 +2030,14 @@ list = [
     }
 },
 {
-    
     "pk": 107,
     "fields": {
-        "type": SUBMISSION_TYPE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_AUTHENTICATION_REPORT,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 4,
         "locking": True,
         "version": False,
-        
         "default": False,
         "sent": False,
         "received": False,
@@ -2093,10 +2047,9 @@ list = [
     }
 },
 {
-    
     "pk": 108,
     "fields": {
-        "type": SUBMISSION_TYPE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_AUTHENTICATION_REPORT,
         "name": "Deficient",
         "public_name": "Deficient",
         "order": 5,
@@ -2115,7 +2068,7 @@ list = [
     
     "pk": 109,
     "fields": {
-        "type": SUBMISSION_TYPE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION,
+        "type_id": SUBMISSION_TYPE_AUTHENTICATION_REPORT,
         "name": "In progress",
         "public_name": "Draft",
         "order": 1,
@@ -2134,7 +2087,7 @@ list = [
     
     "pk": 110,
     "fields": {
-        "type": SUBMISSION_TYPE_HEARING_NOTIFICATION,
+        "type_id": SUBMISSION_TYPE_HEARING_NOTIFICATION,
         "name": "Sufficient",
         "public_name": "Sufficient",
         "order": 4,
@@ -2153,7 +2106,7 @@ list = [
     
     "pk": 111,
     "fields": {
-        "type": SUBMISSION_TYPE_ASSIGN_TO_CASE,
+        "type_id": SUBMISSION_TYPE_ASSIGN_TO_CASE,
         "name": "Assign draft",
         "order": 1,
         "locking": False,
@@ -2171,7 +2124,7 @@ list = [
     
     "pk": 112,
     "fields": {
-        "type": SUBMISSION_TYPE_ASSIGN_TO_CASE,
+        "type_id": SUBMISSION_TYPE_ASSIGN_TO_CASE,
         "name": "Assign requested",
         "order": 2,
         "locking": True,
@@ -2189,7 +2142,7 @@ list = [
     
     "pk": 113,
     "fields": {
-        "type": SUBMISSION_TYPE_ASSIGN_TO_CASE,
+        "type_id": SUBMISSION_TYPE_ASSIGN_TO_CASE,
         "name": "Accepted",
         "order": 3,
         "locking": True,
@@ -2204,10 +2157,9 @@ list = [
     }
 },
 {
-    
     "pk": 114,
     "fields": {
-        "type": SUBMISSION_TYPE_ASSIGN_TO_CASE,
+        "type_id": SUBMISSION_TYPE_ASSIGN_TO_CASE,
         "name": "Assignment declined",
         "order": 4,
         "locking": True,
@@ -2221,8 +2173,42 @@ list = [
         "draft": False
     }
 }
-
 ]
+
+newly_defined_types = [
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_APPLICATION,
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_NOTE_OF_MEETING,
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_NOTICE_OF_EXTENSION,
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_NOTICE_OF_PROPOSED_SAMPLE,
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_CASE_TIMELINE,
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_SUBMISSION_FROM_AN_INTERESTED_PARTY,
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_PRE_SAMPLING_QUESTIONNAIRE,
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_QUESTIONNAIRE,
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_VERIFICATION_REPORT,
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_FINAL_REPORTS,
+    SUBMISSION_TYPE_GENERAL_PUBLICATION_TERMINATION_REPORTS,
+]
+
+
+def create_update_submission_status(apps, schema_editor):
+    SubmissionStatus = apps.get_model('cases', 'SubmissionStatus')
+    for item in submissionstatus_values:
+        key = item["pk"]
+        values = item["fields"]
+        SubmissionStatus.objects.update_or_create(id=key, defaults=values)
+
+    # duplicate the statuses defined for SUBMISSION_TYPE_GENERAL_PUBLICATION
+    # for the new types
+    pk = 115
+    to_copy_queryset = SubmissionStatus.objects.filter(
+        type_id=SUBMISSION_TYPE_GENERAL_PUBLICATION)
+    for obj in to_copy_queryset:
+        for type in newly_defined_types:
+            obj.pk = pk
+            obj.type_id = type
+            obj.save()
+            pk+=1
+
 
 class Migration(migrations.Migration):
 
@@ -2231,4 +2217,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(create_update_submission_status),
     ]
