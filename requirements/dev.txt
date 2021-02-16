@@ -87,19 +87,20 @@ pluggy==0.13.1            # via pytest
 prompt-toolkit==2.0.10    # via ipython
 psycopg2-binary==2.8.3    # via -r requirements.in/../requirements/base.txt, feed-gov-back
 ptyprocess==0.6.0         # via pexpect
-py==1.9.0                 # via pytest, pytest-forked
+py==1.9.0                 # via pytest, pytest-catchlog, pytest-forked
 pycodestyle==2.6.0        # via -r requirements.in/../requirements/base.txt, autopep8, flake8
 pyflakes==2.2.0           # via flake8
 pygments==2.7.1           # via -r requirements.in/../requirements/base.txt, django-silk, ipython
 pyjwt==1.7.1              # via -r requirements.in/../requirements/base.txt, notifications-python-client
 pyparsing==2.4.7          # via packaging
 pypdf2==1.26.0            # via -r requirements.in/../requirements/base.txt
+pytest-catchlog==1.2.2    # via -r requirements.in/dev.in
 pytest-cov==2.10.1        # via -r requirements.in/dev.in
 pytest-django==3.10.0     # via -r requirements.in/dev.in
 pytest-forked==1.3.0      # via pytest-xdist
 pytest-mock==3.5.1        # via -r requirements.in/dev.in
 pytest-xdist==2.1.0       # via -r requirements.in/dev.in
-pytest==6.1.1             # via -r requirements.in/dev.in, pytest-cov, pytest-django, pytest-forked, pytest-mock, pytest-xdist
+pytest==6.1.1             # via -r requirements.in/dev.in, pytest-catchlog, pytest-cov, pytest-django, pytest-forked, pytest-mock, pytest-xdist
 python-dateutil==2.8.1    # via -r requirements.in/../requirements/base.txt, botocore, django-silk, elasticsearch-dsl, freezegun, minio
 python-docx==0.8.10       # via -r requirements.in/../requirements/base.txt
 python-pptx==0.6.18       # via -r requirements.in/../requirements/base.txt
