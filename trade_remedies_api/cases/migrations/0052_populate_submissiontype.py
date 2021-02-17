@@ -120,7 +120,6 @@ submissiontype_values = {
         "name": "General publication - Other", "key": PUBLIC_KEY,
         "direction": 0,
         "order": 29,
-        "extra_info_required": True,
     },
     SUBMISSION_TYPE_STATEMENT_OF_INTENDED_FINAL_DETERMINATION: {"name": "Statement of intended final determination", "key": PUBLIC_KEY, "direction": 0, "order": 30},
     SUBMISSION_TYPE_AUTHENTICATION_REPORT: {
