@@ -76,4 +76,3 @@ class SubmissionStatus(models.Model):
         Based on this status, is a deficiency notice able to be sent?
         """
         return (self.version or self.review) and not self.sufficient
-
