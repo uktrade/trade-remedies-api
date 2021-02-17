@@ -117,7 +117,7 @@ submissiontype_values = {
     SUBMISSION_TYPE_AD_HOC: {"name": "Ad-hoc", "key": QUESTIONNAIRE_KEY, "direction": 2, "notify_template": "NOTIFY_AD_HOC_EMAIL"},
     SUBMISSION_TYPE_INVITE_3RD_PARTY: {"name": "Invite 3rd party", "key": "invite", "direction": 1},
     SUBMISSION_TYPE_GENERAL_PUBLICATION: {
-        "name": "General publication - other", "key": PUBLIC_KEY,
+        "name": "General publication - Other", "key": PUBLIC_KEY,
         "direction": 0,
         "order": 29,
         "extra_info_required": True,
