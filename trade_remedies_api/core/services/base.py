@@ -107,11 +107,11 @@ class TradeRemediesApiView(APIView):
         organisation_id = kwargs.get("organisation_id")
         self.case_id = kwargs.get("case_id")
         self.user = request.user
-        if self.allowed_groups:
-            self.raise_on_invalid_access()
         self.organisation = get_organisation(organisation_id)
         if self.organisation:
             self.organisation.set_user_context(request.user)
+        if self.allowed_groups:
+            self.raise_on_invalid_access()
         self._start = int(request.query_params.get("start", 0))
         self._limit = int(request.query_params.get("limit", settings.DEFAULT_QUERYSET_PAGE_SIZE))
         self._search = request.query_params.get("q")
@@ -125,16 +125,17 @@ class TradeRemediesApiView(APIView):
         access the organisation.
         """
         is_valid = False
+        org_id = self.organisation.id if self.organisation else None
         if self.user.has_group(SECURITY_GROUP_SUPER_USER):
             is_valid = True
         elif self.allowed_groups.get(self.request.method) and self.user.has_groups(
             self.allowed_groups[self.request.method]
         ):
             is_valid = True
-        elif self.case_id and self.organisation.id:
-            is_valid = validate_user_case(self.user, self.case_id, self.organisation.id)
-        elif self.organisation.id:
-            is_valid = validate_user_organisation(self.user, self.organisation.id)
+        elif self.case_id and org_id:
+            is_valid = validate_user_case(self.user, self.case_id, org_id)
+        elif org_id:
+            is_valid = validate_user_organisation(self.user, org_id)
         if not is_valid:
             raise AccessDenied("User does not have access to organisation")
 
