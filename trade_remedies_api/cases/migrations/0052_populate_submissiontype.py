@@ -252,6 +252,12 @@ type_requires = {
 
 
 def create_update_submission_types(apps, schema_editor):  # noqa
+    """Create or update submission types.
+
+    Formerly submission type initial data was loaded using json fixtures.
+    This migration takes a preferred approach to load those data using
+    `submission_type_values` defined in this module.
+    """
     submission_type_class = apps.get_model("cases", "SubmissionType")
     for key, values in submission_type_values.items():
         try:

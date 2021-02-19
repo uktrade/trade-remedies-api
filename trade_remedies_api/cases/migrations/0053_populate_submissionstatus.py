@@ -5,9 +5,7 @@ from django.db import migrations
 
 import cases.constants as constants
 
-
 logger = logging.getLogger(__name__)
-
 
 submission_status_values = [
     {
@@ -1984,6 +1982,12 @@ new_submission_types = [
 
 
 def create_update_submission_status(apps, schema_editor):  # noqa
+    """Create or update submission statuses.
+
+    Formerly submission type status initial data was loaded using json fixtures.
+    This migration takes a preferred approach to load those data using
+    `submission_status_values` defined in this module.
+    """
     submission_status_class = apps.get_model("cases", "SubmissionStatus")
     for item in submission_status_values:
         key = item["pk"]
@@ -2006,7 +2010,10 @@ def create_update_submission_status(apps, schema_editor):  # noqa
         for submission_type in new_submission_types:
             values["type_id"] = submission_type
             submission_status_class.objects.create(id=pk, defaults=values)
-            logger.info(f"Created SubmissionStatus id={pk} for ")
+            logger.info(
+                f"Created Submission Status '{values['name']}' for"
+                f" Submission Type {submission_type}"
+            )
             pk += 1
 
 
