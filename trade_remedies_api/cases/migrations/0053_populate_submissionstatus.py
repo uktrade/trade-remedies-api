@@ -2009,7 +2009,7 @@ def create_update_submission_status(apps, schema_editor):  # noqa
         values = reference["fields"]
         for submission_type in new_submission_types:
             values["type_id"] = submission_type
-            submission_status_class.objects.create(id=pk, defaults=values)
+            submission_status_class.objects.create(id=pk, **values)
             logger.info(
                 f"Created Submission Status '{values['name']}' for"
                 f" Submission Type {submission_type}"
