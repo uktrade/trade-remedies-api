@@ -8,7 +8,6 @@ PASSWORD = "A7Hhfa!jfaw@f"
 
 
 class ContentTest(TestCase):
-    fixtures = ["submission_types.json"]
 
     def setUp(self):
         self.caseworker = User.objects.create(email="case@worker.com", name="Case Worker")
