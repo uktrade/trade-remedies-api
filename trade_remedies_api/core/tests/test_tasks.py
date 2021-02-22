@@ -37,7 +37,6 @@ def create_error_response(message, status_code=400):
 
 
 class SendMailTest(TestCase):
-    fixtures = ["submission_types.json"]
 
     def setUp(self):
         self.user = User.objects.create(email="test@user.com", name="Joe Public")
