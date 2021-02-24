@@ -1,5 +1,4 @@
-import os
-from .base import *
+from .base import *  # noqa
 
 
 INSTALLED_APPS += [
