@@ -7,6 +7,7 @@ from organisations.models import Organisation
 from cases.models import Case
 from core.models import User
 
+
 logger = logging.getLogger(__name__)
 
 
