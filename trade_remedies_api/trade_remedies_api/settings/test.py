@@ -1,6 +1,3 @@
-import os
-from .base import *
+from .base import *  # noqa
 
-RUN_ASYNC = False
-
-CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache",}}
+LOGGING = ENVIRONMENT_LOGGING
