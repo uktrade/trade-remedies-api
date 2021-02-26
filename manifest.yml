@@ -2,5 +2,5 @@
 applications:
 - name: traderemediesapi
   memory: 4GB
-- buildpacks:
+  buildpacks:
   - https://github.com/cloudfoundry/python-buildpack.git
