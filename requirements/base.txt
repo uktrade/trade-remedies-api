@@ -135,7 +135,7 @@ notifications-python-client==5.3.0
     # via -r requirements.in/base.in
 odfpy==1.4.1
     # via -r requirements.in/base.in
-openpyxl==2.5.12
+openpyxl==3.0.6
     # via -r requirements.in/base.in
 phonenumbers==8.10.20
     # via -r requirements.in/base.in

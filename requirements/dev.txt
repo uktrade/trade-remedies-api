@@ -219,7 +219,7 @@ notifications-python-client==5.3.0
     # via -r requirements.in/../requirements/base.txt
 odfpy==1.4.1
     # via -r requirements.in/../requirements/base.txt
-openpyxl==2.5.12
+openpyxl==3.0.6
     # via -r requirements.in/../requirements/base.txt
 packaging==20.4
     # via pytest
