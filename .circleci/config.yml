@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   code_quality:
     docker:
-      - image: circleci/python:3.6.11
+      - image: circleci/python:3.9.2
     steps:
       - checkout
       - restore_cache:
@@ -30,7 +30,7 @@ jobs:
             # python -m flake8 trade_remedies_api
   test:
     docker:
-      - image: circleci/python:3.6.10
+      - image: circleci/python:3.9.2
         environment:
           DATABASE_URL: psql://ubuntu@localhost:5432/trade_remedies
           DJANGO_SETTINGS_MODULE: trade_remedies_api.settings.test
