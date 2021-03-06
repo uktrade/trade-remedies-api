@@ -1,6 +1,10 @@
-import os
-from .base import *
+from .base import *  # noqa
 
-RUN_ASYNC = False
+LOGGING = ENVIRONMENT_LOGGING
 
-CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache",}}
+# This module is also referenced when executing tests in CircleCI, the below
+# settings cater for that (expedites test execution). However in the PaaS `test`
+# env, we don't want them ad they break document upload.
+if os.getenv("CIRCLECI"):
+    RUN_ASYNC = False
+    CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", }}

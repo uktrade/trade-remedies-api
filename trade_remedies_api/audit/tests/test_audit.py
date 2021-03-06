@@ -26,7 +26,6 @@ class AuditTestMixin(object):
 
 
 class AuditTest(TestCase, AuditTestMixin):
-    fixtures = ["submission_types.json"]
 
     def setUp(self):
         self.setup_test()
@@ -120,7 +119,6 @@ class AuditTest(TestCase, AuditTestMixin):
 
 
 class AuditTasksTest(TestCase, AuditTestMixin):
-    fixtures = ["submission_types.json"]
 
     def setUp(self):
         self.setup_test()

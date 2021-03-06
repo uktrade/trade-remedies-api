@@ -132,7 +132,7 @@ class CaseAPITest(APITestCase, APISetUpMixin):
 
 class SubmissionAPITest(APITestCase, APISetUpMixin):
     fixtures = get_case_fixtures(
-        "submission_types.json", "submission_status.json", "submission_document_types.json",
+        "submission_document_types.json",
     )
 
     def setUp(self):
@@ -167,7 +167,7 @@ class SubmissionAPITest(APITestCase, APISetUpMixin):
 
 
 class SubmissionStatusAPITest(APITestCase, APISetUpMixin):
-    fixtures = get_case_fixtures("submission_types.json", "submission_status.json",)
+    fixtures = get_case_fixtures()
 
     def setUp(self):
         self.setup_test()

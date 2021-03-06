@@ -1,7 +1,7 @@
 boto3==1.11.14
 celery==4.4.0
 colour==0.1.5
-gevent==1.4.0
+gevent==21.1.2
 dj-database-url==0.5.0
 django-axes==5.4.1
 django-countries==5.5
@@ -19,13 +19,13 @@ djangorestframework==3.10.3
 dpath==1.4.2
 elasticsearch-dsl>=6.0.0,<7.0.0
 feed-gov-back==0.4
-freezegun==0.3.11
+freezegun==1.1.0
 geckoboard.py==1.0.0
 graphviz==0.8.3
 minio==4.0.11
 Markdown==3.1.1
 notifications-python-client==5.3.0
-openpyxl==2.5.12
+openpyxl==3.0.6
 odfpy==1.4.1
 phonenumbers==8.10.20
 psycopg2-binary==2.8.3
