@@ -13,4 +13,3 @@ pytest-cov
 pytest-django
 pytest-xdist
 pytest-mock
-pytest-catchlog
