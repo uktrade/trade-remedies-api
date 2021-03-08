@@ -22,7 +22,9 @@ import dj_database_url
 from django_log_formatter_ecs import ECSFormatter
 
 root = environ.Path(__file__) - 4
-env = environ.Env(DEBUG=(bool, False),)
+env = environ.Env(
+    DEBUG=(bool, False),
+)
 
 sentry_sdk.init(
     dsn=env("SENTRY_DSN", default=""),
@@ -97,7 +99,9 @@ MIDDLEWARE = [
 ]
 
 if DJANGO_ADMIN:
-    MIDDLEWARE = ["whitenoise.middleware.WhiteNoiseMiddleware", ] + MIDDLEWARE
+    MIDDLEWARE = [
+        "whitenoise.middleware.WhiteNoiseMiddleware",
+    ] + MIDDLEWARE
 
 if "silk" in INSTALLED_APPS:
     MIDDLEWARE.append("silk.middleware.SilkyMiddleware")
@@ -109,7 +113,9 @@ ROOT_URLCONF = "trade_remedies_api.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "..", "."), ],
+        "DIRS": [
+            os.path.join(BASE_DIR, "..", "."),
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -136,9 +142,15 @@ if "postgres" in _VCAP_SERVICES:
     _database_uri = f"{_VCAP_SERVICES['postgres'][0]['credentials']['uri']}"
     DATABASES = {
         "default": {
-            **dj_database_url.parse(_database_uri, engine="postgresql", conn_max_age=0,),
+            **dj_database_url.parse(
+                _database_uri,
+                engine="postgresql",
+                conn_max_age=0,
+            ),
             "ENGINE": "django_db_geventpool.backends.postgresql_psycopg2",
-            "OPTIONS": {"MAX_CONNS": env("DB_MAX_CONNS", default=10), },
+            "OPTIONS": {
+                "MAX_CONNS": env("DB_MAX_CONNS", default=10),
+            },
         },
     }
 else:
@@ -148,15 +160,27 @@ else:
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator", },
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-        "OPTIONS": {"min_length": 8, },
+        "OPTIONS": {
+            "min_length": 8,
+        },
     },
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator", },
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator", },
-    {"NAME": "core.password_validators.UpperAndLowerCase", },
-    {"NAME": "core.password_validators.ContainsSpecialChar", },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+    {
+        "NAME": "core.password_validators.UpperAndLowerCase",
+    },
+    {
+        "NAME": "core.password_validators.ContainsSpecialChar",
+    },
 ]
 
 
@@ -213,21 +237,21 @@ if "redis" in _VCAP_SERVICES:
     CELERY_BROKER_URL = f"{uri}/{CELERY_DATABASE_NUMBER}?ssl_cert_reqs=required"
 else:
     REDIS_BASE_URL = env("REDIS_BASE_URL", default="redis://redis:6379")
-    uri = env("CELERY_BROKER_URL",  default="redis://redis:6379")
+    uri = env("CELERY_BROKER_URL", default="redis://redis:6379")
     CELERY_BROKER_URL = f"{uri}/{CELERY_DATABASE_NUMBER}"
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": f"{REDIS_BASE_URL}/{REDIS_DATABASE_NUMBER}",
-        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient", },
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
     },
 }
 
 CELERY_TASK_ALWAYS_EAGER = env("CELERY_TASK_ALWAYS_EAGER", default=False)
-CELERY_WORKER_LOG_FORMAT = (
-    "[%(asctime)s: %(levelname)s/%(processName)s] [%(name)s] %(message)s"
-)
+CELERY_WORKER_LOG_FORMAT = "[%(asctime)s: %(levelname)s/%(processName)s] [%(name)s] %(message)s"
 
 RUN_ASYNC = True
 
@@ -346,24 +370,42 @@ AXES_ENABLED = env("AXES_ENABLED", default=True)
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {"simple": {"format": "{asctime} {levelname} {message}", "style": "{", }, },
-    "handlers": {
-        "stdout": {"class": "logging.StreamHandler", "stream": sys.stdout, "formatter": "simple", },
+    "formatters": {
+        "simple": {
+            "format": "{asctime} {levelname} {message}",
+            "style": "{",
+        },
     },
-    "root": {"handlers": ["stdout"], "level": env("ROOT_LOG_LEVEL", default="INFO"), },
+    "handlers": {
+        "stdout": {
+            "class": "logging.StreamHandler",
+            "stream": sys.stdout,
+            "formatter": "simple",
+        },
+    },
+    "root": {
+        "handlers": ["stdout"],
+        "level": env("ROOT_LOG_LEVEL", default="INFO"),
+    },
     "loggers": {
         "django": {
-            "handlers": ["stdout", ],
+            "handlers": [
+                "stdout",
+            ],
             "level": env("DJANGO_LOG_LEVEL", default="INFO"),
             "propagate": True,
         },
         "django.server": {
-            "handlers": ["stdout", ],
+            "handlers": [
+                "stdout",
+            ],
             "level": env("DJANGO_SERVER_LOG_LEVEL", default="INFO"),
             "propagate": False,
         },
         "django.db.backends": {
-            "handlers": ["stdout", ],
+            "handlers": [
+                "stdout",
+            ],
             "level": env("DJANGO_DB_LOG_LEVEL", default="INFO"),
             "propagate": True,
         },
@@ -374,7 +416,9 @@ ENVIRONMENT_LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "ecs_formatter": {"()": ECSFormatter, },
+        "ecs_formatter": {
+            "()": ECSFormatter,
+        },
         "simple": {"format": "%(levelname)s %(message)s"},
     },
     "handlers": {
@@ -384,20 +428,31 @@ ENVIRONMENT_LOGGING = {
             "formatter": "ecs_formatter",
         },
     },
-    "root": {"handlers": ["ecs", ], "level": env("ROOT_LOG_LEVEL", default="INFO"), },
+    "root": {
+        "handlers": [
+            "ecs",
+        ],
+        "level": env("ROOT_LOG_LEVEL", default="INFO"),
+    },
     "loggers": {
         "django": {
-            "handlers": ["ecs", ],
+            "handlers": [
+                "ecs",
+            ],
             "level": env("DJANGO_LOG_LEVEL", default="INFO"),
             "propagate": False,
         },
         "django.server": {
-            "handlers": ["ecs", ],
+            "handlers": [
+                "ecs",
+            ],
             "level": env("DJANGO_SERVER_LOG_LEVEL", default="ERROR"),
             "propagate": False,
         },
         "django.db.backends": {
-            "handlers": ["ecs", ],
+            "handlers": [
+                "ecs",
+            ],
             "level": env("DJANGO_DB_LOG_LEVEL", default="ERROR"),
             "propagate": False,
         },
