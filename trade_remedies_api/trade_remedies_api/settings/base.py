@@ -10,11 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
-import json
 import sys
 import os
 import datetime
-import ssl
 import environ
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -25,7 +23,6 @@ from django_log_formatter_ecs import ECSFormatter
 
 root = environ.Path(__file__) - 4
 env = environ.Env(DEBUG=(bool, False),)
-environ.Env.read_env()
 
 sentry_sdk.init(
     dsn=os.environ.get("SENTRY_DSN"),
@@ -84,7 +81,6 @@ INSTALLED_APPS = [
     "axes",
     "feedback",
     "reports",
-    # 'silk'
 ]
 
 MIDDLEWARE = [
@@ -101,7 +97,7 @@ MIDDLEWARE = [
 ]
 
 if DJANGO_ADMIN:
-    MIDDLEWARE = ["whitenoise.middleware.WhiteNoiseMiddleware",] + MIDDLEWARE
+    MIDDLEWARE = ["whitenoise.middleware.WhiteNoiseMiddleware", ] + MIDDLEWARE
 
 if "silk" in INSTALLED_APPS:
     MIDDLEWARE.append("silk.middleware.SilkyMiddleware")
@@ -113,7 +109,7 @@ ROOT_URLCONF = "trade_remedies_api.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "..", "."),],
+        "DIRS": [os.path.join(BASE_DIR, "..", "."), ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -142,7 +138,7 @@ if "postgres" in _VCAP_SERVICES:
         "default": {
             **dj_database_url.parse(_database_uri, engine="postgresql", conn_max_age=0,),
             "ENGINE": "django_db_geventpool.backends.postgresql_psycopg2",
-            "OPTIONS": {"MAX_CONNS": int(os.environ.get("DB_MAX_CONNS", "10")),},
+            "OPTIONS": {"MAX_CONNS": int(os.environ.get("DB_MAX_CONNS", "10")), },
         },
     }
 else:
@@ -152,15 +148,15 @@ else:
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",},
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator", },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-        "OPTIONS": {"min_length": 8,},
+        "OPTIONS": {"min_length": 8, },
     },
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
-    {"NAME": "core.password_validators.UpperAndLowerCase",},
-    {"NAME": "core.password_validators.ContainsSpecialChar",},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator", },
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator", },
+    {"NAME": "core.password_validators.UpperAndLowerCase", },
+    {"NAME": "core.password_validators.ContainsSpecialChar", },
 ]
 
 
@@ -188,8 +184,6 @@ PUBLIC_ROOT_URL = os.environ.get(
     "PUBLIC_ROOT_URL", "https://trade-remedies-public-dev.london.cloudapps.digital"
 )
 CASEWORKER_ROOT_URL = os.environ.get("CASEWORKER_ROOT_URL")
-# if DJANGO_ADMIN:
-#     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 API_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 API_DATE_FORMAT = "%Y-%m-%d"
@@ -204,39 +198,49 @@ REST_FRAMEWORK = {
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
-# Trade remedies uses different redis database numbers
-# Public Django cache - 2
-# Caseworker Django cache - 1
-# API Django cache - 0
-#  API Celery - 2 TODO find out if this should be a different value to public
 
-# Redis
+# Redis - Trade remedies uses different redis database numbers for the Django Cache
+# for each service, and for Celery.
+# API:        0
+# Caseworker: 1
+# Public:     2
+# Celery:     3
+REDIS_DATABASE_NUMBER = env("REDIS_DATABASE_NUMBER", default=0)
+CELERY_DATABASE_NUMBER = env("CELERY_DATABASE_NUMBER", default=3)
 if "redis" in _VCAP_SERVICES:
-    REDIS_BASE_URL = _VCAP_SERVICES["redis"][0]["credentials"]["uri"]
+    uri = _VCAP_SERVICES["redis"][0]["credentials"]["uri"]
+    REDIS_BASE_URL = uri
+    CELERY_BROKER_URL = f"{uri}/{CELERY_DATABASE_NUMBER}?ssl_cert_reqs=required"
 else:
-    REDIS_BASE_URL = os.getenv("REDIS_BASE_URL")
+    REDIS_BASE_URL = env("REDIS_BASE_URL")
+    uri = env("CELERY_BROKER_URL")
+    CELERY_BROKER_URL = f"{uri}/{CELERY_DATABASE_NUMBER}"
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"{REDIS_BASE_URL}/0",
-        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient",},
+        "LOCATION": f"{REDIS_BASE_URL}/{REDIS_DATABASE_NUMBER}",
+        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient", },
     },
 }
 
-# App sepcific switches
-# Cache timeout in minutes
-API_CACHE_TIMEOUT = 3
+CELERY_TASK_ALWAYS_EAGER = os.environ.get("CELERY_TASK_ALWAYS_EAGER", "FALSE").upper() == "TRUE"
+CELERY_WORKER_LOG_FORMAT = (
+    "[%(asctime)s: %(levelname)s/%(processName)s] [%(name)s] %(message)s"
+)
+
+RUN_ASYNC = True
+
+
+# App specific switches
+API_CACHE_TIMEOUT = 3  # Cache timeout in minutes
 API_PREFIX = "api/v1"
 DEFAULT_QUERYSET_PAGE_SIZE = 20
-TRUSTED_USER_TOKEN = os.environ.get("HEALTH_CHECK_USER_TOKEN")
 TRUSTED_USER_EMAIL = os.environ.get("HEALTH_CHECK_USER_EMAIL")
 AWS_ACCESS_KEY_ID = AWS_S3_ACCESS_KEY_ID = os.environ.get("S3_STORAGE_KEY")
 AWS_SECRET_ACCESS_KEY = AWS_S3_SECRET_ACCESS_KEY = os.environ.get("S3_STORAGE_SECRET")
 AWS_STORAGE_BUCKET_NAME = os.environ.get("S3_BUCKET_NAME")
-AWS_S3_REGION_NAME = AWS_DEFAULT_REGION = os.environ.get(
-    "AWS_REGION", "eu-west-1"
-)  # "eu-west-1" looks like a legacy setting, TODO investigate if used in prod
+AWS_S3_REGION_NAME = os.environ.get("AWS_REGION", "eu-west-1")
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_ENCRYPTION = True
 # S3 client library to use
@@ -244,7 +248,7 @@ S3_CLIENT = "boto3"
 # S3 Root directory name
 S3_DOCUMENT_ROOT_DIRECTORY = "documents"
 # Time before S3 download links expire
-S3_DOWNLOAD_LINK_EXPIREY_SECONDS = 30
+S3_DOWNLOAD_LINK_EXPIRY_SECONDS = 30
 # Max upload size - 2GB
 MAX_UPLOAD_SIZE = 2 * (1024 * 1024 * 1024)
 # Set to True to prevent the creation of binary identical files
@@ -265,11 +269,11 @@ STREAMING_CHUNK_SIZE = 8192
 AXES_BEHIND_REVERSE_PROXY = True
 # Number of login/2fa attempts
 AXES_FAILURE_LIMIT = os.environ.get("AXES_FAILURE_LIMIT", 3)
-# Number of hours for failed login lock cooloff
+# Number of hours for failed login lock cool-off
 AXES_COOLOFF_TIME = datetime.timedelta(minutes=int(os.environ.get("FAILED_LOGIN_COOLOFF", "10")))
 # Tell Axes the username field is 'email'
 AXES_USERNAME_FORM_FIELD = "email"
-# Reset the lock count on succesful login
+# Reset the lock count on successful login
 AXES_RESET_ON_SUCCESS = True
 # Look at these http headers for axes IP address
 AXES_META_PRECEDENCE_ORDER = ("HTTP_X_FORWARDED_FOR", "REMOTE_ADDR")
@@ -337,51 +341,29 @@ STATICFILES_DIRS = []
 
 GOV_NOTIFY_API_KEY = os.environ.get("GOV_NOTIFY_API_KEY")
 
-# Trade remedies uses different redis database numbers
-# Public Django cache - 2
-# Caseworker Django cache - 1
-# API Django cache - 0
-#  API Celery - 2 TODO find out if this should be a different value to public
-
-if "redis" in _VCAP_SERVICES:
-    credentials = _VCAP_SERVICES["redis"][0]["credentials"]
-
-    CELERY_BROKER_URL = "rediss://:{}@{}:{}/2?ssl_cert_reqs=required".format(
-        credentials["password"], credentials["host"], credentials["port"],
-    )
-else:
-    CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=None)
-
-CELERY_TASK_ALWAYS_EAGER = os.environ.get("CELERY_TASK_ALWAYS_EAGER", "FALSE").upper() == "TRUE"
-CELERY_WORKER_LOG_FORMAT = (
-    "[%(asctime)s: %(levelname)s/%(processName)s] [%(name)s] %(message)s"
-)
-
-RUN_ASYNC = True
-
 AXES_ENABLED = os.environ.get("AXES_ENABLED", True)
 
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {"simple": {"format": "{asctime} {levelname} {message}", "style": "{",},},
+    "formatters": {"simple": {"format": "{asctime} {levelname} {message}", "style": "{", }, },
     "handlers": {
-        "stdout": {"class": "logging.StreamHandler", "stream": sys.stdout, "formatter": "simple",},
+        "stdout": {"class": "logging.StreamHandler", "stream": sys.stdout, "formatter": "simple", },
     },
-    "root": {"handlers": ["stdout"], "level": os.getenv("ROOT_LOG_LEVEL", "INFO"),},
+    "root": {"handlers": ["stdout"], "level": os.getenv("ROOT_LOG_LEVEL", "INFO"), },
     "loggers": {
         "django": {
-            "handlers": ["stdout",],
+            "handlers": ["stdout", ],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
             "propagate": True,
         },
         "django.server": {
-            "handlers": ["stdout",],
+            "handlers": ["stdout", ],
             "level": os.getenv("DJANGO_SERVER_LOG_LEVEL", "INFO"),
             "propagate": False,
         },
         "django.db.backends": {
-            "handlers": ["stdout",],
+            "handlers": ["stdout", ],
             "level": os.getenv("DJANGO_DB_LOG_LEVEL", "INFO"),
             "propagate": True,
         },
@@ -392,7 +374,7 @@ ENVIRONMENT_LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "ecs_formatter": {"()": ECSFormatter,},
+        "ecs_formatter": {"()": ECSFormatter, },
         "simple": {"format": "%(levelname)s %(message)s"},
     },
     "handlers": {
@@ -402,20 +384,20 @@ ENVIRONMENT_LOGGING = {
             "formatter": "ecs_formatter",
         },
     },
-    "root": {"handlers": ["ecs",], "level": os.getenv("ROOT_LOG_LEVEL", "INFO"),},
+    "root": {"handlers": ["ecs", ], "level": os.getenv("ROOT_LOG_LEVEL", "INFO"), },
     "loggers": {
         "django": {
-            "handlers": ["ecs",],
+            "handlers": ["ecs", ],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
             "propagate": False,
         },
         "django.server": {
-            "handlers": ["ecs",],
+            "handlers": ["ecs", ],
             "level": os.getenv("DJANGO_SERVER_LOG_LEVEL", "ERROR"),
             "propagate": False,
         },
         "django.db.backends": {
-            "handlers": ["ecs",],
+            "handlers": ["ecs", ],
             "level": os.getenv("DJANGO_DB_LOG_LEVEL", "ERROR"),
             "propagate": False,
         },
