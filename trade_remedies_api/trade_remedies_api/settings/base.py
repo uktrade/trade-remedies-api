@@ -43,8 +43,8 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
-# Dis/Allow django admin
-DJANGO_ADMIN = env("DJANGO_ADMIN")
+# Allow/disallow django admin
+DJANGO_ADMIN = env("DJANGO_ADMIN", default=False)
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
 
