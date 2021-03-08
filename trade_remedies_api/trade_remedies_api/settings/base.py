@@ -183,7 +183,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 PUBLIC_ROOT_URL = env(
     "PUBLIC_ROOT_URL", default="https://trade-remedies-public-dev.london.cloudapps.digital"
 )
-CASEWORKER_ROOT_URL = env("CASEWORKER_ROOT_URL")
+CASEWORKER_ROOT_URL = env("CASEWORKER_ROOT_URL", default="http://localhost:8002")
 
 API_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 API_DATE_FORMAT = "%Y-%m-%d"
