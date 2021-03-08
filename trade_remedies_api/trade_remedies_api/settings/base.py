@@ -25,9 +25,9 @@ root = environ.Path(__file__) - 4
 env = environ.Env(DEBUG=(bool, False),)
 
 sentry_sdk.init(
-    dsn=os.environ.get("SENTRY_DSN"),
+    dsn=env("SENTRY_DSN", default=""),
     integrations=[DjangoIntegration(), CeleryIntegration()],
-    environment=os.environ.get("SENTRY_ENVIRONMENT"),
+    environment=env("SENTRY_ENVIRONMENT", default="local"),
 )
 
 SITE_ROOT = root()
@@ -39,18 +39,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
+SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "FALSE").upper() == "TRUE"
+DEBUG = env("DEBUG")
 # Dis/Allow django admin
-DJANGO_ADMIN = os.environ.get("DJANGO_ADMIN", "FALSE").upper() == "TRUE"
+DJANGO_ADMIN = env("DJANGO_ADMIN")
 
-ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
 
-ORGANISATION_NAME = os.environ.get("ORGANISATION_NAME", "Organisation name placeholder")
+ORGANISATION_NAME = env("ORGANISATION_NAME", default="Organisation name placeholder")
 
-ORGANISATION_INITIALISM = os.environ.get("ORGANISATION_INITIALISM", "PLACEHOLDER")
+ORGANISATION_INITIALISM = env("ORGANISATION_INITIALISM", default="PLACEHOLDER")
 
 # Application definition
 
@@ -138,7 +138,7 @@ if "postgres" in _VCAP_SERVICES:
         "default": {
             **dj_database_url.parse(_database_uri, engine="postgresql", conn_max_age=0,),
             "ENGINE": "django_db_geventpool.backends.postgresql_psycopg2",
-            "OPTIONS": {"MAX_CONNS": int(os.environ.get("DB_MAX_CONNS", "10")), },
+            "OPTIONS": {"MAX_CONNS": env("DB_MAX_CONNS", default=10), },
         },
     }
 else:
@@ -180,10 +180,10 @@ AUTH_USER_MODEL = "core.User"
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-PUBLIC_ROOT_URL = os.environ.get(
-    "PUBLIC_ROOT_URL", "https://trade-remedies-public-dev.london.cloudapps.digital"
+PUBLIC_ROOT_URL = env(
+    "PUBLIC_ROOT_URL", default="https://trade-remedies-public-dev.london.cloudapps.digital"
 )
-CASEWORKER_ROOT_URL = os.environ.get("CASEWORKER_ROOT_URL")
+CASEWORKER_ROOT_URL = env("CASEWORKER_ROOT_URL")
 
 API_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 API_DATE_FORMAT = "%Y-%m-%d"
@@ -224,7 +224,7 @@ CACHES = {
     },
 }
 
-CELERY_TASK_ALWAYS_EAGER = os.environ.get("CELERY_TASK_ALWAYS_EAGER", "FALSE").upper() == "TRUE"
+CELERY_TASK_ALWAYS_EAGER = env("CELERY_TASK_ALWAYS_EAGER", default=False)
 CELERY_WORKER_LOG_FORMAT = (
     "[%(asctime)s: %(levelname)s/%(processName)s] [%(name)s] %(message)s"
 )
@@ -236,11 +236,11 @@ RUN_ASYNC = True
 API_CACHE_TIMEOUT = 3  # Cache timeout in minutes
 API_PREFIX = "api/v1"
 DEFAULT_QUERYSET_PAGE_SIZE = 20
-TRUSTED_USER_EMAIL = os.environ.get("HEALTH_CHECK_USER_EMAIL")
-AWS_ACCESS_KEY_ID = AWS_S3_ACCESS_KEY_ID = os.environ.get("S3_STORAGE_KEY")
-AWS_SECRET_ACCESS_KEY = AWS_S3_SECRET_ACCESS_KEY = os.environ.get("S3_STORAGE_SECRET")
-AWS_STORAGE_BUCKET_NAME = os.environ.get("S3_BUCKET_NAME")
-AWS_S3_REGION_NAME = os.environ.get("AWS_REGION", "eu-west-1")
+TRUSTED_USER_EMAIL = env("HEALTH_CHECK_USER_EMAIL")
+AWS_ACCESS_KEY_ID = AWS_S3_ACCESS_KEY_ID = env("S3_STORAGE_KEY", default=None)
+AWS_SECRET_ACCESS_KEY = AWS_S3_SECRET_ACCESS_KEY = env("S3_STORAGE_SECRET", default=None)
+AWS_STORAGE_BUCKET_NAME = env("S3_BUCKET_NAME", default=None)
+AWS_S3_REGION_NAME = env("AWS_REGION", default="eu-west-1")
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_ENCRYPTION = True
 # S3 client library to use
@@ -256,9 +256,9 @@ PREVENT_DUPLICATE_FILES = False
 # timeout in minutes for 2FA code expiry
 DURATION_2FA_CODE = 5
 # Case worker environment key
-CASE_WORKER_ENVIRONMENT_KEY = os.environ.get("CASE_WORKER_ENVIRONMENT_KEY")
+CASE_WORKER_ENVIRONMENT_KEY = env("CASE_WORKER_ENVIRONMENT_KEY")
 # Public environment key
-PUBLIC_ENVIRONMENT_KEY = os.environ.get("PUBLIC_ENVIRONMENT_KEY")
+PUBLIC_ENVIRONMENT_KEY = env("PUBLIC_ENVIRONMENT_KEY")
 # Allowed origins
 ALLOWED_ORIGINS = (CASE_WORKER_ENVIRONMENT_KEY, PUBLIC_ENVIRONMENT_KEY)
 # Days of registration window for a case
@@ -268,9 +268,9 @@ STREAMING_CHUNK_SIZE = 8192
 # Axes sits behind a proxy
 AXES_BEHIND_REVERSE_PROXY = True
 # Number of login/2fa attempts
-AXES_FAILURE_LIMIT = os.environ.get("AXES_FAILURE_LIMIT", 3)
+AXES_FAILURE_LIMIT = env("AXES_FAILURE_LIMIT", default=3)
 # Number of hours for failed login lock cool-off
-AXES_COOLOFF_TIME = datetime.timedelta(minutes=int(os.environ.get("FAILED_LOGIN_COOLOFF", "10")))
+AXES_COOLOFF_TIME = datetime.timedelta(minutes=env("FAILED_LOGIN_COOLOFF", default=10))
 # Tell Axes the username field is 'email'
 AXES_USERNAME_FORM_FIELD = "email"
 # Reset the lock count on successful login
@@ -284,9 +284,9 @@ AXES_ONLY_USER_FAILURES = False
 # Use a combination of username and ip for axes
 AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
 # Two factor auth validity duration (days)
-TWO_FACTOR_VALIDITY_PERIOD = os.environ.get("TWO_FACTOR_VALIDITY_PERIOD", 14)
+TWO_FACTOR_VALIDITY_PERIOD = env("TWO_FACTOR_VALIDITY_PERIOD", default=14)
 # Max life of password reset code in hours
-PASSWORD_RESET_CODE_AGE_HOURS = os.environ.get("PASSWORD_RESET_CODE_AGE", 2)
+PASSWORD_RESET_CODE_AGE_HOURS = env("PASSWORD_RESET_CODE_AGE", default=2)
 # Lockout time for two factor failures
 TWO_FACTOR_LOCK_MINUTES = 5
 # Minutes a 2FA code valid for
@@ -307,8 +307,8 @@ EMAIL_VERIFY_CODE_REGENERATE_TIMEOUT = 15
 SECRETARY_OF_STATE_ORGANISATION_ID = "8850d091-e119-4ab5-9e21-ede5f0112bef"
 # Elastic search host and port. ELASTIC_HOST/PORT are offered as
 # fallback when VCAP is not set by the environment
-ELASTIC_HOST = os.environ.get("ELASTIC_HOST")
-ELASTIC_PORT = os.environ.get("ELASTIC_PORT")
+ELASTIC_HOST = env("ELASTIC_HOST", default=None)
+ELASTIC_PORT = env("ELASTIC_PORT", default=None)
 ELASTIC_URI = None
 elastic_vcap_config = _VCAP_SERVICES.get("elasticsearch")
 if elastic_vcap_config:
@@ -319,15 +319,15 @@ ELASTIC_INDEX = {
 }
 
 # Companies House API
-COMPANIES_HOUSE_API_KEY = os.environ.get("COMPANIES_HOUSE_API_KEY")
+COMPANIES_HOUSE_API_KEY = env("COMPANIES_HOUSE_API_KEY", default=None)
 
 # Geckoboard API
-GECKOBOARD_API_KEY = os.environ.get("GECKOBOARD_API_KEY")
-GECKOBOARD_ENV = os.environ.get("GECKOBOARD_ENV", "dev")
+GECKOBOARD_API_KEY = env("GECKOBOARD_API_KEY", default=None)
+GECKOBOARD_ENV = env("GECKOBOARD_ENV", default="dev")
 
-AV_SERVICE_URL = os.environ.get("AV_SERVICE_URL")
-AV_SERVICE_USERNAME = os.environ.get("AV_SERVICE_USERNAME")
-AV_SERVICE_PASSWORD = os.environ.get("AV_SERVICE_PASSWORD")
+AV_SERVICE_URL = env("AV_SERVICE_URL", default=None)
+AV_SERVICE_USERNAME = env("AV_SERVICE_USERNAME", default=None)
+AV_SERVICE_PASSWORD = env("AV_SERVICE_PASSWORD", default=None)
 
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 AWS_DEFAULT_ACL = None
@@ -339,9 +339,9 @@ COUNTRIES_OVERRIDE = {
 
 STATICFILES_DIRS = []
 
-GOV_NOTIFY_API_KEY = os.environ.get("GOV_NOTIFY_API_KEY")
+GOV_NOTIFY_API_KEY = env("GOV_NOTIFY_API_KEY", default=None)
 
-AXES_ENABLED = os.environ.get("AXES_ENABLED", True)
+AXES_ENABLED = env("AXES_ENABLED", default=True)
 
 LOGGING = {
     "version": 1,
@@ -350,21 +350,21 @@ LOGGING = {
     "handlers": {
         "stdout": {"class": "logging.StreamHandler", "stream": sys.stdout, "formatter": "simple", },
     },
-    "root": {"handlers": ["stdout"], "level": os.getenv("ROOT_LOG_LEVEL", "INFO"), },
+    "root": {"handlers": ["stdout"], "level": env("ROOT_LOG_LEVEL", default="INFO"), },
     "loggers": {
         "django": {
             "handlers": ["stdout", ],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "level": env("DJANGO_LOG_LEVEL", default="INFO"),
             "propagate": True,
         },
         "django.server": {
             "handlers": ["stdout", ],
-            "level": os.getenv("DJANGO_SERVER_LOG_LEVEL", "INFO"),
+            "level": env("DJANGO_SERVER_LOG_LEVEL", default="INFO"),
             "propagate": False,
         },
         "django.db.backends": {
             "handlers": ["stdout", ],
-            "level": os.getenv("DJANGO_DB_LOG_LEVEL", "INFO"),
+            "level": env("DJANGO_DB_LOG_LEVEL", default="INFO"),
             "propagate": True,
         },
     },
@@ -384,21 +384,21 @@ ENVIRONMENT_LOGGING = {
             "formatter": "ecs_formatter",
         },
     },
-    "root": {"handlers": ["ecs", ], "level": os.getenv("ROOT_LOG_LEVEL", "INFO"), },
+    "root": {"handlers": ["ecs", ], "level": env("ROOT_LOG_LEVEL", default="INFO"), },
     "loggers": {
         "django": {
             "handlers": ["ecs", ],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "level": env("DJANGO_LOG_LEVEL", default="INFO"),
             "propagate": False,
         },
         "django.server": {
             "handlers": ["ecs", ],
-            "level": os.getenv("DJANGO_SERVER_LOG_LEVEL", "ERROR"),
+            "level": env("DJANGO_SERVER_LOG_LEVEL", default="ERROR"),
             "propagate": False,
         },
         "django.db.backends": {
             "handlers": ["ecs", ],
-            "level": os.getenv("DJANGO_DB_LOG_LEVEL", "ERROR"),
+            "level": env("DJANGO_DB_LOG_LEVEL", default="ERROR"),
             "propagate": False,
         },
     },
