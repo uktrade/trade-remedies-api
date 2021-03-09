@@ -236,6 +236,12 @@
         "editable": true
     },
     {
+        "key": "NOTIFY_BLOCK_FOOTER_CASE_SPECIFIC",
+        "data_type": "str",
+        "default": "Investigations Team\nTrade Remedies\nDepartment for International Trade\nContact: {}",
+        "editable": true
+    },
+    {
         "key": "PRE_MANAGE_TEAM",
         "data_type": "bool",
         "default": true,
