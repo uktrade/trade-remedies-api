@@ -37,7 +37,7 @@ services:
       - DJANGO_SETTINGS_MODULE=trade_remedies_api.settings.bdd
       - DATABASE_URL=psql://postgres:postgres@postgres:5432/trade_remedies_api_test
   postgres:
-    image: postgres:10.7
+    image: postgres:10.15
     ports:
       - "5432:5432"
     volumes:

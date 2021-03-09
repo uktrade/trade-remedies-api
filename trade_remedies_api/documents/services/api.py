@@ -439,7 +439,7 @@ class DocumentAPIView(TradeRemediesApiView):
 class DocumentDownloadAPIView(TradeRemediesApiView):
     """
     Return download url for a file. The url is single use and has a life
-    of 30 seconds (defined in settings.S3_DOWNLOAD_LINK_EXPIREY_SECONDS)
+    of 30 seconds (defined in settings.S3_DOWNLOAD_LINK_EXPIRY_SECONDS)
     """
 
     def get(self, request, document_id, submission_id=None, *args, **kwargs):

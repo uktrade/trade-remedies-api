@@ -348,7 +348,7 @@ class Document(BaseModel):
         url = s3.generate_presigned_url(
             ClientMethod="get_object",
             Params={"Bucket": self.s3_bucket, "Key": self.file.name},
-            ExpiresIn=settings.S3_DOWNLOAD_LINK_EXPIREY_SECONDS,
+            ExpiresIn=settings.S3_DOWNLOAD_LINK_EXPIRY_SECONDS,
         )
         return url
 
