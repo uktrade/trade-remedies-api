@@ -486,11 +486,12 @@ class Submission(BaseModel):
                 # how many documents were downloaded at least once
                 "downloaded_count": downloaded_count,
                 "locked": self.locked,
-                "deficiency_sent_at": self.deficiency_sent_at.strftime(settings.API_DATETIME_FORMAT)
+                "deficiency_sent_at": self.deficiency_sent_at.strftime(
+                    settings.API_DATETIME_FORMAT
+                )
                 if self.deficiency_sent_at
                 else None,
                 "created_at": self.created_at.strftime(settings.API_DATETIME_FORMAT),
-                "created_by": {"id": str(self.created_by.id), "name": self.created_by.name,},
                 "issued_by": self.issued_by.to_embedded_dict() if self.issued_by else None,
                 "received_from": self.received_from.to_embedded_dict()
                 if self.received_from
@@ -499,12 +500,17 @@ class Submission(BaseModel):
                 "deficiency_notice_params": self.deficiency_notice_params,
             }
         )
+        if self.created_by:
+            out.update({"created_by":{"id": str(self.created_by.id), "name": self.created_by.name,},})
         return out
 
     def to_minimal_dict(self, **kwargs):
         org_case_role = self.organisation_case_role()
         org_case_role_outer = self.organisation_case_role(True)
-        created_by_tra = self.created_by.is_tra()
+        if self.created_by:
+            created_by_tra = self.created_by.is_tra()
+        else:
+            created_by_tra = None
         if self.organisation:
             organisation = self.organisation.to_embedded_dict()
             organisation["companies_house_id"] = self.organisation.companies_house_id
