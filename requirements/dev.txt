@@ -96,7 +96,7 @@ django-storages==1.9.1
     # via -r requirements.in/../requirements/base.txt
 django-timezone-field==3.1
     # via -r requirements.in/../requirements/base.txt
-django==2.2.13
+django==2.2.18
     # via
     #   -r requirements.in/../requirements/base.txt
     #   django-appconf
@@ -233,13 +233,13 @@ phonenumbers==8.10.20
     # via -r requirements.in/../requirements/base.txt
 pickleshare==0.7.5
     # via ipython
-pillow==7.2.0
+pillow==8.1.2
     # via
     #   -r requirements.in/../requirements/base.txt
     #   python-pptx
 pluggy==0.13.1
     # via pytest
-prompt-toolkit==2.0.10
+prompt-toolkit==3.0.17
     # via ipython
 psycopg2-binary==2.8.3
     # via
@@ -338,7 +338,6 @@ six==1.15.0
     #   django-extensions
     #   elasticsearch-dsl
     #   packaging
-    #   prompt-toolkit
     #   python-dateutil
     #   traitlets
 sqlparse==0.3.1
