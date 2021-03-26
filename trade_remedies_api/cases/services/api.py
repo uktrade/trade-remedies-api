@@ -316,7 +316,7 @@ class CasesAPIView(TradeRemediesApiView):
                 )
                 return ResponseSuccess({"results": cases})
             elif all_cases:
-                for ocr in OrganisationCaseRole.objects.filter(organisation__id=organisation_id):
+                for ocr in OrganisationCaseRole.objects.case_prepared(organisation_id):
                     case_dict = ocr.to_embedded_dict()
                     case_dict.update(ocr.case.to_embedded_dict(organisation=self.organisation))
                     cases.append(case_dict)

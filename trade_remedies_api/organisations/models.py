@@ -604,7 +604,7 @@ class Organisation(BaseModel):
 
     @property
     def case_count(self):
-        return len(OrganisationCaseRole.objects.filter(organisation=self))
+        return len(OrganisationCaseRole.objects.case_prepared(self.id))
 
     @property
     def previous_names(self):
