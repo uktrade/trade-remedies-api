@@ -260,6 +260,7 @@ CACHES = {
 CELERY_TASK_ALWAYS_EAGER = env("CELERY_TASK_ALWAYS_EAGER", default=False)
 CELERY_WORKER_LOG_FORMAT = "[%(asctime)s: %(levelname)s/%(processName)s] [%(name)s] %(message)s"
 
+# TODO - we also have ASYNC_DOC_PREPARE - both expressing no celery - can we simplify?
 RUN_ASYNC = True
 
 
@@ -454,6 +455,13 @@ ENVIRONMENT_LOGGING = {
                 "ecs",
             ],
             "level": env("DJANGO_SERVER_LOG_LEVEL", default="ERROR"),
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": [
+                "ecs",
+            ],
+            "level": env("DJANGO_REQUEST_LOG_LEVEL", default="ERROR"),
             "propagate": False,
         },
         "django.db.backends": {
