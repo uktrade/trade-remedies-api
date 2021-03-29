@@ -18,7 +18,7 @@ from .constants import (
     INVALID_FILE_EXTENSIONS,
     SEARCH_FIELD_MAP,
     INDEX_STATE_NOT_INDEXED,
-    INDEX_STATE_UNKONWN_TYPE,
+    INDEX_STATE_UNKNOWN_TYPE,
     INDEX_STATE_INDEX_FAIL,
     INDEX_STATE_FULL_INDEX,
     INDEX_STATES,
@@ -51,14 +51,15 @@ def _(document):
 
 
 class DocumentManager(models.Manager):
+
+    @staticmethod
     def elastic_search(
-        self,
         query,
         case=None,
         confidential_status=None,
         organisation=None,
         user_type=None,
-        **kwargs,
+        **kwargs,  # noqa
     ):
         case = get_case(case)
         organisation = get_organisation(organisation)
@@ -100,7 +101,8 @@ class DocumentManager(models.Manager):
         )
         return search_results
 
-    def search(self, *, case_id=None, query=None, confidential_status=None, fields=None):
+    @staticmethod
+    def search(*, case_id=None, query=None, confidential_status=None, fields=None):
         """
         Search documents:
         Requires all arguments as kwargs
@@ -110,10 +112,6 @@ class DocumentManager(models.Manager):
             - fields: defaults to filter using name, file name and organisation name.
                  A list of allowed search term filters
         """
-        # create the case filter if required
-        # case_filter = {
-        #     'submissiondocument__submission__case_id': case_id
-        # } if case_id else {}
         if not fields:
             fields = ["name", "file", "organisation"]
             # include the case name and reference in the search if not filtering by case
@@ -140,8 +138,8 @@ class DocumentManager(models.Manager):
             documents = documents.filter(query_args)
         return documents
 
+    @staticmethod
     def create_document(
-        self,
         file,
         user,
         confidential=True,
@@ -191,13 +189,12 @@ class Document(BaseModel):
     size = models.IntegerField(null=True, blank=True)
     virus_scanned_at = models.DateTimeField(null=True, blank=True)
     safe = models.NullBooleanField()
+    av_reason = models.CharField(max_length=255, null=True, blank=True)
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.PROTECT)
     system = models.BooleanField(default=False)  # TRA Document
     checksum = models.CharField(max_length=64, null=True, blank=True)
     confidential = models.BooleanField(default=True)
-    indexed = models.NullBooleanField()
     index_state = models.SmallIntegerField(default=INDEX_STATE_NOT_INDEXED, choices=INDEX_STATES)
-
     block_from_public_file = models.BooleanField(default=False)
     block_reason = models.CharField(max_length=128, null=True, blank=True)
     blocked_by = models.ForeignKey(
@@ -418,13 +415,12 @@ class Document(BaseModel):
         try:
             file_type = self.file_extension
             if file_type not in parsers:
-                return "", INDEX_STATE_UNKONWN_TYPE
+                return "", INDEX_STATE_UNKNOWN_TYPE
             text = parsers[file_type]["parse"](self)
             return text, INDEX_STATE_FULL_INDEX
         except Exception as exc:
             logger.error("Error extracting text: %s: %s / %s", str(exc), str(self.id), str(self))
             return "", INDEX_STATE_INDEX_FAIL
-        return "", self.index_state
 
     def elastic_doc(self):
         """
@@ -438,7 +434,7 @@ class Document(BaseModel):
         except NotFoundError:
             return None
 
-    def elastic_index(self, submission=None, case=None, **kwargs):  # noqa: C901
+    def elastic_index(self, submission=None, case=None, **kwargs):  # noqa
         """
         Create an elasticsearch indexed document for this record
         """
@@ -454,7 +450,7 @@ class Document(BaseModel):
             "file_type": self.file_extension,
             "all_case_ids": [],
             "created_at": self.created_at.strftime(settings.API_DATETIME_FORMAT),
-            "created_by": {"id": self.created_by.id, "name": self.created_by.name,},
+            "created_by": {"id": self.created_by.id, "name": self.created_by.name, },
             "user_type": "TRA" if self.created_by.is_tra() else "PUB",
             "confidential": self.confidential,
             "checksum": self.checksum,
@@ -501,7 +497,7 @@ class Document(BaseModel):
         if note:
             if not doc.get("case_id") and note.case:
                 doc["case_id"] = note.case.id
-            doc.update({"note": {"content": note.note,}})
+            doc.update({"note": {"content": note.note, }})
 
         if organisation:
             doc.update(
@@ -554,6 +550,7 @@ class DocumentBundle(SimpleBaseModel):
 
     def __str__(self):
         doc_bundle_type = self.case_type or self.submission_type
+        level = "unknown"
         if self.case:
             level = "Case"
         elif self.case_type_id:

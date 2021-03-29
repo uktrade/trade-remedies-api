@@ -15,8 +15,7 @@ services:
   celery:
     build:
        context: . 
-    build: .
-    command: celery -A trade_remedies_api worker -l INFO
+    command: celery -A trade_remedies_api worker -l DEBUG
     volumes:
       - ./trade_remedies_api:/app/
     env_file:

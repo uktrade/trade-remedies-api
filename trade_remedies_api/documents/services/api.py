@@ -6,7 +6,7 @@ from documents.utils import stream_s3_file_download
 from documents.constants import (
     SEARCH_CONFIDENTIAL_STATUS_MAP,
     INDEX_STATE_NOT_INDEXED,
-    INDEX_STATE_UNKONWN_TYPE,
+    INDEX_STATE_UNKNOWN_TYPE,
     INDEX_STATE_INDEX_FAIL,
     INDEX_STATE_FULL_INDEX,
 )
@@ -756,7 +756,7 @@ class DocumentSearchIndexAPI(TradeRemediesApiView):
                 "result": {
                     "total": documents.count(),
                     "full_index": count_index.get(INDEX_STATE_FULL_INDEX, {}).get("total"),
-                    "unknown_type": count_index.get(INDEX_STATE_UNKONWN_TYPE, {}).get("total"),
+                    "unknown_type": count_index.get(INDEX_STATE_UNKNOWN_TYPE, {}).get("total"),
                     "failed": count_index.get(INDEX_STATE_INDEX_FAIL, {}).get("total"),
                     "pending": count_index.get(INDEX_STATE_NOT_INDEXED, {}).get("total"),
                 }
