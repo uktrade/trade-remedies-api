@@ -8,7 +8,7 @@ from django.conf import settings
 from elasticsearch.exceptions import NotFoundError
 from core.base import BaseModel, SimpleBaseModel
 from functools import singledispatch
-from core.elastic import get_elastic
+from core.elastic import get_elastic, ESWrapperError
 from core.utils import file_md5_checksum
 from audit.utils import audit_log
 from audit import AUDIT_TYPE_EVENT
@@ -93,13 +93,18 @@ class DocumentManager(models.Manager):
             if user_type in ("TRA", "PUB"):
                 _query["bool"].setdefault("filter", [])
                 _query["bool"]["filter"].append({"match": {"user_type": user_type}})
-        client = get_elastic()
-        search_results = client.search(
-            index=settings.ELASTIC_INDEX["document"],
-            doc_type="document",
-            body={"query": _query, "highlight": {"fields": {"content": {}}}},
-        )
-        return search_results
+        try:
+            client = get_elastic()
+        except ESWrapperError as e:
+            logger.error(e)
+            return None
+        else:
+            search_results = client.search(
+                index=settings.ELASTIC_INDEX["document"],
+                doc_type="document",
+                body={"query": _query, "highlight": {"fields": {"content": {}}}},
+            )
+            return search_results
 
     @staticmethod
     def search(*, case_id=None, query=None, confidential_status=None, fields=None):
@@ -242,8 +247,11 @@ class Document(BaseModel):
         Using quite a broad exception handling to prevent any failure that will
         cause the delete to fail.
         """
-        client = get_elastic()
-        if client:
+        try:
+            client = get_elastic()
+        except ESWrapperError as e:
+            logger.error(e)
+        else:
             try:
                 result = client.delete(
                     index=settings.ELASTIC_INDEX["document"], doc_type="document", id=str(self.id)
@@ -426,21 +434,30 @@ class Document(BaseModel):
         """
         Return the elasticsearch document for this record
         """
-        client = get_elastic()
         try:
-            return client.get(
-                index=settings.ELASTIC_INDEX["document"], doc_type="document", id=self.id,
-            )
-        except NotFoundError:
-            return None
+            client = get_elastic()
+        except ESWrapperError as e:
+            logger.error(e)
+        else:
+            try:
+                return client.get(
+                    index=settings.ELASTIC_INDEX["document"], doc_type="document", id=self.id,
+                )
+            except NotFoundError:
+                logger.warning("Could not find document in elastic index")
+        return None
 
     def elastic_index(self, submission=None, case=None, **kwargs):  # noqa
         """
         Create an elasticsearch indexed document for this record
         """
+        try:
+            client = get_elastic()
+        except ESWrapperError as e:
+            logger.error(e)
+            return None
         content, index_state = self.extract_content()
         case = get_case(case)
-        client = get_elastic()
         organisation = None
 
         doc = {
