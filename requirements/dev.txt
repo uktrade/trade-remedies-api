@@ -157,7 +157,7 @@ iniconfig==1.0.1
     # via pytest
 ipython-genutils==0.2.0
     # via traitlets
-ipython==7.10
+ipython==7.22.0
     # via -r requirements.in/dev.in
 jdcal==1.4.1
     # via
@@ -237,8 +237,10 @@ pycodestyle==2.6.0
     # via flake8
 pyflakes==2.2.0
     # via flake8
-pygments==2.7.1
-    # via ipython
+pygments==2.8.1
+    # via
+    #   -r requirements.in/dev.in
+    #   ipython
 pyjwt==1.7.1
     # via
     #   -r requirements.in/../requirements/base.txt

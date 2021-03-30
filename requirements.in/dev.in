@@ -3,7 +3,7 @@
 
 # add packages needed only for development
 
-ipython==7.10
+ipython==7.22.0
 traitlets==4.3.3
 black==19.10b0
 flake8
@@ -13,3 +13,6 @@ pytest-cov
 pytest-django
 pytest-xdist
 pytest-mock
+
+# ipython dep - for CVE-2021-27291
+pygments==2.8.1
