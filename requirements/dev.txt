@@ -99,10 +99,11 @@ django==2.2.18
     #   django-redis
     #   django-storages
     #   django-timezone-field
+    #   djangorestframework
     #   feed-gov-back
 django_pglocks==1.0.3
     # via -r requirements.in/../requirements/base.txt
-djangorestframework==3.10.3
+djangorestframework==3.12.4
     # via
     #   -r requirements.in/../requirements/base.txt
     #   feed-gov-back
