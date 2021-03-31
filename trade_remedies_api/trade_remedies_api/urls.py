@@ -117,9 +117,6 @@ urlpatterns = [
     path(f"{settings.API_PREFIX}/companieshouse/", include("core.services.urls")),
     path("workflow/", include("workflow.urls")),
 ]
-# temp silk url
-if "silk" in settings.INSTALLED_APPS:
-    urlpatterns.append(path("silk/", include("silk.urls", namespace="silk")))
 
 if settings.DJANGO_ADMIN:
     urlpatterns.append(path("admin/", admin.site.urls))

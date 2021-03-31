@@ -110,11 +110,6 @@ if DJANGO_ADMIN:
         "whitenoise.middleware.WhiteNoiseMiddleware",
     ] + MIDDLEWARE
 
-if "silk" in INSTALLED_APPS:
-    MIDDLEWARE.append("silk.middleware.SilkyMiddleware")
-    SILKY_PYTHON_PROFILER = True
-    SILKY_META = True
-
 ROOT_URLCONF = "trade_remedies_api.urls"
 
 TEMPLATES = [

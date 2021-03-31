@@ -8,10 +8,6 @@ amqp==2.6.1
     # via
     #   -r requirements.in/../requirements/base.txt
     #   kombu
-autopep8==1.5.4
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   django-silk
 billiard==3.6.3.0
     # via
     #   -r requirements.in/../requirements/base.txt
@@ -68,8 +64,6 @@ django-log-formatter-ecs==0.0.5
     # via -r requirements.in/../requirements/base.txt
 django-redis==4.10.0
     # via -r requirements.in/../requirements/base.txt
-django-silk==3.0.1
-    # via -r requirements.in/../requirements/base.txt
 django-storages==1.9.1
     # via -r requirements.in/../requirements/base.txt
 django-timezone-field==3.1
@@ -82,13 +76,13 @@ django==2.2.18
     #   django-db-geventpool
     #   django-dirtyfields
     #   django-redis
-    #   django-silk
     #   django-storages
     #   django-timezone-field
+    #   djangorestframework
     #   feed-gov-back
 django_pglocks==1.0.3
     # via -r requirements.in/../requirements/base.txt
-djangorestframework==3.10.3
+djangorestframework==3.12.4
     # via
     #   -r requirements.in/../requirements/base.txt
     #   feed-gov-back
@@ -124,10 +118,6 @@ geckoboard.py==1.0.0
     # via -r requirements.in/../requirements/base.txt
 gevent==21.1.2
     # via -r requirements.in/../requirements/base.txt
-gprof2dot==2016.10.13
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   django-silk
 graphviz==0.8.3
     # via -r requirements.in/../requirements/base.txt
 greenlet==1.0.0
@@ -144,10 +134,6 @@ jdcal==1.4.1
     # via
     #   -r requirements.in/../requirements/base.txt
     #   openpyxl
-jinja2==2.11.2
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   django-silk
 jmespath==0.10.0
     # via
     #   -r requirements.in/../requirements/base.txt
@@ -168,10 +154,6 @@ lxml==4.6.2
     #   python-pptx
 markdown==3.1.1
     # via -r requirements.in/../requirements/base.txt
-markupsafe==1.1.1
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   jinja2
 marshmallow==3.6.1
     # via
     #   -r requirements.in/../requirements/base.txt
@@ -202,14 +184,6 @@ psycopg2-binary==2.8.3
     # via
     #   -r requirements.in/../requirements/base.txt
     #   feed-gov-back
-pycodestyle==2.6.0
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   autopep8
-pygments==2.7.1
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   django-silk
 pyjwt==1.7.1
     # via
     #   -r requirements.in/../requirements/base.txt
@@ -220,7 +194,6 @@ python-dateutil==2.8.1
     # via
     #   -r requirements.in/../requirements/base.txt
     #   botocore
-    #   django-silk
     #   elasticsearch-dsl
     #   freezegun
     #   minio
@@ -234,7 +207,6 @@ pytz==2020.1
     #   celery
     #   django
     #   django-dirtyfields
-    #   django-silk
     #   django-timezone-field
     #   minio
 redis==3.3.8
@@ -244,7 +216,6 @@ redis==3.3.8
 requests==2.22.0
     # via
     #   -r requirements.in/../requirements/base.txt
-    #   django-silk
     #   geckoboard.py
     #   notifications-python-client
     #   requests-toolbelt
@@ -267,15 +238,10 @@ sqlparse==0.3.1
     # via
     #   -r requirements.in/../requirements/base.txt
     #   django
-    #   django-silk
 striprtf==0.0.10
     # via -r requirements.in/../requirements/base.txt
 titlecase==0.12.0
     # via -r requirements.in/../requirements/base.txt
-toml==0.10.1
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   autopep8
 urllib3==1.25.10
     # via
     #   -r requirements.in/../requirements/base.txt
