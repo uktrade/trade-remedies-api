@@ -83,8 +83,6 @@ from workflow.models import WorkflowTemplate
 from django_countries import countries
 from django.utils import timezone
 
-# from silk.profiling.profiler import silk_profile
-
 
 class PublicCaseView(APIView):
     def get(self, request, case_number=None, *args, **kwargs):
@@ -198,7 +196,6 @@ class CasesAPIView(TradeRemediesApiView):
     public = False
     all_cases = False  # set by the url def. to denote all cases
 
-    # @silk_profile(name="CW Cases")
     def get(  # noqa: C901
         self, request, organisation_id=None, case_id=None, user_id=None, *args, **kwargs,
     ):
