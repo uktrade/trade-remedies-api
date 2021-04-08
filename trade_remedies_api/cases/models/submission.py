@@ -417,12 +417,29 @@ class Submission(BaseModel):
             # If we are the first version
             return Submission.objects.filter(Q(parent=self) | Q(id=self.id)).order_by("version")
 
-    def _to_dict(self, requested_by=None, requested_for=None, with_documents=False):
-        documents = []
-        if with_documents:
-            documents = self.submission_documents(
-                requested_by=requested_by, requested_for=requested_for
-            )
+    def _prepare_documents(self, **kwargs):
+        """Prepare submission documents.
+
+        Builds a dictionary representation of submission docs (optionally by a
+        requested user/for a requesting organisation).
+
+        :param (dict) **kwargs: Arbitrary keyword arguments as follows:
+          :with_documents (bool): If True build documents else return an empty list.
+          :requested_by (core.models.User): User object.
+          requested_for (organisations.models.Organisation): Organisation object.
+        :returns (list): A list of submission documents as dicts.
+        """
+        if not kwargs.get("with_documents", True):
+            return []
+        requested_by = kwargs.get("requested_by")
+        documents = self.submission_documents(
+            requested_by=requested_by,
+            requested_for=kwargs.get("requested_for")
+        )
+        submission_docs = [doc.to_dict(user=requested_by) for doc in documents]
+        return submission_docs
+
+    def _to_dict(self, **kwargs):
         _previous_versions = [
             {
                 "id": str(version.id),
@@ -441,7 +458,7 @@ class Submission(BaseModel):
         _is_latest_version = (
             _previous_version is None or str(self.id) == _previous_versions[-1]["id"]
         )
-        out = self.to_embedded_dict()
+        out = self.to_embedded_dict(**kwargs)
         # if this is not the latest version lock the submission regardless.
         if not _is_latest_version:
             out["status"]["locking"] = True
@@ -456,16 +473,9 @@ class Submission(BaseModel):
                 "description": self.description,
                 "contact": self.contact.to_embedded_dict(self.case) if self.contact else None,
                 "review": self.review,
-                "documents": [doc.to_dict(user=requested_by) for doc in documents],
                 "url": self.url if self.url else None,
                 "sent_by": self.sent_by.to_embedded_dict() if self.sent_by else None,
                 "time_window": self.time_window,
-                # 'deficiency_documents': [
-                #     defdoc.to_dict() for defdoc in self.deficiency_documents
-                # ],'deficiency_documents': [
-                #     defdoc.to_dict() for defdoc in self.deficiency_documents
-                # ],
-                # 'parent': self.parent.to_embedded_dict() if self.parent else None,
                 "archived": self.archived,
                 "doc_reviewed_at": self.doc_reviewed_at.strftime(settings.API_DATETIME_FORMAT)
                 if self.doc_reviewed_at
@@ -479,12 +489,15 @@ class Submission(BaseModel):
         return out
 
     def _to_embedded_dict(self, **kwargs):
+        documents = self._prepare_documents(**kwargs)
         downloaded_count = self.submissiondocument_set.filter(downloads__gt=0).count()
         out = self.to_minimal_dict()
         out.update(
             {
                 # how many documents were downloaded at least once
                 "downloaded_count": downloaded_count,
+                "documents": documents,
+                "is_new_submission": any(doc["needs_review"] for doc in documents),
                 "locked": self.locked,
                 "deficiency_sent_at": self.deficiency_sent_at.strftime(settings.API_DATETIME_FORMAT)
                 if self.deficiency_sent_at
