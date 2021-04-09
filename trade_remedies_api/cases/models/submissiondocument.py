@@ -86,6 +86,7 @@ class SubmissionDocument(SimpleBaseModel):
                 "downloads": self.downloads,
                 "deficient": self.deficient,
                 "sufficient": self.sufficient,
+                "needs_review": all([not self.deficient, not self.sufficient, self.document.safe]),
                 "issued": self.issued,
                 "issued_at": self.issued_at.strftime(settings.API_DATETIME_FORMAT)
                 if self.issued_at
