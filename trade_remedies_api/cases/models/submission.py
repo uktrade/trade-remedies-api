@@ -439,6 +439,22 @@ class Submission(BaseModel):
         submission_docs = [doc.to_dict(user=requested_by) for doc in documents]
         return submission_docs
 
+    def _needs_review(self):
+        """Needs investigator review.
+
+        Flag if the submission should be considered 'new'. This is determined
+        as submissions that have just been created by customer, or are still in
+        draft after creation, or those that are back with the customer following
+        deficiency. Basically this means:
+          - The submission's status is not an initial one (default)
+          - The submission is not version 1
+        :returns (bool): True if the submission is considered 'new' and requires
+          review, False otherwise.
+        """
+        if self.status and self.status.default and self.version == 1:
+            return False
+        return any(doc.needs_review for doc in self.submission_documents())
+
     def _to_dict(self, **kwargs):
         _previous_versions = [
             {
@@ -473,6 +489,7 @@ class Submission(BaseModel):
                 "description": self.description,
                 "contact": self.contact.to_embedded_dict(self.case) if self.contact else None,
                 "review": self.review,
+                "documents": self._prepare_documents(**kwargs),
                 "url": self.url if self.url else None,
                 "sent_by": self.sent_by.to_embedded_dict() if self.sent_by else None,
                 "time_window": self.time_window,
@@ -488,16 +505,14 @@ class Submission(BaseModel):
         )
         return out
 
-    def _to_embedded_dict(self, **kwargs):
-        documents = self._prepare_documents(**kwargs)
+    def _to_embedded_dict(self):
         downloaded_count = self.submissiondocument_set.filter(downloads__gt=0).count()
         out = self.to_minimal_dict()
         out.update(
             {
                 # how many documents were downloaded at least once
                 "downloaded_count": downloaded_count,
-                "documents": documents,
-                "is_new_submission": any(doc["needs_review"] for doc in documents),
+                "is_new_submission": self._needs_review(),
                 "locked": self.locked,
                 "deficiency_sent_at": self.deficiency_sent_at.strftime(settings.API_DATETIME_FORMAT)
                 if self.deficiency_sent_at
