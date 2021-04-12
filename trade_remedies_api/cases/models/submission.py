@@ -505,7 +505,7 @@ class Submission(BaseModel):
         )
         return out
 
-    def _to_embedded_dict(self):
+    def _to_embedded_dict(self, **kwargs):
         downloaded_count = self.submissiondocument_set.filter(downloads__gt=0).count()
         out = self.to_minimal_dict()
         out.update(
