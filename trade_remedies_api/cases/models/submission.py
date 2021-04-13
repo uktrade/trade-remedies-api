@@ -453,13 +453,16 @@ class Submission(BaseModel):
         """
         if self.status and self.status.default and self.version == 1:
             return False
-        docs_need_review = []
+        needs_review = False
         for doc in self.submission_documents():
+            if doc.created_by is None:
+                continue
             if doc.created_by.is_tra():
                 continue
             if doc.needs_review:
-                docs_need_review.append(True)
-        return any(docs_need_review)
+                needs_review = True
+                break
+        return needs_review
 
     def _to_dict(self, **kwargs):
         _previous_versions = [
