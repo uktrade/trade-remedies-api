@@ -453,7 +453,13 @@ class Submission(BaseModel):
         """
         if self.status and self.status.default and self.version == 1:
             return False
-        return any(doc.needs_review for doc in self.submission_documents())
+        docs_need_review = []
+        for doc in self.submission_documents():
+            if doc.created_by.is_tra():
+                continue
+            if doc.needs_review:
+                docs_need_review.append(True)
+        return any(docs_need_review)
 
     def _to_dict(self, **kwargs):
         _previous_versions = [
@@ -632,17 +638,18 @@ class Submission(BaseModel):
             )
             return self.__issued_documents
 
-    def documents_by_source(self, documents=None):
-        """
-        Return all documents associated with this submission grouped
-        by their source, either case worker or respondent.
-        """
-        documents = documents or self.get_documents()
-        docs_by_source = deep_index_items_by(documents, "created_by/tra")
-        return {
-            "caseworker": docs_by_source.get("true", []),
-            "respondent": docs_by_source.get("false", []),
-        }
+    # def documents_by_source(self, documents=None):
+    #     """
+    #     Return all documents associated with this submission grouped
+    #     by their source, either case worker or respondent.
+    #     """
+    #     documents = documents or self.get_documents()
+    #     docs = [d.document.to_embedded_dict() for d in documents]
+    #     docs_by_source = deep_index_items_by(docs, "is_tra")
+    #     return {
+    #         "caseworker": docs_by_source.get("true", []),
+    #         "respondent": docs_by_source.get("false", []),
+    #     }
 
     @staticmethod
     def document_exists(document):
