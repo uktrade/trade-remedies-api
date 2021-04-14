@@ -436,11 +436,13 @@ class Submission(BaseModel):
         """Needs investigator review.
 
         Flag if the submission should be considered 'new'. This is determined
-        as submissions that have just been created by customer, or are still in
-        draft after creation, or those that are back with the customer following
-        deficiency. Basically this means:
+        as follows:
           - The submission's status is not an initial one (default)
           - The submission is not version 1
+          - The document was created by a customer (not TRA)
+          - At least one document is flagged as needing review (i.e. safe,
+            not sufficient and not deficient)
+
         :returns (bool): True if the submission is considered 'new' and requires
           review, False otherwise.
         """
