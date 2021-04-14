@@ -5,7 +5,7 @@ from django.contrib.postgres import fields
 from django.conf import settings
 from django.utils import timezone
 from titlecase import titlecase
-from core.utils import deep_index_items_by, public_login_url
+from core.utils import public_login_url
 from core.base import BaseModel
 from core.models import SystemParameter
 from core.tasks import send_mail
@@ -29,8 +29,8 @@ from .submissiondocument import SubmissionDocument, SubmissionDocumentType
 
 
 class SubmissionManager(models.Manager):
-    def get_submission(self, id, case=None):
-        query_kwargs = {"id": id}
+    def get_submission(self, id_, case=None):
+        query_kwargs = {"id": id_}
         if case:
             query_kwargs["case"] = case
         return self.select_related(
@@ -258,14 +258,6 @@ class Submission(BaseModel):
     def locked(self):
         return self.status.locking if self.status else False
 
-    def get_documents(self, requested_by=None, requested_for=None):
-        documents = self.documents.exclude(submissiondocument__type__key="deficiency").filter(
-            deleted_at__isnull=True
-        )
-        if requested_by and requested_for and requested_for != self.organisation:
-            documents = documents.filter(submissiondocument__issued_at__isnull=False)
-        return documents
-
     @property
     def previous_version(self):
         if self.parent and self.version > 2:
@@ -299,10 +291,11 @@ class Submission(BaseModel):
         return []
 
     def submission_documents(self, requested_by=None, requested_for=None):
-        """
-        Return this submission's documents, returning a QuerySet of SubmissionDocument
-        TODO: This is replacing get_documents above which might be triggering
-        redundant queries upstream and which returned a QS of Document.
+        """Documents for a submission.
+
+        :param (core.models.User) requested_by: Requesting user
+        :param (organisations.models.Organisation) requested_for: for organisation
+        :returns (QuerySet): QuerySet of this submission's SubmissionDocuments
         """
         documents = SubmissionDocument.objects.select_related(
             "document", "submission", "type", "issued_by",
@@ -383,7 +376,7 @@ class Submission(BaseModel):
         """
         Remove a document from this submission.
         TODO: Currently the document relationship to the submission is deleted. Consider if to
-        just mark deleted.
+              just mark deleted.
         """
         try:
             sub_doc = SubmissionDocument.objects.get(document=document, submission=self)
@@ -514,7 +507,7 @@ class Submission(BaseModel):
         )
         return out
 
-    def _to_embedded_dict(self, **kwargs):
+    def _to_embedded_dict(self, **kwargs):  # noqa
         downloaded_count = self.submissiondocument_set.filter(downloads__gt=0).count()
         out = self.to_minimal_dict()
         out.update(
@@ -527,7 +520,7 @@ class Submission(BaseModel):
                 if self.deficiency_sent_at
                 else None,
                 "created_at": self.created_at.strftime(settings.API_DATETIME_FORMAT),
-                "created_by": {"id": str(self.created_by.id), "name": self.created_by.name,},
+                "created_by": {"id": str(self.created_by.id), "name": self.created_by.name, },
                 "issued_by": self.issued_by.to_embedded_dict() if self.issued_by else None,
                 "received_from": self.received_from.to_embedded_dict()
                 if self.received_from
@@ -542,7 +535,7 @@ class Submission(BaseModel):
         org_case_role = self.organisation_case_role()
         org_case_role_outer = self.organisation_case_role(True)
         created_by_tra = self.created_by.is_tra()
-        if self.organisation:
+        if self.organisation:  # noqa
             organisation = self.organisation.to_embedded_dict()
             organisation["companies_house_id"] = self.organisation.companies_house_id
             organisation["address"] = {
@@ -601,7 +594,7 @@ class Submission(BaseModel):
         return str(self.organisation and self.organisation.id) == TRA_ORGANISATION_ID
 
     def _dict_organisation(self):
-        if self.organisation:
+        if self.organisation:  # noqa
             organisation = self.organisation.to_embedded_dict()
             organisation["companies_house_id"] = self.organisation.companies_house_id
             organisation["address"] = {
@@ -640,19 +633,6 @@ class Submission(BaseModel):
                 submission=self, issued_at__isnull=False, document__confidential=False
             )
             return self.__issued_documents
-
-    # def documents_by_source(self, documents=None):
-    #     """
-    #     Return all documents associated with this submission grouped
-    #     by their source, either case worker or respondent.
-    #     """
-    #     documents = documents or self.get_documents()
-    #     docs = [d.document.to_embedded_dict() for d in documents]
-    #     docs_by_source = deep_index_items_by(docs, "is_tra")
-    #     return {
-    #         "caseworker": docs_by_source.get("true", []),
-    #         "respondent": docs_by_source.get("false", []),
-    #     }
 
     @staticmethod
     def document_exists(document):
