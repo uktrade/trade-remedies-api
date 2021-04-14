@@ -29,8 +29,8 @@ from .submissiondocument import SubmissionDocument, SubmissionDocumentType
 
 
 class SubmissionManager(models.Manager):
-    def get_submission(self, id_, case=None):
-        query_kwargs = {"id": id_}
+    def get_submission(self, id, case=None):
+        query_kwargs = {"id": id}
         if case:
             query_kwargs["case"] = case
         return self.select_related(
