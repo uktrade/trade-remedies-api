@@ -1493,7 +1493,6 @@ class ApplicationStateAPIView(TradeRemediesApiView):
         application_submission = None
         product = None
         source = None
-        export_source = None
         documents = []
         if not submission_id:
             # TODO: handle multiple application submissions? Only one active?
@@ -1507,7 +1506,7 @@ class ApplicationStateAPIView(TradeRemediesApiView):
         if application_submission:
             product = Product.objects.filter(case=case).first()
             source = ExportSource.objects.filter(case=case).first()
-            documents = application_submission.get_documents()
+            documents = [doc.document for doc in application_submission.submission_documents()]
         source_task = STATE_INCOMPLETE
         if source or (case.type.id in ALL_COUNTRY_CASE_TYPES and not source):
             source_task = STATE_COMPLETE
