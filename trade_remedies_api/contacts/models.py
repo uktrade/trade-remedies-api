@@ -6,7 +6,6 @@ from django_countries.fields import CountryField
 
 
 class ContactManager(models.Manager):
-
     @staticmethod
     def create_contact(
         name,
@@ -124,10 +123,9 @@ class Contact(BaseModel):
         }
         _dict.update(
             {
-                "organisation": self.organisation.to_embedded_dict(fields=fields) if
-                self.organisation
-                else
-                {},
+                "organisation": self.organisation.to_embedded_dict(fields=fields)
+                if self.organisation
+                else {},
                 "has_user": has_user,
             }
         )
@@ -187,11 +185,16 @@ class Contact(BaseModel):
         )
         try:
             case_contact = self.casecontact_set.get(
-                contact=self, case=case, organisation=organisation,
+                contact=self,
+                case=case,
+                organisation=organisation,
             )
         except self.casecontact_set.model.DoesNotExist:
             case_contact = self.casecontact_set.create(
-                contact=self, case=case, organisation=organisation, user_context=request_by,
+                contact=self,
+                case=case,
+                organisation=organisation,
+                user_context=request_by,
             )
         case_contact.primary = True
         case_contact.save()
