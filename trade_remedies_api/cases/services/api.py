@@ -83,8 +83,6 @@ from workflow.models import WorkflowTemplate
 from django_countries import countries
 from django.utils import timezone
 
-# from silk.profiling.profiler import silk_profile
-
 
 class PublicCaseView(APIView):
     def get(self, request, case_number=None, *args, **kwargs):
@@ -198,7 +196,6 @@ class CasesAPIView(TradeRemediesApiView):
     public = False
     all_cases = False  # set by the url def. to denote all cases
 
-    # @silk_profile(name="CW Cases")
     def get(  # noqa: C901
         self, request, organisation_id=None, case_id=None, user_id=None, *args, **kwargs,
     ):
@@ -316,7 +313,7 @@ class CasesAPIView(TradeRemediesApiView):
                 )
                 return ResponseSuccess({"results": cases})
             elif all_cases:
-                for ocr in OrganisationCaseRole.objects.filter(organisation__id=organisation_id):
+                for ocr in OrganisationCaseRole.objects.case_prepared(organisation_id):
                     case_dict = ocr.to_embedded_dict()
                     case_dict.update(ocr.case.to_embedded_dict(organisation=self.organisation))
                     cases.append(case_dict)
@@ -1496,7 +1493,6 @@ class ApplicationStateAPIView(TradeRemediesApiView):
         application_submission = None
         product = None
         source = None
-        export_source = None
         documents = []
         if not submission_id:
             # TODO: handle multiple application submissions? Only one active?
@@ -1510,7 +1506,7 @@ class ApplicationStateAPIView(TradeRemediesApiView):
         if application_submission:
             product = Product.objects.filter(case=case).first()
             source = ExportSource.objects.filter(case=case).first()
-            documents = application_submission.get_documents()
+            documents = [doc.document for doc in application_submission.submission_documents()]
         source_task = STATE_INCOMPLETE
         if source or (case.type.id in ALL_COUNTRY_CASE_TYPES and not source):
             source_task = STATE_COMPLETE

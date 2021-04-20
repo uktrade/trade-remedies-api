@@ -86,6 +86,7 @@ class SubmissionDocument(SimpleBaseModel):
                 "downloads": self.downloads,
                 "deficient": self.deficient,
                 "sufficient": self.sufficient,
+                "needs_review": self.needs_review,
                 "issued": self.issued,
                 "issued_at": self.issued_at.strftime(settings.API_DATETIME_FORMAT)
                 if self.issued_at
@@ -122,6 +123,10 @@ class SubmissionDocument(SimpleBaseModel):
         }
         _dict.update(self.document.to_minimal_dict())
         return _dict
+
+    @property
+    def needs_review(self):
+        return all([not self.deficient, not self.sufficient, self.document.safe])
 
     @property
     def case(self):
