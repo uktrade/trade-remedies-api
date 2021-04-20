@@ -6,8 +6,8 @@ from django_countries.fields import CountryField
 
 
 class ContactManager(models.Manager):
+    @staticmethod
     def create_contact(
-        self,
         name,
         email,
         created_by,
@@ -105,7 +105,7 @@ class Contact(BaseModel):
                 "post_code": self.post_code,
                 "country": {
                     "name": self.country.name if self.country else None,
-                    "code": self.country.code if self.country else None,
+                    "code": self.country.code if self.country else None,  # noqa
                 },
             }
         )
@@ -114,21 +114,31 @@ class Contact(BaseModel):
     def to_embedded_dict(self, case=None):
         has_user = self.has_user
         _dict = self.to_minimal_dict()
+        fields = {
+            "Organisation": {
+                "name": 0,
+                "address": 0,
+                "companies_house_id": 0,
+            }
+        }
         _dict.update(
             {
-                "organisation": self.organisation.to_embedded_dict() if self.organisation else {},
+                "organisation": self.organisation.to_embedded_dict(fields=fields)
+                if self.organisation
+                else {},
                 "has_user": has_user,
             }
         )
         if has_user:
             user = self.userprofile.user
             user_organisation = user.organisation
-            _dict["user"] = {
-                "id": str(user.id),
+            user_dict = {
+                "id": user.id,
                 "name": user.name,
                 "email": user.email,
                 "organisation": user_organisation.to_embedded_dict() if user_organisation else {},
             }
+            _dict["user"] = user_dict  # noqa
         return _dict
 
     def to_minimal_dict(self):
@@ -175,11 +185,16 @@ class Contact(BaseModel):
         )
         try:
             case_contact = self.casecontact_set.get(
-                contact=self, case=case, organisation=organisation,
+                contact=self,
+                case=case,
+                organisation=organisation,
             )
         except self.casecontact_set.model.DoesNotExist:
             case_contact = self.casecontact_set.create(
-                contact=self, case=case, organisation=organisation, user_context=request_by,
+                contact=self,
+                case=case,
+                organisation=organisation,
+                user_context=request_by,
             )
         case_contact.primary = True
         case_contact.save()
