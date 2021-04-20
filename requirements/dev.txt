@@ -135,10 +135,6 @@ flake8==3.9.1
     # via -r requirements.in/dev.in
 freezegun==1.1.0
     # via -r requirements.in/../requirements/base.txt
-future==0.18.2
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   notifications-python-client
 geckoboard.py==1.0.0
     # via -r requirements.in/../requirements/base.txt
 gevent==21.1.2
@@ -193,11 +189,7 @@ mccabe==0.6.1
     # via flake8
 minio==4.0.11
     # via -r requirements.in/../requirements/base.txt
-monotonic==1.6
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   notifications-python-client
-notifications-python-client==5.3.0
+notifications-python-client==6.0.2
     # via -r requirements.in/../requirements/base.txt
 odfpy==1.4.1
     # via -r requirements.in/../requirements/base.txt

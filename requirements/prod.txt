@@ -110,10 +110,6 @@ feed-gov-back==0.4
     # via -r requirements.in/../requirements/base.txt
 freezegun==1.1.0
     # via -r requirements.in/../requirements/base.txt
-future==0.18.2
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   notifications-python-client
 geckoboard.py==1.0.0
     # via -r requirements.in/../requirements/base.txt
 gevent==21.1.2
@@ -160,11 +156,7 @@ marshmallow==3.6.1
     #   kubi-ecs-logger
 minio==4.0.11
     # via -r requirements.in/../requirements/base.txt
-monotonic==1.6
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   notifications-python-client
-notifications-python-client==5.3.0
+notifications-python-client==6.0.2
     # via -r requirements.in/../requirements/base.txt
 odfpy==1.4.1
     # via -r requirements.in/../requirements/base.txt
