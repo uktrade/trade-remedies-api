@@ -156,7 +156,10 @@ class InvitationsAPIView(TradeRemediesApiView):
             sent_by=request.user, context=values, direct=True, template_key=notify_template_key
         )
         return ResponseSuccess(
-            {"result": invitation.to_dict(), "created": created,},
+            {
+                "result": invitation.to_dict(),
+                "created": created,
+            },
             http_status=status.HTTP_201_CREATED,
         )
 
@@ -236,11 +239,18 @@ class AcceptInvitationAPIView(TradeRemediesApiView):
 
     def post(self, request, invitation_id, *args, **kwargs):
         try:
-            invitation = Invitation.objects.get(id=invitation_id, deleted_at__isnull=True,)
+            invitation = Invitation.objects.get(
+                id=invitation_id,
+                deleted_at__isnull=True,
+            )
             invitation.accepted_at = timezone.now()
             invitation.user = request.user
             invitation.save()
-            return ResponseSuccess({"result": invitation.to_dict(),})
+            return ResponseSuccess(
+                {
+                    "result": invitation.to_dict(),
+                }
+            )
         except Invitation.DoesNotExist:
             raise NotFoundApiExceptions("Invitation not found")
 
@@ -261,6 +271,7 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
     @transaction.atomic
     def post(self, request, case_id, organisation_id, submission_id=None, *args, **kwargs):
         case = Case.objects.get(id=case_id)
+        # Get inviting organisation
         organisation = Organisation.objects.user_organisation(
             request.user, organisation_id=organisation_id
         )
@@ -301,7 +312,9 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
         )
         if invite_id:
             invite = Invitation.objects.get(
-                id=invite_id, submission=submission, deleted_at__isnull=True,
+                id=invite_id,
+                submission=submission,
+                deleted_at__isnull=True,
             )
             contact = invite.contact
             contact.load_attributes(request.data, ["name", "email"])

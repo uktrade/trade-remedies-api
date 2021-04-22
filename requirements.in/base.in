@@ -10,12 +10,11 @@ django-environ==0.4.5
 django-extensions==2.2.3
 django_pglocks==1.0.3
 django-redis==4.10.0
-django-silk==3.0.1
 django-storages==1.9.1
 django-timezone-field==3.1
 django-log-formatter-ecs==0.0.5
-Django==2.2.18
-djangorestframework==3.10.3
+Django==2.2.20
+djangorestframework==3.12.4
 dpath==1.4.2
 elasticsearch-dsl>=6.0.0,<7.0.0
 feed-gov-back==0.4
@@ -24,7 +23,7 @@ geckoboard.py==1.0.0
 graphviz==0.8.3
 minio==4.0.11
 Markdown==3.1.1
-notifications-python-client==5.3.0
+notifications-python-client==6.0.2
 openpyxl==3.0.6
 odfpy==1.4.1
 Pillow==8.1.2

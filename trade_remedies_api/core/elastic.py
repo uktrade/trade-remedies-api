@@ -6,6 +6,10 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 
+class ESWrapperError(Exception):
+    """Raised when an ES client cannot be configured"""
+
+
 class ESWrapper(object):
     _es_client = None
 
@@ -24,5 +28,5 @@ class ESWrapper(object):
 def get_elastic():
     if settings.ELASTIC_URI or settings.ELASTIC_HOST:
         return ESWrapper.get_client()
-
-    return None
+    msg = "ElasticSearch client cannot be configured - no URI or HOST setting detected"
+    raise ESWrapperError(msg)

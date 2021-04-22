@@ -6,7 +6,7 @@ from documents.utils import stream_s3_file_download
 from documents.constants import (
     SEARCH_CONFIDENTIAL_STATUS_MAP,
     INDEX_STATE_NOT_INDEXED,
-    INDEX_STATE_UNKONWN_TYPE,
+    INDEX_STATE_UNKNOWN_TYPE,
     INDEX_STATE_INDEX_FAIL,
     INDEX_STATE_FULL_INDEX,
 )
@@ -439,7 +439,7 @@ class DocumentAPIView(TradeRemediesApiView):
 class DocumentDownloadAPIView(TradeRemediesApiView):
     """
     Return download url for a file. The url is single use and has a life
-    of 30 seconds (defined in settings.S3_DOWNLOAD_LINK_EXPIREY_SECONDS)
+    of 30 seconds (defined in settings.S3_DOWNLOAD_LINK_EXPIRY_SECONDS)
     """
 
     def get(self, request, document_id, submission_id=None, *args, **kwargs):
@@ -756,7 +756,7 @@ class DocumentSearchIndexAPI(TradeRemediesApiView):
                 "result": {
                     "total": documents.count(),
                     "full_index": count_index.get(INDEX_STATE_FULL_INDEX, {}).get("total"),
-                    "unknown_type": count_index.get(INDEX_STATE_UNKONWN_TYPE, {}).get("total"),
+                    "unknown_type": count_index.get(INDEX_STATE_UNKNOWN_TYPE, {}).get("total"),
                     "failed": count_index.get(INDEX_STATE_INDEX_FAIL, {}).get("total"),
                     "pending": count_index.get(INDEX_STATE_NOT_INDEXED, {}).get("total"),
                 }
