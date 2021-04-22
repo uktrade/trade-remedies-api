@@ -25,6 +25,8 @@ class SubmissionDocumentInline(admin.TabularInline):
 class SubmissionAdmin(admin.ModelAdmin):
     inlines = [SubmissionDocumentInline]
     list_display = ("case", "name", "type", "created_at", "created_by")
+    search_fields = ["case__name", "name", "type__name", "created_by__email"]
+
 
 
 class SubmissionTypeAdmin(admin.ModelAdmin):
