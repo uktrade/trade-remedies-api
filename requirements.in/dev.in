@@ -8,6 +8,7 @@ traitlets==4.3.3
 black==19.10b0
 flake8
 coverage
+pip-tools
 pytest
 pytest-cov
 pytest-django
