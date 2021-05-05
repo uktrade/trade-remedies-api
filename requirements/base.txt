@@ -31,6 +31,8 @@ dj-database-url==0.5.0
     # via -r requirements.in/base.in
 django-appconf==1.0.4
     # via django-axes
+django-audit-log-middleware==0.0.4
+    # via -r requirements.in/base.in
 django-axes==5.4.1
     # via -r requirements.in/base.in
 django-countries==5.5
@@ -43,6 +45,7 @@ django-extensions==2.2.3
     # via -r requirements.in/base.in
 django-ipware==3.0.2
     # via
+    #   django-audit-log-middleware
     #   django-axes
     #   django-log-formatter-ecs
 django-log-formatter-ecs==0.0.5
@@ -57,6 +60,7 @@ django==2.2.20
     # via
     #   -r requirements.in/base.in
     #   django-appconf
+    #   django-audit-log-middleware
     #   django-axes
     #   django-dirtyfields
     #   django-redis
