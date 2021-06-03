@@ -396,7 +396,7 @@ LOGGING = {
                 "stdout",
             ],
             "level": env("DJANGO_LOG_LEVEL", default="INFO"),
-            "propagate": True,
+            "propagate": False,
         },
         "django.server": {
             "handlers": [
@@ -405,12 +405,19 @@ LOGGING = {
             "level": env("DJANGO_SERVER_LOG_LEVEL", default="INFO"),
             "propagate": False,
         },
+        "django.request": {
+            "handlers": [
+                "stdout",
+            ],
+            "level": env("DJANGO_REQUEST_LOG_LEVEL", default="INFO"),
+            "propagate": False,
+        },
         "django.db.backends": {
             "handlers": [
                 "stdout",
             ],
             "level": env("DJANGO_DB_LOG_LEVEL", default="INFO"),
-            "propagate": True,
+            "propagate": False,
         },
     },
 }
