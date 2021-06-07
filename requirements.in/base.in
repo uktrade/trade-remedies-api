@@ -1,4 +1,4 @@
-boto3==1.11.14
+boto3==1.17.88
 celery==4.4.0
 colour==0.1.5
 gevent==21.1.2
@@ -13,7 +13,7 @@ django-redis==4.10.0
 django-storages==1.9.1
 django-timezone-field==3.1
 django-log-formatter-ecs==0.0.5
-Django==2.2.20
+Django==2.2.21
 django-audit-log-middleware==0.0.4
 djangorestframework==3.12.4
 dpath==1.4.2
@@ -38,7 +38,7 @@ pytz
 sentry-sdk==0.13.1
 striprtf==0.0.10
 redis==3.3.8
-requests==2.22.0
+requests==2.25.1
 requests_toolbelt==0.9.1
 titlecase==0.12.0
 werkzeug==0.15.3
