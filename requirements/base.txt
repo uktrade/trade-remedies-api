@@ -127,7 +127,7 @@ openpyxl==3.0.6
     # via -r requirements.in/base.in
 phonenumbers==8.10.20
     # via -r requirements.in/base.in
-pillow==8.1.2
+pillow==8.2.0
     # via
     #   -r requirements.in/base.in
     #   python-pptx
