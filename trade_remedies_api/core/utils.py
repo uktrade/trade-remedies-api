@@ -8,7 +8,18 @@ from django.db import connection
 from django.contrib.contenttypes.models import ContentType
 from trade_remedies_api.constants import STATE_INCOMPLETE
 
+
 logger = logging.getLogger(__name__)
+
+
+XLSX_INJECTION_CHECK_CHARS = [
+    "=",
+    "+",
+    "-",
+    "@"
+]
+
+MAX_INJECTION_CHECK_STR_LENGTH = 10000
 
 
 def deep_index_items_by(items, key):
@@ -200,3 +211,15 @@ def gt(val_a, val_b):
 def lt(val_a, val_b):
     """A less than operator wrapped in a function"""
     return val_a < val_b
+
+
+def remove_xlsx_injection_attack_chars(value):
+    if len(value) > MAX_INJECTION_CHECK_STR_LENGTH:
+        return ""
+
+    if len(value) > 0 and str(value)[0] in XLSX_INJECTION_CHECK_CHARS:
+        return remove_xlsx_injection_attack_chars(
+            value[1:len(value)]
+        )
+
+    return value
