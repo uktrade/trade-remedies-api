@@ -13,11 +13,12 @@ from core.utils import convert_to_e164
 from contacts.models import Contact, CaseContact
 from audit.utils import audit_log
 from audit import AUDIT_TYPE_NOTIFY, AUDIT_TYPE_EVENT
-from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
+from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST, SUBMISSION_TYPE_INVITE_3RD_PARTY
 from security.constants import (
     SECURITY_GROUP_ORGANISATION_OWNER,
     SECURITY_GROUP_ORGANISATION_USER,
     ROLE_PREPARING,
+    ROLE_CONTRIBUTOR,
 )
 from .exceptions import InvitationFailure, InviteAlreadyAccepted
 
@@ -246,7 +247,8 @@ class Invitation(BaseModel):
     contact = models.ForeignKey("contacts.Contact", null=True, blank=True, on_delete=models.PROTECT)
     case = models.ForeignKey("cases.Case", null=True, blank=True, on_delete=models.PROTECT)
     submission = models.ForeignKey(
-        "cases.Submission", null=True, blank=True, on_delete=models.PROTECT
+        "cases.Submission", null=True, blank=True, on_delete=models.PROTECT,
+        related_name="invitations",
     )
     case_role = models.ForeignKey(
         "security.CaseRole", null=True, blank=True, on_delete=models.PROTECT
@@ -502,6 +504,7 @@ class Invitation(BaseModel):
                 organisation = user.organisation.organisation
                 register_interest = False
                 assigned = True
+
         # if a registration of interest is to be created, do it now.
         if register_interest:
             submission_type = SubmissionType.objects.get(id=SUBMISSION_TYPE_REGISTER_INTEREST)
@@ -541,6 +544,19 @@ class Invitation(BaseModel):
             assign_to_organisation = True
             assigned = True
             accept = True
+        elif self.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY:
+            # Assign the Third Party's organisation to the case as a contributor
+            case_role = CaseRole.objects.get(id=ROLE_CONTRIBUTOR)
+            OrganisationCaseRole.objects.assign_organisation_case_role(
+                organisation=organisation,
+                case=self.case,
+                role=case_role,
+                sampled=True,
+                created_by=self.submission.created_by,
+                approved_by=self.created_by,
+                approved_at=self.created_at,
+            )
+            assigned = self.assign_case_user(user=user, organisation=organisation)
         else:
             assigned = self.assign_case_user(user=user, organisation=organisation)
         if assign_to_organisation:

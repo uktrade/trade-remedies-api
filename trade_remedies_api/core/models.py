@@ -128,7 +128,7 @@ class UserManager(BaseUserManager):
 
         contact = kwargs.get("contact")
         if not contact:
-            contact = Contact.objects.create(
+            contact = Contact.objects.create_contact(
                 name=user.name,
                 email=user.email,
                 organisation=organisation,
@@ -238,8 +238,8 @@ class UserManager(BaseUserManager):
         contact = userprofile.get_contact()
         country = kwargs.get("country") or userprofile.contact.country
         phone = kwargs.get("phone") or userprofile.contact.phone
-        user_timezone = kwargs.get("timezone") or userprofile.timezone
-        userprofile.timezone = pytz.timezone(user_timezone) if user_timezone else None
+        user_timezone = kwargs.get("timezone", userprofile.timezone)
+        userprofile.timezone = pytz.timezone(user_timezone) if user_timezone else pytz.timezone("UTC")
         userprofile.colour = kwargs.get("colour") or userprofile.colour
         userprofile.job_title_id = kwargs.get("job_title_id")
         if "set_verified" in kwargs:
@@ -371,7 +371,7 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         user_stats = self.statistics()
         if user_stats.get("non_draft_subs") == 0:
             Audit.objects.filter(created_by_id=self.id).delete()
-            self.invitation_set.all().delete()
+            self.invitations.all().delete()
             organisation = self.organisation.organisation
             if organisation:
                 self.organisation.delete()
@@ -442,7 +442,7 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         from organisations.models import Organisation
 
         return list(
-            Organisation.objects.select_related("organisation", "user", "security_group").filter(
+            Organisation.objects.select_related("created_by", "modified_by", "duplicate_of", "merged_from").filter(
                 organisationuser__user=self, organisationuser__confirmed=True,
             )
         )
@@ -685,11 +685,15 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
                 "name": organisation.name,
                 "role": user_org.to_embedded_dict() if user_org else {},
             }
-        # some system users might not have a profile
         try:
+            # System users (e.g. Healthcheck) will not have a profile.
             _dict.update(self.userprofile.to_dict())
-        except Exception as exc:
-            logger.error("Cannot expand user profile", exc_info=True)
+        except AttributeError as e:
+            logger.warning(f"Cannot expand user profile: {e}")
+        except Exception as e:
+            # Silly optional job title causes get_prep_lookup ValueError,
+            # now fixed in front end which should progressively fix up data.
+            logger.warning(f"Problem expanding user profile: {e}")
         return _dict
 
     def get_cases(self, organisation=None):

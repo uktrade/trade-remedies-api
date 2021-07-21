@@ -127,7 +127,7 @@ class UserApiView(TradeRemediesApiView):
         email = request.data.get("email")
         password = request.data.get("password")
         roles = request.data.getlist("roles", [])
-        country = request.data.get("country")
+        country = request.data.get("country_code")
         timezone = request.data.get("timezone")
         phone = request.data.get("phone")
         name = request.data.get("name")
@@ -417,10 +417,9 @@ class PublicUserApiView(TradeRemediesApiView):
             if profile.contact:
                 contact = profile.contact
                 contact.organisation = organisation
-                if request_data.get("address") and request_data.get("country"):
-                    contact.address = request_data["address"]
-                    contact.country = request_data["country"]
-                else:
+                contact.address = request_data.get("address", contact.address)
+                contact.country = request.data.get("country_code", contact.country.code)
+                if not contact.address:
                     contact.address_from_org(organisation)
                 contact.phone = convert_to_e164(phone, str(contact.country))
                 contact._disable_audit = True
