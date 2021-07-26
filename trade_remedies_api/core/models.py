@@ -559,21 +559,6 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         self.login_code_created_at = timezone.now()
         return self.login_code, self.login_code_created_at
 
-    def login_code_expired(self):
-        """
-        Returns True if the login code has expired, False if it is still within DURATION_2FA_CODE
-        setting. Returns None if there is no login code set up.
-        """
-        if self.login_code and self.login_code_created_at:
-            return (timezone.now() - self.login_code).minutes > settings.DURATION_2FA_CODE
-        return None
-
-    def validate_login_code(self, code):
-        """
-        Validate a 2FA login code
-        """
-        return code == self.login_code and self.login_code_expired() is False
-
     def set_cases(self, organisation, case_specs, request_user):
         """
         Take a list of {caseid, primary} objects and update this user
@@ -786,21 +771,29 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         return twofactor
 
     def should_two_factor(self, user_agent=None):
-        """
-        Return True if this user should 2FA (or if 2FA is disabled via ENABLE_2FA system parameter)
-        2FA would occur if the last validation time has lapsed or unset, or if a new user
-        agent is introduced.
-        Note: The public front end will force 2fa for each login.
+        """Assert if user should perform 2FA.
+
+        Two-factor authentication is only required if the ENABLE_2FA system
+        parameter is set to True, and Two-factor authentication has lapsed.
+        Authentication lapses after TWO_FACTOR_AUTH_VALID_DAYS, or a new
+        user-agent is detected.
+
+        Note: The public portal will force 2FA for every login.
+
+        :param (str) user_agent: The HTTP_X_USER_AGENT value
+          (i.e. the user's browser -> portal request's user-agent header).
+        :returns (bool): True if this user should 2FA, or if 2FA is disabled
+          via ENABLE_2FA system parameter.
         """
         if not SystemParameter.get("ENABLE_2FA", True):
             return False
-        twofactor = self.two_factor
-        user_agent = user_agent or twofactor.last_user_agent
+        two_factor = self.two_factor
+        user_agent = user_agent or two_factor.last_user_agent
         return (
-            not twofactor.last_validated
-            or user_agent != twofactor.last_user_agent
-            or (timezone.now() - twofactor.last_validated).days
-            > settings.TWO_FACTOR_VALIDITY_PERIOD
+            not two_factor.last_validated
+            or user_agent != two_factor.last_user_agent
+            or (timezone.now() - two_factor.last_validated).days
+            > settings.TWO_FACTOR_AUTH_VALID_DAYS
         )
 
     def get_access_token(self):
@@ -1000,7 +993,12 @@ class TwoFactorAuth(models.Model):
     When attempts fail after n times (defined in settings.TWO_FACTOR_ATTEMPTS), the
     mechanism is locked for the duration specified in settints.TWO_FACTOR_LOCK_MINUTES
     """
-
+    SMS = "sms"
+    EMAIL = "email"
+    DELIVERY_TYPE_CHOICES = [
+        (SMS, "SMS"),
+        (EMAIL, "Email"),
+    ]
     user = models.OneToOneField(User, primary_key=True, on_delete=models.CASCADE)
     code = models.CharField(max_length=16, null=True, blank=True)
     last_validated = models.DateTimeField(null=True, blank=True)
@@ -1008,6 +1006,9 @@ class TwoFactorAuth(models.Model):
     last_user_agent = models.CharField(max_length=1000, null=True, blank=True)
     locked_until = models.DateTimeField(null=True, blank=True)
     attempts = models.SmallIntegerField(default=0)
+    delivery_type = models.CharField(max_length=8,
+                                     choices=DELIVERY_TYPE_CHOICES,
+                                     default=SMS)
 
     def __str__(self):
         return f"{self.user} last validated at {self.last_validated}"
@@ -1034,13 +1035,34 @@ class TwoFactorAuth(models.Model):
         self.attempts = 0
         self.save()
 
+    @staticmethod
+    def validity_period_for(delivery_type):
+        """Get validity period for delivery type.
+
+        If delivery_type is not recognised, default to
+        TWO_FACTOR_CODE_SMS_VALID_MINUTES.
+
+        :param (str) delivery_type: TwoFactorAuth.DELIVERY_TYPE_CHOICES.
+        :returns (int): validity period in minutes.
+        """
+        valid_minutes = {
+            TwoFactorAuth.SMS: settings.TWO_FACTOR_CODE_SMS_VALID_MINUTES,
+            TwoFactorAuth.EMAIL: settings.TWO_FACTOR_CODE_EMAIL_VALID_MINUTES,
+        }.get(delivery_type, settings.TWO_FACTOR_CODE_SMS_VALID_MINUTES)
+        logger.debug(f"Determined 2FA code validity period: {valid_minutes} minutes")
+        return valid_minutes
+
     def validate(self, code):
+        """Validate a 2FA code.
+
+        Check code is the same as generated one and not expired based on the
+        validity period for the delivery type.
+
+        :param (str) code: 2FA code.
+        :returns (bool): True if code is valid, False otherwise.
         """
-        validate a code given is the same as generated and not expired.
-        """
-        return code == self.code and self.code_duration < (
-            settings.TWO_FACTOR_MINUTES_CODE_VALID * 60
-        )
+        valid_minutes = self.validity_period_for(self.delivery_type)
+        return code == self.code and self.code_duration < (valid_minutes * 60)
 
     @property
     def code_duration(self):
@@ -1052,37 +1074,53 @@ class TwoFactorAuth(models.Model):
             duration = (timezone.now() - self.generated_at).seconds
         return duration
 
-    def generate_code(self, user_agent=None):
-        """
-        Generate a new code and reset the last_validated date.
+    def generate_code(self, user_agent=None, valid_minutes=1):
+        """Generate a 2FA code.
+
+        If this is attempt 0 for TWO_FACTOR_AUTH_VALID_DAYS or code has expired,
+        generate a new code and reset the last_validated date. Otherwise return
+        current code.
+
+        :param (str) user_agent: The HTTP_X_USER_AGENT value
+          (i.e. the user's browser -> portal request's user-agent header).
+        :param (int) valid_minutes: 2FA validity period in minutes.
+        :returns (str): New or existing 2FA code.
         """
         if self.attempts == 0 or self.code_duration >= (
-            settings.TWO_FACTOR_MINUTES_CODE_VALID * 60
+            valid_minutes * 60
         ):
             self.code = str(randint(10000, 99999))
             self.last_user_agent = user_agent
             self.last_validated = None
             self.generated_at = timezone.now()
             self.save()
+            logger.debug(f"Generated a new 2FA code valid for {valid_minutes} minutes")
         return self.code
 
     def two_factor_auth(self, user_agent=None, delivery_type=None):
+        """Perform 2FA delivery according to delivery type.
+
+        :param (str) user_agent: The HTTP_X_USER_AGENT value
+          (i.e. the user's browser -> portal request's user-agent header).
+        :param (str) delivery_type: TwoFactorAuth.DELIVERY_TYPE_CHOICES.
+        :returns (dict): JSON send report.
         """
-        Perform the full 2fa delivery either by sms (default) or email
-        """
-        delivery_type = delivery_type or "sms"
-        if delivery_type != "email" and not self.user.phone:
-            delivery_type = "email"
-        code = self.generate_code(user_agent=user_agent)
+        delivery_type = delivery_type or self.SMS
+        if delivery_type != self.EMAIL and not self.user.phone:
+            delivery_type = self.EMAIL
+        valid_minutes = self.validity_period_for(delivery_type)
+        code = self.generate_code(user_agent=user_agent, valid_minutes=valid_minutes)
         context = {"code": code}
         send_report = None
-        if delivery_type == "sms":
+        if delivery_type == self.SMS:
             template_id = SystemParameter.get("2FA_CODE_MESSAGE")
             phone = self.user.phone
             send_report = send_sms(phone, context, template_id, country=self.user.country.code)
-        elif delivery_type == "email":
+        elif delivery_type == self.EMAIL:
             template_id = SystemParameter.get("PUBLIC_2FA_CODE_EMAIL")
             send_report = send_mail(self.user.email, context, template_id)
+        self.delivery_type = delivery_type
+        self.save()
         return send_report
 
 

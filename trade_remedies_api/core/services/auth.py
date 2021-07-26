@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from core.models import User, UserProfile, SystemParameter, PasswordResetRequest
+from core.models import (User, UserProfile, SystemParameter, PasswordResetRequest, TwoFactorAuth)
 from core.notifier import send_mail
 from invitations.models import Invitation
 from django.conf import settings
@@ -255,13 +255,14 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
 
     @staticmethod
     def get(request, delivery_type=None, *args, **kwargs):
-        delivery_type = delivery_type or "sms"
-        if delivery_type not in ("sms", "email"):
+        delivery_type = delivery_type or TwoFactorAuth.SMS
+        if delivery_type not in dict(TwoFactorAuth.DELIVERY_TYPE_CHOICES):
             raise InvalidRequestParams("Invalid 2FA delivery type requested")
-        if delivery_type == "sms" and not request.user.phone:
-            delivery_type = "email"
+        if delivery_type == TwoFactorAuth.SMS and not request.user.phone:
+            delivery_type = TwoFactorAuth.EMAIL
         two_factor = request.user.two_factor
-
+        two_factor.delivery_type = delivery_type
+        two_factor.save()
         if two_factor.is_locked():
             locked_until = two_factor.locked_until + datetime.timedelta(seconds=15)
             locked_for_seconds = (locked_until - timezone.now()).seconds

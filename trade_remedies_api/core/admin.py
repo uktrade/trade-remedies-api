@@ -80,7 +80,7 @@ class UserProfileInline(admin.StackedInline):
 
 
 # Define a new User admin
-class UserAdmin(UserAdmin):
+class UserAdmin(UserAdmin):  # noqa
     form = UserChangeForm
     add_form = UserCreationForm
     list_display = ("email", "name", "country", "timezone", "phone", "is_staff")
@@ -95,7 +95,7 @@ class UserAdmin(UserAdmin):
         ("Important dates", {"fields": ("last_login", "created_at", "deleted_at")}),
     )
     add_fieldsets = (
-        (None, {"classes": ("wide",), "fields": ("email", "password1", "password2"),}),
+        (None, {"classes": ("wide",), "fields": ("email", "password1", "password2"), }),
     )
     ordering = ("email",)
     inlines = (UserProfileInline,)
@@ -106,7 +106,7 @@ class SystemParameterAdmin(admin.ModelAdmin):
 
 
 class TwoFactorAuthAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = ("generated_at", )
 
 
 class JobTitleAdmin(admin.ModelAdmin):
