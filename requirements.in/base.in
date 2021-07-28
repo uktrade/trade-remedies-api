@@ -44,3 +44,6 @@ titlecase==0.12.0
 werkzeug==0.15.3
 whitenoise==3.3.1
 xlrd==1.2.0
+
+# CVE-2021-33503
+urllib3==1.26.5
