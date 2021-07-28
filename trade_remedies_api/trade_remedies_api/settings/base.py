@@ -280,8 +280,6 @@ S3_DOWNLOAD_LINK_EXPIRY_SECONDS = 30
 MAX_UPLOAD_SIZE = 2 * (1024 * 1024 * 1024)
 # Set to True to prevent the creation of binary identical files
 PREVENT_DUPLICATE_FILES = False
-# timeout in minutes for 2FA code expiry
-DURATION_2FA_CODE = 5
 # Case worker environment key
 CASE_WORKER_ENVIRONMENT_KEY = env("CASE_WORKER_ENVIRONMENT_KEY")
 # Public environment key
@@ -310,15 +308,17 @@ AXES_USE_USER_AGENT = True
 AXES_ONLY_USER_FAILURES = False
 # Use a combination of username and ip for axes
 AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
-# Two factor auth validity duration (days)
-TWO_FACTOR_VALIDITY_PERIOD = env("TWO_FACTOR_VALIDITY_PERIOD", default=14)
 # Max life of password reset code in hours
 PASSWORD_RESET_CODE_AGE_HOURS = env("PASSWORD_RESET_CODE_AGE", default=2)
+# Two factor authentication validity duration in days
+TWO_FACTOR_AUTH_VALID_DAYS = env("TWO_FACTOR_AUTH_VALID_DAYS", default=14)
 # Lockout time for two factor failures
 TWO_FACTOR_LOCK_MINUTES = 5
-# Minutes a 2FA code valid for
-TWO_FACTOR_MINUTES_CODE_VALID = 10
-# Number of two factor attempts
+# Two factor authentication code validity (SMS delivery type) in minutes
+TWO_FACTOR_CODE_SMS_VALID_MINUTES = 10
+# Two factor authentication code validity (Email delivery type) in minutes
+TWO_FACTOR_CODE_EMAIL_VALID_MINUTES = 20
+# Number of two factor authentication attempts allowed before locking
 TWO_FACTOR_ATTEMPTS = 3
 # Time to cache method
 METHOD_CACHE_DURATION_MINUTES = 2
@@ -396,7 +396,7 @@ LOGGING = {
                 "stdout",
             ],
             "level": env("DJANGO_LOG_LEVEL", default="INFO"),
-            "propagate": True,
+            "propagate": False,
         },
         "django.server": {
             "handlers": [
@@ -405,12 +405,19 @@ LOGGING = {
             "level": env("DJANGO_SERVER_LOG_LEVEL", default="INFO"),
             "propagate": False,
         },
+        "django.request": {
+            "handlers": [
+                "stdout",
+            ],
+            "level": env("DJANGO_REQUEST_LOG_LEVEL", default="INFO"),
+            "propagate": False,
+        },
         "django.db.backends": {
             "handlers": [
                 "stdout",
             ],
             "level": env("DJANGO_DB_LOG_LEVEL", default="INFO"),
-            "propagate": True,
+            "propagate": False,
         },
     },
 }

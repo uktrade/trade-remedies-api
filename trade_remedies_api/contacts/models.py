@@ -116,9 +116,11 @@ class Contact(BaseModel):
         _dict = self.to_minimal_dict()
         fields = {
             "Organisation": {
+                "id": 0,
                 "name": 0,
                 "address": 0,
                 "companies_house_id": 0,
+                "country": 0,
             }
         }
         _dict.update(

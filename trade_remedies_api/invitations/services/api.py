@@ -1,3 +1,4 @@
+import logging
 import uuid
 from core.services.base import TradeRemediesApiView, ResponseSuccess
 from core.services.exceptions import InvalidRequestParams, NotFoundApiExceptions
@@ -22,6 +23,9 @@ from cases.constants import (
 )
 from organisations.models import Organisation
 from documents.models import DocumentBundle
+
+
+logger = logging.getLogger(__name__)
 
 
 class InvitationAPIView(TradeRemediesApiView):
@@ -262,11 +266,163 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
     submission.
     """
 
-    def get(self, request, case_id, submission_id, *args, **kwargs):
+    @staticmethod
+    def get(request, case_id, submission_id, *args, **kwargs):
         case = Case.objects.get(id=case_id)
         submission = Submission.objects.get(case=case, id=submission_id)
         invites = Invitation.objects.filter(submission=submission)
         return ResponseSuccess({"results": [invite.to_dict() for invite in invites]})
+
+    @staticmethod
+    def build_submission(request_user, request_organisation, case):
+        """Build submission for a Third Party invite.
+
+        :param (User) request_user: Inviting user.
+        :param (Organisation) request_organisation: inviting organisation.
+        :param (Case) case: Case Third Party is being invited to.
+        :returns (Submission): New Third Party submission.
+        """
+        # Create submission
+        submission_type = get_submission_type(SUBMISSION_TYPE_INVITE_3RD_PARTY)
+        submission_status = submission_type.default_status
+        submission = Submission.objects.create(
+            name="Invite 3rd party",
+            type=submission_type,
+            status=submission_status,
+            organisation=request_organisation,
+            case=case,
+            created_by=request_user,
+            contact=request_user.contact,
+        )
+        # Build submission documents
+        case_bundle = DocumentBundle.objects.filter(
+            case=case, submission_type=submission_type, status="LIVE"
+        ).first()
+        case_documents = case_bundle.documents.all() if case_bundle else []
+        submission_document_type = SubmissionDocumentType.objects.get(
+            id=SUBMISSION_DOCUMENT_TYPE_TRA
+        )
+        for case_document in case_documents:
+            submission.add_document(
+                document=case_document,
+                document_type=submission_document_type,
+                issued=False,
+                issued_by=request_user,
+            )
+        return submission
+
+    @staticmethod
+    def build_invite(request_user, request_organisation, case, submission, request_data):
+        """Build Third Party invite.
+
+        :param (User) request_user: Inviting user.
+        :param (Organisation) request_organisation: inviting organisation.
+        :param (Case) case: Case Third Party is being invited to.
+        :param (Submission) submission: Submission to encapsulate the invite.
+        :param (dict) request_data: Invite parameters.
+        """
+        invitee_organisation = InviteThirdPartyAPI.get_invitee_org(
+            request_user,
+            request_data
+        )
+        contact = Contact.objects.create(
+            name=request_data.get("name"),
+            email=request_data.get("email", "").lower(),
+            organisation=invitee_organisation,
+            created_by=request_user,
+        )
+        third_party_group = Group.objects.get(name=SECURITY_GROUP_THIRD_PARTY_USER)
+        invite = Invitation.objects.create(
+            created_by=request_user,
+            case=case,
+            submission=submission,
+            organisation=request_organisation,
+            short_code=crypto.get_random_string(8),
+            code=str(uuid.uuid4()),
+            contact=contact,
+            email=contact.email,
+            organisation_security_group=third_party_group,
+        )
+        logger.info(f"Invite created: {invite}")
+
+    @staticmethod
+    def update_invite_contact(request_user, request_data, contact):
+        """Update an existing Third Party invite contact.
+
+        :param (User) request_user: Inviting user.
+        :param (dict) request_data: Invite contact update parameters.
+        :param (Contact) contact: Contact to update
+        """
+        contact.load_attributes(request_data, ["name", "email"])
+        contact.organisation = InviteThirdPartyAPI.update_invitee_org(
+            request_user,
+            request_data,
+            contact.organisation
+        )
+        if phone := request_data.get("phone"):
+            contact.phone = convert_to_e164(phone)
+        if contact.is_dirty(check_relationship=True):
+            contact.save()
+
+    @staticmethod
+    def get_invitee_org(request_user, request_data):
+        """Get Third Party Invitee's organisation.
+
+        To avoid creating duplicate organisations where possible
+        see if we can find one with same Name and Company ID.
+
+        :param (User) request_user: Inviting user.
+        :param (dict) request_data: Invite contact update parameters.
+        :returns (Organisation): A new or existing organisation.
+        """
+        if requested_organisation := Organisation.objects.filter(
+            name=request_data.get("organisation_name"),
+            companies_house_id=request_data.get("companies_house_id")
+        ).first():
+            return requested_organisation
+        else:
+            return Organisation.objects.create(
+                created_by=request_user,
+                user_context=[request_user],
+                name=request_data.get("organisation_name"),
+                companies_house_id=request_data.get("companies_house_id"),
+                address=request_data.get("organisation_address"),
+                country=request_data.get("country_code"),
+            )
+
+    @staticmethod
+    def update_invitee_org(request_user, request_data, existing_organisation):
+        """Update the Third Party Invitee's organisation.
+
+        If the inviter updates organisation details, attempt to clean up.
+
+        :param (User) request_user: Inviting user.
+        :param (dict) request_data: Organisation update parameters.
+        :param (Organisation) existing_organisation: Invitee's organisation.
+        :returns (Organisation): The requested organisation.
+        """
+        requested_organisation = InviteThirdPartyAPI.get_invitee_org(request_user, request_data)
+        can_edit_requested_organisation = not requested_organisation.has_users
+        can_delete_existing_organisation = not existing_organisation.has_users
+        if requested_organisation != existing_organisation:
+            # Inviter specified an entirely different organisation, see if can we clean up.
+            if can_delete_existing_organisation:
+                logger.info(f"Third Party Invite: Deleting unused organisation: "
+                            f"{existing_organisation}")
+                try:
+                    existing_organisation.delete(purge=True)
+                except Organisation.DoesNotExist:
+                    pass
+                except Exception as e:
+                    logger.error(f"Failed to delete unused organisation "
+                                 f"{existing_organisation}: {e}")
+        elif can_edit_requested_organisation:
+            # An update to name or company number would have elicited a new org,
+            # so just update address and country
+            requested_organisation.address = request_data.get("organisation_address")
+            requested_organisation.country = request_data.get("country_code")
+            requested_organisation.save()
+        return requested_organisation
 
     @transaction.atomic
     def post(self, request, case_id, organisation_id, submission_id=None, *args, **kwargs):
@@ -275,84 +431,27 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
         organisation = Organisation.objects.user_organisation(
             request.user, organisation_id=organisation_id
         )
-        invite_id = request.data.get("invite_id")
-        if submission_id:
+        if not submission_id:
+            submission = self.build_submission(request.user, organisation, case)
+            self.build_invite(request.user, organisation, case, submission, request.data)
+            return_status = status.HTTP_201_CREATED
+        else:
             submission = Submission.objects.get(id=submission_id, organisation=organisation)
-        else:
-            submission_type = get_submission_type(SUBMISSION_TYPE_INVITE_3RD_PARTY)
-            submission_status = submission_type.default_status
-            submission = Submission.objects.create(
-                name="Invite 3rd party",
-                type=submission_type,
-                status=submission_status,
-                organisation=organisation,
-                case=case,
-                created_by=request.user,
-                contact=request.user.contact,
-            )
-            case_bundle = DocumentBundle.objects.filter(
-                case=case, submission_type=submission_type, status="LIVE"
-            ).first()
-            case_documents = case_bundle.documents.all() if case_bundle else []
-            submission_document_type = SubmissionDocumentType.objects.get(
-                id=SUBMISSION_DOCUMENT_TYPE_TRA
-            )
-            for case_document in case_documents:
-                submission.add_document(
-                    document=case_document,
-                    document_type=submission_document_type,
-                    issued=False,
-                    issued_by=request.user,
-                )
-        invitee_organisation = Organisation.objects.create_or_update_organisation(
-            user=request.user,
-            name=request.data.get("organisation_name"),
-            companies_house_id=request.data.get("companies_house_id"),
-            address=request.data.get("organisation_address"),
-        )
-        if invite_id:
-            invite = Invitation.objects.get(
-                id=invite_id,
-                submission=submission,
-                deleted_at__isnull=True,
-            )
-            contact = invite.contact
-            contact.load_attributes(request.data, ["name", "email"])
-            if contact.organisation != invitee_organisation:
-                contact.organisation = invitee_organisation
-            if request.data.get("phone"):
-                contact.phone = convert_to_e164(request.data.phone)
-            if contact.is_dirty():
-                contact.save()
-        else:
-            contact = Contact.objects.create(
-                name=request.data.get("name"),
-                email=request.data.get("email", "").lower(),
-                organisation=invitee_organisation,
-                created_by=request.user,
-            )
-            third_party_group = Group.objects.get(name=SECURITY_GROUP_THIRD_PARTY_USER)
-            invite = Invitation.objects.create(
-                created_by=request.user,
-                case=case,
-                submission=submission,
-                organisation=organisation,
-                short_code=crypto.get_random_string(8),
-                code=str(uuid.uuid4()),
-                contact=contact,
-                email=contact.email,
-                organisation_security_group=third_party_group,
-            )
+            invite = Invitation.objects.filter(submission=submission).first()
+            if invite:
+                self.update_invite_contact(request.user, request.data, invite.contact)
+                return_status = status.HTTP_200_OK
+            else:
+                # No invite associated with submission (i.e. new version), rebuild the invite
+                self.build_invite(request.user, organisation, case, submission, request.data)
+                return_status = status.HTTP_201_CREATED
         return ResponseSuccess(
             {
                 "result": {
-                    "contact": contact.to_dict(),
-                    "invite": invite.to_dict(),
-                    "invited_by_organisation": organisation.to_embedded_dict(),
                     "submission": submission.to_embedded_dict(),
                 }
             },
-            http_status=status.HTTP_201_CREATED,
+            http_status=return_status,
         )
 
     def delete(self, request, case_id, submission_id, invite_id, *args, **kwargs):

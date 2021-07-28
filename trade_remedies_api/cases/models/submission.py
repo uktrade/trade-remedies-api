@@ -217,7 +217,7 @@ class Submission(BaseModel):
             for document in self.documents.all():
                 document.set_user_context(self.user_context)
                 document.delete(purge=True, delete_file=True)
-            self.invitation_set.all().delete()
+            self.invitations.all().delete()
         super().delete(purge=purge)
 
     def save(self, *args, **kwargs):
@@ -512,6 +512,13 @@ class Submission(BaseModel):
     def _to_embedded_dict(self, **kwargs):  # noqa
         downloaded_count = self.submissiondocument_set.filter(downloads__gt=0).count()
         out = self.to_minimal_dict()
+        invitations = [
+            {
+                "id": invite.id,
+                "name": invite.contact.name
+            }
+            for invite in self.invitations.all()
+        ]
         out.update(
             {
                 # how many documents were downloaded at least once
@@ -527,8 +534,9 @@ class Submission(BaseModel):
                 "received_from": self.received_from.to_embedded_dict()
                 if self.received_from
                 else None,
-                "parent_id": str(self.parent_id),
+                "parent_id": str(self.parent_id) if self.parent_id else None,
                 "deficiency_notice_params": self.deficiency_notice_params,
+                "invitations": invitations,
             }
         )
         return out
@@ -773,6 +781,9 @@ class Submission(BaseModel):
         Create a new version of this submission, linking it back to this parent
         and upping the version number.
         """
+
+        from invitations.models import Invitation
+
         deficient_document_ids = map(str, deficient_document_ids) if deficient_document_ids else []
         created_by = created_by or self.created_by
         clone = Submission.objects.get(id=self.id)
@@ -799,6 +810,12 @@ class Submission(BaseModel):
         clone.set_due_date()
         clone.save()
         self.archived = True
+        # Copy invites
+        invites = Invitation.objects.filter(submission=self)
+        for invite in invites:
+            invite.id = invite.code = None
+            invite.submission = clone
+            invite.save()
         self.save()
         # copy all documents, except deficiency ones
         submission_documents = SubmissionDocument.objects.filter(submission=self).exclude(

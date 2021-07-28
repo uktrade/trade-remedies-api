@@ -706,7 +706,7 @@ class Case(BaseModel):
         from invitations.models import Invitation
 
         try:
-            invite = self.invitation_set.get(contact__isnull=True, organisation__isnull=True)
+            invite = self.invitations.get(contact__isnull=True, organisation__isnull=True)
         except Invitation.DoesNotExist:
             invite = Invitation.objects.create(
                 case=self, case_role=CaseRole.objects.get(id=ROLE_AWAITING_APPROVAL)

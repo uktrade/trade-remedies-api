@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from core.models import User, UserProfile, SystemParameter, PasswordResetRequest
+from core.models import (User, UserProfile, SystemParameter, PasswordResetRequest, TwoFactorAuth)
 from core.notifier import send_mail
 from invitations.models import Invitation
 from django.conf import settings
@@ -19,6 +19,7 @@ from axes.decorators import axes_dispatch
 from security.constants import (
     SECURITY_GROUP_ORGANISATION_OWNER,
     SECURITY_GROUP_ORGANISATION_USER,
+    SECURITY_GROUP_THIRD_PARTY_USER,
     ENVIRONMENT_GROUPS,
 )
 from core.constants import CONTENT_EMAIL_EXISTS
@@ -199,9 +200,13 @@ class RegistrationAPIView(APIView):
                 user_data = request.data.dict()
                 user_data["email"] = user_data["email"].lower()
                 if invitation:
-                    invited_org_has_users = invitation.organisation.has_users
+                    if invitation.organisation_security_group.name == SECURITY_GROUP_THIRD_PARTY_USER:
+                        # Third Party's org is on the contact not the invite
+                        invited_organisation = invitation.contact.organisation
+                    else:
+                        invited_organisation = invitation.organisation
                     # register interest if this is the first user of this organisation
-                    register_interest = not invited_org_has_users
+                    register_interest = not invited_organisation.has_users
                     contact_kwargs = {}
                     if confirm_invited_org == "true":
                         contact_kwargs = {
@@ -210,14 +215,15 @@ class RegistrationAPIView(APIView):
                     else:
                         register_interest = False
                     accept = False
+                    groups = []
                     if invitation.organisation_security_group:
-                        groups = [
-                            invitation.organisation_security_group,
-                            SECURITY_GROUP_ORGANISATION_USER,
-                        ]
+                        # There is a group specified so add it
+                        groups.append(invitation.organisation_security_group.name)
                         accept = True
+                    if invited_organisation.has_users:
+                        groups.append(SECURITY_GROUP_ORGANISATION_USER)
                     else:
-                        groups = [SECURITY_GROUP_ORGANISATION_OWNER]
+                        groups.append(SECURITY_GROUP_ORGANISATION_OWNER)
                     user = User.objects.create_user(
                         groups=groups,
                         **contact_kwargs,
@@ -249,13 +255,14 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
 
     @staticmethod
     def get(request, delivery_type=None, *args, **kwargs):
-        delivery_type = delivery_type or "sms"
-        if delivery_type not in ("sms", "email"):
+        delivery_type = delivery_type or TwoFactorAuth.SMS
+        if delivery_type not in dict(TwoFactorAuth.DELIVERY_TYPE_CHOICES):
             raise InvalidRequestParams("Invalid 2FA delivery type requested")
-        if delivery_type == "sms" and not request.user.phone:
-            delivery_type = "email"
+        if delivery_type == TwoFactorAuth.SMS and not request.user.phone:
+            delivery_type = TwoFactorAuth.EMAIL
         two_factor = request.user.two_factor
-
+        two_factor.delivery_type = delivery_type
+        two_factor.save()
         if two_factor.is_locked():
             locked_until = two_factor.locked_until + datetime.timedelta(seconds=15)
             locked_for_seconds = (locked_until - timezone.now()).seconds

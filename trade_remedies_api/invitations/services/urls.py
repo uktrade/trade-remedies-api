@@ -15,7 +15,6 @@ urlpatterns = [
     path("users/<uuid:invite_id>/", UserInvitations.as_view()),
     path("case/<uuid:case_id>/", InvitationsAPIView.as_view()),
     path("case/<uuid:case_id>/submission/<uuid:submission_id>/", InvitationsAPIView.as_view()),
-    # path('<uuid:invitation_id>/', InvitationAPIView.as_view()),
     path("for/<uuid:contact_id>/to/<uuid:case_id>/", InvitationsAPIView.as_view()),
     path("for/<uuid:contact_id>/", InvitationsAPIView.as_view()),
     path("to/<uuid:case_id>/", InvitationsAPIView.as_view()),
