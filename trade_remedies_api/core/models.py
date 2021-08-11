@@ -100,10 +100,43 @@ class UserManager(BaseUserManager):
         from organisations.models import Organisation
 
         user = self.create_base_user_model(email, **kwargs)
-        # Will raise validationerror if fails validation
+        # Will raise validation error if password validation fails
         validate_password(password)
         user.set_password(password)
         user.save()
+        if groups is None:
+            groups = []
+
+        # Determine Organisation
+        organisation_name = kwargs.get("organisation_name")
+        organisation_address = kwargs.get("organisation_address")
+        post_code = kwargs.get("organisation_postcode")
+        organisation = None
+        if organisation_name:
+            organisation = Organisation.objects.create_or_update_organisation(
+                organisation_id=kwargs.get("organisation_id"),
+                user=user,
+                name=organisation_name,
+                address=organisation_address,
+                country=kwargs.get("organisation_country"),
+                post_code=post_code,
+                assign_user=True,
+                **filter_dict(
+                    kwargs,
+                    [
+                        "vat_number",
+                        "eori_number",
+                        "duns_number",
+                        "organisation_website",
+                        "companies_house_id",
+                    ],
+                ),
+            )
+            if organisation.users.count() > 1:
+                groups.append(SECURITY_GROUP_ORGANISATION_USER)
+            else:
+                groups.append(SECURITY_GROUP_ORGANISATION_OWNER)
+
         if assign_default_groups and not groups:
             permissions = DEFAULT_ADMIN_PERMISSIONS if admin is True else DEFAULT_USER_PERMISSIONS
             groups = Group.objects.filter(name__in=permissions)
@@ -111,11 +144,7 @@ class UserManager(BaseUserManager):
             for group in get_groups(groups):
                 user.groups.add(group)
         self.evaluate_sos_membership(user, groups)
-        # Organisation
-        organisation_name = kwargs.get("organisation_name")
-        organisation = kwargs.get("organisation")
-        organisation_address = kwargs.get("organisation_address")
-        post_code = kwargs.get("organisation_postcode")
+
         # Contact and profile details
         phone = kwargs.get("phone")
         country = kwargs.get("country", "GB")
@@ -142,7 +171,7 @@ class UserManager(BaseUserManager):
             contact.phone = phone
             contact.address = kwargs.get("contact_address") or contact.address
             contact.post_code = kwargs.get("contact_postcode") or contact.post_code
-            country = country
+            contact.country = country
             contact.save()
 
         UserProfile.objects.create(
@@ -153,26 +182,6 @@ class UserManager(BaseUserManager):
             job_title_id=kwargs.get("job_title_id"),
         )
 
-        if organisation_name:
-            organisation = Organisation.objects.create_or_update_organisation(
-                organisation_id=kwargs.get("organisation_id"),
-                user=user,
-                name=organisation_name,
-                address=organisation_address,
-                country=kwargs.get("organisation_country"),
-                post_code=post_code,
-                assign_user=True,
-                **filter_dict(
-                    kwargs,
-                    [
-                        "vat_number",
-                        "eori_number",
-                        "duns_number",
-                        "organisation_website",
-                        "companies_house_id",
-                    ],
-                ),
-            )
         user.save()
         user.auth_token = Token.objects.create(user=user)
         user.refresh_from_db()
@@ -371,7 +380,7 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         user_stats = self.statistics()
         if user_stats.get("non_draft_subs") == 0:
             Audit.objects.filter(created_by_id=self.id).delete()
-            self.invitations.all().delete()
+            self.invitation_set.all().delete()
             organisation = self.organisation.organisation
             if organisation:
                 self.organisation.delete()
