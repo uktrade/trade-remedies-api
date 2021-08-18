@@ -33,13 +33,46 @@ def send_mail(email, context, template_id, reference=None):
     return send_report
 
 
+def notify_footer(email=None):
+    """Build notify footer with specified email.
+
+    :param (str) email: contact email for footer.
+    :returns (str): NOTIFY_BLOCK_FOOTER system parameter value
+      with email appended, if any.
+    """
+    from core.models import SystemParameter
+
+    footer = SystemParameter.get("NOTIFY_BLOCK_FOOTER")
+    if email:
+        return "\n".join([footer, f"Contact: {email}"])
+    return footer
+
+
+def notify_contact_email(case_number=None):
+    """Build notify email address.
+
+    If a case is specified build contact email with it.
+
+    :param (str) case_number: e.g. 'TD0001'
+    :returns (str): A case contact email if case number specified, otherwise
+      value of TRADE_REMEDIES_EMAIL system parameter.
+    """
+    from core.models import SystemParameter
+
+    if case_number:
+        return f"{case_number}@{SystemParameter.get('TRADE_REMEDIES_EMAIL_DOMAIN')}"
+    return SystemParameter.get("TRADE_REMEDIES_EMAIL")
+
+
 def get_context(extra_context=None):
     from core.models import SystemParameter
 
     extra_context = extra_context or {}
+    email = notify_contact_email(extra_context.get("case_number"))
+    footer = notify_footer(email)
     context = {
-        "footer": SystemParameter.get("NOTIFY_BLOCK_FOOTER"),
-        "email": SystemParameter.get("TRADE_REMEDIES_EMAIL"),
+        "footer": footer,
+        "email": email,
         "guidance_url": SystemParameter.get("LINK_HELP_BOX_GUIDANCE"),
     }
     context.update(extra_context)
