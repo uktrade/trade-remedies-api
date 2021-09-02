@@ -232,7 +232,8 @@
     {
         "key": "NOTIFY_BLOCK_FOOTER",
         "data_type": "str",
-        "default": "Investigations Team\nTrade Remedies\nDepartment for International Trade\nContact: investigations@traderemedies.gov.uk",
+        "default": "Investigations Team\nTrade Remedies\nDepartment for International Trade",
+        "value": "Investigations Team\nTrade Remedies\nDepartment for International Trade",
         "editable": true
     },
     {
@@ -284,6 +285,12 @@
         "key": "TRADE_REMEDIES_EMAIL",
         "data_type": "str",
         "default": "investigations@traderemedies.gov.uk",
+        "editable": true
+    },
+    {
+        "key": "TRADE_REMEDIES_EMAIL_DOMAIN",
+        "data_type": "str",
+        "default": "traderemedies.gov.uk",
         "editable": true
     },
     {

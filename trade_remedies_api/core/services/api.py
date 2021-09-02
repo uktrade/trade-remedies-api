@@ -17,7 +17,7 @@ from audit import AUDIT_TYPE_NOTIFY
 from core.feature_flags import is_enabled, FeatureFlagNotFound
 from core.models import User, SystemParameter, JobTitle
 from core.utils import convert_to_e164, pluck, public_login_url
-from core.notifier import get_template, get_preview
+from core.notifier import get_template, get_preview, notify_footer, notify_contact_email
 from core.constants import TRUTHFUL_INPUT_VALUES
 from core.tasks import send_mail
 from core.feedback import feedback_export
@@ -492,8 +492,8 @@ class AssignUserToCaseView(TradeRemediesApiView):
                 "company_name": user_organisation.name,
                 "representing_clause": f" representing {representing.name}",
                 "login_url": public_login_url(),
-                "footer": SystemParameter.get("NOTIFY_BLOCK_FOOTER"),
             }
+            context["footer"] = notify_footer(notify_contact_email(context.get("case_number")))
             audit_kwargs = {
                 "audit_type": AUDIT_TYPE_NOTIFY,
                 "case": case,

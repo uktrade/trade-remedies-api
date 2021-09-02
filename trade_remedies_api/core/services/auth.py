@@ -119,6 +119,15 @@ class AuthenticationView(APIView):
             is_public = not user.is_tra()
             should_2fa = user.should_two_factor(user_agent=user_agent)
             email_verified = user.userprofile.email_verified_at or not is_public
+            if not email_verified:
+                return ResponseSuccess(
+                    {
+                        "needs_verify": True,
+                        "user": user.to_dict(user_agent=user_agent),
+                        "version": __version__,
+                    },
+                    http_status=status.HTTP_201_CREATED,
+                )
             if two_factor_enabled and email_verified and (is_public or should_2fa):
                 try:
                     user.two_factor.two_factor_auth(user_agent=user_agent)
@@ -235,9 +244,7 @@ class RegistrationAPIView(APIView):
                         user, accept=accept, register_interest=register_interest
                     )
                 else:
-                    user = User.objects.create_user(
-                        groups=[SECURITY_GROUP_ORGANISATION_OWNER], **user_data
-                    )
+                    user = User.objects.create_user(**user_data)
                     profile = user.userprofile
                     profile.verify_email()
 

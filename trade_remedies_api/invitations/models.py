@@ -9,6 +9,7 @@ from cases.models import get_case
 from organisations.models import get_organisation
 from core.tasks import send_mail
 from core.models import SystemParameter
+from core.notifier import notify_footer, notify_contact_email
 from core.utils import convert_to_e164
 from contacts.models import Contact, CaseContact
 from audit.utils import audit_log
@@ -356,8 +357,6 @@ class Invitation(BaseModel):
             "full_name": self.contact.name,  # invited contact
             "login_url": f"{settings.PUBLIC_ROOT_URL}",
             "guidance_url": SystemParameter.get("LINK_HELP_BOX_GUIDANCE"),
-            "footer": SystemParameter.get("NOTIFY_BLOCK_FOOTER"),
-            "email": SystemParameter.get("TRADE_REMEDIES_EMAIL"),
             "invited_by": self.created_by.name,
         }
         if self.case:
@@ -384,6 +383,14 @@ class Invitation(BaseModel):
                     else "",
                 }
             )
+        # Set email and footer appropriate to case context
+        email = notify_contact_email(_context.get("case_number"))
+        _context.update(
+            {
+                "email": email,
+                "footer": notify_footer(email)
+            }
+        )
         if direct is True:
             _context[
                 "login_url"
