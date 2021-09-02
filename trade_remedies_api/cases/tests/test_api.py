@@ -217,6 +217,11 @@ class SubmissionStatusAPITest(APITestCase, APISetUpMixin):
         response = self.post_form(self.url, payload)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Build footer
+        base_footer = SystemParameter.get("NOTIFY_BLOCK_FOOTER")
+        email = f"{self.case.reference}@{SystemParameter.get('TRADE_REMEDIES_EMAIL_DOMAIN')}"
+        footer = "\n".join([base_footer, f"Contact: {email}"])
         notify_data = {
             "company": self.organisation.name,
             "case_name": self.case.name,
@@ -237,8 +242,8 @@ class SubmissionStatusAPITest(APITestCase, APISetUpMixin):
             if self.submission.organisation
             else "",
             "deadline": "",
-            "footer": SystemParameter.get("NOTIFY_BLOCK_FOOTER"),
-            "email": SystemParameter.get("TRADE_REMEDIES_EMAIL"),
+            "footer": footer,
+            "email": email,
             "guidance_url": SystemParameter.get("LINK_HELP_BOX_GUIDANCE"),
         }
         notifier_client().send_email_notification.assert_called_once_with(
