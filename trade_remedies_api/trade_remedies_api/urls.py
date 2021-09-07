@@ -115,7 +115,6 @@ urlpatterns = [
     path(f"{settings.API_PREFIX}/contacts/", include("contacts.services.urls")),
     path(f"{settings.API_PREFIX}/feedback/", include("feedback.services.urls")),
     path(f"{settings.API_PREFIX}/companieshouse/", include("core.services.urls")),
-    path("workflow/", include("workflow.urls")),
 ]
 
 if settings.DJANGO_ADMIN:
