@@ -380,12 +380,11 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         user_stats = self.statistics()
         if user_stats.get("non_draft_subs") == 0:
             Audit.objects.filter(created_by_id=self.id).delete()
-            self.invitations.all().delete()
-            organisation = self.organisation.organisation
-            if organisation:
+            self.invitation_set.all().delete()
+            if self.organisation and self.organisation.organisation:
+                if len(self.organisation.organisation.users) == 1:
+                    self.organisation.organisation.delete()
                 self.organisation.delete()
-                if len(organisation.users) == 1:
-                    organisation.delete()
             return True
         return False
 
