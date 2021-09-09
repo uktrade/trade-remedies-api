@@ -337,8 +337,10 @@ class DocumentAPIView(TradeRemediesApiView):
                                 child_submission_document.document = _child_doc
                                 child_submission_document.save()
                             replace_submission_document.delete()
-                        except (Document.DoesNotExist, SubmissionDocument.DoesNotExist):
-                            logger.warning(f"Document to replace was not found: {_replace_id}")
+                        except (Document.DoesNotExist, SubmissionDocument.DoesNotExist) as e:
+                            logger.warning(
+                                f"Document to replace with id '{_replace_id}' was not found: {e}"
+                            )
                 if settings.ASYNC_DOC_PREPARE or document.safe:
                     result_item = None
                     if submission:
