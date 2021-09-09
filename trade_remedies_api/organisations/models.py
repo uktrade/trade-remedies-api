@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import models, transaction, connection
 from core.base import BaseModel
 from core.models import SystemParameter
+from core.notifier import notify_footer, notify_contact_email
 from core.tasks import send_mail
 from audit import AUDIT_TYPE_NOTIFY
 from security.models import OrganisationCaseRole, OrganisationUser, get_security_group, UserCase
@@ -163,7 +164,7 @@ class OrganisationManager(models.Manager):
             notify_template_id = SystemParameter.get("NOTIFY_ORGANISATION_MERGED")
             # any baseline context can be set here.
             context = {
-                "footer": SystemParameter.get("NOTIFY_BLOCK_FOOTER"),
+                "footer": notify_footer(notify_contact_email()),
                 "public_cases": SystemParameter.get("LINK_TRA_CASELIST"),
             }
             self.notify_owners(
