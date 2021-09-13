@@ -10,10 +10,10 @@ PASSWORD = "A7Hhfa!jfaw@f"
 class ContentTest(TestCase):
 
     def setUp(self):
-        self.caseworker = User.objects.create(email="case@worker.com", name="Case Worker")
+        self.caseworker = User.objects.create(email="case@worker.com", name="Case Worker") #PS-IGNORE
         self.user = User.objects.create_user(
             name="standard user",
-            email="standard@test.com",
+            email="standard@test.com",#PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
         )

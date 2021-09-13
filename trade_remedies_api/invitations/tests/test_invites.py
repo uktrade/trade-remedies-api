@@ -21,17 +21,17 @@ class InviteTest(TestCase):
     def setUp(self):
         Group.objects.create(name=SECURITY_GROUP_ORGANISATION_OWNER)
         self.case_role = CaseRole.objects.get(id=ROLE_APPLICANT)
-        self.caseworker = User.objects.create(email="case@worker.com", name="Case Worker")
+        self.caseworker = User.objects.create(email="case@worker.com", name="Case Worker")#PS-IGNORE
         self.user = User.objects.create_user(
             name="Test User",
-            email="standard@test.com",
+            email="standard@test.com",#PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
         )
         self.case = Case.objects.create(name="Test Case", created_by=self.user)
         self.organisation = Organisation.objects.create(name="Test Org")
-        self.contact_1 = Contact.objects.create(name="Test User", email="standard@test.com")
-        self.contact_2 = Contact.objects.create(name="Other User", email="nonstandard@test.com")
+        self.contact_1 = Contact.objects.create(name="Test User", email="standard@test.com")#PS-IGNORE
+        self.contact_2 = Contact.objects.create(name="Other User", email="nonstandard@test.com")#PS-IGNORE
 
     def test_invite_different_person(self):
         """

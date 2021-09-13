@@ -9,7 +9,7 @@ def get_notify_response(**overrides):
     response = {
         "content": {
             "body": "Test message blah blah",
-            "from_email": "trade.remedies.dev@notifications.service.gov.uk",
+            "from_email": "trade.remedies.dev@notifications.service.gov.uk",#PS-IGNORE
             "subject": "Test Paul",
         },
         "id": "1a03c4ab-10c2-44ea-9dec-811b3b1c6d20",
@@ -21,7 +21,7 @@ def get_notify_response(**overrides):
             "version": 2,
         },
         "uri": "https://api.notifications.service.gov.uk/v2/notifications/1a",
-        "to_email": "paul.cooney@digital.trade.gov.uk",
+        "to_email": "paul.cooney@digital.trade.gov.uk",#PS-IGNORE
         "template_id": "8f486f65-d351-4494-9e79-4b8aadda6fac",
     }
     response.update(overrides)
@@ -32,7 +32,7 @@ class NotifierTest(APITestCase):
     def setUp(self):
         load_system_params()
         self.context = {"full_name": "Mr Chips"}
-        self.email = "test@trade.gov.uk"
+        self.email = "test@trade.gov.uk"#PS-IGNORE
         self.template_id = "template-id"
 
     @patch("core.notifier.NotificationsAPIClient")

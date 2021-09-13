@@ -44,42 +44,42 @@ class SecurityTest(TestCase):
         # create users
         self.traUser = User.objects.create_user(
             name="tra user",
-            email="adminuser@tra.gov",
+            email="adminuser@tra.gov",#PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
             groups=[SECURITY_GROUP_TRA_ADMINISTRATOR],
         )
         self.userA1 = User.objects.create_user(
             name="org owner",
-            email="user1@test.com",
+            email="user1@test.com",#PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
             groups=[SECURITY_GROUP_ORGANISATION_OWNER],
         )
         self.userA2 = User.objects.create_user(
             name="org user",
-            email="user2@test.com",
+            email="user2@test.com",#PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
             groups=[SECURITY_GROUP_ORGANISATION_USER],
         )
         self.userB1 = User.objects.create_user(
             name="org owner 2",
-            email="user3@test.com",
+            email="user3@test.com",#PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
             groups=[SECURITY_GROUP_ORGANISATION_OWNER],
         )
         self.userB2 = User.objects.create_user(
             name="org user 2",
-            email="user4@test.com",
+            email="user4@test.com",#PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
             groups=[SECURITY_GROUP_ORGANISATION_USER],
         )
         self.userC1 = User.objects.create_user(
             name="org owner 3",
-            email="user5@test.com",
+            email="user5@test.com",#PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
             groups=[SECURITY_GROUP_ORGANISATION_OWNER],
@@ -231,37 +231,37 @@ class AgentSecurityTest(TestCase):
         # create users
         self.userA1 = User.objects.create_user(
             name="user one",
-            email="user1@organisationA.com",
+            email="user1@organisationA.com",#PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
         )
         self.userA2 = User.objects.create_user(
             name="user two",
-            email="user2@organisationA.com",
+            email="user2@organisationA.com",#PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
         )
         self.userB1 = User.objects.create_user(
             name="user three",
-            email="user3@organisationB.com",
+            email="user3@organisationB.com",#PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
         )
         self.userB2 = User.objects.create_user(
             name="user four",
-            email="user4@organisationB.com",
+            email="user4@organisationB.com",#PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
         )
         self.userL1 = User.objects.create_user(
             name="user lawyer",
-            email="lawyer1@lawyer1.com",
+            email="lawyer1@lawyer1.com",#PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
         )
         self.userL2 = User.objects.create_user(
             name="user lawyer 2",
-            email="lawyer2@lawyer2.com",
+            email="lawyer2@lawyer2.com",#PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
         )

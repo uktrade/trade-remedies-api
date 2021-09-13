@@ -40,7 +40,7 @@ def user(mocker):
     """Fake User instance."""
     user = mocker.Mock()
     user.id = "001"
-    user.email = "foo@bar.com"
+    user.email = "foo@bar.com"#PS-IGNORE
     return user
 
 
@@ -75,7 +75,7 @@ def user_case(mocker, user, case, org):
 def test_log_deleted_usercase(caplog, user_case_sender, user_case):
     receivers.log_deleted_usercase(user_case_sender, user_case)
     expected = (
-        "UserCase record deleted: user_id = 001, email = foo@bar.com, "
+        "UserCase record deleted: user_id = 001, email = foo@bar.com, "#PS-IGNORE
         "case_id = 002, case = case-002, organisation_id = 003, "
         "organisation = org-003"
     )
@@ -85,7 +85,7 @@ def test_log_deleted_usercase(caplog, user_case_sender, user_case):
 
 def test_log_deleted_user(caplog, user_sender, user):
     receivers.log_deleted_user(user_sender, user)
-    expected = "User record deleted: user_id = 001, email = foo@bar.com"
+    expected = "User record deleted: user_id = 001, email = foo@bar.com"#PS-IGNORE
     with caplog.at_level(logging.INFO):
         assert expected in caplog.text
 
@@ -106,11 +106,11 @@ def test_log_deleted_organisation(caplog, org_sender, org):
 
 def test_log_deleted_usercase_missing_user_id(mocker, caplog, user_case_sender, user_case):
     bad_user = mocker.Mock(spec=["email"])
-    bad_user.email = "foo@bar.com"
+    bad_user.email = "foo@bar.com"#PS-IGNORE
     user_case.user = bad_user
     receivers.log_deleted_usercase(user_case_sender, user_case)
     expected = (
-        "UserCase record deleted: user_id = unknown, email = foo@bar.com, "
+        "UserCase record deleted: user_id = unknown, email = foo@bar.com, "#PS-IGNORE
         "case_id = 002, case = case-002, organisation_id = 003, "
         "organisation = org-003"
     )
@@ -124,7 +124,7 @@ def test_log_deleted_usercase_missing_case_id(mocker, caplog, user_case_sender, 
     user_case.case = bad_case
     receivers.log_deleted_usercase(user_case_sender, user_case)
     expected = (
-        "UserCase record deleted: user_id = 001, email = foo@bar.com, "
+        "UserCase record deleted: user_id = 001, email = foo@bar.com, "#PS-IGNORE
         "case_id = unknown, case = case-005, organisation_id = 003, "
         "organisation = org-003"
     )
@@ -134,16 +134,16 @@ def test_log_deleted_usercase_missing_case_id(mocker, caplog, user_case_sender, 
 
 def test_log_deleted_user_missing_id(mocker, caplog, user_sender):
     bad_user = mocker.Mock(spec=["email"])
-    bad_user.email = "foo@bar.com"
+    bad_user.email = "foo@bar.com"#PS-IGNORE
     receivers.log_deleted_user(user_sender, bad_user)
-    expected = "User record deleted: user_id = unknown, email = foo@bar.com"
+    expected = "User record deleted: user_id = unknown, email = foo@bar.com"#PS-IGNORE
     with caplog.at_level(logging.INFO):
         assert expected in caplog.text
 
 
 def test_log_deleted_usercase_missing_inst(mocker, caplog, user_case_sender, user_case):
     bad_user = mocker.Mock(spec=["email"])
-    bad_user.email = "foo@bar.com"
+    bad_user.email = "foo@bar.com"#PS-IGNORE
     user_case.user = bad_user
     receivers.log_deleted_usercase(user_case_sender, None)
     expected = "Unable to log all details because: 'NoneType' object has no attribute 'user'"
