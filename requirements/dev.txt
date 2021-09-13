@@ -207,7 +207,7 @@ phonenumbers==8.10.20
     # via -r requirements.in/../requirements/base.txt
 pickleshare==0.7.5
     # via ipython
-pillow==8.2.0
+pillow==8.3.2
     # via
     #   -r requirements.in/../requirements/base.txt
     #   python-pptx
