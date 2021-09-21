@@ -335,10 +335,7 @@ class CasesAPIView(TradeRemediesApiView):
                 cases = set([usercase.case for usercase in cases])
         elif case_id:
             try:
-                if request.user.is_tra():
-                    case = Case.objects.investigator_cases(request.user).get(id=case_id)
-                else:
-                    case = Case.objects.get_case(id=case_id)
+                case = Case.objects.get_case(id=case_id)
                 case.set_case_context(case)
                 return ResponseSuccess({"result": case.to_dict(fields=fields)})
             except Case.DoesNotExist:
