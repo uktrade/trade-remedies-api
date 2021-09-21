@@ -712,7 +712,6 @@ class CaseUserAssignAPI(TradeRemediesApiView):
             user_ids = [user_id]
         else:
             user_ids = request.data.getlist("user_id")
-            UserCase.objects.filter(case=case, user__groups__name__in=SECURITY_GROUPS_TRA).delete()
         users = User.objects.filter(id__in=user_ids)
         existing_team = case.team
         try:
