@@ -3,9 +3,9 @@
 
 echo "Loading all fixture data"
 
-python manage.py loaddata /app/security/fixtures/*.json
-python manage.py loaddata /app/organisations/fixtures/*.json
-python manage.py loaddata /app/cases/fixtures/*.json
-python manage.py loaddata /app/core/fixtures/*.json
+python manage.py loaddata security/fixtures/*.json
+python manage.py loaddata organisations/fixtures/*.json
+python manage.py loaddata cases/fixtures/*.json
+python manage.py loaddata core/fixtures/*.json
 
 echo "Fixtures loaded"
