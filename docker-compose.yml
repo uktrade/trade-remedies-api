@@ -46,6 +46,7 @@ services:
       - ./postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: trade_remedies
+      POSTGRES_HOST_AUTH_METHOD: trust
   redis:
     image: redis:alpine
     ports:

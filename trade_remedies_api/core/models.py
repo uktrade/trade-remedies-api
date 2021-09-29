@@ -112,30 +112,6 @@ class UserManager(BaseUserManager):
         organisation_address = kwargs.get("organisation_address")
         post_code = kwargs.get("organisation_postcode")
         organisation = None
-        if organisation_name:
-            organisation = Organisation.objects.create_or_update_organisation(
-                organisation_id=kwargs.get("organisation_id"),
-                user=user,
-                name=organisation_name,
-                address=organisation_address,
-                country=kwargs.get("organisation_country"),
-                post_code=post_code,
-                assign_user=True,
-                **filter_dict(
-                    kwargs,
-                    [
-                        "vat_number",
-                        "eori_number",
-                        "duns_number",
-                        "organisation_website",
-                        "companies_house_id",
-                    ],
-                ),
-            )
-            if organisation.users.count() > 1:
-                groups.append(SECURITY_GROUP_ORGANISATION_USER)
-            else:
-                groups.append(SECURITY_GROUP_ORGANISATION_OWNER)
 
         if assign_default_groups and not groups:
             permissions = DEFAULT_ADMIN_PERMISSIONS if admin is True else DEFAULT_USER_PERMISSIONS
@@ -154,6 +130,9 @@ class UserManager(BaseUserManager):
                 phone = convert_to_e164(phone, country=country)
             except NumberParseException:
                 pass
+
+        if country == "code":
+            country = "GB"
 
         contact = kwargs.get("contact")
         if not contact:
@@ -181,6 +160,33 @@ class UserManager(BaseUserManager):
             colour=str(user.get_user_colour() or "black"),
             job_title_id=kwargs.get("job_title_id"),
         )
+
+        user.save()
+
+        if organisation_name:
+            organisation = Organisation.objects.create_or_update_organisation(
+                organisation_id=kwargs.get("organisation_id"),
+                user=user,
+                name=organisation_name,
+                address=organisation_address,
+                country=kwargs.get("organisation_country"),
+                post_code=post_code,
+                assign_user=True,
+                **filter_dict(
+                    kwargs,
+                    [
+                        "vat_number",
+                        "eori_number",
+                        "duns_number",
+                        "organisation_website",
+                        "companies_house_id",
+                    ],
+                ),
+            )
+            if organisation.users.count() > 1:
+                groups.append(SECURITY_GROUP_ORGANISATION_USER)
+            else:
+                groups.append(SECURITY_GROUP_ORGANISATION_OWNER)
 
         user.save()
         user.auth_token = Token.objects.create(user=user)

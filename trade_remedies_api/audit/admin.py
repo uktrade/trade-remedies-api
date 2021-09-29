@@ -3,7 +3,7 @@ from .models import Audit
 
 
 class AuditAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['type', 'created_at', 'case_id', 'content_type', 'milestone']
     # Leave commented out until all environments have run migrations
     # for removal of audit.case foreign key.
     # list_display = ('type', 'created_at', 'case_id', 'content_type', 'milestone')
