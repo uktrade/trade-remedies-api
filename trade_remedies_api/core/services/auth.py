@@ -160,6 +160,7 @@ class RegistrationAPIView(APIView):
         email = request.data.get("email")
         password = request.data.get("password")
         code = request.data.get("code")
+        country = request.data.get("country_code")
         case_id = request.data.get("case_id")
         confirm_invited_org = request.data.get("confirm_invited_org")
         errors = {}
@@ -209,7 +210,7 @@ class RegistrationAPIView(APIView):
                 user_data = request.data.dict()
                 user_data["email"] = user_data["email"].lower()
                 if invitation:
-                    if invitation.organisation_security_group.name == SECURITY_GROUP_THIRD_PARTY_USER:
+                    if invitation.organisation_security_group and invitation.organisation_security_group.name == SECURITY_GROUP_THIRD_PARTY_USER:
                         # Third Party's org is on the contact not the invite
                         invited_organisation = invitation.contact.organisation
                     else:
@@ -233,12 +234,17 @@ class RegistrationAPIView(APIView):
                         groups.append(SECURITY_GROUP_ORGANISATION_USER)
                     else:
                         groups.append(SECURITY_GROUP_ORGANISATION_OWNER)
+                    print("breaks for user bit")
                     user = User.objects.create_user(
                         groups=groups,
                         **contact_kwargs,
                         **user_data,
                     )
+                    print("calls here")
+                    user.save()
+                    print("breaks here")
                     profile = user.userprofile
+                    print("breaks here 2")
                     profile.verify_email()
                     invitation.process_invitation(
                         user, accept=accept, register_interest=register_interest
