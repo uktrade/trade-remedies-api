@@ -107,55 +107,11 @@ class UserManager(BaseUserManager):
         if groups is None:
             groups = []
 
-        # Determine Organisation
-        organisation_name = kwargs.get("organisation_name")
-        organisation_address = kwargs.get("organisation_address")
-        post_code = kwargs.get("organisation_postcode")
-        organisation = None
-
-        if assign_default_groups and not groups:
-            permissions = DEFAULT_ADMIN_PERMISSIONS if admin is True else DEFAULT_USER_PERMISSIONS
-            groups = Group.objects.filter(name__in=permissions)
-        if groups:
-            for group in get_groups(groups):
-                user.groups.add(group)
-        self.evaluate_sos_membership(user, groups)
-
-        # Contact and profile details
-        phone = kwargs.get("phone")
-        country = kwargs.get("country", "GB")
         user_timezone = kwargs.get("timezone")
-        if phone:
-            try:
-                phone = convert_to_e164(phone, country=country)
-            except NumberParseException:
-                pass
-
-        if country == "code":
-            country = "GB"
-
-        contact = kwargs.get("contact")
-        if not contact:
-            contact = Contact.objects.create_contact(
-                name=user.name,
-                email=user.email,
-                organisation=organisation,
-                phone=phone,
-                address=kwargs.get("contact_address") or organisation_address,
-                post_code=kwargs.get("contact_postcode") or post_code,
-                country=country,
-                created_by=user,
-            )
-        else:
-            contact.phone = phone
-            contact.address = kwargs.get("contact_address") or contact.address
-            contact.post_code = kwargs.get("contact_postcode") or contact.post_code
-            contact.country = country
-            contact.save()
 
         UserProfile.objects.create(
             user=user,
-            contact=contact,
+            contact=None,
             timezone=pytz.timezone(user_timezone) if user_timezone else None,
             colour=str(user.get_user_colour() or "black"),
             job_title_id=kwargs.get("job_title_id"),
@@ -163,6 +119,11 @@ class UserManager(BaseUserManager):
 
         user.save()
 
+        # Determine Organisation
+        organisation_name = kwargs.get("organisation_name")
+        organisation_address = kwargs.get("organisation_address")
+        post_code = kwargs.get("organisation_postcode")
+        organisation = None
         if organisation_name:
             organisation = Organisation.objects.create_or_update_organisation(
                 organisation_id=kwargs.get("organisation_id"),
@@ -187,6 +148,49 @@ class UserManager(BaseUserManager):
                 groups.append(SECURITY_GROUP_ORGANISATION_USER)
             else:
                 groups.append(SECURITY_GROUP_ORGANISATION_OWNER)
+
+        if assign_default_groups and not groups:
+            permissions = DEFAULT_ADMIN_PERMISSIONS if admin is True else DEFAULT_USER_PERMISSIONS
+            groups = Group.objects.filter(name__in=permissions)
+        if groups:
+            for group in get_groups(groups):
+                user.groups.add(group)
+        self.evaluate_sos_membership(user, groups)
+
+        # Contact and profile details
+        phone = kwargs.get("phone")
+        country = kwargs.get("country", "GB")
+
+        if phone:
+            try:
+                phone = convert_to_e164(phone, country=country)
+            except NumberParseException:
+                pass
+
+        if country == "code":
+            country = "GB"
+
+        contact = kwargs.get("contact")
+
+        if not contact:
+            contact = Contact.objects.create_contact(
+                name=user.name,
+                email=user.email,
+                organisation=organisation,
+                phone=phone,
+                address=kwargs.get("contact_address") or organisation_address,
+                post_code=kwargs.get("contact_postcode") or post_code,
+                country=country,
+                created_by=user,
+            )
+        else:
+            contact.phone = phone
+            contact.address = kwargs.get("contact_address") or contact.address
+            contact.post_code = kwargs.get("contact_postcode") or contact.post_code
+            contact.country = country
+            contact.save()
+
+        UserProfile.objects.filter(user=user).update(contact=contact)
 
         user.save()
         user.auth_token = Token.objects.create(user=user)
