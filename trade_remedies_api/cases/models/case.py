@@ -255,7 +255,7 @@ class CaseManager(models.Manager):
             _kwargs["archived_at__isnull"] = current
         cases = (
             Case.objects.filter(deleted_at__isnull=True, **_kwargs)
-            .select_related("type", "stage", "created_by", "archive_reason")
+            .select_related("type", "stage", "created_by", "archive_reason", "workflow")
             .order_by("sequence")
         )
 
