@@ -236,7 +236,7 @@ class CaseManager(models.Manager):
         )
         return user_cases
 
-    def investigator_cases(self, user=None, current=None, exclude_partially_created=False):
+    def investigator_cases(self, user=None, current=None, exclude_partially_created=True):
         """
         Return a case queryset for an investigator
 
