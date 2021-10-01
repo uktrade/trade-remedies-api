@@ -236,7 +236,7 @@ class CaseManager(models.Manager):
         )
         return user_cases
 
-    def investigator_cases(self, user=None, current=None, exclude_partially_created=True):
+    def investigator_cases(self, user=None, current=None, exclude_partially_created=False):
         """
         Return a case queryset for an investigator
 
@@ -255,7 +255,7 @@ class CaseManager(models.Manager):
             _kwargs["archived_at__isnull"] = current
         cases = (
             Case.objects.filter(deleted_at__isnull=True, **_kwargs)
-            .select_related("type", "stage", "created_by", "archive_reason", "workflow")
+            .select_related("type", "stage", "created_by", "archive_reason")
             .order_by("sequence")
         )
 
@@ -265,7 +265,6 @@ class CaseManager(models.Manager):
                 .exclude(Q(exportsource__isnull=True) & ~Q(type__in=ALL_COUNTRY_CASE_TYPES))
                 .distinct()
             )
-
         return cases
 
     def public_cases(self):
