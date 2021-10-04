@@ -23,7 +23,7 @@ notify_response = {
         "version": 1,
         "uri": (
             "https://api.notifications.service.gov.uk/v2/template/"
-            "ceb50d92-100d-4b8b-b559-14fa3b091cd"
+            "ceb50d92-100d-4b8b-b559-14fa3b091cd"  # /PS-IGNORE
         ),
     },
 }
@@ -36,7 +36,7 @@ class PasswordResetTest(TestCase):
 
     def setUp(self):
         Group.objects.create(name="Organisation Owner")
-        self.user = User.objects.create(email="harel@harelmalka.com", name="Joe Public")
+        self.user = User.objects.create(email="harel@harelmalka.com", name="Joe Public")  # /PS-IGNORE
         self.user.set_password(PASSWORD)
         self.user.save()
 

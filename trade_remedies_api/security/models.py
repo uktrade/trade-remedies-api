@@ -471,24 +471,3 @@ class CaseSecurityMixin:
         :param group: The Group instance or name
         """
         return get_security_group(group) in self.get_groups()
-
-
-#     def assign_model_role(self, model, role):
-#         return ModelSecurity.objects.assign_user_model_role(self, model, role)
-
-#     def revoke_model_role(self, model, role=None):
-#         """
-#         Revoke the access to a given user globally or for a specific role
-#         """
-#         return ModelSecurity.objects.revoke_user_model_role(user=self, model=model, role=role)
-
-#     def has_role(self, model, role):
-#         try:
-#             ModelSecurity.objects.get(
-#                 user=self,
-#                 content_type=ContentType.objects.get_for_model(model),
-#                 model_pk=model.id,
-#                 role=get_role(role))
-#             return True
-#         except ModelSecurity.DoesNotExist:
-#             return False

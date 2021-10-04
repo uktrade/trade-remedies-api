@@ -24,7 +24,7 @@ notify_response = {
         "version": 1,
         "uri": (
             "https://api.notifications.service.gov.uk/v2/template/"
-            "ceb50d92-100d-4b8b-b559-14fa3b091cd"
+            "ceb50d92-100d-4b8b-b559-14fa3b091cd"  # /PS-IGNORE
         ),
     },
 }
@@ -39,13 +39,13 @@ def create_error_response(message, status_code=400):
 class SendMailTest(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create(email="test@user.com", name="Joe Public")
+        self.user = User.objects.create(email="test@user.com", name="Joe Public")  # /PS-IGNORE
         self.user_context = UserContext(self.user)
         self.case = Case.objects.create(
             created_by=self.user, name="Untitled", user_context=self.user_context
         )
         Audit.objects.all().delete()
-        self.email = "test@example.com"
+        self.email = "test@example.com"  # /PS-IGNORE
         self.context = {"a": "b"}
         self.template_id = "my-template-1"
         self.reference = None
