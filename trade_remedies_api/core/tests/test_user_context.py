@@ -5,8 +5,8 @@ from core.models import User
 
 class UserContextTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create(email="test@user.com", name="Joe Public")
-        self.caseworker = User.objects.create(email="case@worker.com", name="Case Worker")
+        self.user = User.objects.create(email="test@user.com", name="Joe Public")  # /PS-IGNORE
+        self.caseworker = User.objects.create(email="case@worker.com", name="Case Worker")  # /PS-IGNORE
 
     def test_user_context_sd(self):
         as_none = user_context(None)

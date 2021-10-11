@@ -26,19 +26,19 @@ class CaseTeamTest(TestCase):
         Group.objects.create(name=SECURITY_GROUP_TRA_INVESTIGATOR)
         self.user_1 = User.objects.create_user(
             name="org user",
-            email="standard@test.com",
+            email="standard@test.com",  # /PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
         )
         self.investigator = User.objects.create_user(
             name="tra user",
-            email="trainvestigator@test.com",
+            email="trainvestigator@test.com",  # /PS-IGNORE
             password=PASSWORD,
             groups=[SECURITY_GROUP_TRA_INVESTIGATOR],
         )
         self.manager = User.objects.create_user(
             name="tra manager",
-            email="tramanager@test.com",
+            email="tramanager@test.com",  # /PS-IGNORE
             password=PASSWORD,
             groups=[SECURITY_GROUP_TRA_ADMINISTRATOR],
         )

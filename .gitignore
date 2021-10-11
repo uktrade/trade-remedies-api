@@ -127,3 +127,6 @@ node_modules
 trade_remedies_api/trade_remedies_api/staticfiles/
 
 postgres_data
+
+# NER output
+ner_output_file.txt

@@ -94,10 +94,10 @@ def step_impl(context, email, orgname):
     return context
 
 
-@when('I make "sue@test.com" an owner of "Org A"')  # noqa: F811
+@when('I make "sue@test.com" an owner of "Org A"')  # noqa: F811  # /PS-IGNORE
 def step_impl(context, email):
     test_user = User.objects.get(email=email)
-    raise NotImplementedError('STEP: When I make "sue@test.com" an owner of "Org A"')
+    raise NotImplementedError('STEP: When I make "sue@test.com" an owner of "Org A"')  # /PS-IGNORE
 
 
 """

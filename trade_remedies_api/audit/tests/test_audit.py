@@ -13,8 +13,8 @@ from documents.models import Document
 
 class AuditTestMixin(object):
     def setup_test(self):
-        self.user = User.objects.create(email="test@user.com", name="Joe Public")
-        self.caseworker = User.objects.create(email="case@worker.com", name="Case Worker")
+        self.user = User.objects.create(email="test@user.com", name="Joe Public")  # /PS-IGNORE
+        self.caseworker = User.objects.create(email="case@worker.com", name="Case Worker")  # /PS-IGNORE
         self.unassisted_user_context = UserContext(self.user)
         self.assisted_user_context = UserContext(self.user, assisted_by=self.caseworker)
         self.unassisted_case = Case.objects.create(

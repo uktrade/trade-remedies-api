@@ -43,34 +43,34 @@ class APISetUpMixin(object):
         # two standard users, one owner, and one who will not be part of the org
         self.user_1 = User.objects.create_user(
             name="org user",
-            email="standard@gov.uk",
+            email="standard@gov.uk",  # /PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
             organisation=self.organisation,
         )
         self.user_2 = User.objects.create_user(
             name="org user",
-            email="standard2@gov.uk",
+            email="standard2@gov.uk",  # /PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
             organisation=self.organisation,
         )
         self.user_owner = User.objects.create_user(
             name="org owner",
-            email="owner@gov.uk",
+            email="owner@gov.uk",  # /PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
             organisation=self.organisation,
         )
         self.user_denied = User.objects.create_user(
             name="user denied",
-            email="invalid@gov.uk",
+            email="invalid@gov.uk",  # /PS-IGNORE
             password=PASSWORD,
             assign_default_groups=False,
         )
         self.investigator = User.objects.create_user(
             name="tra user",
-            email="trainvestigator@gov.uk",
+            email="trainvestigator@gov.uk",  # /PS-IGNORE
             password=PASSWORD,
             groups=[SECURITY_GROUP_TRA_INVESTIGATOR],
         )
@@ -250,7 +250,7 @@ class SubmissionStatusAPITest(APITestCase, APISetUpMixin):
             email_address=self.user_1.email,
             personalisation=notify_data,
             reference=None,
-            template_id="d6fb3018-2338-40c9-aa6d-f1195f5f65de",
+            template_id="d6fb3018-2338-40c9-aa6d-f1195f5f65de",  # /PS-IGNORE
         )
         response_data = response.data["response"]
         self.assertTrue(response_data["success"])
