@@ -1466,15 +1466,22 @@ class ReviewTypeAPIView(TradeRemediesApiView):
     @transaction.atomic
     def post(self, request, organisation_id=None, case_id=None, *args, **kwargs):
         reference_case_id = request.data.get("reference_case")
-        case_type_id = request.data.get("case_type")
+        print(reference_case_id)
+        print('ref')
+        case_type_id = int(request.data.get("case_type") or 0)
+        print(case_type_id)
+        print('case_id')
         case = get_case(str(case_id))
+        print(case)
+        print(case_id)
+        print('hello')
         if case_type_id:
             case.modify_case_type(case_type_id, requested_by=request.user)
         if reference_case_id:
             if reference_case_id.startswith("notice:"):
                 case.notice = Notice.objects.get(id=reference_case_id)
             else:
-                case.parent = get_case(str(reference_case_id))
+                case.parent = get_case(str(case_id))
             case.save()
         return ResponseSuccess({"results": case.to_dict()}, http_status=status.HTTP_201_CREATED)
 
