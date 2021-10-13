@@ -1466,15 +1466,8 @@ class ReviewTypeAPIView(TradeRemediesApiView):
     @transaction.atomic
     def post(self, request, organisation_id=None, case_id=None, *args, **kwargs):
         reference_case_id = request.data.get("reference_case")
-        print(reference_case_id)
-        print('ref')
         case_type_id = int(request.data.get("case_type") or 0)
-        print(case_type_id)
-        print('case_id')
         case = get_case(str(case_id))
-        print(case)
-        print(case_id)
-        print('hello')
         if case_type_id:
             case.modify_case_type(case_type_id, requested_by=request.user)
         if reference_case_id:
