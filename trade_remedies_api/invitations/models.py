@@ -551,7 +551,7 @@ class Invitation(BaseModel):
             assign_to_organisation = True
             assigned = True
             accept = True
-        elif self.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY:
+        elif self.submission and self.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY:
             # Assign the Third Party's organisation to the case as a contributor
             case_role = CaseRole.objects.get(id=ROLE_CONTRIBUTOR)
             OrganisationCaseRole.objects.assign_organisation_case_role(
