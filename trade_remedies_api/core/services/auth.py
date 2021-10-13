@@ -209,9 +209,11 @@ class RegistrationAPIView(APIView):
                 user_data = request.data.dict()
                 user_data["email"] = user_data["email"].lower()
                 if invitation:
-                    if invitation.organisation_security_group.name == SECURITY_GROUP_THIRD_PARTY_USER:
-                        # Third Party's org is on the contact not the invite
-                        invited_organisation = invitation.contact.organisation
+                    invited_organisation = invitation.organisation
+                    if group := invitation.organisation_security_group:
+                        if group.name == SECURITY_GROUP_THIRD_PARTY_USER:
+                            # Third Party's org is on the contact not the invite
+                            invited_organisation = invitation.contact.organisation
                     else:
                         invited_organisation = invitation.organisation
                     # register interest if this is the first user of this organisation
