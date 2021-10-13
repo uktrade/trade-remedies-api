@@ -1472,9 +1472,10 @@ class ReviewTypeAPIView(TradeRemediesApiView):
             case.modify_case_type(case_type_id, requested_by=request.user)
         if reference_case_id:
             if reference_case_id.startswith("notice:"):
+                reference_case_id = reference_case_id.replace("notice:", "")
                 case.notice = Notice.objects.get(id=reference_case_id)
             else:
-                case.parent = get_case(str(case_id))
+                case.parent = get_case(str(reference_case_id))
             case.save()
         return ResponseSuccess({"results": case.to_dict()}, http_status=status.HTTP_201_CREATED)
 
