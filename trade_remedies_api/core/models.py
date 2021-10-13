@@ -107,6 +107,18 @@ class UserManager(BaseUserManager):
         if groups is None:
             groups = []
 
+        user_timezone = kwargs.get("timezone")
+
+        UserProfile.objects.create(
+            user=user,
+            contact=None,
+            timezone=pytz.timezone(user_timezone) if user_timezone else None,
+            colour=str(user.get_user_colour() or "black"),
+            job_title_id=kwargs.get("job_title_id"),
+        )
+
+        user.save()
+
         # Determine Organisation
         organisation_name = kwargs.get("organisation_name")
         organisation_address = kwargs.get("organisation_address")
@@ -148,14 +160,18 @@ class UserManager(BaseUserManager):
         # Contact and profile details
         phone = kwargs.get("phone")
         country = kwargs.get("country", "GB")
-        user_timezone = kwargs.get("timezone")
+
         if phone:
             try:
                 phone = convert_to_e164(phone, country=country)
             except NumberParseException:
                 pass
 
+        if country == "code":
+            country = "GB"
+
         contact = kwargs.get("contact")
+
         if not contact:
             contact = Contact.objects.create_contact(
                 name=user.name,
@@ -174,13 +190,7 @@ class UserManager(BaseUserManager):
             contact.country = country
             contact.save()
 
-        UserProfile.objects.create(
-            user=user,
-            contact=contact,
-            timezone=pytz.timezone(user_timezone) if user_timezone else None,
-            colour=str(user.get_user_colour() or "black"),
-            job_title_id=kwargs.get("job_title_id"),
-        )
+        UserProfile.objects.filter(user=user).update(contact=contact)
 
         user.save()
         user.auth_token = Token.objects.create(user=user)
