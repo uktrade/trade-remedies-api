@@ -182,6 +182,7 @@ class UserManager(BaseUserManager):
                 post_code=kwargs.get("contact_postcode") or post_code,
                 country=country,
                 created_by=user,
+                e_additional_invite_information="",
             )
         else:
             contact.phone = phone
