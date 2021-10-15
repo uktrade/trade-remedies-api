@@ -87,6 +87,7 @@ class ContactsAPI(TradeRemediesApiView):
         contact.phone = request.data.get("contact_phone")
         if case and request.data.get("primary_contact"):
             contact.set_primary(case=case)
+        contact.e_additional_invite_information = request.data.get("e_additional_invite_information")
         contact.save()
         return ResponseSuccess({"result": contact.to_dict()}, http_status=status.HTTP_201_CREATED)
 

@@ -13,6 +13,7 @@ class ContactManager(models.Manager):
         created_by,
         organisation=None,
         phone=None,
+        e_additional_invite_information=None,
         post_code=None,
         country=None,
         address=None,
@@ -28,6 +29,7 @@ class ContactManager(models.Manager):
             organisation {Organisation} -- Optional organisation
                    to associate the contact with (default: {None})
             phone {str} -- Contact phon enumber. Will be E164 formatted (default: {None})
+            e_additional_invite_information {str} -- Additional information for invite (default: {None})
             post_code {str} -- Contact post code (default: {None})
             country {str} -- Contact ISO country code (default: {None})
 
@@ -49,6 +51,7 @@ class ContactManager(models.Manager):
         else:
             contact.address = address
         contact.phone = convert_to_e164(phone, country)
+        contact.e_additional_invite_information = e_additional_invite_information
         contact.country = country
         contact.post_code = post_code
         contact.save()
@@ -62,6 +65,7 @@ class Contact(BaseModel):
     )
     email = models.EmailField(null=True, blank=True)
     phone = models.CharField(max_length=80, null=True, blank=True)
+    e_additional_invite_information = models.TextField(default="")
     address = models.TextField(null=True, blank=True)
     post_code = models.CharField(max_length=16, null=True, blank=True)
     country = CountryField(blank_label="Select Country", null=True, blank=True)
@@ -107,6 +111,7 @@ class Contact(BaseModel):
                     "name": self.country.name if self.country else None,
                     "code": self.country.code if self.country else None,  # noqa
                 },
+                "e_additional_invite_information": self.e_additional_invite_information,
             }
         )
         return base_dict
@@ -148,6 +153,7 @@ class Contact(BaseModel):
             "id": str(self.id),
             "name": self.name,
             "email": self.email,
+            "e_additional_invite_information": self.e_additional_invite_information,
         }
 
     @transaction.atomic

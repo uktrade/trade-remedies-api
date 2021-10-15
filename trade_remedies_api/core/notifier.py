@@ -74,6 +74,7 @@ def get_context(extra_context=None):
         "footer": footer,
         "email": email,
         "guidance_url": SystemParameter.get("LINK_HELP_BOX_GUIDANCE"),
+        "e_additional_invite_information": "sddd"
     }
     context.update(extra_context)
     return context

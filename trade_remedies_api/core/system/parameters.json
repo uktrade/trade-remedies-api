@@ -138,7 +138,7 @@
     {
         "key": "NOTIFY_INFORM_INTERESTED_PARTIES",
         "data_type": "str",
-        "default": "671c3643-0fa1-4c1c-97de-e15b0c7c9739"
+        "default": "7afe973a-4709-4e65-ba30-ed09340e79c6"
     },
     {
         "key": "2FA_CODE_MESSAGE",

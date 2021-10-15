@@ -304,6 +304,7 @@ class Invitation(BaseModel):
             else None,
             "approved_by": self.approved_by.to_embedded_dict() if self.approved_by else None,
             "meta": self.meta,
+            "e_additional_invite_information": self.contact.e_additional_invite_information,
         }
         if self.submission:
             _dict["submission"] = {
@@ -357,6 +358,7 @@ class Invitation(BaseModel):
             "full_name": self.contact.name,  # invited contact
             "login_url": f"{settings.PUBLIC_ROOT_URL}",
             "guidance_url": SystemParameter.get("LINK_HELP_BOX_GUIDANCE"),
+            "e_additional_invite_information": self.contact.e_additional_invite_information,
             "invited_by": self.created_by.name,
         }
         if self.case:
