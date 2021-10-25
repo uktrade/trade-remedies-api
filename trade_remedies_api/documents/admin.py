@@ -5,6 +5,7 @@ from .models import Document, DocumentBundle
 class DocumentAdmin(admin.ModelAdmin):
     list_display = ("name", "file", "system", "safe", "size")
     list_filter = ["system"]
+    search_fields = ["name"]
 
 
 class DocumentBundleAdmin(admin.ModelAdmin):

@@ -14,6 +14,7 @@ class OrganisationUserInline(admin.TabularInline):
 
 class OrganisationAdmin(admin.ModelAdmin):
     inlines = [OrganisationUserInline, OrganisationCaseRoleInline]
+    search_fields = ["name"]
 
 
 admin.site.register(Organisation, OrganisationAdmin)
