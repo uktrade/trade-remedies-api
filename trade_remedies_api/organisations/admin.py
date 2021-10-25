@@ -5,6 +5,7 @@ from security.models import OrganisationUser, OrganisationCaseRole
 
 class OrganisationCaseRoleInline(admin.TabularInline):
     model = OrganisationCaseRole
+    search_fields = ["organisation", "case", "role"]
 
 
 class OrganisationUserInline(admin.TabularInline):
