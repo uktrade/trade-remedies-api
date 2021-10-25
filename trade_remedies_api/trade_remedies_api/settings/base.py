@@ -275,7 +275,7 @@ S3_CLIENT = "boto3"
 # S3 Root directory name
 S3_DOCUMENT_ROOT_DIRECTORY = "documents"
 # Time before S3 download links expire
-S3_DOWNLOAD_LINK_EXPIRY_SECONDS = env("S3_DOWNLOAD_LINK_EXPIRY_SECONDS", default=3600)
+S3_DOWNLOAD_LINK_EXPIRY_SECONDS = env.int("S3_DOWNLOAD_LINK_EXPIRY_SECONDS", default=3600)
 # Max upload size - 2GB
 MAX_UPLOAD_SIZE = 2 * (1024 * 1024 * 1024)
 # Set to True to prevent the creation of binary identical files
