@@ -126,7 +126,7 @@ class SubmissionDocument(SimpleBaseModel):
 
     @property
     def needs_review(self):
-        return all([not self.deficient, not self.sufficient, self.document.safe])
+        return all([not self.deficient, not self.sufficient])
 
     @property
     def case(self):
