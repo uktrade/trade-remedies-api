@@ -1,27 +1,17 @@
+import json
 import logging
-from core.services.base import TradeRemediesApiView, ResponseSuccess
-from documents.models import Document, DocumentBundle
-from documents.exceptions import InvalidFile
-from documents.utils import stream_s3_file_download
-from documents.constants import (
-    SEARCH_CONFIDENTIAL_STATUS_MAP,
-    INDEX_STATE_NOT_INDEXED,
-    INDEX_STATE_UNKNOWN_TYPE,
-    INDEX_STATE_INDEX_FAIL,
-    INDEX_STATE_FULL_INDEX,
-)
-from documents.tasks import index_document
-from django.utils import timezone
+
+from django.conf import settings
 from django.db import transaction
 from django.db.models import (
     Q,
     Count,
 )
-
-from django.conf import settings
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.parsers import JSONParser, FormParser
-from core.services.base import MultiPartJSONParser
+
+from audit import AUDIT_TYPE_ATTACH
 from cases.models import (
     Case,
     Submission,
@@ -30,13 +20,30 @@ from cases.models import (
     SubmissionType,
     get_case,
 )
+from core.services.base import (
+    TradeRemediesApiView,
+    ResponseSuccess,
+    MultiPartJSONParser,
+)
+from core.services.exceptions import (
+    InvalidRequestParams,
+    NotFoundApiExceptions,
+    InvalidFileUpload,
+)
 from core.utils import key_by
 
-from core.services.exceptions import InvalidRequestParams, NotFoundApiExceptions, InvalidFileUpload
+from documents.constants import (
+    SEARCH_CONFIDENTIAL_STATUS_MAP,
+    INDEX_STATE_NOT_INDEXED,
+    INDEX_STATE_UNKNOWN_TYPE,
+    INDEX_STATE_INDEX_FAIL,
+    INDEX_STATE_FULL_INDEX,
+)
+from documents.exceptions import InvalidFile
+from documents.models import Document, DocumentBundle
+from documents.utils import stream_s3_file_download
 from notes.models import Note
 from security.constants import SECURITY_GROUPS_TRA
-from audit import AUDIT_TYPE_ATTACH
-import json
 
 
 logger = logging.getLogger(__name__)
