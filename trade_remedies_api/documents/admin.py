@@ -3,7 +3,7 @@ from .models import Document, DocumentBundle
 
 
 class DocumentAdmin(admin.ModelAdmin):
-    list_display = ("name", "file", "system", "safe", "size")
+    list_display = ("name", "file", "system", "checksum", "size", "created_at")
     list_filter = ["system"]
 
 

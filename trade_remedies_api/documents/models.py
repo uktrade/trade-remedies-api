@@ -9,9 +9,6 @@ from elasticsearch.exceptions import NotFoundError
 from core.base import BaseModel, SimpleBaseModel
 from functools import singledispatch
 from core.elastic import get_elastic, ESWrapperError
-from core.utils import file_md5_checksum
-from audit.utils import audit_log
-from audit import AUDIT_TYPE_EVENT
 from cases.models import get_case
 from organisations.models import get_organisation
 from .constants import (
@@ -26,7 +23,7 @@ from .constants import (
 from .utils import s3_client
 from .exceptions import InvalidFile
 from .fields import S3FileField
-from .tasks import prepare_document, index_document
+from .tasks import checksum_document, index_document
 from .parsers import parsers
 
 # initialise the mimetypes module
@@ -151,7 +148,6 @@ class DocumentManager(models.Manager):
         system=False,
         document=None,
         parent=None,
-        safe=None,
         case=None,
     ):
         """
@@ -164,37 +160,27 @@ class DocumentManager(models.Manager):
         if extension in INVALID_FILE_EXTENSIONS:
             raise InvalidFile(f"This file type ({extension}) is not allowed.")
         document = document or Document(created_by=user, user_context=user)
-        checksum = file_md5_checksum(file)
         document.file = file.get("name") if isinstance(file, dict) else file
         document.name = doc_name
         document.size = file.get("size") if isinstance(file, dict) else file.size
-        document.checksum = checksum
         document.system = system
-        document.safe = safe
         document.confidential = confidential
         if parent:
             document.parent = parent
         document.save()
-        if settings.ASYNC_DOC_PREPARE:
-            prepare_document.apply_async((document.id, case.id if case else None), countdown=6)
-        elif not settings.ASYNC_DOC_PREPARE and document.safe is None:
-            prepare_document.run(document.id, case.id if case else None)
-        # index the document
         if settings.RUN_ASYNC:
             index_document.delay(str(document.id), case_id=case.id if case else None)
+            checksum_document.delay(str(document.id))
         else:
             index_document(str(document.id), case_id=case.id if case else None)
-
+            checksum_document(str(document.id))
         return document
 
 
 class Document(BaseModel):
     name = models.CharField(max_length=1000, null=False, blank=False)
-    file = S3FileField(max_length=1000)  # , upload_to=upload_document_to)
+    file = S3FileField(max_length=1000)
     size = models.IntegerField(null=True, blank=True)
-    virus_scanned_at = models.DateTimeField(null=True, blank=True)
-    safe = models.NullBooleanField()
-    av_reason = models.CharField(max_length=255, null=True, blank=True)
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.PROTECT)
     system = models.BooleanField(default=False)  # TRA Document
     checksum = models.CharField(max_length=64, null=True, blank=True)
@@ -269,9 +255,6 @@ class Document(BaseModel):
                 "is_tra": self.created_by.is_tra(),
                 "created_by": self.created_by.to_embedded_dict(),
                 "created_at": self.created_at.strftime(settings.API_DATETIME_FORMAT),
-                "virus_scanned_at": self.virus_scanned_at.strftime(settings.API_DATETIME_FORMAT)
-                if self.virus_scanned_at
-                else None,
                 "parent_id": str(self.parent.id) if self.parent else None,
                 "checksum": self.checksum,
             }
@@ -308,7 +291,6 @@ class Document(BaseModel):
             "confidential": self.confidential,
             "block_from_public_file": self.block_from_public_file,
             "block_reason": self.block_reason,
-            "safe": self.safe,
             "index_state": self.index_state,
         }
 
@@ -365,56 +347,17 @@ class Document(BaseModel):
     def s3_key(self):
         return self.file.name
 
-    def scan_for_viruses(self):
-        from documents.av_scan import virus_scan_document
 
-        virus_scan_document(self.id)
-        self.refresh_from_db()
-        return self
+    def set_md5_checksum(self):
+        """Update document checksum.
 
-    def get_md5_checksum(self):
-        """
-        Get the md5 checksum via the file's s3 etag
+        Populates the S3 document's etag value
         """
         if self.file:
             obj = self.file.storage.bucket.Object(self.file.name)
-            e_tag = obj.e_tag.replace('"', "").replace("'", "")
-            return e_tag
-        return None
+            self.checksum = obj.e_tag.replace('"', "").replace("'", "")
+            self.save()
 
-    def update_md5_checksum(self):
-        """
-        Update the md5 checksum on the document record
-        """
-        self.checksum = self.get_md5_checksum()
-        self.save()
-
-    def prepare_document(self, case=None):
-        """
-        Prepares the document for usage. This is run async after the document
-        is already on S3.
-            - perform a virus check
-            - get the checksum/etag
-        """
-        try:
-            self.update_md5_checksum()
-            self.scan_for_viruses()
-            if self.safe is False:
-                if case:
-                    case = get_case(case)
-                audit_log(
-                    audit_type=AUDIT_TYPE_EVENT,
-                    user=self.created_by,
-                    model=self,
-                    case=case,
-                    milestone=True,
-                    data={"message": f"User {self.created_by} attempted to upload infected file"},
-                )
-                self.file.delete()
-            return bool(self.checksum) and self.safe
-        except Exception as exc:
-            logger.error(f"Error preparing document {self.id}: {exc}")
-            return False
 
     def extract_content(self):
         """
