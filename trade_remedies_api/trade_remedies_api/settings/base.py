@@ -254,10 +254,7 @@ CACHES = {
 
 CELERY_TASK_ALWAYS_EAGER = env("CELERY_TASK_ALWAYS_EAGER", default=False)
 CELERY_WORKER_LOG_FORMAT = "[%(asctime)s: %(levelname)s/%(processName)s] [%(name)s] %(message)s"
-
-# TODO - we also have ASYNC_DOC_PREPARE - both expressing no celery - can we simplify?
 RUN_ASYNC = True
-
 
 # App specific switches
 API_CACHE_TIMEOUT = 3  # Cache timeout in minutes
@@ -278,8 +275,6 @@ S3_DOCUMENT_ROOT_DIRECTORY = "documents"
 S3_DOWNLOAD_LINK_EXPIRY_SECONDS = 30
 # Max upload size - 2GB
 MAX_UPLOAD_SIZE = 2 * (1024 * 1024 * 1024)
-# Set to True to prevent the creation of binary identical files
-PREVENT_DUPLICATE_FILES = False
 # Case worker environment key
 CASE_WORKER_ENVIRONMENT_KEY = env("CASE_WORKER_ENVIRONMENT_KEY")
 # Public environment key
@@ -324,8 +319,6 @@ TWO_FACTOR_ATTEMPTS = 3
 METHOD_CACHE_DURATION_MINUTES = 2
 # Organisation user invite life time before expiry (in hours)
 ORGANISATION_INVITE_DURATION_HOURS = 24 * 3
-# Asynchronous document uploads/checks
-ASYNC_DOC_PREPARE = True
 # Full application assessment days on receipt
 DEADLINE_AFTER_ASSESSMENT_RECEIPT_DAYS = 40
 # Email verify code regenerate after n minutes
