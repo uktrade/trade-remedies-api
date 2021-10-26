@@ -130,18 +130,6 @@ def get_content_type(path):
     return ContentType.objects.get(app_label=app_label, model=model)
 
 
-def file_md5_checksum(file):
-    try:
-        md5 = hashlib.md5()
-        for chunk in iter(lambda: file.read(65536), b""):
-            md5.update(chunk)
-            gevent.sleep(0)  #  TODO find out from Mark what this is
-
-        return md5.hexdigest()
-    except Exception:
-        return None
-
-
 def update_object_from_request(target, source, field_list):
     """
     Overwrite only the fields cited in field_list in target dict from source dict
