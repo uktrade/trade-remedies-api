@@ -93,8 +93,6 @@ class NoteAPIView(TradeRemediesApiView):
                 case=case,
                 confidential=request.data.get("confidentiality") == "confidential",
             )
-            if document.safe is False:
-                return ResponseSuccess({"result": {"infected": True,}})
             document_id = document.id
         if document_id:
             document = Document.objects.get(id=document_id)
@@ -127,7 +125,7 @@ class NoteAPIView(TradeRemediesApiView):
         if document:
             note.documents.add(document)
             note.set_user_context([request.user])
-            note._generic_audit(
+            note.generic_audit(
                 message=f"Document attached: {document.name}",
                 audit_type=AUDIT_TYPE_ATTACH,
                 id=str(document.id),
