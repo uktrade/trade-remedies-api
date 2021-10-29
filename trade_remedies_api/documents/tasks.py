@@ -1,6 +1,5 @@
 from celery import shared_task
 from celery.utils.log import get_task_logger
-from django.db.models import Q
 from documents.constants import INDEX_STATE_NOT_INDEXED
 from django.conf import settings
 
@@ -8,12 +7,12 @@ logger = get_task_logger(__name__)
 
 
 @shared_task(bind=True, max_retries=4)
-def prepare_document(self, document_id, case_id=None):
+def checksum_document(self, document_id):
     from documents.models import Document
     logger.info(f"Prepare document task for: '{document_id}'")
     try:
         doc = Document.objects.get(id=document_id)
-        doc.prepare_document(case=case_id)
+        doc.set_md5_checksum()
     except Document.DoesNotExist:
         logger.warning(f"Failed to prepare document: '{document_id}' does"
                        " not exist (will retry)")
@@ -22,19 +21,6 @@ def prepare_document(self, document_id, case_id=None):
         logger.warning(f"Failed to prepare document '{document_id}': {e}"
                        " (will retry)")
         raise self.retry(countdown=10)
-
-
-@shared_task()
-def prepare_pending_documents():
-    from documents.models import Document
-    pending_docs = Document.objects.filter(
-        Q(checksum__isnull=True) | Q(safe__isnull=True)
-    ).values_list("id", flat=True)
-    for doc_id in pending_docs:
-        if settings.RUN_ASYNC:
-            prepare_document.delay(doc_id)
-        else:
-            prepare_document(doc_id)
 
 
 @shared_task(bind=True, max_retries=3)

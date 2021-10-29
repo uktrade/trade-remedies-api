@@ -2,8 +2,6 @@ import logging
 import os
 
 import boto3
-from pathlib import Path
-from django.utils import timezone
 from django.conf import settings
 from django.http import StreamingHttpResponse
 
@@ -31,19 +29,11 @@ def s3_client():
 
 
 def upload_document_to(instance, filename):
+    """NOT USED.
+
+    This method was originally referenced in a migration and as such has to kept around.
+    See https://docs.djangoproject.com/en/2.2/topics/migrations/#historical-models
     """
-    Derive the upload path into S3.
-    This is made of the root directory, partitioned into the case id.
-    Current upload time is appended to the file name.
-    """
-    filename_base, filename_ext = os.path.splitext(filename)
-    _now = timezone.now().strftime("%Y%m%d%H%M%S")
-    _filename = f"{filename_base}_{_now}{filename_ext}"
-    path = Path(settings.S3_DOCUMENT_ROOT_DIRECTORY)
-    if hasattr(instance, "case") and instance.case:
-        path /= str(instance.case.id)
-    path /= _filename
-    return str(path)
 
 
 def stream_s3_file_download(s3_bucket, s3_key, filename=None):

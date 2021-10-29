@@ -1,2 +1,2 @@
 class InvalidFile(Exception):
-    message = "Invalid file"
+    message = "Invalid file extension"

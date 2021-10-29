@@ -1,27 +1,17 @@
+import json
 import logging
-from core.services.base import TradeRemediesApiView, ResponseSuccess
-from documents.models import Document, DocumentBundle
-from documents.exceptions import InvalidFile
-from documents.utils import stream_s3_file_download
-from documents.constants import (
-    SEARCH_CONFIDENTIAL_STATUS_MAP,
-    INDEX_STATE_NOT_INDEXED,
-    INDEX_STATE_UNKNOWN_TYPE,
-    INDEX_STATE_INDEX_FAIL,
-    INDEX_STATE_FULL_INDEX,
-)
-from documents.tasks import index_document
-from django.utils import timezone
+
+from django.conf import settings
 from django.db import transaction
 from django.db.models import (
     Q,
     Count,
 )
-
-from django.conf import settings
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.parsers import JSONParser, FormParser
-from core.services.base import MultiPartJSONParser
+
+from audit import AUDIT_TYPE_ATTACH
 from cases.models import (
     Case,
     Submission,
@@ -30,12 +20,30 @@ from cases.models import (
     SubmissionType,
     get_case,
 )
-from core.utils import file_md5_checksum, key_by
-from core.services.exceptions import InvalidRequestParams, NotFoundApiExceptions, InvalidFileUpload
+from core.services.base import (
+    TradeRemediesApiView,
+    ResponseSuccess,
+    MultiPartJSONParser,
+)
+from core.services.exceptions import (
+    InvalidRequestParams,
+    NotFoundApiExceptions,
+    InvalidFileUpload,
+)
+from core.utils import key_by
+
+from documents.constants import (
+    SEARCH_CONFIDENTIAL_STATUS_MAP,
+    INDEX_STATE_NOT_INDEXED,
+    INDEX_STATE_UNKNOWN_TYPE,
+    INDEX_STATE_INDEX_FAIL,
+    INDEX_STATE_FULL_INDEX,
+)
+from documents.exceptions import InvalidFile
+from documents.models import Document, DocumentBundle
+from documents.utils import stream_s3_file_download
 from notes.models import Note
 from security.constants import SECURITY_GROUPS_TRA
-from audit import AUDIT_TYPE_ATTACH
-import json
 
 
 logger = logging.getLogger(__name__)
@@ -289,103 +297,79 @@ class DocumentAPIView(TradeRemediesApiView):
         if _files:
             result = []
             for _file in _files:
-                try:
-                    if settings.PREVENT_DUPLICATE_FILES:
-                        checksum = file_md5_checksum(_file)
-                        document = Document.objects.get(checksum=checksum)
-                    else:
-                        raise Document.DoesNotExist()
-                except Document.DoesNotExist:
-                    _parent = None
-                    if _parent_id:
-                        try:
-                            _parent = Document.objects.get(id=_parent_id)
-                        except Document.DoesNotExist:
-                            raise NotFoundApiExceptions("Parent document is not found")
+                _parent = None
+                if _parent_id:
                     try:
-                        document = Document.objects.create_document(
-                            file=_file,
-                            user=request.user,
-                            confidential=_confidential,
-                            system=bool(_system),
-                            parent=_parent,
-                            document=Document.objects.get(id=document_id) if document_id else None,
-                            case=case,
-                        )
-                    except InvalidFile as invexc:
-                        raise InvalidFileUpload(str(invexc))
-                    if _replace_id and submission:
-                        # We are being asked to replace the given doc in this submission
-                        try:
-                            # Find the replacee and get its child
-                            _replace_doc = Document.objects.get(id=_replace_id)
-                            _child_doc = Document.objects.filter(parent_id=_replace_id).first()
-                            replace_submission_document = SubmissionDocument.objects.get(
-                                submission=submission, document=_replace_doc
-                            )
-                            replace_submission_document.set_user_context(request.user)
-                            if _child_doc:
-                                child_submission_document = SubmissionDocument.objects.get(
-                                    submission=submission, document=_child_doc
-                                )
-                                child_submission_document.set_user_context(request.user)
-                                # Clone the child doc and add link to parent
-                                _child_doc.id = None
-                                _child_doc.parent = document
-                                _child_doc.save()
-                                # Update submission_doc to point to new child doc.
-                                child_submission_document.document = _child_doc
-                                child_submission_document.save()
-                            replace_submission_document.delete()
-                        except (Document.DoesNotExist, SubmissionDocument.DoesNotExist) as e:
-                            logger.warning(
-                                f"Document to replace with id '{_replace_id}' was not found: {e}"
-                            )
-                if settings.ASYNC_DOC_PREPARE or document.safe:
-                    result_item = None
-                    if submission:
-                        if _submission_document_type:
-                            submission_document_type = SubmissionDocumentType.objects.get(
-                                key=_submission_document_type
-                            )
-                        else:
-                            submission_document_type = SubmissionDocumentType.type_by_user(
-                                request.user
-                            )
-                        submission_document = submission.add_document(
-                            document=document,
-                            document_type=submission_document_type,
-                            issued=_issued,
-                            issued_by=request.user,
-                        )
-                        result_item = submission_document.to_dict()
-                    elif _bundle_id:
-                        bundle = DocumentBundle.objects.get(id=_bundle_id)
-                        bundle.documents.add(document)
-                        document._generic_audit(
-                            message=f"Attached to bundle {bundle.name}",
-                            audit_type=AUDIT_TYPE_ATTACH,
-                            id=str(document.id),
-                        )
-                        result_item = document.to_dict()
-                    else:
-                        result_item = document.to_dict()
-                    result.append(result_item)
-                else:
-                    return ResponseSuccess(
-                        {
-                            "result": {
-                                "infected": True,
-                                "invalid": True,
-                                "reason": "A virus or malware was identified in this file",
-                            }
-                        }
+                        _parent = Document.objects.get(id=_parent_id)
+                    except Document.DoesNotExist:
+                        raise NotFoundApiExceptions("Parent document is not found")
+                try:
+                    document = Document.objects.create_document(
+                        file=_file,
+                        user=request.user,
+                        confidential=_confidential,
+                        system=bool(_system),
+                        parent=_parent,
+                        document=Document.objects.get(id=document_id) if document_id else None,
+                        case=case,
                     )
-            # schedule the index not
-            if settings.RUN_ASYNC:
-                index_document.delay(str(document.id))
-            else:
-                index_document(str(document.id))
+                except InvalidFile as e:
+                    raise InvalidFileUpload(str(e))
+                if _replace_id and submission:
+                    # We are being asked to replace the given doc in this submission
+                    try:
+                        # Find the document to replace and get its child
+                        _replace_doc = Document.objects.get(id=_replace_id)
+                        _child_doc = Document.objects.filter(parent_id=_replace_id).first()
+                        replace_submission_document = SubmissionDocument.objects.get(
+                            submission=submission, document=_replace_doc
+                        )
+                        replace_submission_document.set_user_context(request.user)
+                        if _child_doc:
+                            child_submission_document = SubmissionDocument.objects.get(
+                                submission=submission, document=_child_doc
+                            )
+                            child_submission_document.set_user_context(request.user)
+                            # Clone the child doc and add link to parent
+                            _child_doc.id = None
+                            _child_doc.parent = document
+                            _child_doc.save()
+                            # Update submission_doc to point to new child doc.
+                            child_submission_document.document = _child_doc
+                            child_submission_document.save()
+                        replace_submission_document.delete()
+                    except (Document.DoesNotExist, SubmissionDocument.DoesNotExist) as e:
+                        logger.warning(
+                            f"Document to replace with id '{_replace_id}' was not found: {e}"
+                        )
+                if submission:
+                    if _submission_document_type:
+                        submission_document_type = SubmissionDocumentType.objects.get(
+                            key=_submission_document_type
+                        )
+                    else:
+                        submission_document_type = SubmissionDocumentType.type_by_user(
+                            request.user
+                        )
+                    submission_document = submission.add_document(
+                        document=document,
+                        document_type=submission_document_type,
+                        issued=_issued,
+                        issued_by=request.user,
+                    )
+                    result_item = submission_document.to_dict()
+                elif _bundle_id:
+                    bundle = DocumentBundle.objects.get(id=_bundle_id)
+                    bundle.documents.add(document)
+                    document.generic_audit(
+                        message=f"Attached to bundle {bundle.name}",
+                        audit_type=AUDIT_TYPE_ATTACH,
+                        id=str(document.id),
+                    )
+                    result_item = document.to_dict()
+                else:
+                    result_item = document.to_dict()
+                result.append(result_item)
             return ResponseSuccess({"result": result}, http_status=status.HTTP_201_CREATED)
         elif document_id:
             # We just want to attach a document
@@ -680,7 +664,7 @@ class BundleDocumentAPI(TradeRemediesApiView):
             document.set_case_context(bundle.case)
         document.set_user_context(self.user)
         bundle.documents.add(document)
-        document._generic_audit(
+        document.generic_audit(
             message=f"Attached to bundle {bundle.name}",
             audit_type=AUDIT_TYPE_ATTACH,
             id=str(document.id),
