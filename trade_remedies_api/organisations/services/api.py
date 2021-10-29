@@ -218,7 +218,7 @@ class OrganisationContactsAPI(TradeRemediesApiView):
         case = Case.objects.get(id=case_id) if case_id else None
 
         def add_contact(case_contact, case):
-            if not get(case_contact, "contact").deleted_at:
+            if get(case_contact, "contact").address != "redacted":
                 contact_id = str(get(case_contact, "contact").id)
                 if contact_id not in contacts:
                     contact = get(case_contact, "contact")
