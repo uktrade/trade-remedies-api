@@ -137,7 +137,7 @@ class AuditableMixin(object):
             data = {"id": str(instance.id)}
         audit_log(audit_type, created_by, assisted_by, case, instance, data)
 
-    def _generic_audit(self, message, audit_type=None, **kwargs):
+    def generic_audit(self, message, audit_type=None, **kwargs):
         audit_type = audit_type or "EVENT"
         created_by, assisted_by = self._assert_audit_user(self, **kwargs)
         case = self.extract_case()

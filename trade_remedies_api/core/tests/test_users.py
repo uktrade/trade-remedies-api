@@ -24,7 +24,7 @@ class UserTest(TestCase):
         """
         user = User.objects.create_user(
             name="test user",
-            email="test@example.com",
+            email="test@example.com",  # /PS-IGNORE
             password=PASSWORD,
             groups=["Administrator"],
             country="GB",
@@ -33,7 +33,7 @@ class UserTest(TestCase):
         )
         user = User.objects.get(id=user.id)
         group = Group.objects.get(name="Administrator")
-        assert user.email == "test@example.com"
+        assert user.email == "test@example.com"  # /PS-IGNORE
         assert user.phone == "+4477931231234"
         assert group.user_set.filter(id=user.id).exists()
 
@@ -43,7 +43,7 @@ class UserTest(TestCase):
         """
         new_user = User.objects.create_user(
             name="test user",
-            email="test@example.com",
+            email="test@example.com",  # /PS-IGNORE
             password=PASSWORD,
             groups=["Administrator"],
             country="GB",
@@ -61,6 +61,6 @@ class UserTest(TestCase):
         )
         user.refresh_from_db()
         group = Group.objects.get(name="Test Role")
-        assert user.email == "test@example.com"
+        assert user.email == "test@example.com"  # /PS-IGNORE
         assert user.phone == "+14151112345"
         assert group.user_set.filter(id=user.id).exists()

@@ -544,7 +544,7 @@ class Submission(BaseModel):
     def to_minimal_dict(self, **kwargs):
         org_case_role = self.organisation_case_role()
         org_case_role_outer = self.organisation_case_role(True)
-        created_by_tra = self.created_by.is_tra()
+        created_by_tra = self.created_by.is_tra() if self.created_by is not None else True
         if self.organisation:  # noqa
             organisation = self.organisation.to_embedded_dict()
             organisation["companies_house_id"] = self.organisation.companies_house_id

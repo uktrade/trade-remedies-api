@@ -58,13 +58,6 @@ class OrganisationsAPIView(TradeRemediesApiView):
         elif organisation_id:
             try:
                 organisation = Organisation.objects.get(id=organisation_id)
-                # if not is_tra:
-                #     user_case = UserCase.objects.
-                #     filter(user=request.user, organisation__id=organisation_id)
-                #     org_user = OrganisationUser.objects.
-                #     filter(organisation_id=organisation_id, user=request.user)
-                #     if not user_case and not org_user:
-                #         raise NotFoundApiExceptions('Invalid organisation or access denied')
                 org_data = organisation.to_dict(case=case)
                 if case_id:
                     case_role = organisation.get_case_role(get_case(case_id))
@@ -225,7 +218,7 @@ class OrganisationContactsAPI(TradeRemediesApiView):
         case = Case.objects.get(id=case_id) if case_id else None
 
         def add_contact(case_contact, case):
-            if not get(case_contact, "contact").deleted_at:
+            if get(case_contact, "contact").address != "redacted":
                 contact_id = str(get(case_contact, "contact").id)
                 if contact_id not in contacts:
                     contact = get(case_contact, "contact")

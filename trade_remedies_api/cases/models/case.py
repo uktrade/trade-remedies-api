@@ -265,7 +265,6 @@ class CaseManager(models.Manager):
                 .exclude(Q(exportsource__isnull=True) & ~Q(type__in=ALL_COUNTRY_CASE_TYPES))
                 .distinct()
             )
-
         return cases
 
     def public_cases(self):

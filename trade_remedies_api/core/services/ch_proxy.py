@@ -5,7 +5,7 @@ from .base import TradeRemediesApiView, ResponseSuccess
 from .exceptions import InvalidRequestParams
 
 
-COMPANIES_HOUSE_BASIC_AUTH = base64.b64encode(
+COMPANIES_HOUSE_BASIC_AUTH = base64.b64encode(  # /PS-IGNORE
     bytes(f"{settings.COMPANIES_HOUSE_API_KEY}:", "utf-8")
 ).decode("utf-8")
 COMPANIES_HOUSE_BASE_DOMAIN = "https://api.companieshouse.gov.uk"

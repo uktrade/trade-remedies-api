@@ -25,7 +25,7 @@ class UserTest(TestCase):
     def test_toggle_role(self):
         user = User.objects.create_user(
             name="test user",
-            email="test@example.com",
+            email="test@example.com",  # /PS-IGNORE
             password=PASSWORD,
             groups=[SECURITY_GROUP_ORGANISATION_OWNER],
             country="GB",
