@@ -50,6 +50,7 @@ class OrganisationCaseRoleInline(admin.TabularInline):
 
 
 class CaseAdmin(admin.ModelAdmin):
+    search_fields = ["name"]
     inlines = [SubmissionInline, OrganisationCaseRoleInline]
 
 
@@ -64,7 +65,7 @@ class CaseWorkflowStateAdmin(admin.ModelAdmin):
 
 
 class CaseStageAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ["name"]
 
 
 admin.site.register(Sector, SectorAdmin)
