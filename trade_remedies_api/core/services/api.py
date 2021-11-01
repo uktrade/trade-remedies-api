@@ -469,6 +469,7 @@ class AssignUserToCaseView(TradeRemediesApiView):
         primary = request.data.get("primary")
         remove = request.data.get("remove")
         try:
+            print("cas")
             user_organisation = Organisation.objects.get(id=organisation_id)
             if representing_id:
                 representing = Organisation.objects.get(id=representing_id)
@@ -482,6 +483,7 @@ class AssignUserToCaseView(TradeRemediesApiView):
         case = get_case(case_id)
         user = User.objects.get(id=user_id, organisationuser__organisation=user_organisation)
         if not remove:
+            print('das')
             user.assign_to_case(case=case, organisation=representing, created_by=request.user)
             user.contact.add_to_case(
                 case=case, organisation=representing, primary=bool(primary),

@@ -715,6 +715,9 @@ class CaseUserAssignAPI(TradeRemediesApiView):
         users = User.objects.filter(id__in=user_ids)
         existing_team = case.team
         try:
+            user_case = UserCase.objects.filter(case=case)
+            for user in user_case:
+                user.delete()
             for user in users:
                 case.assign_user(user=user, created_by=request.user)
             if existing_team:
