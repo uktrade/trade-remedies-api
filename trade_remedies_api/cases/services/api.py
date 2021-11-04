@@ -336,7 +336,7 @@ class CasesAPIView(TradeRemediesApiView):
         elif case_id:
             try:
                 if request.user.is_tra():
-                    case = Case.objects.investigator_cases(request.user, exclude_partially_created=False).get(id=case_id)
+                    case = Case.objects.investigator_cases(request.user).get(id=case_id)
                 else:
                     case = Case.objects.get_case(id=case_id)
                 case.set_case_context(case)
