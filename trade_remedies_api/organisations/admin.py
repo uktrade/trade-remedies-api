@@ -5,6 +5,7 @@ from security.models import OrganisationUser, OrganisationCaseRole
 
 class OrganisationCaseRoleInline(admin.TabularInline):
     model = OrganisationCaseRole
+    search_fields = ["organisation", "case", "role"]
 
 
 class OrganisationUserInline(admin.TabularInline):
@@ -13,6 +14,7 @@ class OrganisationUserInline(admin.TabularInline):
 
 class OrganisationAdmin(admin.ModelAdmin):
     inlines = [OrganisationUserInline, OrganisationCaseRoleInline]
+    search_fields = ["name"]
 
 
 admin.site.register(Organisation, OrganisationAdmin)

@@ -20,7 +20,7 @@ class CreateUserTest(TestCase):
 
     def test_can_create_specific_user(self):
         factory = APIRequestFactory()
-        test_email = "test@test.com"
+        test_email = "test@test.com"  # /PS-IGNORE
         request = factory.post("/users/", {"email": test_email})
         response = UserList.as_view()(request)
         assert response.status_code == 201

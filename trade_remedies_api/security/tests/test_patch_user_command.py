@@ -20,7 +20,7 @@ class PatchUserCommandTest(TestCase):
             call_command("patch_user", "does_not_exist")
 
     def test_patch_user_command_user_with_group(self):
-        email_with_group = "test.user@test.test"
+        email_with_group = "test.user@test.test"  # /PS-IGNORE
         user_obj = User.objects.create_user(
             name="user with group",
             email=email_with_group,
@@ -38,7 +38,7 @@ class PatchUserCommandTest(TestCase):
         assert group_queryset.count() == 1
 
     def test_patch_user_command(self):
-        email_no_group = "test1.user@test.test"
+        email_no_group = "test1.user@test.test"  # /PS-IGNORE
         user_obj = User.objects.create_user(
             name="user without group",
             email=email_no_group,

@@ -11,10 +11,6 @@ app.conf.beat_schedule = {
         "task": "cases.tasks.process_timegate_actions",
         "schedule": crontab(minute=15),
     },
-    "prepare-pending-documents": {
-        "task": "documents.tasks.prepare_pending_documents",
-        "schedule": crontab(minute="*/5"),
-    },
     "check-measure-expiry-daily": {
         "task": "cases.tasks.check_measure_expiry",
         "schedule": crontab(hour=0, minute=5),
