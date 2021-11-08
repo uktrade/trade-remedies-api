@@ -290,10 +290,11 @@ class CasesAPIView(TradeRemediesApiView):
                 return ResponseSuccess({"results": results})
             user = User.objects.get(id=user_id) if user_id else user
             cases = Case.objects.all_user_cases(user=user, **_kwargs)
-            results = [
-                case.to_embedded_dict(user=user, is_primary_contact=True, fields=fields)
-                for case in cases
-            ]
+            results = []
+            for case in cases:
+                data = case.to_embedded_dict(user=user, is_primary_contact=True, fields=fields)
+                data["user_case"] = True
+                results.append(data)
             return ResponseSuccess({"results": results})
         elif case_id and self.organisation:
             case = Case.objects.select_related(
@@ -336,7 +337,7 @@ class CasesAPIView(TradeRemediesApiView):
         elif case_id:
             try:
                 if request.user.is_tra():
-                    case = Case.objects.investigator_cases(request.user, exclude_partially_created=False).get(id=case_id)
+                    case = Case.objects.investigator_cases(request.user).get(id=case_id)
                 else:
                     case = Case.objects.get_case(id=case_id)
                 case.set_case_context(case)
