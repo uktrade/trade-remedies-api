@@ -93,7 +93,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "trade_remedies_api.middleware.ApiTokenSetter",
+    "config.middleware.ApiTokenSetter",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -110,7 +110,7 @@ if DJANGO_ADMIN:
         "whitenoise.middleware.WhiteNoiseMiddleware",
     ] + MIDDLEWARE
 
-ROOT_URLCONF = "trade_remedies_api.urls"
+ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
@@ -136,7 +136,7 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
-WSGI_APPLICATION = "trade_remedies_api.wsgi.application"
+WSGI_APPLICATION = "config.wsgi.application"
 
 _VCAP_SERVICES = env.json("VCAP_SERVICES", default={})
 

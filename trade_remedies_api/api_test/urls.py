@@ -10,7 +10,7 @@ from api_test.views import (
     restore_database,
 )
 
-from trade_remedies_api.urls import urlpatterns
+from config.urls import urlpatterns
 
 urlpatterns += [
     path("api-test-obj/users/", UserList.as_view(),),
