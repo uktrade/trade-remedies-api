@@ -5,7 +5,8 @@
 
 [tool.black]
 line-length = 100
-target-version = ['py37']
+diff = true
+target-version = ['py39']
 exclude = '''
 /(
     \.eggs
@@ -15,5 +16,20 @@ exclude = '''
   | _build
   | .venv
   | tests-reports
+)/
+'''
+
+# see https://pycqa.github.io/isort/docs/configuration/black_compatibility/
+[tool.isort]
+profile = "black"
+line_length = 100
+include_trailing_comma = true
+multi_line_output = 3
+
+[tool.flake8]
+max-line-length = 100
+extend-exclude = '''
+/(
+  */migrations/*.py
 )/
 '''

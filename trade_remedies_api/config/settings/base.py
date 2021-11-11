@@ -201,11 +201,14 @@ USE_TZ = True
 
 AUTH_USER_MODEL = "core.User"
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.0/howto/static-files/
-
+# Static files
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+]
+STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", "static"))
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
 PUBLIC_ROOT_URL = env(
     "PUBLIC_ROOT_URL", default="https://trade-remedies-public-dev.london.cloudapps.digital"
 )
@@ -356,8 +359,6 @@ AWS_DEFAULT_ACL = None
 COUNTRIES_OVERRIDE = {
     "EU": "European Customs Union",
 }
-
-STATICFILES_DIRS = []
 
 GOV_NOTIFY_API_KEY = env("GOV_NOTIFY_API_KEY", default=None)
 

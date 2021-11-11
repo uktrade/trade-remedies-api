@@ -124,7 +124,7 @@ node_modules
 .DS_Store
 
 # static
-trade_remedies_api/config/staticfiles/
+trade_remedies_api/static/
 
 postgres_data
 
