@@ -1200,5 +1200,14 @@ doc = Document.objects.get(id
 max_retries=3
 logger.info(result
 document_ids.values_list("id
-#
-#
+the Trade Remedies Service
+DIT Investigators
+TRS Orchestration
+ner_output_file.txt
+1.5.13
+| D104
+D205
+W503
+E704
+E231
+F841

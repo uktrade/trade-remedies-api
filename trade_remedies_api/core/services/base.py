@@ -10,7 +10,7 @@ from rest_framework.exceptions import ParseError
 from security.utils import validate_user_organisation, validate_user_case
 from security.constants import SECURITY_GROUP_SUPER_USER
 from organisations.models import get_organisation
-from trade_remedies_api.version import __version__
+from config.version import __version__
 from django.contrib.auth.models import Group
 from django.conf import settings
 from django.http.multipartparser import (

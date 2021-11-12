@@ -6,7 +6,7 @@ import gevent
 from django.conf import settings
 from django.db import connection
 from django.contrib.contenttypes.models import ContentType
-from trade_remedies_api.constants import STATE_INCOMPLETE
+from core.constants import STATE_INCOMPLETE
 
 
 logger = logging.getLogger(__name__)
