@@ -1,4 +1,4 @@
-FeatureFlags
+ FeatureFlags
 get_param
 doc = load(document.file
 \n
@@ -1211,3 +1211,18 @@ W503
 E704
 E231
 F841
+Generic badge](https://badgen.net/badge
+ADR
+Michael Nygard's
+# Architecture Decision Records
+workflow](#ADR Workflow
+Proposal
+Tech Lead
+the Trade Remedies API
+API
+the Django Rest Framework
+DRF
+AJAX
+NGINX
+ADR Title
+Generic badge](https://badgen.net/badge/ADR
