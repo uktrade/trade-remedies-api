@@ -1226,3 +1226,13 @@ AJAX
 NGINX
 ADR Title
 Generic badge](https://badgen.net/badge/ADR
+https://pypi.org/project/django-restql/
+Model Serializers
+REST
+GraphQL
+Portal
+Django REST Framework
+CRUD
+PUT
+PATCH
+self.writer.write_row(["NO EXPORT

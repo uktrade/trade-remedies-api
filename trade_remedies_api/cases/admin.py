@@ -28,7 +28,6 @@ class SubmissionAdmin(admin.ModelAdmin):
     search_fields = ["case__name", "name", "type__name", "created_by__email"]
 
 
-
 class SubmissionTypeAdmin(admin.ModelAdmin):
     pass
 

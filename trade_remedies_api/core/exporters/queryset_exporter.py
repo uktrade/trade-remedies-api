@@ -91,7 +91,7 @@ class QuerysetExporter:
             first = next(self.queryset)
         except StopIteration:
             log.info("Export requested for empty queryset")
-            self.writer.write_row([f"NO EXPORT DATA FOUND"])
+            self.writer.write_row(["NO EXPORT DATA FOUND"])
         else:
             if compatible:
                 self.publish_compatible_model(first)

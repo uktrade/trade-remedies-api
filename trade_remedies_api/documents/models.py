@@ -347,7 +347,6 @@ class Document(BaseModel):
     def s3_key(self):
         return self.file.name
 
-
     def set_md5_checksum(self):
         """Update document checksum.
 
@@ -357,7 +356,6 @@ class Document(BaseModel):
             obj = self.file.storage.bucket.Object(self.file.name)
             self.checksum = obj.e_tag.replace('"', "").replace("'", "")
             self.save()
-
 
     def extract_content(self):
         """

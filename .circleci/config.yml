@@ -27,7 +27,7 @@ jobs:
           name: Run Flake8
           command: |
             . venv/bin/activate
-            # python -m flake8 trade_remedies_api
+            pflake8 --config trade_remedies_api/pyproject.toml
   test:
     docker:
       - image: cimg/python:3.9.5

@@ -66,7 +66,7 @@ class EmailAvailabilityAPI(APIView):
 class AuthenticationView(APIView):
     authentication_classes = []
     """Authentication View.
-    
+
     Accepts a user login credentials and provide an access token.
     """
 
