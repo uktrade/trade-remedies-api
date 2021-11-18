@@ -25,7 +25,7 @@ when adding new decisions to the record.
 * 001 [proposed] - [Use ADRs](adr-001-use-adrs.md)
 * 002 [proposed] - [Major TR Refactor](adr-002-major-tr-refactor.md)
 * 003 [proposed] - [Use Token Authentication](adr-003-use-token-auth.md)
-* 004 [proposed] - [Use Django Restql](adr-004-use-django-restql.md)
+* 004 [proposed] - [Use Django RESRQL](adr-004-use-django-restql.md)
 * 005 [proposed] - TBD
 
 ---
