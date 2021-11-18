@@ -1236,3 +1236,6 @@ CRUD
 PUT
 PATCH
 self.writer.write_row(["NO EXPORT
+"Trade Remedies Auth
+Trade Remedies Auth Application
+Auth Application'

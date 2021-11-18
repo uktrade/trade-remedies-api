@@ -6,7 +6,8 @@
 [tool.black]
 line-length = 100
 diff = true
-target-version = ['py39']
+check = true
+target-versions = ['py39']
 exclude = '''
 /(
     \.eggs
@@ -16,6 +17,8 @@ exclude = '''
   | _build
   | .venv
   | tests-reports
+  | tests
+  | migrations
 )/
 '''
 
