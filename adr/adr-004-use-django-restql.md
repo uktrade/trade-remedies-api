@@ -2,7 +2,7 @@
 
 ## Status
 
-[![Generic badge](https://badgen.net/badge/ADR/proposed/orange/)](https://github.com/uktrade/trade-remedies-api/adr/README.md)
+[![Generic badge](https://badgen.net/badge/ADR/approved/green/)](https://github.com/uktrade/trade-remedies-api/adr/README.md)
 
 [django-restql]: (https://pypi.org/project/django-restql/)
 
