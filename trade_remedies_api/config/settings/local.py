@@ -1,7 +1,7 @@
 from .base import *  # noqa
 
 
-INSTALLED_APPS += [
+INSTALLED_APPS += [  # F405
     "api_test",
 ]
 

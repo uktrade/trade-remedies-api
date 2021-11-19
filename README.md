@@ -1,10 +1,10 @@
 # Trade Remedies API
 
 [![image](https://circleci.com/gh/uktrade/trade-remedies-api/tree/develop.svg?style=svg)](https://circleci.com/gh/uktrade/trade-remedies-api/tree/develop)
-[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Generic badge](https://img.shields.io/badge/pep-flake8-black.svg)](https://shields.io/)
-[![GitHub open-pull-requests](https://badgen.net/github/open-prs/Naereen/Strapdown.js)](https://github.com/Naereen/StrapDown.js/pulls?q=is%3Aopen)
+[![GitHub license](https://badgen.net//github/license/uktrade/trade-remedies-api/)](https://github.com/uktrade/trade-remedies-api/blob/master/LICENSE)
+[![GitHub open-pull-requests](https://badgen.net/github/open-prs/uktrade/trade-remedies-api/)](https://github.com/uktrade/trade-remedies-api/pulls?q=is%3Aopen)
+[![Generic badge](https://badgen.net/badge/code%20style/black/black/)](https://github.com/psf/black/)
+[![Generic badge](https://badgen.net/badge/pep/flake8/grey/)](https://pypi.org/project/flake8/)
 
 [docker_proj]: (https://github.com/uktrade/trade-remedies-docker)
 

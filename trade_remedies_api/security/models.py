@@ -20,6 +20,7 @@ from core.base import SimpleBaseModel
 from organisations.constants import CONTRIBUTOR_ORG_CASE_ROLE
 from security.constants import ROLE_PREPARING
 
+
 @singledispatch
 def get_role(role):
     """
