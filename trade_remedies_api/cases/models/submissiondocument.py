@@ -102,7 +102,9 @@ class SubmissionDocument(SimpleBaseModel):
                     "submission": {
                         "id": self.submission.id,
                         "version": self.submission.version,
-                        "type": {"name": self.submission.type.name,},
+                        "type": {
+                            "name": self.submission.type.name,
+                        },
                         "organisation": {
                             "name": self.submission.organisation
                             and self.submission.organisation.name,

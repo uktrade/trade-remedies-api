@@ -14,7 +14,10 @@ def roi_by_date():
     Registrations of interest by date submitted and received.
     """
     draft_submissions = (
-        Submission.objects.filter(type=SUBMISSION_TYPE, status=STATUS_DRAFT,)
+        Submission.objects.filter(
+            type=SUBMISSION_TYPE,
+            status=STATUS_DRAFT,
+        )
         .annotate(date=TruncDate("created_at"))
         .values("date")
         .annotate(total=Count("id"))

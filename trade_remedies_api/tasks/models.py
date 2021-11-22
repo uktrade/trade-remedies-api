@@ -31,7 +31,11 @@ class Task(BaseModel):
     status = models.CharField(max_length=20, null=True, blank=True)
     data = fields.JSONField(null=True, blank=True)
 
-    options = ({"unique_together": {("case", "reference")},},)
+    options = (
+        {
+            "unique_together": {("case", "reference")},
+        },
+    )
 
     class Meta:
         index_together = ["content_type", "model_id"]

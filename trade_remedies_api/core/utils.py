@@ -12,12 +12,7 @@ from core.constants import STATE_INCOMPLETE
 logger = logging.getLogger(__name__)
 
 
-XLSX_INJECTION_CHECK_CHARS = [
-    "=",
-    "+",
-    "-",
-    "@"
-]
+XLSX_INJECTION_CHECK_CHARS = ["=", "+", "-", "@"]
 
 MAX_INJECTION_CHECK_STR_LENGTH = 10000
 
@@ -206,8 +201,6 @@ def remove_xlsx_injection_attack_chars(value):
         return ""
 
     if len(value) > 0 and str(value)[0] in XLSX_INJECTION_CHECK_CHARS:
-        return remove_xlsx_injection_attack_chars(
-            value[1:len(value)]
-        )
+        return remove_xlsx_injection_attack_chars(value[1 : len(value)])
 
     return value

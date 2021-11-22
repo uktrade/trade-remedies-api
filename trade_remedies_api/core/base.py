@@ -102,7 +102,13 @@ class SimpleBaseModel(models.Model, DirtyFieldsMixin, AuditableMixin):
                     continue
                 else:
                     if (
-                        data_type in ("DateTimeField", "DateField", "UUIDField", "ForeignKey",)
+                        data_type
+                        in (
+                            "DateTimeField",
+                            "DateField",
+                            "UUIDField",
+                            "ForeignKey",
+                        )
                         and not value
                     ):
                         setattr(self, key, None)

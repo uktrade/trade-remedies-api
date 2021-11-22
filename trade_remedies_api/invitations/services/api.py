@@ -321,10 +321,7 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
         :param (Submission) submission: Submission to encapsulate the invite.
         :param (dict) request_data: Invite parameters.
         """
-        invitee_organisation = InviteThirdPartyAPI.get_invitee_org(
-            request_user,
-            request_data
-        )
+        invitee_organisation = InviteThirdPartyAPI.get_invitee_org(request_user, request_data)
         contact = Contact.objects.create(
             name=request_data.get("name"),
             email=request_data.get("email", "").lower(),
@@ -355,9 +352,7 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
         """
         contact.load_attributes(request_data, ["name", "email"])
         contact.organisation = InviteThirdPartyAPI.update_invitee_org(
-            request_user,
-            request_data,
-            contact.organisation
+            request_user, request_data, contact.organisation
         )
         if phone := request_data.get("phone"):
             contact.phone = convert_to_e164(phone)
@@ -377,7 +372,7 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
         """
         if requested_organisation := Organisation.objects.filter(
             name=request_data.get("organisation_name"),
-            companies_house_id=request_data.get("companies_house_id")
+            companies_house_id=request_data.get("companies_house_id"),
         ).first():
             return requested_organisation
         else:
@@ -407,15 +402,17 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
         if requested_organisation != existing_organisation:
             # Inviter specified an entirely different organisation, see if can we clean up.
             if can_delete_existing_organisation:
-                logger.info(f"Third Party Invite: Deleting unused organisation: "
-                            f"{existing_organisation}")
+                logger.info(
+                    f"Third Party Invite: Deleting unused organisation: {existing_organisation}"
+                )
                 try:
                     existing_organisation.delete(purge=True)
                 except Organisation.DoesNotExist:
                     pass
                 except Exception as e:
-                    logger.error(f"Failed to delete unused organisation "
-                                 f"{existing_organisation}: {e}")
+                    logger.error(
+                        f"Failed to delete unused organisation {existing_organisation}: {e}"
+                    )
         elif can_edit_requested_organisation:
             # An update to name or company number would have elicited a new org,
             # so just update address and country

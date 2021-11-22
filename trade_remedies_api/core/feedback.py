@@ -14,10 +14,6 @@ def feedback_export(form):
         row = [form.name, str(collection.created_at), collection.placement.id]
         for element in elements:
             value = collection.feedbackdata_set.filter(element=element).first()
-            row.append(
-                remove_xlsx_injection_attack_chars(
-                    value.value
-                ) if value else ""
-            )
+            row.append(remove_xlsx_injection_attack_chars(value.value) if value else "")
         writer.write_row(row)
     return writer.close()

@@ -48,7 +48,6 @@ def _(document):
 
 
 class DocumentManager(models.Manager):
-
     @staticmethod
     def elastic_search(
         query,
@@ -382,7 +381,9 @@ class Document(BaseModel):
         else:
             try:
                 return client.get(
-                    index=settings.ELASTIC_INDEX["document"], doc_type="document", id=self.id,
+                    index=settings.ELASTIC_INDEX["document"],
+                    doc_type="document",
+                    id=self.id,
                 )
             except NotFoundError:
                 logger.warning("Could not find document in elastic index")
@@ -408,7 +409,10 @@ class Document(BaseModel):
             "file_type": self.file_extension,
             "all_case_ids": [],
             "created_at": self.created_at.strftime(settings.API_DATETIME_FORMAT),
-            "created_by": {"id": self.created_by.id, "name": self.created_by.name, },
+            "created_by": {
+                "id": self.created_by.id,
+                "name": self.created_by.name,
+            },
             "user_type": "TRA" if self.created_by.is_tra() else "PUB",
             "confidential": self.confidential,
             "checksum": self.checksum,
@@ -455,7 +459,13 @@ class Document(BaseModel):
         if note:
             if not doc.get("case_id") and note.case:
                 doc["case_id"] = note.case.id
-            doc.update({"note": {"content": note.note, }})
+            doc.update(
+                {
+                    "note": {
+                        "content": note.note,
+                    }
+                }
+            )
 
         if organisation:
             doc.update(
@@ -497,7 +507,11 @@ class DocumentBundle(SimpleBaseModel):
         max_length=50,
         null=True,
         blank=True,
-        choices=(("DRAFT", "Draft"), ("LIVE", "Live"), ("ARCHIVED", "Archived"),),
+        choices=(
+            ("DRAFT", "Draft"),
+            ("LIVE", "Live"),
+            ("ARCHIVED", "Archived"),
+        ),
     )
     description = models.TextField(null=True, blank=True)
     documents = models.ManyToManyField(Document)
@@ -525,7 +539,8 @@ class DocumentBundle(SimpleBaseModel):
         if self.case_id:
             return (
                 DocumentBundle.objects.filter(
-                    case_id=self.case_id, submission_type_id=self.submission_type_id,
+                    case_id=self.case_id,
+                    submission_type_id=self.submission_type_id,
                 )
                 .exclude(id=self.id)
                 .order_by("version")
