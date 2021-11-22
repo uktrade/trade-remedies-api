@@ -64,14 +64,14 @@ class QuerysetExporter:
         :param (django.db.models.Model) first: A django model.
         """
         fields = [f.name for f in first._meta.local_fields]  # noqa
-        fmt = ','.join([f'{{item.{i}}}' for i in fields])
-        first = fmt.format(item=first).split(',')
+        fmt = ",".join([f"{{item.{i}}}" for i in fields])
+        first = fmt.format(item=first).split(",")
         batch = [fields, first]
         for item in self.queryset:
             if len(batch) >= self.BATCH_SIZE:
                 self.writer.write_rows(batch)
                 batch = []
-            batch.append(fmt.format(item=item).split(','))
+            batch.append(fmt.format(item=item).split(","))
         self.writer.write_rows(batch)
 
     def do_export(self, compatible=False):

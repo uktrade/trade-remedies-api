@@ -248,7 +248,10 @@ class Invitation(BaseModel):
     contact = models.ForeignKey("contacts.Contact", null=True, blank=True, on_delete=models.PROTECT)
     case = models.ForeignKey("cases.Case", null=True, blank=True, on_delete=models.PROTECT)
     submission = models.ForeignKey(
-        "cases.Submission", null=True, blank=True, on_delete=models.PROTECT,
+        "cases.Submission",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
         related_name="invitations",
     )
     case_role = models.ForeignKey(
@@ -385,12 +388,7 @@ class Invitation(BaseModel):
             )
         # Set email and footer appropriate to case context
         email = notify_contact_email(_context.get("case_number"))
-        _context.update(
-            {
-                "email": email,
-                "footer": notify_footer(email)
-            }
-        )
+        _context.update({"email": email, "footer": notify_footer(email)})
         if direct is True:
             _context[
                 "login_url"

@@ -9,7 +9,8 @@ class UpperAndLowerCase:
         )
         if not mixed:
             raise ValidationError(
-                "Password must include both upper and lower case characters", code="no_mixed_case",
+                "Password must include both upper and lower case characters",
+                code="no_mixed_case",
             )
 
     def get_help_text(self):

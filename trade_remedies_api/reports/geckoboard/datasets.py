@@ -12,7 +12,10 @@ DATASETS = {
         "query": "total_public_users",
         "mode": "replace",
         "fields": {
-            "total": {"type": "number", "name": "Total Users",},
+            "total": {
+                "type": "number",
+                "name": "Total Users",
+            },
             "type": {"type": "string", "name": "Type"},
         },
     },
@@ -22,7 +25,10 @@ DATASETS = {
         "fields": {
             "date": {"type": "date", "name": "Date"},
             "status": {"type": "string", "name": "Status"},
-            "total": {"type": "number", "name": "Total",},
+            "total": {
+                "type": "number",
+                "name": "Total",
+            },
         },
         "unique_by": ["date", "status"],
     },

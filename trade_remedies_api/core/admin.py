@@ -36,7 +36,8 @@ class UserCreationForm(forms.ModelForm):
         password2 = self.cleaned_data.get("password2")
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError(
-                self.error_messages["password_mismatch"], code="password_mismatch",
+                self.error_messages["password_mismatch"],
+                code="password_mismatch",
             )
         return password2
 
@@ -95,7 +96,13 @@ class UserAdmin(UserAdmin):  # noqa
         ("Important dates", {"fields": ("last_login", "created_at", "deleted_at")}),
     )
     add_fieldsets = (
-        (None, {"classes": ("wide",), "fields": ("email", "password1", "password2"), }),
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("email", "password1", "password2"),
+            },
+        ),
     )
     ordering = ("email",)
     inlines = (UserProfileInline,)
@@ -106,7 +113,7 @@ class SystemParameterAdmin(admin.ModelAdmin):
 
 
 class TwoFactorAuthAdmin(admin.ModelAdmin):
-    readonly_fields = ("generated_at", )
+    readonly_fields = ("generated_at",)
 
 
 class JobTitleAdmin(admin.ModelAdmin):

@@ -484,7 +484,9 @@ class AssignUserToCaseView(TradeRemediesApiView):
         if not remove:
             user.assign_to_case(case=case, organisation=representing, created_by=request.user)
             user.contact.add_to_case(
-                case=case, organisation=representing, primary=bool(primary),
+                case=case,
+                organisation=representing,
+                primary=bool(primary),
             )
             context = {
                 "case_name": case.name,
@@ -584,7 +586,9 @@ class CreatePendingUserAPI(TradeRemediesApiView):
         if invitation_id:
             try:
                 invite = Invitation.objects.get(
-                    id=invitation_id, organisation=organisation, deleted_at__isnull=True,
+                    id=invitation_id,
+                    organisation=organisation,
+                    deleted_at__isnull=True,
                 )
                 if invite.accepted_at or data["email"] != invite.email:
                     invitation_id = None

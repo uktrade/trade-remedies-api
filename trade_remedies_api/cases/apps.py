@@ -5,4 +5,4 @@ class CasesConfig(AppConfig):
     name = "cases"
 
     def ready(self):
-        import cases.receivers    # noqa F401
+        import cases.receivers  # noqa F401
