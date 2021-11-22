@@ -403,7 +403,7 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
             # Inviter specified an entirely different organisation, see if can we clean up.
             if can_delete_existing_organisation:
                 logger.info(
-                    f"Third Party Invite: Deleting unused organisation: " f"{existing_organisation}"
+                    f"Third Party Invite: Deleting unused organisation: {existing_organisation}"
                 )
                 try:
                     existing_organisation.delete(purge=True)
@@ -411,7 +411,7 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
                     pass
                 except Exception as e:
                     logger.error(
-                        f"Failed to delete unused organisation " f"{existing_organisation}: {e}"
+                        f"Failed to delete unused organisation {existing_organisation}: {e}"
                     )
         elif can_edit_requested_organisation:
             # An update to name or company number would have elicited a new org,
