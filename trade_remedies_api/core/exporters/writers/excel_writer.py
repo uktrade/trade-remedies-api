@@ -4,6 +4,7 @@ from .base_writer import BaseWriter
 
 class ExcelWriter(BaseWriter):
     """Excel writer."""
+
     def __init__(self, prefix):
         """Constructor.
 

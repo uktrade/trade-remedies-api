@@ -5,7 +5,9 @@
 
 [tool.black]
 line-length = 100
-target-version = ['py37']
+diff = true
+check = true
+target-versions = ['py39']
 exclude = '''
 /(
     \.eggs
@@ -15,5 +17,67 @@ exclude = '''
   | _build
   | .venv
   | tests-reports
+  | tests
+  | migrations
+)/
+'''
+
+# see https://pycqa.github.io/isort/docs/configuration/black_compatibility/
+[tool.isort]
+profile = "black"
+line_length = 100
+include_trailing_comma = true
+multi_line_output = 3
+
+[tool.flake8]
+max-line-length = 100
+per-file-ignores = '__init__.py: F401'
+ignore = '''
+/(
+    C901
+    | D100
+    | D104
+    | D106
+    | D200
+    | D203
+    | D205
+    | D400
+    | D401
+    | W503
+    | W504
+    | E704
+    | E231
+    | F841
+    | F401
+    | F405
+    | F811
+    | E722
+    | E203
+    | E501
+'''
+max-complexity = 10
+application-import-names = '''
+/(
+    audit
+    | cases
+    | contacts
+    | content
+    | core
+    | documents
+    | features
+    | invitations
+    | notes
+    | organisations
+    | reports
+    | security
+    | tasks
+    | config
+    | workflow
+)/
+'''
+import_order_style = 'smarkets'
+extend-exclude = '''
+/(
+  */migrations/*.py
 )/
 '''

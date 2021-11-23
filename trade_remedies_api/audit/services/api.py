@@ -17,6 +17,7 @@ class AuditTrailView(TradeRemediesApiView):
 
     View to return some or all audit trail items.
     """
+
     def get(self, request, case_id=None, *args, **kwargs):
         """Get audit trail.
 
@@ -46,13 +47,14 @@ class AuditTrailView(TradeRemediesApiView):
             "created_by", "assisted_by", "content_type"
         ).order_by(order_by)
         limited_queryset = (
-            audit_trail[self._start: self._start + self._limit] if self._limit else audit_trail
+            audit_trail[self._start : self._start + self._limit] if self._limit else audit_trail
         )
         return ResponseSuccess({"results": [audit.to_dict() for audit in limited_queryset]})
 
 
 class AuditTrailExport(TradeRemediesApiView):
     """Generate an audit trail export."""
+
     @staticmethod
     def get(request, case_id, *args, **kwargs):
         """Get audit trail export for a case.
@@ -67,8 +69,9 @@ class AuditTrailExport(TradeRemediesApiView):
         """
         file_format = request.query_params.get("format", "xlsx")
         audit_trail = Audit.objects.filter(case_id=case_id).order_by("created_at").iterator()
-        export = QuerysetExporter(queryset=audit_trail, file_format=file_format,
-                                  prefix="tr-audit-export")
+        export = QuerysetExporter(
+            queryset=audit_trail, file_format=file_format, prefix="tr-audit-export"
+        )
         export_file = export.do_export(compatible=True)
         mime_type = mimetypes.guess_type(export_file.name, False)[0]
         response = HttpResponse(export_file.read(), content_type=mime_type)
@@ -82,6 +85,7 @@ class NotifyAuditReport(TradeRemediesApiView):
     Enables client to get a report of failed notifications logged in the audit trail,
     and update the audit log item with an acknowledgement of the failure.
     """
+
     @staticmethod
     def get(request, case_id=None):
         """Return all unacknowledged notify failures for a case.

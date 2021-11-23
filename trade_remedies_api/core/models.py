@@ -258,7 +258,9 @@ class UserManager(BaseUserManager):
         country = kwargs.get("country") or userprofile.contact.country
         phone = kwargs.get("phone") or userprofile.contact.phone
         user_timezone = kwargs.get("timezone", userprofile.timezone)
-        userprofile.timezone = pytz.timezone(user_timezone) if user_timezone else pytz.timezone("UTC")
+        userprofile.timezone = (
+            pytz.timezone(user_timezone) if user_timezone else pytz.timezone("UTC")
+        )
         userprofile.colour = kwargs.get("colour") or userprofile.colour
         userprofile.job_title_id = kwargs.get("job_title_id")
         if "set_verified" in kwargs:
@@ -460,8 +462,11 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         from organisations.models import Organisation
 
         return list(
-            Organisation.objects.select_related("created_by", "modified_by", "duplicate_of", "merged_from").filter(
-                organisationuser__user=self, organisationuser__confirmed=True,
+            Organisation.objects.select_related(
+                "created_by", "modified_by", "duplicate_of", "merged_from"
+            ).filter(
+                organisationuser__user=self,
+                organisationuser__confirmed=True,
             )
         )
 
@@ -473,7 +478,11 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         """
         from organisations.models import Organisation
 
-        return list(Organisation.objects.filter(organisationuser__user=self,))
+        return list(
+            Organisation.objects.filter(
+                organisationuser__user=self,
+            )
+        )
 
     @property
     def organisation(self):
@@ -487,7 +496,9 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         """
         Return all organisations represented by this user
         """
-        case_user = UserCase.objects.select_related("organisation",).filter(user=self)
+        case_user = UserCase.objects.select_related(
+            "organisation",
+        ).filter(user=self)
         organisations = [cu.organisation for cu in case_user]
         return organisations + self.organisations
 
@@ -549,7 +560,9 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         Return the single organisation this user is an owner of, or none
         """
         user_org = (
-            self.organisationuser_set.select_related("organisation",)
+            self.organisationuser_set.select_related(
+                "organisation",
+            )
             .filter(security_group__name=SECURITY_GROUP_ORGANISATION_OWNER)
             .first()
         )
@@ -770,7 +783,9 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         """
         try:
             user_count = (
-                User.objects.select_related("userprofile",)
+                User.objects.select_related(
+                    "userprofile",
+                )
                 .filter(userprofile__isnull=False, created_at__lt=self.created_at)
                 .count()
             )
@@ -957,7 +972,11 @@ class UserProfile(models.Model):
         from security.models import OrganisationUser
 
         return (
-            OrganisationUser.objects.select_related("organisation", "user", "security_group",)
+            OrganisationUser.objects.select_related(
+                "organisation",
+                "user",
+                "security_group",
+            )
             .filter(user=self.user)
             .distinct("organisation")
         )
@@ -971,7 +990,10 @@ class UserProfile(models.Model):
         else:
             from contacts.models import Contact
 
-            contact = Contact.objects.create(name=self.user.name, email=self.user.email,)
+            contact = Contact.objects.create(
+                name=self.user.name,
+                email=self.user.email,
+            )
             self.contact = contact
             self._disable_audit = True
             self.save()
@@ -1011,6 +1033,7 @@ class TwoFactorAuth(models.Model):
     When attempts fail after n times (defined in settings.TWO_FACTOR_ATTEMPTS), the
     mechanism is locked for the duration specified in settints.TWO_FACTOR_LOCK_MINUTES
     """
+
     SMS = "sms"
     EMAIL = "email"
     DELIVERY_TYPE_CHOICES = [
@@ -1024,9 +1047,7 @@ class TwoFactorAuth(models.Model):
     last_user_agent = models.CharField(max_length=1000, null=True, blank=True)
     locked_until = models.DateTimeField(null=True, blank=True)
     attempts = models.SmallIntegerField(default=0)
-    delivery_type = models.CharField(max_length=8,
-                                     choices=DELIVERY_TYPE_CHOICES,
-                                     default=SMS)
+    delivery_type = models.CharField(max_length=8, choices=DELIVERY_TYPE_CHOICES, default=SMS)
 
     def __str__(self):
         return f"{self.user} last validated at {self.last_validated}"
@@ -1104,9 +1125,7 @@ class TwoFactorAuth(models.Model):
         :param (int) valid_minutes: 2FA validity period in minutes.
         :returns (str): New or existing 2FA code.
         """
-        if self.attempts == 0 or self.code_duration >= (
-            valid_minutes * 60
-        ):
+        if self.attempts == 0 or self.code_duration >= (valid_minutes * 60):
             self.code = str(randint(10000, 99999))
             self.last_user_agent = user_agent
             self.last_validated = None

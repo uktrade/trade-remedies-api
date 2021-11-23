@@ -20,7 +20,10 @@ class CompaniesHouseApiSearch(TradeRemediesApiView):
         response = requests.get(
             f"{COMPANIES_HOUSE_BASE_DOMAIN}/search/companies",
             headers=headers,
-            params={"q": query, "items_per_page": 10,},
+            params={
+                "q": query,
+                "items_per_page": 10,
+            },
         ).json()
         return ResponseSuccess(
             {

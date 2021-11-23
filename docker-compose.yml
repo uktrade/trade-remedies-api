@@ -2,7 +2,7 @@ version: "3"
 services:
   api:
     build:
-       context: . 
+       context: .
     ports:
       - "8000:8000"
     volumes:
@@ -13,20 +13,20 @@ services:
       - local.env
     command: python manage.py runserver 0.0.0.0:8000
     environment:
-      - DJANGO_SETTINGS_MODULE=trade_remedies_api.settings.local
+      - DJANGO_SETTINGS_MODULE=config.settings.local
   celery:
     build:
-       context: . 
+       context: .
     command: celery -A trade_remedies_api worker -l DEBUG
     volumes:
       - ./trade_remedies_api:/app/
     env_file:
       - local.env
     environment:
-      - DJANGO_SETTINGS_MODULE=trade_remedies_api.settings.local
+      - DJANGO_SETTINGS_MODULE=config.settings.local
   apitest:
     build:
-       context: . 
+       context: .
     ports:
       - "8003:8000"
     volumes:
@@ -35,7 +35,7 @@ services:
       - local.env
     command: python manage.py runserver 0.0.0.0:8000
     environment:
-      - DJANGO_SETTINGS_MODULE=trade_remedies_api.settings.bdd
+      - DJANGO_SETTINGS_MODULE=config.settings.bdd
       - DATABASE_URL=psql://postgres:postgres@postgres:5432/trade_remedies_api_test
   postgres:
     image: postgres:10.15

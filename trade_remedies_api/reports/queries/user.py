@@ -25,14 +25,21 @@ def total_public_users():
     Total public users
     """
     total_users = User.objects.filter(
-        groups__name__in=SECURITY_GROUPS_PUBLIC, deleted_at__isnull=True,
+        groups__name__in=SECURITY_GROUPS_PUBLIC,
+        deleted_at__isnull=True,
     ).count()
     total_verified = User.objects.filter(
         groups__name__in=SECURITY_GROUPS_PUBLIC,
         userprofile__email_verified_at__isnull=False,
         deleted_at__isnull=True,
     ).count()
-    data = [{"total": total_users, "type": "all"}, {"total": total_verified, "type": "verified",}]
+    data = [
+        {"total": total_users, "type": "all"},
+        {
+            "total": total_verified,
+            "type": "verified",
+        },
+    ]
     return data
 
 

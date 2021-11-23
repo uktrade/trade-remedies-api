@@ -277,9 +277,11 @@ class Submission(BaseModel):
         want those associated with it's parent, since it was the parent which was
         deficient and the current version is the one created to correct that deficiency.
         """
-        return SubmissionDocument.objects.select_related("document", "submission", "type",).filter(
-            submission=self, type__key="deficiency", deleted_at__isnull=True
-        )
+        return SubmissionDocument.objects.select_related(
+            "document",
+            "submission",
+            "type",
+        ).filter(submission=self, type__key="deficiency", deleted_at__isnull=True)
 
     def get_parent_deficiency_documents(self):
         """
@@ -298,7 +300,10 @@ class Submission(BaseModel):
         :returns (QuerySet): QuerySet of this submission's SubmissionDocuments
         """
         documents = SubmissionDocument.objects.select_related(
-            "document", "submission", "type", "issued_by",
+            "document",
+            "submission",
+            "type",
+            "issued_by",
         ).filter(submission=self, document__deleted_at__isnull=True)
         if requested_by and requested_for and requested_for != self.organisation:
             documents = documents.filter(
@@ -426,8 +431,7 @@ class Submission(BaseModel):
             return []
         requested_by = kwargs.get("requested_by")
         documents = self.submission_documents(
-            requested_by=requested_by,
-            requested_for=kwargs.get("requested_for")
+            requested_by=requested_by, requested_for=kwargs.get("requested_for")
         )
         submission_docs = [doc.to_dict(user=requested_by) for doc in documents]
         return submission_docs
@@ -513,11 +517,7 @@ class Submission(BaseModel):
         downloaded_count = self.submissiondocument_set.filter(downloads__gt=0).count()
         out = self.to_minimal_dict()
         invitations = [
-            {
-                "id": invite.id,
-                "name": invite.contact.name
-            }
-            for invite in self.invitations.all()
+            {"id": invite.id, "name": invite.contact.name} for invite in self.invitations.all()
         ]
         out.update(
             {
@@ -529,7 +529,10 @@ class Submission(BaseModel):
                 if self.deficiency_sent_at
                 else None,
                 "created_at": self.created_at.strftime(settings.API_DATETIME_FORMAT),
-                "created_by": {"id": str(self.created_by.id), "name": self.created_by.name, },
+                "created_by": {
+                    "id": str(self.created_by.id),
+                    "name": self.created_by.name,
+                },
                 "issued_by": self.issued_by.to_embedded_dict() if self.issued_by else None,
                 "received_from": self.received_from.to_embedded_dict()
                 if self.received_from

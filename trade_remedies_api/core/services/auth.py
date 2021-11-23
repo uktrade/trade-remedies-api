@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from core.models import (User, UserProfile, SystemParameter, PasswordResetRequest, TwoFactorAuth)
+from core.models import User, UserProfile, SystemParameter, PasswordResetRequest, TwoFactorAuth
 from core.notifier import send_mail
 from invitations.models import Invitation
 from django.conf import settings
@@ -23,7 +23,7 @@ from security.constants import (
     ENVIRONMENT_GROUPS,
 )
 from core.constants import CONTENT_EMAIL_EXISTS
-from trade_remedies_api.version import __version__
+from config.version import __version__
 from .base import TradeRemediesApiView, ResponseSuccess, ResponseError
 from .exceptions import InvalidRequestParams, AccessDenied, InvalidRequestLockout
 
@@ -66,7 +66,7 @@ class EmailAvailabilityAPI(APIView):
 class AuthenticationView(APIView):
     authentication_classes = []
     """Authentication View.
-    
+
     Accepts a user login credentials and provide an access token.
     """
 
