@@ -1,3 +1,12 @@
+assert fake_user.two_factor
+test_validate_token_success
+test_trusted_auth_token_serializer_invalid_token
+valid_2fa_serializer_data
+TwoFactorTokenSerializer(data=
+test_two_factor_token_serializer_too_many_attempts
+assert serializer.is_valid
+assert len(serializer.data
+Public/CW
  FeatureFlags
 get_param
 doc = load(document.file
@@ -1239,3 +1248,54 @@ self.writer.write_row(["NO EXPORT
 "Trade Remedies Auth
 Trade Remedies Auth Application
 Auth Application'
+Email Verification Model
+#      recipients=[self.user.email
+Auth App URLs
+AuthenticationView
+Create User
+"Create Super User
+"User Model
+is_admin
+def check_locked(func
+Two Factor Authentication
+locked_at
+TwoFactorAuth.two_factor_auth
+TWO_FACTOR_MAX_ATTEMPTS
+abc
+ABC
+APIException
+Validate Token
+ANON_USER_TOKEN
+"Trusted Auth Token Serializer
+Serializer
+label=_("Two Factor Token
+Email Availability Serializer
+"Authentication Views
+rest_framework.authtoken.views
+API Authentication
+EmailAvailableView(views
+"Trade Remedies Authentication
+Authentication Application'
+AuthConfig
+assert User.objects.normalize_email("FoO@bAr
+foo@bar.org
+test_get_by_natural_key
+test_create_user
+test_create_superuser
+.two_factor_auth
+EmailVerification
+verbose_name='superuser
+APIViews
+ViewSets
+UserView
+name='User
+# Necessary
+E304
+"Test Fixtures
+api_client_no_auth
+API Client
+"Authorised API Client
+EmailVerifyView
+TrustedAuthTokenSerializer
+token_key
+TrustedTokenSerializer

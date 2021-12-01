@@ -1008,8 +1008,8 @@ class TwoFactorAuth(models.Model):
     """
     Hold the required information for a user's 2FA authentication.
     Each user can have a single record in this model's data table.
-    When attempts fail after n times (defined in settings.TWO_FACTOR_ATTEMPTS), the
-    mechanism is locked for the duration specified in settints.TWO_FACTOR_LOCK_MINUTES
+    When attempts fail after n times (defined in settings.TWO_FACTOR_MAX_ATTEMPTS),
+    the mechanism is locked for the duration specified in settings.TWO_FACTOR_LOCK_MINUTES
     """
     SMS = "sms"
     EMAIL = "email"
@@ -1043,7 +1043,7 @@ class TwoFactorAuth(models.Model):
 
     def fail(self):
         self.attempts += 1
-        if self.attempts > settings.TWO_FACTOR_ATTEMPTS:
+        if self.attempts > settings.TWO_FACTOR_MAX_ATTEMPTS:
             self.lock()
         self.save()
 

@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
-
 import sys
 import os
 import datetime
@@ -44,53 +43,55 @@ SITE_ROOT = root()
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
+# Must be provided by the environment
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DEBUG")
-# Allow/disallow django admin
+DEBUG = env("DEBUG", default=False)
 DJANGO_ADMIN = env("DJANGO_ADMIN", default=False)
-
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
 
-ORGANISATION_NAME = env("ORGANISATION_NAME", default="Organisation name placeholder")
-
-ORGANISATION_INITIALISM = env("ORGANISATION_INITIALISM", default="PLACEHOLDER")
-
 # Application definition
-
-INSTALLED_APPS = [
+DJANGO_APPS = [
+    "django_extensions",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    "django.contrib.sessions",
     "django.contrib.messages",
+    "django.contrib.sessions",
     "django.contrib.staticfiles",
-    "django_extensions",
     "django_countries",
+    'phonenumber_field',
+    "storages",
+]
+
+DRF_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
-    "storages",
-    "core",
-    "security",
-    "cases",
-    "organisations",
-    "documents",
+]
+
+LOCAL_APPS = [
     "audit",
-    "notes",
-    "tasks",
-    "content",
-    "workflow",
+    "authentication",
+    "cases",
     "contacts",
+    "content",
+    "core",
+    "documents",
     "invitations",
+    "notes",
+    "organisations",
+    "reports",
+    "security",
+    "tasks",
+    "workflow",
+]
+
+THIRD_PARTY_APPS = [
     "axes",
     "feedback",
-    "reports",
 ]
+
+INSTALLED_APPS = DJANGO_APPS + DRF_APPS + LOCAL_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
     "config.middleware.ApiTokenSetter",
@@ -130,7 +131,6 @@ TEMPLATES = [
     },
 ]
 
-
 AUTHENTICATION_BACKENDS = [
     "axes.backends.AxesBackend",
     "django.contrib.auth.backends.ModelBackend",
@@ -158,9 +158,6 @@ if "postgres" in _VCAP_SERVICES:
 else:
     DATABASES = {"default": env.db()}
 
-# Password validation
-# https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -185,21 +182,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/2.0/topics/i18n/
-
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "Europe/London"
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
-
-AUTH_USER_MODEL = "core.User"
 
 # Static files
 STATICFILES_FINDERS = [
@@ -209,15 +197,10 @@ STATICFILES_FINDERS = [
 STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", "static"))
 STATIC_URL = "/static/"
 
-PUBLIC_ROOT_URL = env(
-    "PUBLIC_ROOT_URL", default="https://trade-remedies-public-dev.london.cloudapps.digital"
-)
+PUBLIC_ROOT_URL = env("PUBLIC_ROOT_URL", default="http://localhost:8001")
 CASEWORKER_ROOT_URL = env("CASEWORKER_ROOT_URL", default="http://localhost:8002")
 
 API_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
-API_DATE_FORMAT = "%Y-%m-%d"
-FRIENDLY_DATE_FORMAT = "%-d %B %Y"
-
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
@@ -226,7 +209,6 @@ REST_FRAMEWORK = {
     "DATETIME_FORMAT": API_DATETIME_FORMAT,
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
-
 
 # Redis - Trade remedies uses different redis database numbers for the Django Cache
 # for each service, and for Celery.
@@ -257,37 +239,9 @@ CACHES = {
 
 CELERY_TASK_ALWAYS_EAGER = env("CELERY_TASK_ALWAYS_EAGER", default=False)
 CELERY_WORKER_LOG_FORMAT = "[%(asctime)s: %(levelname)s/%(processName)s] [%(name)s] %(message)s"
-RUN_ASYNC = True
 
-# App specific switches
-API_CACHE_TIMEOUT = 3  # Cache timeout in minutes
-API_PREFIX = "api/v1"
-DEFAULT_QUERYSET_PAGE_SIZE = 20
-TRUSTED_USER_EMAIL = env("HEALTH_CHECK_USER_EMAIL")
-AWS_ACCESS_KEY_ID = AWS_S3_ACCESS_KEY_ID = env("S3_STORAGE_KEY", default=None)
-AWS_SECRET_ACCESS_KEY = AWS_S3_SECRET_ACCESS_KEY = env("S3_STORAGE_SECRET", default=None)
-AWS_STORAGE_BUCKET_NAME = env("S3_BUCKET_NAME", default=None)
-AWS_S3_REGION_NAME = env("AWS_REGION", default="eu-west-1")
-AWS_S3_SIGNATURE_VERSION = "s3v4"
-AWS_S3_ENCRYPTION = True
-# S3 client library to use
-S3_CLIENT = "boto3"
-# S3 Root directory name
-S3_DOCUMENT_ROOT_DIRECTORY = "documents"
-# Time before S3 download links expire
-S3_DOWNLOAD_LINK_EXPIRY_SECONDS = env.int("S3_DOWNLOAD_LINK_EXPIRY_SECONDS", default=3600)
-# Max upload size - 2GB
-MAX_UPLOAD_SIZE = 2 * (1024 * 1024 * 1024)
-# Case worker environment key
-CASE_WORKER_ENVIRONMENT_KEY = env("CASE_WORKER_ENVIRONMENT_KEY")
-# Public environment key
-PUBLIC_ENVIRONMENT_KEY = env("PUBLIC_ENVIRONMENT_KEY")
-# Allowed origins
-ALLOWED_ORIGINS = (CASE_WORKER_ENVIRONMENT_KEY, PUBLIC_ENVIRONMENT_KEY)
-# Days of registration window for a case
-CASE_REGISTRATION_DURATION = 15
-# FILE DOWNLOAD CHUNK SIZE
-STREAMING_CHUNK_SIZE = 8192
+# Axes
+AXES_ENABLED = env("AXES_ENABLED", default=True)
 # Axes sits behind a proxy
 AXES_BEHIND_REVERSE_PROXY = True
 # Number of login/2fa attempts
@@ -306,28 +260,7 @@ AXES_USE_USER_AGENT = True
 AXES_ONLY_USER_FAILURES = False
 # Use a combination of username and ip for axes
 AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
-# Max life of password reset code in hours
-PASSWORD_RESET_CODE_AGE_HOURS = env("PASSWORD_RESET_CODE_AGE", default=2)
-# Two factor authentication validity duration in days
-TWO_FACTOR_AUTH_VALID_DAYS = env("TWO_FACTOR_AUTH_VALID_DAYS", default=14)
-# Lockout time for two factor failures
-TWO_FACTOR_LOCK_MINUTES = 5
-# Two factor authentication code validity (SMS delivery type) in minutes
-TWO_FACTOR_CODE_SMS_VALID_MINUTES = 10
-# Two factor authentication code validity (Email delivery type) in minutes
-TWO_FACTOR_CODE_EMAIL_VALID_MINUTES = 20
-# Number of two factor authentication attempts allowed before locking
-TWO_FACTOR_ATTEMPTS = 3
-# Time to cache method
-METHOD_CACHE_DURATION_MINUTES = 2
-# Organisation user invite life time before expiry (in hours)
-ORGANISATION_INVITE_DURATION_HOURS = 24 * 3
-# Full application assessment days on receipt
-DEADLINE_AFTER_ASSESSMENT_RECEIPT_DAYS = 40
-# Email verify code regenerate after n minutes
-EMAIL_VERIFY_CODE_REGENERATE_TIMEOUT = 15
-# Id for the SOS organisation (fixed)
-SECRETARY_OF_STATE_ORGANISATION_ID = "8850d091-e119-4ab5-9e21-ede5f0112bef"
+
 # Elastic search host and port. ELASTIC_HOST/PORT are offered as
 # fallback when VCAP is not set by the environment
 ELASTIC_HOST = env("ELASTIC_HOST", default=None)
@@ -341,17 +274,6 @@ ELASTIC_INDEX = {
     "document": "main",
 }
 
-# Companies House API
-COMPANIES_HOUSE_API_KEY = env("COMPANIES_HOUSE_API_KEY", default=None)
-
-# Geckoboard API
-GECKOBOARD_API_KEY = env("GECKOBOARD_API_KEY", default=None)
-GECKOBOARD_ENV = env("GECKOBOARD_ENV", default="dev")
-
-AV_SERVICE_URL = env("AV_SERVICE_URL", default=None)
-AV_SERVICE_USERNAME = env("AV_SERVICE_USERNAME", default=None)
-AV_SERVICE_PASSWORD = env("AV_SERVICE_PASSWORD", default=None)
-
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 AWS_DEFAULT_ACL = None
 
@@ -359,10 +281,6 @@ AWS_DEFAULT_ACL = None
 COUNTRIES_OVERRIDE = {
     "EU": "European Customs Union",
 }
-
-GOV_NOTIFY_API_KEY = env("GOV_NOTIFY_API_KEY", default=None)
-
-AXES_ENABLED = env("AXES_ENABLED", default=True)
 
 LOGGING = {
     "version": 1,
@@ -469,3 +387,97 @@ ENVIRONMENT_LOGGING = {
         },
     },
 }
+
+# ------------------------------------------------------------------------------
+# The TRS Zone - very specifically TRS settings.
+# ------------------------------------------------------------------------------
+API_PREFIX = "api/v1"
+API_V2_PREFIX = "api/v2"
+API_V2_ENABLED = env.bool("API_V2_ENABLED", False)
+if API_V2_ENABLED:
+    AUTH_USER_MODEL = "authentication.User"
+    ANON_USER_TOKEN = "change-me"
+else:
+    AUTH_USER_MODEL = "core.User"
+
+ORGANISATION_NAME = env("ORGANISATION_NAME", default="Organisation name placeholder")
+ORGANISATION_INITIALISM = env("ORGANISATION_INITIALISM", default="PLACEHOLDER")
+
+# AWS
+AWS_ACCESS_KEY_ID = AWS_S3_ACCESS_KEY_ID = env("S3_STORAGE_KEY", default=None)
+AWS_SECRET_ACCESS_KEY = AWS_S3_SECRET_ACCESS_KEY = env("S3_STORAGE_SECRET", default=None)
+AWS_STORAGE_BUCKET_NAME = env("S3_BUCKET_NAME", default=None)
+AWS_S3_REGION_NAME = env("AWS_REGION", default="eu-west-1")
+AWS_S3_SIGNATURE_VERSION = "s3v4"
+AWS_S3_ENCRYPTION = True
+# S3 client library to use
+S3_CLIENT = "boto3"
+# S3 Root directory name
+S3_DOCUMENT_ROOT_DIRECTORY = "documents"
+# Time before S3 download links expire
+S3_DOWNLOAD_LINK_EXPIRY_SECONDS = env.int("S3_DOWNLOAD_LINK_EXPIRY_SECONDS", default=3600)
+# Max upload size - 2GB
+MAX_UPLOAD_SIZE = 2 * (1024 * 1024 * 1024)
+# FILE DOWNLOAD CHUNK SIZE
+STREAMING_CHUNK_SIZE = 8192
+# Max life of password reset code in hours
+PASSWORD_RESET_CODE_AGE_HOURS = env("PASSWORD_RESET_CODE_AGE", default=2)
+
+# Two factor authentication is mandated
+TWO_FACTOR_AUTH_REQUIRED = env.bool("TWO_FACTOR_AUTH_REQUIRED", True)
+# Two factor authentication validity duration in days
+TWO_FACTOR_AUTH_VALID_DAYS = env("TWO_FACTOR_AUTH_VALID_DAYS", default=14)
+# Lockout time for two factor failures
+TWO_FACTOR_LOCK_MINUTES = 5
+# Two factor authentication code validity (SMS delivery type) in minutes
+TWO_FACTOR_CODE_SMS_VALID_MINUTES = 10
+# Two factor authentication code validity (Email delivery type) in minutes
+TWO_FACTOR_CODE_EMAIL_VALID_MINUTES = 20
+# Number of two factor authentication attempts allowed before locking
+TWO_FACTOR_MAX_ATTEMPTS = 3
+
+# Time to cache method
+METHOD_CACHE_DURATION_MINUTES = 2
+
+# Organisation user invite life time before expiry (in hours)
+ORGANISATION_INVITE_DURATION_HOURS = 24 * 3
+# Full application assessment days on receipt
+DEADLINE_AFTER_ASSESSMENT_RECEIPT_DAYS = 40
+# Email verify code regenerate after n minutes
+EMAIL_VERIFY_CODE_REGENERATE_TIMEOUT = 15
+# Id for the SOS organisation (fixed)
+SECRETARY_OF_STATE_ORGANISATION_ID = "8850d091-e119-4ab5-9e21-ede5f0112bef"
+
+# Companies House API
+COMPANIES_HOUSE_API_KEY = env("COMPANIES_HOUSE_API_KEY", default=None)
+
+# Geckoboard API
+GECKOBOARD_API_KEY = env("GECKOBOARD_API_KEY", default=None)
+GECKOBOARD_ENV = env("GECKOBOARD_ENV", default="dev")
+
+AV_SERVICE_URL = env("AV_SERVICE_URL", default=None)
+AV_SERVICE_USERNAME = env("AV_SERVICE_USERNAME", default=None)
+AV_SERVICE_PASSWORD = env("AV_SERVICE_PASSWORD", default=None)
+
+GOV_NOTIFY_API_KEY = env("GOV_NOTIFY_API_KEY", default=None)
+
+# ------------------------------------------------------------------------------
+# The Crud Zone - things likely to be refactored out.
+# ------------------------------------------------------------------------------
+API_DATE_FORMAT = "%Y-%m-%d"
+FRIENDLY_DATE_FORMAT = "%-d %B %Y"
+API_CACHE_TIMEOUT = 3  # Cache timeout in minutes
+DEFAULT_QUERYSET_PAGE_SIZE = 20
+TRUSTED_USER_EMAIL = env("HEALTH_CHECK_USER_EMAIL")
+RUN_ASYNC = True
+# The ENVIRONMENT_KEY settings are superfluous (they sought to link Public/CW
+# portal calls to a "security group"), because we plan to use django-guardian
+# for object level permissions. In the new `authentication` package we will
+# only expect ANON_USER_TOKEN in the request, meaning only bearers of THAT
+# token will be allowed to use any unauthenticated views (e.g. `/auth/login`).
+CASE_WORKER_ENVIRONMENT_KEY = env("CASE_WORKER_ENVIRONMENT_KEY")
+PUBLIC_ENVIRONMENT_KEY = env("PUBLIC_ENVIRONMENT_KEY")
+# Allowed origins
+ALLOWED_ORIGINS = (CASE_WORKER_ENVIRONMENT_KEY, PUBLIC_ENVIRONMENT_KEY)
+# Days of registration window for a case
+CASE_REGISTRATION_DURATION = 15
