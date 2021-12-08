@@ -39,12 +39,19 @@ class SubmissionType(models.Model):
     (as a system parameter key holding the actual notify id),
     they will be used instead.
     """
+
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=150, null=False, blank=False)
     key = models.CharField(max_length=50, null=True, blank=True)
     requires = models.ForeignKey("self", null=True, blank=True, on_delete=models.PROTECT)
     direction = models.IntegerField(
-        choices=((-1, "None"), (0, "Both"), (1, "Public -> TRA"), (2, "Public <- TRA"),), default=0
+        choices=(
+            (-1, "None"),
+            (0, "Both"),
+            (1, "Public -> TRA"),
+            (2, "Public <- TRA"),
+        ),
+        default=0,
     )
     deficiency_template = models.CharField(max_length=100, null=True, blank=True)
     success_template = models.CharField(max_length=100, null=True, blank=True)

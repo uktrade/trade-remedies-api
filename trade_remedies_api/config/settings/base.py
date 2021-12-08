@@ -93,7 +93,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "trade_remedies_api.middleware.ApiTokenSetter",
+    "config.middleware.ApiTokenSetter",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -110,7 +110,7 @@ if DJANGO_ADMIN:
         "whitenoise.middleware.WhiteNoiseMiddleware",
     ] + MIDDLEWARE
 
-ROOT_URLCONF = "trade_remedies_api.urls"
+ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
@@ -136,7 +136,7 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
-WSGI_APPLICATION = "trade_remedies_api.wsgi.application"
+WSGI_APPLICATION = "config.wsgi.application"
 
 _VCAP_SERVICES = env.json("VCAP_SERVICES", default={})
 
@@ -201,11 +201,14 @@ USE_TZ = True
 
 AUTH_USER_MODEL = "core.User"
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.0/howto/static-files/
-
+# Static files
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+]
+STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", "static"))
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
 PUBLIC_ROOT_URL = env(
     "PUBLIC_ROOT_URL", default="https://trade-remedies-public-dev.london.cloudapps.digital"
 )
@@ -356,8 +359,6 @@ AWS_DEFAULT_ACL = None
 COUNTRIES_OVERRIDE = {
     "EU": "European Customs Union",
 }
-
-STATICFILES_DIRS = []
 
 GOV_NOTIFY_API_KEY = env("GOV_NOTIFY_API_KEY", default=None)
 

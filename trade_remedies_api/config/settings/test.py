@@ -7,4 +7,8 @@ LOGGING = ENVIRONMENT_LOGGING
 # env, we don't want them ad they break document upload.
 if os.getenv("CIRCLECI"):
     RUN_ASYNC = False
-    CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", }}
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        }
+    }

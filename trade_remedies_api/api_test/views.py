@@ -40,9 +40,15 @@ class UserList(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED,)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+            )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST,)
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 @authentication_classes([])
@@ -65,9 +71,15 @@ class UserDetail(APIView):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED,)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+            )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST,)
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 @authentication_classes([])
@@ -85,9 +97,15 @@ class OrganisationList(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED,)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+            )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST,)
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 @authentication_classes([])
@@ -108,9 +126,15 @@ class OrganisationDetail(APIView):
         serializer = OrganisationSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED,)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+            )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST,)
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 @authentication_classes([])
@@ -131,9 +155,15 @@ class CaseList(APIView):
         serializer = CaseSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED,)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+            )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST,)
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 @authentication_classes([])
@@ -154,9 +184,15 @@ class CaseDetail(APIView):
         serializer = CaseSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED,)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+            )
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST,)
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 @api_view()

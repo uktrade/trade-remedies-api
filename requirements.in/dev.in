@@ -1,19 +1,22 @@
 # Constrain to base requirements
 -r ../requirements/base.txt
 
-# add packages needed only for development
-
-ipython==7.22.0
-traitlets==4.3.3
-black==19.10b0
-flake8
+# Development tools
+black==21.11b1
 coverage
+flake8
+ipython==7.22.0
 pip-tools
+pre-commit
+pyproject-flake8
 pytest
 pytest-cov
 pytest-django
+pytest-mock
 pytest-xdist
 pytest-mock
+traitlets==4.3.3
+trufflehog
 
 # ipython dep - for CVE-2021-27291
 pygments==2.8.1

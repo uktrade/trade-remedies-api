@@ -5,7 +5,9 @@ import errno
 def antiword(path):
     try:
         pipe = subprocess.Popen(
-            ["./bin/antiword/antiword", path], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            ["./bin/antiword/antiword", path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
     except OSError as e:
         if e.errno == errno.ENOENT:

@@ -58,7 +58,7 @@ def check_notify_send_status():
         )
     ORDER BY
         parent.created_at
-    DESC;    
+    DESC;
     """
     SQL = """
     SELECT a.id, a.data, a.created_by_id, a.case_id, a.model_id, a.content_type_id

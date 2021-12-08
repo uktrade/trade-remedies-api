@@ -261,7 +261,10 @@ class CaseManager(models.Manager):
 
         if exclude_partially_created:
             cases = (
-                cases.filter(product__isnull=False, organisationcaserole__isnull=False,)
+                cases.filter(
+                    product__isnull=False,
+                    organisationcaserole__isnull=False,
+                )
                 .exclude(Q(exportsource__isnull=True) & ~Q(type__in=ALL_COUNTRY_CASE_TYPES))
                 .distinct()
             )
@@ -715,7 +718,9 @@ class Case(BaseModel):
     @property
     def team(self):
         return self.usercase_set.select_related(
-            "user", "user__userprofile", "organisation",
+            "user",
+            "user__userprofile",
+            "organisation",
         ).filter(user__groups__name__in=SECURITY_GROUPS_TRA)
 
     @property
@@ -734,7 +739,9 @@ class Case(BaseModel):
         if not hasattr(self, "_applicant"):
             self._applicant = None
             application = (
-                self.submissions.select_related("organisation",)
+                self.submissions.select_related(
+                    "organisation",
+                )
                 .filter(type__id__in=SUBMISSION_APPLICATION_TYPES)
                 .first()
             )
@@ -752,9 +759,10 @@ class Case(BaseModel):
         return self._applicant
 
     def get_participants_by_role(self, role):
-        return self.organisationcaserole_set.select_related("organisation", "role",).filter(
-            role=get_role(role)
-        )
+        return self.organisationcaserole_set.select_related(
+            "organisation",
+            "role",
+        ).filter(role=get_role(role))
 
     def participants(self, fields=None):
         if not hasattr(self, "_participants"):
@@ -796,7 +804,11 @@ class Case(BaseModel):
         """
         if not hasattr(self, "_submission_count"):
             self._submission_count = (
-                self.submission_set.filter(archived=False, status__sent=False, status__draft=False,)
+                self.submission_set.filter(
+                    archived=False,
+                    status__sent=False,
+                    status__draft=False,
+                )
                 .filter(
                     Q(type__direction=DIRECTION_TRA_TO_PUBLIC)
                     | Q(type__direction=DIRECTION_PUBLIC_TO_TRA)

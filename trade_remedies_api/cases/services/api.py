@@ -35,7 +35,7 @@ from cases.models import (
     CaseWorkflowState,
     Notice,
 )
-from trade_remedies_api.constants import (
+from core.constants import (
     STATE_INCOMPLETE,
     STATE_COMPLETE,
 )
@@ -197,7 +197,13 @@ class CasesAPIView(TradeRemediesApiView):
     all_cases = False  # set by the url def. to denote all cases
 
     def get(  # noqa: C901
-        self, request, organisation_id=None, case_id=None, user_id=None, *args, **kwargs,
+        self,
+        request,
+        organisation_id=None,
+        case_id=None,
+        user_id=None,
+        *args,
+        **kwargs,
     ):
         archived = request.query_params.get("archived", "false")
         new_cases = request.query_params.get("new_cases", "false") in TRUTHFUL_INPUT_VALUES
@@ -228,16 +234,28 @@ class CasesAPIView(TradeRemediesApiView):
                 Case.objects.filter(
                     deleted_at__isnull=True, archived_at__isnull=False, initiated_at__isnull=False
                 )
-                .select_related("type", "stage", "archive_reason", "created_by",)
+                .select_related(
+                    "type",
+                    "stage",
+                    "archive_reason",
+                    "created_by",
+                )
                 .order_by("sequence")
             )
         elif new_cases in TRUTHFUL_INPUT_VALUES:
             cases = (
                 Case.objects.filter(
-                    deleted_at__isnull=True, archived_at__isnull=True, initiated_at__isnull=True,
+                    deleted_at__isnull=True,
+                    archived_at__isnull=True,
+                    initiated_at__isnull=True,
                 )
                 .exclude(usercase__user__groups__name__in=SECURITY_GROUPS_TRA)
-                .select_related("type", "stage", "archive_reason", "created_by",)
+                .select_related(
+                    "type",
+                    "stage",
+                    "archive_reason",
+                    "created_by",
+                )
                 .order_by("sequence")
             )
         elif all_investigator_cases in TRUTHFUL_INPUT_VALUES:
@@ -290,10 +308,11 @@ class CasesAPIView(TradeRemediesApiView):
                 return ResponseSuccess({"results": results})
             user = User.objects.get(id=user_id) if user_id else user
             cases = Case.objects.all_user_cases(user=user, **_kwargs)
-            results = [
-                case.to_embedded_dict(user=user, is_primary_contact=True, fields=fields)
-                for case in cases
-            ]
+            results = []
+            for case in cases:
+                data = case.to_embedded_dict(user=user, is_primary_contact=True, fields=fields)
+                data["user_case"] = True
+                results.append(data)
             return ResponseSuccess({"results": results})
         elif case_id and self.organisation:
             case = Case.objects.select_related(
@@ -321,7 +340,11 @@ class CasesAPIView(TradeRemediesApiView):
             cases = UserCase.objects.filter(
                 user=request.user, organisation_id=organisation_id
             ).select_related(
-                "case", "case__stage", "case__created_by", "case__archive_reason", "case__workflow",
+                "case",
+                "case__stage",
+                "case__created_by",
+                "case__archive_reason",
+                "case__workflow",
             )
             if case_id:
                 try:
@@ -542,7 +565,11 @@ class CaseParticipantsAPI(TradeRemediesApiView):
     def get(self, request, case_id, *args, **kwargs):
         fields = request.query_params.get("fields")
         case = Case.objects.get(id=case_id)
-        return ResponseSuccess({"results": case.participants(fields=fields),})
+        return ResponseSuccess(
+            {
+                "results": case.participants(fields=fields),
+            }
+        )
 
 
 class CaseInterestAPI(TradeRemediesApiView):
@@ -569,7 +596,11 @@ class CaseInterestAPI(TradeRemediesApiView):
         if all_interests and request.user.has_perm("core.can_view_all_org_cases"):
             user_filter = {"created_by__in": request.user.organisation_users}
         submissions = Submission.objects.select_related(
-            "case", "status", "type", "organisation", "created_by",
+            "case",
+            "status",
+            "type",
+            "organisation",
+            "created_by",
         ).filter(
             type=interest_type,
             deleted_at__isnull=True,
@@ -734,7 +765,12 @@ class CaseUserAssignAPI(TradeRemediesApiView):
         except InvalidAccess:
             raise AccessDenied("User cannot perform this action")
         return ResponseSuccess(
-            {"result": {"user_ids": map(str, user_ids), "case_id": str(case.id),}},
+            {
+                "result": {
+                    "user_ids": map(str, user_ids),
+                    "case_id": str(case.id),
+                }
+            },
             http_status=status.HTTP_201_CREATED,
         )
 
@@ -905,7 +941,11 @@ class SubmissionsAPIView(TradeRemediesApiView):
 
     @transaction.atomic
     def delete(
-        self, request, case_id, submission_id, organisation_id=None,
+        self,
+        request,
+        case_id,
+        submission_id,
+        organisation_id=None,
     ):
         case = get_case(str(case_id))
         submission = Submission.objects.get_submission(id=submission_id, case=case)
@@ -1850,7 +1890,10 @@ class CaseMilestoneDatesAPI(TradeRemediesApiView):
                     {
                         "key": mskey,
                         "name": CASE_MILESTONE_DATES[mskey],
-                        "case": {"id": str(case_id), "name": case.name,},
+                        "case": {
+                            "id": str(case_id),
+                            "name": case.name,
+                        },
                         "date": milestones[mskey].strftime(settings.API_DATE_FORMAT)
                         if milestones[mskey]
                         else None,

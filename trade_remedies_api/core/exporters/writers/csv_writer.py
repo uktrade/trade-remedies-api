@@ -4,6 +4,7 @@ from .base_writer import BaseWriter
 
 class CSVWriter(BaseWriter):
     """CSV Writer."""
+
     def __init__(self, prefix):
         """Constructor.
 

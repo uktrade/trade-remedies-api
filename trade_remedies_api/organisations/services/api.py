@@ -258,7 +258,9 @@ class OrganisationContactsAPI(TradeRemediesApiView):
 
         # Add contacts that are related via a user-case with this org - representing
         if not request.query_params.get("exclude_indirect"):
-            user_cases = UserCase.objects.filter(organisation=organisation,)
+            user_cases = UserCase.objects.filter(
+                organisation=organisation,
+            )
             for user_case in user_cases:
                 add_contact(
                     {
@@ -271,7 +273,8 @@ class OrganisationContactsAPI(TradeRemediesApiView):
                 )
             # Add case contacts if we don't have them already
             case_contacts = CaseContact.objects.filter(
-                organisation=organisation, contact__deleted_at__isnull=True,
+                organisation=organisation,
+                contact__deleted_at__isnull=True,
             )
             for case_contact in case_contacts:
                 add_contact(
@@ -288,10 +291,22 @@ class OrganisationContactsAPI(TradeRemediesApiView):
             organisation=organisation, auth_contact__deleted_at__isnull=True
         ):
             if caserole.auth_contact:
-                add_contact({"contact": caserole.auth_contact, "loa": True,}, case=case)
+                add_contact(
+                    {
+                        "contact": caserole.auth_contact,
+                        "loa": True,
+                    },
+                    case=case,
+                )
         # Add contacts that are attached directly to the organisation
         for org_contact in organisation.contacts:
-            add_contact({"contact": org_contact, "organisation_contact": True,}, case=case)
+            add_contact(
+                {
+                    "contact": org_contact,
+                    "organisation_contact": True,
+                },
+                case=case,
+            )
 
         return ResponseSuccess({"results": contacts.values()})
 
@@ -646,7 +661,14 @@ class DuplicateOrganisationsAPI(TradeRemediesApiView):
             Organisation.objects.values("name").annotate(count=Count("name")).filter(count__gt=1)
         )
         similar = Organisation.objects.find_similar_organisations(limit=limit)
-        return ResponseSuccess({"results": {"duplicates": duplicates, "similar": similar,}})
+        return ResponseSuccess(
+            {
+                "results": {
+                    "duplicates": duplicates,
+                    "similar": similar,
+                }
+            }
+        )
 
 
 class OrganisationMatchingAPI(TradeRemediesApiView):

@@ -1,3 +1,7 @@
+# TODO: TRV2 remove all this nonsense
+STATE_INCOMPLETE = "INCOMPLETE"
+STATE_COMPLETE = "COMPLETE"
+
 CONTENT_EMAIL_EXISTS = "This email already exists"
 
 TRUTHFUL_INPUT_VALUES = ("true", "True", "TRUE", "1", "y", "Y", "yes", True)

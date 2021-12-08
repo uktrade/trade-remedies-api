@@ -25,7 +25,7 @@ class Command(BaseCommand):
         audits = Audit.objects.all().iterator()
         logger.info(f"Found {count} audit log entries")
         titled = 0
-        logger.info(f"Patching case titles...")
+        logger.info("Patching case titles...")
         for audit in audits:
             if audit.case_title:
                 titled += 1

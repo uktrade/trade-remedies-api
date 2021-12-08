@@ -110,7 +110,13 @@ def is_whitelisted(email):
         "DISABLE_NOTIFY_WHITELIST"
     ):
         return True
-    whitelist = set(["gov.uk", "trade.gov.uk", "digital.trade.gov.uk",])
+    whitelist = set(
+        [
+            "gov.uk",
+            "trade.gov.uk",
+            "digital.trade.gov.uk",
+        ]
+    )
     regex_whitelist = []
     _, domain = email.split("@")
     in_whitelist = domain in whitelist or email in whitelist
