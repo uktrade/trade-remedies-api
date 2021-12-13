@@ -25,7 +25,34 @@ def fake_user(db):
             email="test@example.com",
             password="test1234"
         )
+        user.is_active = True  # Mimic email verification
+        user.save()
+        assert user.two_factor
     return user
+
+
+@pytest.fixture
+def trusted_token(settings):
+    """Override ANON_USER_TOKEN=test-trusted-token."""
+    settings.ANON_USER_TOKEN = "test-trusted-token"
+
+
+@pytest.fixture
+def two_fa_disabled(settings):
+    """Override TWO_FACTOR_AUTH_REQUIRED=False."""
+    settings.TWO_FACTOR_AUTH_REQUIRED = False
+
+
+@pytest.fixture
+def two_fa_disabled(settings):
+    """Override TWO_FACTOR_AUTH_REQUIRED=False."""
+    settings.TWO_FACTOR_AUTH_REQUIRED = False
+
+
+@pytest.fixture
+def valid_minutes_2fa_token(settings):
+    """Override TWO_FACTOR_CODE_SMS_VALID_MINUTES=1."""
+    settings.TWO_FACTOR_CODE_SMS_VALID_MINUTES = 1
 
 
 @pytest.fixture
@@ -52,4 +79,5 @@ def authorised_api_client(unauthorised_api_client, auth_token):
 
 @pytest.fixture
 def fake_auth_backend(monkeypatch, mocker):
+    """Mocked out backend authenticate method."""
     monkeypatch.setattr(auth_token_serializers, "authenticate", mocker.Mock())

@@ -1,3 +1,42 @@
+assert len(fake_user.email_verification.code
+test_create_user_no_email
+password="password
+two_factor_data(fake_user
+login_data
+response.json()["token
+fake_user
+assert response_data["token
+two_factor_data
+Bad Request
+valid_minutes_2fa_token
+# Post
+mock_get_user
+monkeypatch
+test_two_factor_token_serializer_nonexistent_user
+EmailAvailabilitySerializer
+new_name='locked_until'
+test_get_by_natural_key(fake_user
+assert isinstance(user.id
+assert admin.is_superuser
+test_str(fake_user
+test_username(fake_user
+django.conf import
+Override TWO_FACTOR_CODE_SMS_VALID_MINUTES=1
+"Override TWO_FACTOR_LOCK_MINUTES=2
+assert fake_user.two_factor.required(user_agent="opera
+test_2fa_not_required_token_valid(fake_user
+validated_at
+assert two_factor.token
+assert two_factor.generated_at
+assert int(two_factor.token
+range(10000
+test_validate_token_success(fake_user
+assert fake_user.two_factor.validate_token(fake_user.two_factor.token
+XXX
+assert fake_user.two_factor.delivery_type
+fake_user.two_factor.validate_token(fake_user.two_factor.token
+test_validate_token_fail_changed(fake_user
+test_login_no_2fa
 assert fake_user.two_factor
 test_validate_token_success
 test_trusted_auth_token_serializer_invalid_token

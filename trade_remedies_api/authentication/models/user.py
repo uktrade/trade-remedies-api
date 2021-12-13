@@ -40,7 +40,8 @@ class UserManager(BaseUserManager):
         if not email:
             raise ValueError('Users must have an email address')
         user = self.model(email=self.normalize_email(email))
-        user.two_factor = TwoFactorAuth(user=user).save()
+        user.two_factor = TwoFactorAuth(user=user)
+        user.two_factor.save()
         user.set_password(password)
         user.save()
         return user

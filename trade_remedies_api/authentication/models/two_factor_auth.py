@@ -18,17 +18,19 @@ class TwoFactorAuthLocked(Exception):
 def check_locked(func):
     """Check if 2FA is locked decorator.
 
-    If 2FA is locked raises `TwoFactorAuthLocked`. If lock is None or expired,
-    reset the lock and invoke wrapped method.
+    If 2FA is locked raises `TwoFactorAuthLocked`. If lock is expired,
+    reset the lock and invoke wrapped method. If not locked at all, just
+    invoke wrapped method.
     """
     @functools.wraps(func)
     def _check_locked(self, *args, **kwargs):
-        if self.locked_at and timezone.now() < self.locked_at:
+        if self.locked_until and timezone.now() < self.locked_until:
             raise TwoFactorAuthLocked()
-        else:
-            self.locked_at = None
-            self.save()
-            func(self, *args, **kwargs)
+        elif self.locked_until:
+            self.locked_until = None
+            self.attempts = 0
+        self.save()
+        return func(self, *args, **kwargs)
     return _check_locked
 
 
@@ -51,9 +53,9 @@ class TwoFactorAuth(models.Model):
     )
     token = models.CharField(max_length=16, null=True, blank=True)
     validated_at = models.DateTimeField(null=True, blank=True)
-    generated_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    generated_at = models.DateTimeField(null=True, blank=True)
     last_user_agent = models.CharField(max_length=1000, null=True, blank=True)
-    locked_at = models.DateTimeField(null=True, blank=True)
+    locked_until = models.DateTimeField(null=True, blank=True)
     attempts = models.SmallIntegerField(default=0)
     delivery_type = models.CharField(max_length=8,
                                      choices=DELIVERY_TYPE_CHOICES,
@@ -123,7 +125,7 @@ class TwoFactorAuth(models.Model):
         self.validated_at = timezone.now()
         self.last_user_agent = user_agent
         self.attempts = 0
-        self.locked_at = None
+        self.locked_until = None
         self.save()
 
     def _fail(self):
@@ -136,8 +138,7 @@ class TwoFactorAuth(models.Model):
     def _lock(self):
         """Prohibit further 2FA attempts for cool off period."""
         logger.info(f"2FA validation locked for {self.user}")
-        self.locked_at = timezone.now() + datetime.timedelta(
+        self.locked_until = timezone.now() + datetime.timedelta(
             minutes=settings.TWO_FACTOR_LOCK_MINUTES
         )
-        self.attempts = 0
         self.save()
