@@ -121,7 +121,7 @@ urlpatterns = [
 
 # Ensure all V2 routers are collected here. One day the below will
 # replace all the above!
-from authentication.urls import (
+from authentication.urls import (  # noqa: E402
     router as auth_router
 )
 

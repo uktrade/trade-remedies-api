@@ -1,3 +1,4 @@
+E402
 assert len(fake_user.email_verification.code
 test_create_user_no_email
 password="password

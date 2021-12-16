@@ -20,4 +20,4 @@ urlpatterns = [
 ]
 
 router = routers.DefaultRouter()
-router.register(f"users", UserView, "users")
+router.register("users", UserView, "users")
