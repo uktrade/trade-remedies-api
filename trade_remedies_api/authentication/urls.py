@@ -12,11 +12,11 @@ from .views import (
 )
 
 urlpatterns = [
-    path(f"login/", AuthenticationView.as_view()),
-    path(f"two-factor/", TwoFactorView.as_view()),
-    path(f"two-factor/resend/", TwoFactorResendView.as_view()),
-    path(f"verify/", EmailVerifyView.as_view()),
-    path(f"email-availability/", EmailAvailableView.as_view()),
+    path("login/", AuthenticationView.as_view()),
+    path("two-factor/", TwoFactorView.as_view()),
+    path("two-factor/resend/", TwoFactorResendView.as_view()),
+    path("verify/", EmailVerifyView.as_view()),
+    path("email-availability/", EmailAvailableView.as_view()),
 ]
 
 router = routers.DefaultRouter()
