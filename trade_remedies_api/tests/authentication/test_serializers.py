@@ -228,20 +228,3 @@ def test_two_factor_token_serializer_nonexistent_user(
     )
     with pytest.raises(serializers.ValidationError) as e:
         serializer.is_valid(raise_exception=True)
-
-
-def test_email_availability_serializer(serializer_data):
-    # With no users test email should be available for use.
-    data = serializer_data
-    data["email"] = "test@example.com"  # /PS-IGNORE
-    serializer = auth_serializers.EmailAvailabilitySerializer(data=data)
-    assert serializer.is_valid()
-
-
-def test_email_availability_serializer_no_email(serializer_data):
-    # With no email provided, EmailAvailabilitySerializer is not valid.
-    data = serializer_data
-    serializer = auth_serializers.EmailAvailabilitySerializer(data=data)
-    with pytest.raises(rest_framework.exceptions.ValidationError) as e:
-        serializer.is_valid(raise_exception=True)
-    assert "'email': [ErrorDetail(string='This field is required." in str(e)

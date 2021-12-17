@@ -1,18 +1,26 @@
 """Authentication Views."""
 from django.utils import timezone
-from rest_framework import views, viewsets
+from rest_framework import views, viewsets, status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 
 from .models.user import User
 from .serializers import (
-    TrustedTokenSerializer,
+    UsernameSerializer,
     TrustedAuthTokenSerializer,
-    EmailAvailabilitySerializer,
     TwoFactorTokenSerializer,
     UserSerializer,
 )
+
+
+class Bad(APIException):
+    """Invalid2FAToken.
+
+    Exception raised when a two factor authentication request is invalid.
+    """
+    status_code = status.HTTP_400_BAD_REQUEST
 
 
 class AuthenticationView(ObtainAuthToken):
@@ -54,7 +62,7 @@ class TwoFactorView(views.APIView):
     """TwoFactorView.
 
     Process two-factor authentication request. Uses `TwoFactorTokenSerializer`
-    to check presence and validity of `two_factor_token`.
+    to check presence and validity of `two_factor_token` and `username`.
     """
     authentication_classes = ()
 
@@ -74,17 +82,19 @@ class TwoFactorResendView(views.APIView):
     """TwoFactorResendView.
 
     Process request to regenerate and resend a 2FA token. Accessible to
-    bearer of `settings.ANON_USER_TOKEN`.
+    bearer of `settings.ANON_USER_TOKEN` when `username` specified.
     """
     authentication_classes = ()
 
     @staticmethod
     def post(request, *args, **kwargs):
-        serializer = TrustedTokenSerializer(data=request.data,
-                                            context={'request': request})
+        serializer = UsernameSerializer(data=request.data,
+                                        context={'request': request})
         serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data["username"]
+        user = User.objects.get(email=username)
         user_agent = request.META["HTTP_X_USER_AGENT"]
-        request.user.two_factor.deliver_token(user_agent)
+        user.two_factor.deliver_token(user_agent)
         return Response(
             {
                 "2fa-token-resent": timezone.now(),
@@ -92,27 +102,22 @@ class TwoFactorResendView(views.APIView):
         )
 
 
-class EmailAvailableView(views.APIView):
-    """EmailAvailableView.
+class UsernameAvailableView(views.APIView):
+    """UsernameAvailableView.
 
-    Check the availability of an email identity in the system. Accessible to
-    bearer of `settings.ANON_USER_TOKEN`.
+    Check the availability of a username (email) identity in the system.
+    Accessible to bearer of `settings.ANON_USER_TOKEN` when `username`
+    specified.
     """
     authentication_classes = ()
 
     @staticmethod
-    def get(request, *args, **kwargs):
-        serializer = EmailAvailabilitySerializer(data=request.data,
-                                                 context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        email = serializer.validated_data["email"]
+    def post(request, *args, **kwargs):
+        serializer = UsernameSerializer(data=request.data,
+                                        context={'request': request})
         response = {
-            "available": False
+            "available": not serializer.is_valid()
         }
-        try:
-            User.objects.get(email__iexact=email)
-        except User.DoesNotExist:
-            response["available"] = True
         return Response(response)
 
 

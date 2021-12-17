@@ -54,19 +54,15 @@ class TrustedAuthTokenSerializer(AuthTokenSerializer, TrustedTokenSerializer):  
     """
 
 
-class TwoFactorTokenSerializer(TrustedTokenSerializer):  # noqa
-    """Two Factor Token Serializer.
+class UsernameSerializer(TrustedTokenSerializer):  # noqa
+    """Username serializer.
 
-    Validates presence and validity of `username` and `two_factor_token` in a
-    two-factor authentication request.
+    Validates the presence of `username`. It will raise if the user indicated
+    by username does not exist.
     """
     username = serializers.CharField(
         label=_("Username"),
         write_only=True
-    )
-    two_factor_token = serializers.CharField(
-        label=_("Two Factor Token"),
-        write_only=True,
     )
 
     @staticmethod
@@ -81,8 +77,21 @@ class TwoFactorTokenSerializer(TrustedTokenSerializer):  # noqa
 
     def validate_username(self, value: str) -> str:
         """Username field validator."""
+        value = value.lower()
         self.get_user(value)
         return value
+
+
+class TwoFactorTokenSerializer(UsernameSerializer):  # noqa
+    """Two Factor Token Serializer.
+
+    Validates presence and validity of `username` (that must represent an
+    existing user) and `two_factor_token` in a two-factor authentication request.
+    """
+    two_factor_token = serializers.CharField(
+        label=_("Two Factor Token"),
+        write_only=True,
+    )
 
     def validate(self, data: dict) -> dict:
         """Validate two-factor token for user."""
@@ -106,14 +115,6 @@ class TwoFactorTokenSerializer(TrustedTokenSerializer):  # noqa
             detail="Two factor token is invalid.",
             code="invalid-2fa-token"
         )
-
-
-class EmailAvailabilitySerializer(TrustedTokenSerializer):  # noqa
-    """Email Availability Serializer."""
-    email = serializers.CharField(
-        label=_("Email"),
-        write_only=True,
-    )
 
 
 class UserSerializer(CountryFieldMixin, serializers.ModelSerializer):

@@ -81,3 +81,17 @@ def authorised_api_client(unauthorised_api_client, auth_token):
 def fake_auth_backend(monkeypatch, mocker):
     """Mocked out backend authenticate method."""
     monkeypatch.setattr(auth_token_serializers, "authenticate", mocker.Mock())
+
+
+@pytest.fixture
+def anon_user_data():
+    return {
+        "username": "not-a-username",
+        "trusted_token": "test-trusted-token",
+    }
+
+
+@pytest.fixture
+def actual_user_data(fake_user, anon_user_data):
+    anon_user_data["username"] = fake_user.username
+    return anon_user_data

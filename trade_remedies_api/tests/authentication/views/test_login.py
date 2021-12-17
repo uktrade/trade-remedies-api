@@ -1,50 +1,12 @@
 import datetime
-import json
 import pytest
 
 from django.utils import timezone
 
+from conftest import do_post, do_login, do_2fa, set_creds
+
+
 pytestmark = [pytest.mark.version2, pytest.mark.functional]
-
-
-def do_login(client, data, user_agent="chrome"):
-    return client.post(
-        "/api/v2/auth/login/",
-        data=data,
-        format="json",
-        HTTP_X_USER_AGENT=user_agent,
-    )
-
-
-def do_2fa(client, data, user_agent="chrome"):
-    return client.post(
-        "/api/v2/auth/two-factor/",
-        data=data,
-        format="json",
-        HTTP_X_USER_AGENT=user_agent,
-    )
-
-
-def set_creds(client, token):
-    client.credentials(HTTP_AUTHORIZATION="Bearer " + token)
-
-
-@pytest.fixture
-def login_data(fake_user):
-    return {
-        "username": fake_user.username,
-        "password": "test1234",
-        "trusted_token": "test-trusted-token",
-    }
-
-
-@pytest.fixture
-def two_factor_data(fake_user):
-    return {
-        "username": fake_user.username,
-        "two_factor_token": fake_user.two_factor.token,
-        "trusted_token": "test-trusted-token",
-    }
 
 
 def test_login_no_2fa(login_data, unauthorised_api_client, trusted_token, two_fa_disabled):
@@ -155,34 +117,18 @@ def test_2fa_user_agent_changed(
     assert response.json()["detail"] == "Two factor token is invalid."
 
 
-def test_2fa_resend():
-    pass
-
-
-def test_email_verify():
-    pass  # Test right response for valid email verify code
-
-
-def test_email_verify_fail():
-    pass  # Test right response for invalid email verify code
-
-
-def test_email_check_available():
-    pass
-
-
-def test_email_check_unavailable():
-    pass
+def test_2fa_resend(fake_user, unauthorised_api_client, trusted_token, actual_user_data):
+    # Given a username and a trusted token, request the resend of a 2fa token.
+    # The response should be 200 OK.
+    response = do_post(unauthorised_api_client, actual_user_data, "/api/v2/auth/two-factor/resend/")
+    assert response.status_code == 200
+    assert response.json()["2fa-token-resent"]
 
 
 @pytest.mark.django_db
-def test_user_list(authorised_api_client):
-    response = authorised_api_client.get("/api/v2/auth/users/")
-    data = json.loads(response.content)
-
-
-@pytest.mark.django_db
-def test_user_list_unauthorised(unauthorised_api_client):
-    response = unauthorised_api_client.get("/api/v2/auth/users/")
-    data = json.loads(response.content)
-    # assert data["detail"] == "Authentication credentials were not provided."
+def test_2fa_resend_bad_user(unauthorised_api_client, trusted_token, anon_user_data):
+    # Given an invalid username and a trusted token, request the resend of
+    # a 2fa token. The response should be 400 Bad Request.
+    response = do_post(unauthorised_api_client, anon_user_data, "/api/v2/auth/two-factor/resend/")
+    assert response.status_code == 400
+    assert response.json()["username"] == ["User does not exist."]

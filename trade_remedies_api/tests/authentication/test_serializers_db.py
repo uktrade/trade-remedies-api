@@ -5,7 +5,7 @@ import authentication.models as auth_models
 import authentication.serializers as auth_serializers
 
 
-pytestmark = pytest.mark.version2
+pytestmark = [pytest.mark.version2, pytest.mark.django_db]
 
 
 def test_get_user_helper(fake_user):
@@ -20,3 +20,15 @@ def test_user_serializer(fake_user):
     assert len(serializer.data) == 1
     with pytest.raises(KeyError):
         _ = serializer.data[0]["password"]
+
+
+def test_email_available_serializer(anon_user_data, trusted_token):
+    # The user does not exist, serializer should be invalid.
+    serializer = auth_serializers.UsernameSerializer(data=anon_user_data)
+    assert not serializer.is_valid()
+
+
+def test_email_unavailable_serializer(actual_user_data, trusted_token):
+    # The user does exist, serializer should be invalid.
+    serializer = auth_serializers.UsernameSerializer(data=actual_user_data)
+    assert serializer.is_valid()

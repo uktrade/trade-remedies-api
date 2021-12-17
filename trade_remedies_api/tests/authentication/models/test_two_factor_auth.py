@@ -148,4 +148,4 @@ def test_validate_token_unlock(fake_user, max_attempts):
 
 
 def test_str(fake_user):
-    assert str(fake_user) == "test@example.com"  # /PS-IGNORE
+    assert str(fake_user.two_factor) == "test@example.com last validated at None"  # /PS-IGNORE

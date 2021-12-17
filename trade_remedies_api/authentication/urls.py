@@ -7,7 +7,7 @@ from .views import (
     TwoFactorView,
     TwoFactorResendView,
     EmailVerifyView,
-    EmailAvailableView,
+    UsernameAvailableView,
     UserView,
 )
 
@@ -16,7 +16,7 @@ urlpatterns = [
     path("two-factor/", TwoFactorView.as_view()),
     path("two-factor/resend/", TwoFactorResendView.as_view()),
     path("verify/", EmailVerifyView.as_view()),
-    path("email-availability/", EmailAvailableView.as_view()),
+    path("email-availability/", UsernameAvailableView.as_view()),
 ]
 
 router = routers.DefaultRouter()

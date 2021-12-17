@@ -1,3 +1,15 @@
+do_login
+assert len(json.loads(response.content
+"Authentication App
+UsernameSerializer
+assert app.label
+test1234
+actual_user_data
+test_2fa_resend(fake_user
+assert response.json()["2fa
+anon_user_data
+assert response.json()["username
+Authentication Application
 E402
 assert len(fake_user.email_verification.code
 test_create_user_no_email
