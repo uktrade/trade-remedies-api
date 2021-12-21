@@ -22,7 +22,9 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--revert", action="store_true", help="Reverts brand to old version",
+            "--revert",
+            action="store_true",
+            help="Reverts brand to old version",
         )
 
     def print_success(self, msg):
@@ -81,7 +83,9 @@ class Command(BaseCommand):
                     self.print_success(f"Updated {workflow}")
 
         # job_titles.json
-        job_title = JobTitle.objects.filter(name=f"{from_initialism} Other",).first()
+        job_title = JobTitle.objects.filter(
+            name=f"{from_initialism} Other",
+        ).first()
         if not job_title:
             self.print_warning(f"'{from_initialism} Other' not found")
         else:
@@ -91,7 +95,9 @@ class Command(BaseCommand):
             self.print_success(f"Updated {job_title}")
 
         # tra_organisations.json
-        organisation = Organisation.objects.filter(name=from_org_name,).first()
+        organisation = Organisation.objects.filter(
+            name=from_org_name,
+        ).first()
         if not job_title:
             self.print_warning(f"'{from_org_name}' not found")
         else:
@@ -102,12 +108,18 @@ class Command(BaseCommand):
 
     def update_brand(self):
         self.convert(
-            LEGACY_INITIALISM, INITIALISM, LEGACY_ORGANISATION_NAME, ORGANISATION_NAME,
+            LEGACY_INITIALISM,
+            INITIALISM,
+            LEGACY_ORGANISATION_NAME,
+            ORGANISATION_NAME,
         )
 
     def revert_brand(self):
         self.convert(
-            INITIALISM, LEGACY_INITIALISM, ORGANISATION_NAME, LEGACY_ORGANISATION_NAME,
+            INITIALISM,
+            LEGACY_INITIALISM,
+            ORGANISATION_NAME,
+            LEGACY_ORGANISATION_NAME,
         )
 
     def handle(self, *args, **options):

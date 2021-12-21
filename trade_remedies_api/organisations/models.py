@@ -363,7 +363,11 @@ class Organisation(BaseModel):
         if not requested_by.has_perm("core.can_view_all_org_cases") or not all_interests:
             user_filter["created_by"] = requested_by
         submissions = Submission.objects.select_related(
-            "case", "status", "type", "organisation", "created_by",
+            "case",
+            "status",
+            "type",
+            "organisation",
+            "created_by",
         ).filter(
             type_id=SUBMISSION_TYPE_REGISTER_INTEREST,
             deleted_at__isnull=True,
@@ -440,7 +444,9 @@ class Organisation(BaseModel):
         All users for this organisation
         """
         return OrganisationUser.objects.select_related(
-            "user", "organisation", "security_group",
+            "user",
+            "organisation",
+            "security_group",
         ).filter(organisation=self)
 
     @property
@@ -507,7 +513,9 @@ class Organisation(BaseModel):
         These might be lawyers representing the organisation or direct employee.
         """
         case_contacts = Contact.objects.select_related("userprofile", "organisation",).filter(
-            casecontact__case=case, casecontact__organisation=self, deleted_at__isnull=True,
+            casecontact__case=case,
+            casecontact__organisation=self,
+            deleted_at__isnull=True,
         )
         if all_contacts:
             return case_contacts.union(self.contacts)
@@ -543,7 +551,10 @@ class Organisation(BaseModel):
         All contacts directly associated with this organisation (employees)
         """
         contacts = (
-            self.contact_set.select_related("userprofile", "organisation",)
+            self.contact_set.select_related(
+                "userprofile",
+                "organisation",
+            )
             .filter(deleted_at__isnull=True)
             .order_by("created_at")
         )
@@ -557,7 +568,11 @@ class Organisation(BaseModel):
 
         contact = (
             self.casecontact_set.select_related("contact__userprofile", "organisation")
-            .filter(case=case, primary=True, contact__deleted_at__isnull=True,)
+            .filter(
+                case=case,
+                primary=True,
+                contact__deleted_at__isnull=True,
+            )
             .first()
         )
         if contact:
@@ -565,7 +580,10 @@ class Organisation(BaseModel):
         else:
             contacts = self.casecontact_set.select_related(
                 "contact__userprofile", "organisation"
-            ).filter(case=case, contact__deleted_at__isnull=True,)
+            ).filter(
+                case=case,
+                contact__deleted_at__isnull=True,
+            )
             if contacts:
                 return contacts[0].contact
             else:

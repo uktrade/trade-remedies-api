@@ -277,7 +277,7 @@ class TimeGate(CaseAction):
         )
 
     def post_execute(self, state):
-        """ To be implemented in sub-classes if required."""
+        """To be implemented in sub-classes if required."""
         pass
 
 

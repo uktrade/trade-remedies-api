@@ -190,9 +190,10 @@ class DocumentAPIView(TradeRemediesApiView):
             document = Document.objects.select_related("parent", "created_by").get(**doc_kwargs)
 
             return ResponseSuccess({"result": document.to_dict()})
-        documents = Document.objects.select_related("parent", "created_by",).filter(
-            deleted_at__isnull=True
-        )
+        documents = Document.objects.select_related(
+            "parent",
+            "created_by",
+        ).filter(deleted_at__isnull=True)
         sort_spec = self.sort_spec
         if self.system:
             query = Q(system=True)
@@ -348,9 +349,7 @@ class DocumentAPIView(TradeRemediesApiView):
                             key=_submission_document_type
                         )
                     else:
-                        submission_document_type = SubmissionDocumentType.type_by_user(
-                            request.user
-                        )
+                        submission_document_type = SubmissionDocumentType.type_by_user(request.user)
                     submission_document = submission.add_document(
                         document=document,
                         document_type=submission_document_type,
@@ -534,7 +533,11 @@ class DocumentConfidentialAPI(TradeRemediesApiView):
                 }
                 document.confidential = not document.confidential
                 document.save()
-        return ResponseSuccess({"result": report,})
+        return ResponseSuccess(
+            {
+                "result": report,
+            }
+        )
 
 
 class DocumentBundlesAPI(TradeRemediesApiView):

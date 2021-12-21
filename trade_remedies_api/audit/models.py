@@ -118,6 +118,7 @@ class Audit(models.Model):
     @property
     def case(self):
         from cases.models import Case
+
         try:
             return Case.objects.get_case(id=self.case_id)
         except Case.DoesNotExist:
@@ -151,9 +152,11 @@ class Audit(models.Model):
             "case_id": str(self.case_id),
             "created_at": self.created_at,
             "created_by": {"id": str(self.created_by.id), "user": self.created_by.email}
-            if self.created_by else {"id": None, "user": None},
+            if self.created_by
+            else {"id": None, "user": None},
             "assisted_by": {"id": str(self.assisted_by.id), "user": self.assisted_by.email}
-            if self.assisted_by else {"id": None, "user": None},
+            if self.assisted_by
+            else {"id": None, "user": None},
             "model_id": str(self.model_id) if self.model_id else None,
             "content_type": self.content_type.model if self.content_type else None,
             "milestone": str(self.milestone),
@@ -169,9 +172,17 @@ class Audit(models.Model):
         :returns (list): A list of column names.
         """
         return [
-            "Audit ID", "Audit Type", "Created At", "Created By", "Assisted By",
-            "Case Id", "Case", "Record Id", "Record Type", "Audit Content",
-            "Change Data"
+            "Audit ID",
+            "Audit Type",
+            "Created At",
+            "Created By",
+            "Assisted By",
+            "Case Id",
+            "Case",
+            "Record Id",
+            "Record Type",
+            "Audit Content",
+            "Change Data",
         ]
 
     def row_values(self):

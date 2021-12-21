@@ -46,9 +46,10 @@ def check_measure_expiry():
     Check all archived cases which are not already set to Measure Expired stage,
     and determine if all their meaures are expired.
     """
-    cases = Case.objects.filter(initiated_at__isnull=False, archived_at__isnull=False,).exclude(
-        stage__key="MEASURES_EXPIRED"
-    )
+    cases = Case.objects.filter(
+        initiated_at__isnull=False,
+        archived_at__isnull=False,
+    ).exclude(stage__key="MEASURES_EXPIRED")
     for case in cases:
         latest_expiry = case.get_state_key("LATEST_MEASURE_EXPIRY")
         if latest_expiry and latest_expiry.value:

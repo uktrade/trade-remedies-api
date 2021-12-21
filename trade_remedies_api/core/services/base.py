@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 
 class GroupPermission(BasePermission):
-
     @staticmethod
     def _user_in_group(user, group):
         """Check is a user is in a group.
@@ -179,6 +178,7 @@ class ResponseSuccess(Response):
 
     Manages a standard response format for all API calls.
     """
+
     def __init__(self, data=None, http_status=None, content_type=None):
         _status = http_status or status.HTTP_200_OK
         data = data or {}
@@ -194,6 +194,7 @@ class ResponseError(Response):
     (e.g. certain errors to correct) we can use ResponseError to standardise
     this response format.
     """
+
     def __init__(
         self,
         error,
@@ -222,6 +223,7 @@ class MultiPartJSONParser(BaseParser):
     It is not to be used as a replacement for MultiPartParser, only in cases where
     MultiPart AND JSON data are expected.
     """
+
     media_type = "multipart/form-data"
 
     def parse(self, stream, media_type=None, parser_context=None):

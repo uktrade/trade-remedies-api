@@ -101,7 +101,10 @@ class CaseSerializer(serializers.ModelSerializer):
         sector = Sector.objects.all().first()
         # create a product
         product = Product.objects.create(
-            case=case, name="TP", sector=sector, description="Test Product",
+            case=case,
+            name="TP",
+            sector=sector,
+            description="Test Product",
         )
         # and an export source
         export_source = ExportSource.objects.create(

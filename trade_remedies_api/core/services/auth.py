@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from core.models import (User, UserProfile, SystemParameter, PasswordResetRequest, TwoFactorAuth)
+from core.models import User, UserProfile, SystemParameter, PasswordResetRequest, TwoFactorAuth
 from core.notifier import send_mail
 from invitations.models import Invitation
 from django.conf import settings

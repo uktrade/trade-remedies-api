@@ -118,7 +118,9 @@ class OrganisationCaseRoleManager(models.Manager):
         return self.filter(organisation=organisation, case=case).first()
 
     def case_prepared(self, organisation_id):
-        return self.exclude(role=CaseRole.objects.get(id=ROLE_PREPARING)).filter(organisation__id=organisation_id)
+        return self.exclude(role=CaseRole.objects.get(id=ROLE_PREPARING)).filter(
+            organisation__id=organisation_id
+        )
 
     def has_organisation_case_role(self, organisation, case, role=None):
         """
