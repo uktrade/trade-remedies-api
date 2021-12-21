@@ -28,7 +28,7 @@ class EmailVerification(models.Model):
     def send(self):
         """Send an email verification."""
         self.code = crypto.get_random_string(CODE_LENGTH)
-        link = f"{settings.PUBLIC_ROOT_URL}/email/verify/?code={self.code}"
+        link = f"{settings.PUBLIC_ROOT_URL}/email/verify/{self.code}"
         context = {
             "verification_link": link
         }
@@ -45,9 +45,17 @@ class EmailVerification(models.Model):
         self.verified_at = None
         self.save()
 
+    def validate_code(self, code: str) -> bool:
+        """Validate email verification code."""
+        if code != self.code:
+            return False
+        self.verified_at = timezone.now()
+        self.save()
+        return True
+
 
 @receiver(models.signals.post_save, sender="authentication.User")
-def verify_email(sender, instance, created, **kwargs):  # noqa
+def send_verification(sender, instance, created, **kwargs):  # noqa
     """Post User save signal handler.
 
     New user's need to verify their email address.

@@ -1,3 +1,10 @@
+EmailVerificationSerializer
+context={"request
+assert response.json()["verification
+Email Verification Code Serializer
+TokenAuthentication
+EmailVerificationSerializer(data
+EmailVerifyResendView
 do_login
 assert len(json.loads(response.content
 "Authentication App

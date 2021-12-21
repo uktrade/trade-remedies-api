@@ -73,7 +73,7 @@ def unauthorised_api_client():
 def authorised_api_client(unauthorised_api_client, auth_token):
     """Authorised API Client."""
     client = unauthorised_api_client
-    client.credentials(HTTP_AUTHORIZATION="Bearer " + auth_token)
+    client.credentials(HTTP_AUTHORIZATION="Token " + auth_token)
     return client
 
 
@@ -95,3 +95,18 @@ def anon_user_data():
 def actual_user_data(fake_user, anon_user_data):
     anon_user_data["username"] = fake_user.username
     return anon_user_data
+
+
+@pytest.fixture
+def fake_2fa_request(mocker):
+    """Fake 2FA request."""
+    request = mocker.Mock()
+    request.META = {"HTTP_X_USER_AGENT": "chrome"}
+    return request
+
+
+@pytest.fixture
+def fake_2fa_request_authenticated(fake_2fa_request, fake_user):
+    """Fake 2FA request with a user."""
+    fake_2fa_request.user = fake_user
+    return fake_2fa_request

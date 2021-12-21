@@ -7,6 +7,7 @@ from .views import (
     TwoFactorView,
     TwoFactorResendView,
     EmailVerifyView,
+    EmailVerifyResendView,
     UsernameAvailableView,
     UserView,
 )
@@ -15,7 +16,8 @@ urlpatterns = [
     path("login/", AuthenticationView.as_view()),
     path("two-factor/", TwoFactorView.as_view()),
     path("two-factor/resend/", TwoFactorResendView.as_view()),
-    path("verify/", EmailVerifyView.as_view()),
+    path("verify/code/<str:code>/", EmailVerifyView.as_view()),
+    path("verify/resend/", EmailVerifyResendView.as_view()),
     path("email-availability/", UsernameAvailableView.as_view()),
 ]
 

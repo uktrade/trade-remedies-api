@@ -1,9 +1,11 @@
 """Authentication Views."""
 from django.utils import timezone
 from rest_framework import views, viewsets, status
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.exceptions import APIException
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models.user import User
@@ -12,6 +14,7 @@ from .serializers import (
     TrustedAuthTokenSerializer,
     TwoFactorTokenSerializer,
     UserSerializer,
+    EmailVerificationSerializer,
 )
 
 
@@ -71,9 +74,12 @@ class TwoFactorView(views.APIView):
         serializer = TwoFactorTokenSerializer(data=request.data,
                                               context={'request': request})
         serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data["username"]
+        user = User.objects.get(email=username)
+        token = Token.objects.get(user=user)
         return Response(
             {
-                "token": serializer.validated_data["two_factor_token"],
+                "token": token.key,
             }
         )
 
@@ -128,7 +134,30 @@ class EmailVerifyView(views.APIView):
     which triggers a 'verify email address' notification. This endpoint
     processes the validation of the code sent.
     """
-    # TODO-TRV2 implement me
+    @staticmethod
+    def post(request, *args, **kwargs):
+        serializer = EmailVerificationSerializer(data=kwargs,
+                                                 context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        response = {
+            "verified": True
+        }
+        return Response(response)
+
+
+class EmailVerifyResendView(views.APIView):
+    """EmailVerifyResendView.
+
+    Resend an email verification code.
+    """
+    @staticmethod
+    def post(request, *args, **kwargs):
+        request.user.email_verification.send()
+        return Response(
+            {
+                "verification-code-resent": timezone.now(),
+            }
+        )
 
 
 class UserView(viewsets.ModelViewSet):

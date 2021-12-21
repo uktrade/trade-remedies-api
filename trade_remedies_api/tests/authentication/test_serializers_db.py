@@ -32,3 +32,23 @@ def test_email_unavailable_serializer(actual_user_data, trusted_token):
     # The user does exist, serializer should be invalid.
     serializer = auth_serializers.UsernameSerializer(data=actual_user_data)
     assert serializer.is_valid()
+
+
+def test_verify_email_code_serializer(fake_2fa_request_authenticated):
+    serializer = auth_serializers.EmailVerificationSerializer(
+        data={
+            "code": fake_2fa_request_authenticated.user.email_verification.code
+        },
+        context={"request": fake_2fa_request_authenticated}
+    )
+    assert serializer.is_valid()
+
+
+def test_verify_email_code_serializer_invalid(fake_2fa_request_authenticated):
+    serializer = auth_serializers.EmailVerificationSerializer(
+        data={
+            "code": "not-a-valid-verification-code"
+        },
+        context={"request": fake_2fa_request_authenticated}
+    )
+    assert not serializer.is_valid()

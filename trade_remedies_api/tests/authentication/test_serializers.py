@@ -66,17 +66,6 @@ def valid_2fa_serializer_data(serializer_data, fake_2fa_user):
     return serializer_data
 
 
-@pytest.fixture
-def fake_2fa_request(mocker):
-    """Fake 2FA request.
-
-    Note that
-    """
-    request = mocker.Mock()
-    request.META = {"HTTP_X_USER_AGENT": "chrome"}
-    return request
-
-
 def test_trusted_auth_token_serializer(fake_auth_backend):
     # Given a username, password and trusted token, TrustedAuthTokenSerializer
     # is valid.

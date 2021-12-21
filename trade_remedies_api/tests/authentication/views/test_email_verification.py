@@ -1,15 +1,23 @@
-import datetime
-import json
 import pytest
 
-from django.utils import timezone
-
-pytestmark = [pytest.mark.version2, pytest.mark.functional]
+from conftest import do_post
 
 
-def test_email_verify():
-    pass  # Test right response for valid email verify code
+pytestmark = [pytest.mark.version2, pytest.mark.functional, pytest.mark.django_db]
 
 
-def test_email_verify_fail():
-    pass  # Test right response for invalid email verify code
+def test_email_verify(fake_user, authorised_api_client):
+    response = do_post(authorised_api_client, {}, f"/api/v2/auth/verify/code/{fake_user.email_verification.code}/")
+    assert response.status_code == 200
+    assert response.json()["verified"]
+
+
+def test_email_verify_fail(authorised_api_client):
+    response = do_post(authorised_api_client, {}, "/api/v2/auth/verify/code/not-a-valid-code/")
+    assert response.status_code == 400
+
+
+def test_verify_resend(authorised_api_client):
+    response = do_post(authorised_api_client, {}, "/api/v2/auth/verify/resend/")
+    assert response.status_code == 200
+    assert response.json()["verification-code-resent"]

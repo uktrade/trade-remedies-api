@@ -19,7 +19,7 @@ def do_2fa(client, data, user_agent="chrome"):
 
 
 def set_creds(client, token):
-    client.credentials(HTTP_AUTHORIZATION="Bearer " + token)
+    client.credentials(HTTP_AUTHORIZATION="Token " + token)
 
 
 @pytest.fixture

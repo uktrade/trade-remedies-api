@@ -117,6 +117,25 @@ class TwoFactorTokenSerializer(UsernameSerializer):  # noqa
         )
 
 
+class EmailVerificationSerializer(serializers.Serializer):  # noqa
+    """Email Verification Code Serializer.
+
+    Validates presence and validity of a valid code in an email verification
+    request.
+    """
+    code = serializers.CharField(
+        label=_("Verification code"),
+        write_only=True,
+    )
+
+    def validate_code(self, value: str) -> str:
+        request = self.context.get("request")
+        if not request.user.email_verification.validate_code(value):
+            error_msg = _("Invalid email verification code.")
+            raise serializers.ValidationError(error_msg, code='verification')
+        return value
+
+
 class UserSerializer(CountryFieldMixin, serializers.ModelSerializer):
     """User serializer."""
     class Meta:
