@@ -75,9 +75,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=False)
     last_login = models.DateTimeField(default=timezone.now)
     date_joined = models.DateTimeField(default=timezone.now)
-    # groups and user_permission fields override PermissionsMixin fields.
-    # Necessary because fields.E304 is raised due to duplicate reverse accessor
-    # of V1 user model. Take out when V1 custom user removed.
+    # TODO-TRV2 - groups and user_permission fields override PermissionsMixin fields.
+    #  Necessary because fields.E304 is raised due to duplicate reverse accessor
+    #  of V1 user model. Take out when V1 custom user removed.
     groups = models.ManyToManyField(
         Group,
         blank=True,
