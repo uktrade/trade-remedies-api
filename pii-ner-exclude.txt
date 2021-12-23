@@ -1,3 +1,28 @@
+"Authentication App
+TokenAuthentication
+Custom Token Authentication
+AuthenticationFailed
+ANON_USER_TOKEN
+Public/CW
+ELK
+Grafana
+do_login
+login_data
+response.json()["token
+fake_user
+assert response_data["token
+two_factor_data
+Bad Request
+valid_minutes_2fa_token
+# Post
+test_2fa_resend(fake_user
+actual_user_data
+assert response.json()["2fa
+anon_user_data
+assert response.json()["username
+test_auth_token_expired(fake_user
+assert authorised_api_client.get("/api
+v2/auth/users/").status_code
 Django==2.2.25
  FeatureFlags
 get_param

@@ -393,12 +393,17 @@ ENVIRONMENT_LOGGING = {
 # ------------------------------------------------------------------------------
 API_PREFIX = "api/v1"
 API_V2_PREFIX = "api/v2"
-API_V2_ENABLED = env.bool("API_V2_ENABLED", False)
+API_V2_ENABLED = env.bool("API_V2_ENABLED", default=False)
+AUTH_TOKEN_MAX_AGE_MINUTES = env.int("AUTH_TOKEN_MAX_AGE_MINUTES", default=60)
 if API_V2_ENABLED:
     AUTH_USER_MODEL = "authentication.User"
     ANON_USER_TOKEN = "change-me"
 else:
     AUTH_USER_MODEL = "core.User"
+# TODO-V2: Consolidate with REST_FRAMEWORK settings above
+if API_V2_ENABLED:
+    classes = ["authentication.ExpiringTokenAuthentication", ]
+    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = classes
 
 ORGANISATION_NAME = env("ORGANISATION_NAME", default="Organisation name placeholder")
 ORGANISATION_INITIALISM = env("ORGANISATION_INITIALISM", default="PLACEHOLDER")
@@ -424,7 +429,7 @@ STREAMING_CHUNK_SIZE = 8192
 PASSWORD_RESET_CODE_AGE_HOURS = env("PASSWORD_RESET_CODE_AGE", default=2)
 
 # Two factor authentication is mandated
-TWO_FACTOR_AUTH_REQUIRED = env.bool("TWO_FACTOR_AUTH_REQUIRED", True)
+TWO_FACTOR_AUTH_REQUIRED = env.bool("TWO_FACTOR_AUTH_REQUIRED", default=True)
 # Two factor authentication validity duration in days
 TWO_FACTOR_AUTH_VALID_DAYS = env("TWO_FACTOR_AUTH_VALID_DAYS", default=14)
 # Lockout time for two factor failures
@@ -451,10 +456,7 @@ SECRETARY_OF_STATE_ORGANISATION_ID = "8850d091-e119-4ab5-9e21-ede5f0112bef"
 # Companies House API
 COMPANIES_HOUSE_API_KEY = env("COMPANIES_HOUSE_API_KEY", default=None)
 
-# Geckoboard API
-GECKOBOARD_API_KEY = env("GECKOBOARD_API_KEY", default=None)
-GECKOBOARD_ENV = env("GECKOBOARD_ENV", default="dev")
-
+# CLAM Antivirus service endpoint.
 AV_SERVICE_URL = env("AV_SERVICE_URL", default=None)
 AV_SERVICE_USERNAME = env("AV_SERVICE_USERNAME", default=None)
 AV_SERVICE_PASSWORD = env("AV_SERVICE_PASSWORD", default=None)
@@ -481,3 +483,9 @@ PUBLIC_ENVIRONMENT_KEY = env("PUBLIC_ENVIRONMENT_KEY")
 ALLOWED_ORIGINS = (CASE_WORKER_ENVIRONMENT_KEY, PUBLIC_ENVIRONMENT_KEY)
 # Days of registration window for a case
 CASE_REGISTRATION_DURATION = 15
+# Geckoboard API
+# So much wrong with this - and operational assurance is taken care of by SRE
+# capabilities like ELK and Grafana (and visible to devs in prod, which this
+# is not). Bin it.
+GECKOBOARD_API_KEY = env("GECKOBOARD_API_KEY", default=None)
+GECKOBOARD_ENV = env("GECKOBOARD_ENV", default="dev")

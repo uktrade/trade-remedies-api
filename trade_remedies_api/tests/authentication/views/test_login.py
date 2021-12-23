@@ -132,3 +132,13 @@ def test_2fa_resend_bad_user(unauthorised_api_client, trusted_token, anon_user_d
     response = do_post(unauthorised_api_client, anon_user_data, "/api/v2/auth/two-factor/resend/")
     assert response.status_code == 400
     assert response.json()["username"] == ["User does not exist."]
+
+
+def test_auth_token_expired(fake_user, authorised_api_client, settings):
+    settings.AUTH_TOKEN_MAX_AGE_MINUTES = 10
+    fake_user.auth_token.created = timezone.now() - datetime.timedelta(minutes=9)
+    fake_user.auth_token.save()
+    assert authorised_api_client.get("/api/v2/auth/users/").status_code == 200
+    fake_user.auth_token.created = timezone.now() - datetime.timedelta(minutes=10)
+    fake_user.auth_token.save()
+    assert authorised_api_client.get("/api/v2/auth/users/").status_code == 401
