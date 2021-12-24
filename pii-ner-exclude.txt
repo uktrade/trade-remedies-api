@@ -1,3 +1,4 @@
+assert app.label
 "Trade Remedies Authentication
 Authentication V2
 EmailVerification
