@@ -6,7 +6,6 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 
 from django_countries.serializers import CountryFieldMixin
 
-import authentication.models
 from authentication.models.two_factor_auth import TwoFactorAuthLocked
 from authentication.models.user import User
 
@@ -66,7 +65,7 @@ class UsernameSerializer(TrustedTokenSerializer):  # noqa
     )
 
     @staticmethod
-    def get_user(username: str) -> authentication.models.User:
+    def get_user(username: str) -> User:
         """Get User model helper."""
         try:
             user = User.objects.get(email=username)

@@ -32,7 +32,7 @@ class UserManager(BaseUserManager):
         return self.get(**{f"{self.model.USERNAME_FIELD}__iexact": username})
 
     @transaction.atomic
-    def create_user(self, email: str, password: str = None, **kwargs: dict) -> "User":
+    def create_user(self, email: str, password: str = None) -> "User":
         """Create User.
 
         Create and save a User with the given email and password.
@@ -47,7 +47,7 @@ class UserManager(BaseUserManager):
         return user
 
     @transaction.atomic
-    def create_superuser(self, email: str, password: str = None, **kwargs: dict) -> "User":
+    def create_superuser(self, email: str, password: str = None) -> "User":
         """Create Super User.
 
         Creates and saves a superuser with the given email and password.

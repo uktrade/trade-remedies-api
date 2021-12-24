@@ -1,3 +1,17 @@
+"Trade Remedies Authentication
+Authentication V2
+EmailVerification
+EmailVerificationAdmin(admin
+Create User
+"Create Super User
+"User Model
+E304
+APIException
+Serializer
+TrustedTokenSerializer
+"Trusted Auth Token Serializer
+label=_("Two Factor Token
+Email Verification Code Serializer
 TWO_FACTOR_MAX_ATTEMPTS
 "Authentication App
 TokenAuthentication
