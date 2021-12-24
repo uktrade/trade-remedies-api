@@ -103,6 +103,7 @@ class UserManager(BaseUserManager):
         # Will raise validation error if password validation fails
         validate_password(password)
         user.set_password(password)
+        user.twofactorauth = TwoFactorAuth(user=user)
         user.save()
         if groups is None:
             groups = []
@@ -795,14 +796,6 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         except Exception:
             return DEFAULT_USER_COLOUR
 
-    @property
-    def two_factor(self):
-        """
-        Gets or create a 2FA record for this user
-        """
-        twofactor, _ = TwoFactorAuth.objects.get_or_create(user=self)
-        return twofactor
-
     def should_two_factor(self, user_agent=None):
         """Assert if user should perform 2FA.
 
@@ -820,12 +813,17 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         """
         if not SystemParameter.get("ENABLE_2FA", True):
             return False
-        two_factor = self.two_factor
-        user_agent = user_agent or two_factor.last_user_agent
+        try:
+            self.twofactorauth
+        except TwoFactorAuth.DoesNotExist as e:  # noqa
+            twofactor, _ = TwoFactorAuth.objects.get_or_create(user=self)
+            self.twofactorauth = twofactor
+            self.save()
+        user_agent = user_agent or self.twofactorauth.last_user_agent
         return (
-            not two_factor.last_validated
-            or user_agent != two_factor.last_user_agent
-            or (timezone.now() - two_factor.last_validated).days
+            not self.twofactorauth.last_validated
+            or user_agent != self.twofactorauth.last_user_agent
+            or (timezone.now() - self.twofactorauth.last_validated).days
             > settings.TWO_FACTOR_AUTH_VALID_DAYS
         )
 

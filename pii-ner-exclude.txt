@@ -1,3 +1,4 @@
+TWO_FACTOR_MAX_ATTEMPTS
 "Authentication App
 TokenAuthentication
 Custom Token Authentication
