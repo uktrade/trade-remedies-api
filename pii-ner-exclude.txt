@@ -1,3 +1,6 @@
+serializer
+https://github.com/yezyilomo/django-restql/
+doc.id
 Django==2.2.25
  FeatureFlags
 get_param
