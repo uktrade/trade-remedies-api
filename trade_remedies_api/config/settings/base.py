@@ -348,10 +348,6 @@ COMPANIES_HOUSE_API_KEY = env("COMPANIES_HOUSE_API_KEY", default=None)
 GECKOBOARD_API_KEY = env("GECKOBOARD_API_KEY", default=None)
 GECKOBOARD_ENV = env("GECKOBOARD_ENV", default="dev")
 
-AV_SERVICE_URL = env("AV_SERVICE_URL", default=None)
-AV_SERVICE_USERNAME = env("AV_SERVICE_USERNAME", default=None)
-AV_SERVICE_PASSWORD = env("AV_SERVICE_PASSWORD", default=None)
-
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 AWS_DEFAULT_ACL = None
 
