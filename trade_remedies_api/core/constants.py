@@ -1,4 +1,4 @@
-# TODO: TRV2 remove all this nonsense
+# TODO-TRV2 remove all this nonsense
 STATE_INCOMPLETE = "INCOMPLETE"
 STATE_COMPLETE = "COMPLETE"
 

@@ -16,10 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
+from rest_framework import routers
+
 from core.services import api as core_api
 from core.services import auth as auth_api
 from cases.services import api as cases_api
-
 
 urlpatterns = [
     path(f"{settings.API_PREFIX}/health/", core_api.ApiHealthView.as_view()),
@@ -116,6 +117,25 @@ urlpatterns = [
     path(f"{settings.API_PREFIX}/feedback/", include("feedback.services.urls")),
     path(f"{settings.API_PREFIX}/companieshouse/", include("core.services.urls")),
 ]
+
+
+# Ensure all V2 routers are collected here. One day the below will
+# replace all the above!
+from authentication.urls import (  # noqa: E402
+    router as auth_router
+)
+
+router = routers.DefaultRouter()
+router.registry.extend(auth_router.registry)
+
+if settings.API_V2_ENABLED:
+    # Authentication app is a special case as it defines APIViews as well as ViewSets
+    urlpatterns.append(
+        path(f"{settings.API_V2_PREFIX}/auth/", include("authentication.urls"))
+    )
+    urlpatterns.append(
+        path(f"{settings.API_V2_PREFIX}/auth/", include(router.urls)),
+    )
 
 if settings.DJANGO_ADMIN:
     urlpatterns.append(path("admin/", admin.site.urls))

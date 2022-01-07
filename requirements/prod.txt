@@ -84,6 +84,8 @@ django-ipware==3.0.7
     #   django-log-formatter-ecs
 django-log-formatter-ecs==0.0.5
     # via -r requirements.in/../requirements/base.txt
+django-phonenumber-field==6.0.0
+    # via -r requirements.in/../requirements/base.txt
 django-redis==4.10.0
     # via -r requirements.in/../requirements/base.txt
 django-storages==1.9.1
@@ -98,6 +100,7 @@ django==2.2.25
     #   django-axes
     #   django-db-geventpool
     #   django-dirtyfields
+    #   django-phonenumber-field
     #   django-redis
     #   django-storages
     #   django-timezone-field
@@ -181,7 +184,7 @@ odfpy==1.4.1
     # via -r requirements.in/../requirements/base.txt
 openpyxl==3.0.6
     # via -r requirements.in/../requirements/base.txt
-phonenumbers==8.10.20
+phonenumbers==8.12.38
     # via -r requirements.in/../requirements/base.txt
 pillow==8.3.2
     # via

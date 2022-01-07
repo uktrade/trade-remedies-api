@@ -8,6 +8,8 @@ amqp==5.0.9
     # via
     #   -r requirements.in/../requirements/base.txt
     #   kombu
+appdirs==1.4.4
+    # via black
 attrs==21.2.0
     # via pytest
 backcall==0.2.0
@@ -104,6 +106,8 @@ django-ipware==3.0.7
     #   django-log-formatter-ecs
 django-log-formatter-ecs==0.0.5
     # via -r requirements.in/../requirements/base.txt
+django-phonenumber-field==6.0.0
+    # via -r requirements.in/../requirements/base.txt
 django-redis==4.10.0
     # via -r requirements.in/../requirements/base.txt
 django-storages==1.9.1
@@ -117,6 +121,7 @@ django==2.2.25
     #   django-audit-log-middleware
     #   django-axes
     #   django-dirtyfields
+    #   django-phonenumber-field
     #   django-redis
     #   django-storages
     #   django-timezone-field
@@ -238,7 +243,7 @@ pep517==0.12.0
     # via pip-tools
 pexpect==4.8.0
     # via ipython
-phonenumbers==8.10.20
+phonenumbers==8.12.38
     # via -r requirements.in/../requirements/base.txt
 pickleshare==0.7.5
     # via ipython

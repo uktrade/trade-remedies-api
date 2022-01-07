@@ -24,6 +24,8 @@ class ApiTokenSetter:
         return response
 
 
+# TODO-TRV2 consider if this is required, no different from origin having a
+#  trusted token, seems superfluous.
 class OriginValidator:
     def __init__(self, get_response):
         self.get_response = get_response

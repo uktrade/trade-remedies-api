@@ -61,7 +61,7 @@ jobs:
           command: |
             . venv/bin/activate
             cd trade_remedies_api
-            pytest --ignore=staticfiles -n 4
+            pytest --ignore=staticfiles -n 4 -m "not version2"
 
 workflows:
   version: 2
