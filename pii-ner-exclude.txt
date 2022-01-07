@@ -39,6 +39,9 @@ assert response.json()["username
 test_auth_token_expired(fake_user
 assert authorised_api_client.get("/api
 v2/auth/users/").status_code
+serializer
+https://github.com/yezyilomo/django-restql/
+doc.id
 Django==2.2.25
  FeatureFlags
 get_param
