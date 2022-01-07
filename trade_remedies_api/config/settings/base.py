@@ -446,11 +446,7 @@ SECRETARY_OF_STATE_ORGANISATION_ID = "8850d091-e119-4ab5-9e21-ede5f0112bef"
 # Companies House API
 COMPANIES_HOUSE_API_KEY = env("COMPANIES_HOUSE_API_KEY", default=None)
 
-# CLAM Antivirus service endpoint.
-AV_SERVICE_URL = env("AV_SERVICE_URL", default=None)
-AV_SERVICE_USERNAME = env("AV_SERVICE_USERNAME", default=None)
-AV_SERVICE_PASSWORD = env("AV_SERVICE_PASSWORD", default=None)
-
+# GOV Notify
 GOV_NOTIFY_API_KEY = env("GOV_NOTIFY_API_KEY", default=None)
 
 # ------------------------------------------------------------------------------
