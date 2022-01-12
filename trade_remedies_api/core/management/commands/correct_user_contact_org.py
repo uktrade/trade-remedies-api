@@ -9,7 +9,7 @@ from django.utils import timezone
 
 class Command(BaseCommand):
 
-    help = "Fixes issues regarding the user case role and organisation assignment"
+    help = "Command to fix issues regarding the incorrect/missing user case role and organisation assignment"
 
     def add_arguments(self, parser):
         parser.add_argument("organisation_id", nargs=1, type=str)
@@ -28,7 +28,7 @@ class Command(BaseCommand):
         roles = CaseRole.objects.all()
         contributor_role = roles[7]
 
-        UserCase.objects.filter(case=case, user__organisationuser__organisation=case)
+        UserCase.objects.filter(case=case, user__organisationuser__organisation=organisation)
         case.assign_organisation_user(user, organisation)
         case.organisation_users(organisation)
 
@@ -36,15 +36,16 @@ class Command(BaseCommand):
         user.contact.save()
         user.refresh_from_db()
 
-        OrganisationCaseRole.objects.get_organisation_role(case=case, organisation=organisation)
+        organisation_role = OrganisationCaseRole.objects.get_organisation_role(case=case, organisation=organisation)
 
-        user_ocr = OrganisationCaseRole.objects.assign_organisation_case_role(organisation, case, contributor_role)[0]
+        if not organisation_role:
+            user_ocr = OrganisationCaseRole.objects.assign_organisation_case_role(organisation, case, contributor_role)[0]
 
-        OrganisationCaseRole.objects.get_organisation_role(case=case, organisation=organisation)
+            OrganisationCaseRole.objects.get_organisation_role(case=case, organisation=organisation)
 
-        Case.objects.all_user_cases(user)
-        user_ocr.approved_by = None
-        user_ocr.approved_at = timezone.now()
-        user_ocr.save()
+            Case.objects.all_user_cases(user)
+            user_ocr.approved_by = None
+            user_ocr.approved_at = timezone.now()
+            user_ocr.save()
 
         self.stdout.write(f"User {user} has been corrected")
