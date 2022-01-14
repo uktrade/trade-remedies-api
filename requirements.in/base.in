@@ -29,7 +29,7 @@ Markdown==3.1.1
 notifications-python-client==6.0.2
 openpyxl==3.0.6
 odfpy==1.4.1
-pillow==8.3.2
+pillow==9.0.0
 phonenumbers==8.12.38
 psycopg2-binary==2.8.3
 python-docx==0.8.10
