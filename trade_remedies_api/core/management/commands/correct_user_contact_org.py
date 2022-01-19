@@ -26,9 +26,6 @@ class Command(BaseCommand):
         case = Case.objects.get(pk=case_id)
         user = User.objects.get(pk=user_id)
 
-        roles = CaseRole.objects.all()
-        contributor_role = roles[7]
-
         UserCase.objects.filter(case=case, user__organisationuser__organisation=organisation)
         # <QuerySet []>
         case.assign_organisation_user(user, organisation)
@@ -43,6 +40,8 @@ class Command(BaseCommand):
         user.refresh_from_db()
 
         organisation_role = OrganisationCaseRole.objects.get_organisation_role(case=case, organisation=organisation)
+
+        contributor_role = CaseRole.objects.get(key='contributor')
 
         # Organisation role should only be set if it doesn't already exist
         if not organisation_role:
