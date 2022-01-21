@@ -56,6 +56,10 @@ defusedxml==0.7.1
     # via
     #   -r requirements.in/../requirements/base.txt
     #   odfpy
+deprecated==1.2.13
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   redis
 dj-database-url==0.5.0
     # via -r requirements.in/../requirements/base.txt
 django-appconf==1.0.4
@@ -184,6 +188,10 @@ odfpy==1.4.1
     # via -r requirements.in/../requirements/base.txt
 openpyxl==3.0.6
     # via -r requirements.in/../requirements/base.txt
+packaging==21.3
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   redis
 phonenumbers==8.12.38
     # via -r requirements.in/../requirements/base.txt
 pillow==9.0.0
@@ -206,6 +214,10 @@ pyjwt==2.1.0
     # via
     #   -r requirements.in/../requirements/base.txt
     #   notifications-python-client
+pyparsing==3.0.7
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   packaging
 pypdf2==1.26.0
     # via -r requirements.in/../requirements/base.txt
 python-dateutil==2.8.2
@@ -226,7 +238,7 @@ pytz==2021.1
     #   django
     #   django-timezone-field
     #   minio
-redis==3.3.8
+redis==4.1.1
     # via
     #   -r requirements.in/../requirements/base.txt
     #   django-redis
@@ -282,6 +294,10 @@ werkzeug==0.15.3
     # via -r requirements.in/../requirements/base.txt
 whitenoise==3.3.1
     # via -r requirements.in/../requirements/base.txt
+wrapt==1.13.3
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   deprecated
 xlrd==1.2.0
     # via -r requirements.in/../requirements/base.txt
 xlsxwriter==3.0.1
