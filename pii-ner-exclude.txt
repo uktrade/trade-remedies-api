@@ -486,7 +486,7 @@ RUN_ASYNC =
 Elasticsearch
 ES
 ElasticSearch
-get_elastic
+get_open_search
 HOST
 Selection
 getLogger
