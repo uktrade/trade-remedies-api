@@ -76,6 +76,10 @@ defusedxml==0.7.1
     # via
     #   -r requirements.in/../requirements/base.txt
     #   odfpy
+deprecated==1.2.13
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   redis
 distlib==0.3.3
     # via virtualenv
 dj-database-url==0.5.0
@@ -232,7 +236,10 @@ odfpy==1.4.1
 openpyxl==3.0.6
     # via -r requirements.in/../requirements/base.txt
 packaging==21.3
-    # via pytest
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   pytest
+    #   redis
 parso==0.8.2
     # via jedi
 pathspec==0.9.0
@@ -286,8 +293,10 @@ pyjwt==2.1.0
     # via
     #   -r requirements.in/../requirements/base.txt
     #   notifications-python-client
-pyparsing==3.0.6
-    # via packaging
+pyparsing==3.0.7
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   packaging
 pypdf2==1.26.0
     # via -r requirements.in/../requirements/base.txt
 pyproject-flake8==0.0.1a2
@@ -330,7 +339,7 @@ pytz==2021.1
     #   minio
 pyyaml==6.0
     # via pre-commit
-redis==3.3.8
+redis==4.1.1
     # via
     #   -r requirements.in/../requirements/base.txt
     #   django-redis
@@ -416,6 +425,10 @@ wheel==0.37.0
     # via pip-tools
 whitenoise==3.3.1
     # via -r requirements.in/../requirements/base.txt
+wrapt==1.13.3
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   deprecated
 xlrd==1.2.0
     # via -r requirements.in/../requirements/base.txt
 xlsxwriter==3.0.1

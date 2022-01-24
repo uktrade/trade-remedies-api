@@ -38,7 +38,7 @@ PyPDF2==1.26.0
 pytz
 sentry-sdk==0.13.1
 striprtf==0.0.10
-redis==3.3.8
+redis==4.1.1
 requests==2.25.1
 requests_toolbelt==0.9.1
 titlecase==0.12.0
