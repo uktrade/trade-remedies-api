@@ -22,14 +22,7 @@ class OSWrapper(object):
                 credentials = settings.OPENSEARCH_URI
             else:
                 credentials = {"host": settings.OPENSEARCH_HOST, "port": settings.OPENSEARCH_PORT}
-            cls._os_client = OpenSearch(
-                [credentials],
-                #use_ssl=True,
-                verify_certs=False,
-                #ssl_assert_hostname=False,
-                #ssl_show_warn=False,
-                #http_auth=(settings.OPENSEARCH_USERNAME, settings.OPENSEARCH_PASSWORD),
-            )
+            cls._os_client = OpenSearch([credentials])
         return cls._os_client
 
 

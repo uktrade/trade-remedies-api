@@ -255,8 +255,6 @@ AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
 # fallback when VCAP is not set by the environment
 OPENSEARCH_HOST = env("OPENSEARCH_HOST", default=None)
 OPENSEARCH_PORT = env("OPENSEARCH_PORT", default=None)
-OPENSEARCH_USERNAME = env("OPENSEARCH_USERNAME", default=None)
-OPENSEARCH_PASSWORD = env("OPENSEARCH_PASSWORD", default=None)
 OPENSEARCH_URI = None
 opensearch_vcap_config = _VCAP_SERVICES.get("opensearch")
 if opensearch_vcap_config:
