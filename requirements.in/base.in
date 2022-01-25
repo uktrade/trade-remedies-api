@@ -18,7 +18,6 @@ django-audit-log-middleware==0.0.4
 Django==2.2.26
 djangorestframework==3.12.4
 dpath==1.4.2
-elasticsearch-dsl>=6.0.0,<7.0.0
 feed-gov-back==0.4
 freezegun==1.1.0
 geckoboard.py==1.0.0

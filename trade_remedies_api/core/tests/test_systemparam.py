@@ -6,7 +6,7 @@ from documents.models import Document
 
 class SystemParameterTest(TestCase):
     """
-    Test system paramters across various configurations
+    Test system parameters across various configurations
     """
 
     def setUp(self):

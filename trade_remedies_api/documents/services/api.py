@@ -752,16 +752,13 @@ class DocumentSearchAPI(TradeRemediesApiView):
     """
 
     def get(self, request, case_id=None):
-        '''from documents.tasks import index_documents
-        index_documents(force=True)'''
-
         confidentiality = request.query_params.get("confidential_status", "NONCONF")
         organisation_id = request.query_params.get("organisation_id")
         user_type = request.query_params.get("user_type")
         confidential_status = SEARCH_CONFIDENTIAL_STATUS_MAP[confidentiality]
         case = Case.objects.get(id=case_id) if case_id else None
 
-        documents = Document.objects.elastic_search(
+        documents = Document.objects.open_search(
             case=case,
             query=self._search,
             confidential_status=confidential_status,

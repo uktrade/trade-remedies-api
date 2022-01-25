@@ -1,8 +1,9 @@
-import logging
-from elasticsearch import Elasticsearch
-from opensearchpy import OpenSearch
-from django.conf import settings
+"""OpenSearch functionality"""
 
+import logging
+
+from django.conf import settings
+from opensearchpy import OpenSearch
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +17,11 @@ class OSWrapper(object):
 
     @classmethod
     def get_client(cls):
+        """Returns an instantiated OpenSearch object. Caches result and returns cached object if already instantiated.
+
+        If running on Production with the _VCAP_SERVICES environment variable, uses the bound OpenSearch service.
+        If running locally, uses the OPENSEARCH_HOST and OPENSEARCH_PORT environment variables.
+        """
         if not cls._os_client:
             logger.info("Instantiating OpenSearch client")
             if settings.OPENSEARCH_URI:
@@ -27,6 +33,7 @@ class OSWrapper(object):
 
 
 def get_open_search():
+    """Returns an instantiated OpenSearch object if possible, otherwise raises an OSWrapperError"""
     if settings.OPENSEARCH_URI or settings.OPENSEARCH_HOST:
         return OSWrapper.get_client()
     msg = "OpenSearch client cannot be configured - no URI or HOST setting detected"
