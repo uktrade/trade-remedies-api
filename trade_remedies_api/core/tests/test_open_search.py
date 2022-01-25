@@ -10,7 +10,6 @@ class OpenSearchTest(TestCase):
         """Tests that the get_open_search() function returns a working OpenSearch object"""
         opensearch_client = get_open_search()
         self.assertIsInstance(opensearch_client, OpenSearch)
-        self.assertTrue(opensearch_client.ping())
 
     def test_get_client_cache(self):
         """Tests that the OSWrapper.get_client() method caches previous OpenSearch objects and returns them"""
