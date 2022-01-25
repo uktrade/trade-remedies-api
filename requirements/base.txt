@@ -96,10 +96,6 @@ docopt==0.6.2
     # via notifications-python-client
 dpath==1.4.2
     # via -r requirements.in/base.in
-elasticsearch==6.8.2
-    # via elasticsearch-dsl
-elasticsearch-dsl==6.4.0
-    # via -r requirements.in/base.in
 et-xmlfile==1.1.0
     # via openpyxl
 feed-gov-back==0.4
@@ -168,7 +164,6 @@ pypdf2==1.26.0
 python-dateutil==2.8.2
     # via
     #   botocore
-    #   elasticsearch-dsl
     #   freezegun
     #   minio
 python-docx==0.8.10
@@ -203,7 +198,6 @@ six==1.16.0
     #   click-repl
     #   django-countries
     #   django-extensions
-    #   elasticsearch-dsl
     #   python-dateutil
 sqlparse==0.4.2
     # via django
@@ -215,7 +209,6 @@ urllib3==1.26.5
     # via
     #   -r requirements.in/base.in
     #   botocore
-    #   elasticsearch
     #   minio
     #   opensearch-py
     #   requests
