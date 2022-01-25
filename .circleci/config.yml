@@ -43,7 +43,7 @@ jobs:
           POSTGRES_USER: ubuntu
           POSTGRES_DB: trade_remedies
           POSTGRES_PASSWORD: ""
-      - image: opensearchproject/opensearch:1.0.0
+      - image: opensearchproject/opensearch:1.2.4
         environment:
           - discovery.type=single-node
           - plugins.security.disabled=true
