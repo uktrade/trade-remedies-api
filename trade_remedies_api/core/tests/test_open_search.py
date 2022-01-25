@@ -2,6 +2,7 @@ from django.test import TestCase, override_settings
 from core.opensearch import get_open_search, OSWrapper, OSWrapperError
 from opensearchpy import OpenSearch
 
+
 class OpenSearchTest(TestCase):
     """Test the OpenSearch object instantiation process"""
 
