@@ -5,7 +5,6 @@ from opensearchpy import OpenSearch
 class OpenSearchTest(TestCase):
     """Test the OpenSearch object instantiation process"""
 
-    @override_settings(OPENSEARCH_HOST="opensearch", OPENSEARCH_PORT='9200')
     def test_get_open_search(self):
         """Tests that the get_open_search() function returns a working OpenSearch object"""
         opensearch_client = get_open_search()
