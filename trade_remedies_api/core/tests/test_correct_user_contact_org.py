@@ -27,9 +27,12 @@ class CorrectUserContactOrgTests(TestCase):
         self.case = Case.objects.create(name="test_case")
 
         example_role = CaseRole.objects.create(name="test_role")
+
         CaseRole.objects.create(key="contributor")
 
-        OrganisationCaseRole.objects.create(organisation=self.organisation, case=self.case, role=example_role)
+        OrganisationCaseRole.objects.create(
+            organisation=self.organisation, case=self.case, role=example_role
+        )
 
         self.user = User.objects.create_user(
             name="test_user",
@@ -39,10 +42,9 @@ class CorrectUserContactOrgTests(TestCase):
             country="GB",
             timezone="Europe/London",
             phone="077931231234",
-
         )
 
-    def test_parameters_have_been_set_up(self):
+    def test_parameters_are_set(self):
         user_objects = User.objects.all()
         assert user_objects.count() == 1
 
@@ -52,20 +54,33 @@ class CorrectUserContactOrgTests(TestCase):
         case_objects = Case.objects.all()
         assert case_objects.count() == 1
 
-    def test_correct_user_contact_org_works(self):
-        assert not UserCase.objects.filter(case=self.case, user__organisationuser__organisation=self.organisation).exists()
+    def test_user_contact_org_is_corrected(self):
+        assert not UserCase.objects.filter(
+            case=self.case, organisation=self.organisation
+        ).exists()
+        assert self.user.contact.organisation is None
 
         args = []
-        opts = {"organisation_id": self.organisation.id, "case_id": self.case.id, "user_id": self.user.id}
-        call_command(
-            "correct_user_contact_org",
-            *args,
-            **opts
-        )
-
-        self.case.refresh_from_db()
-        self.organisation.refresh_from_db()
+        opts = {
+            "organisation_id": self.organisation.id,
+            "case_id": self.case.id,
+            "user_id": self.user.id,
+        }
+        call_command("correct_user_contact_org", *args, **opts)
         self.user.refresh_from_db()
 
-        print(self.case.organisation_users(self.organisation))
-        print(UserCase.objects.filter(case=self.case, user__organisationuser__organisation=self.organisation))
+        assert (
+            UserCase.objects.filter(
+                case=self.case, organisation=self.organisation
+            ).count()
+            == 1
+        )
+        assert self.user.contact.organisation.name == "test_organisation"
+
+        # Assert the organisation case role hasn't been changed
+        assert (
+            OrganisationCaseRole.objects.get(
+                organisation=self.organisation, case=self.case
+            ).role.name
+            == "test_role"
+        )
