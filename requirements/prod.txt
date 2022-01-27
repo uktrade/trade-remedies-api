@@ -25,6 +25,7 @@ certifi==2021.5.30
     # via
     #   -r requirements.in/../requirements/base.txt
     #   minio
+    #   opensearch-py
     #   requests
     #   sentry-sdk
 chardet==4.0.0
@@ -122,12 +123,7 @@ docopt==0.6.2
     #   notifications-python-client
 dpath==1.4.2
     # via -r requirements.in/../requirements/base.txt
-elasticsearch==6.8.2
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   elasticsearch-dsl
-elasticsearch-dsl==6.4.0
-    # via -r requirements.in/../requirements/base.txt
+
 et-xmlfile==1.1.0
     # via
     #   -r requirements.in/../requirements/base.txt
@@ -188,6 +184,8 @@ odfpy==1.4.1
     # via -r requirements.in/../requirements/base.txt
 openpyxl==3.0.6
     # via -r requirements.in/../requirements/base.txt
+opensearch-py==1.0.0
+    # via -r requirements.in/../requirements/base.txt
 packaging==21.3
     # via
     #   -r requirements.in/../requirements/base.txt
@@ -224,7 +222,6 @@ python-dateutil==2.8.2
     # via
     #   -r requirements.in/../requirements/base.txt
     #   botocore
-    #   elasticsearch-dsl
     #   freezegun
     #   minio
 python-docx==0.8.10
@@ -262,7 +259,6 @@ six==1.16.0
     #   click-repl
     #   django-countries
     #   django-extensions
-    #   elasticsearch-dsl
     #   python-dateutil
 sqlparse==0.4.2
     # via
@@ -276,8 +272,8 @@ urllib3==1.26.5
     # via
     #   -r requirements.in/../requirements/base.txt
     #   botocore
-    #   elasticsearch
     #   minio
+    #   opensearch-py
     #   requests
     #   sentry-sdk
 vine==5.0.0

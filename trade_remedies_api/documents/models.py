@@ -5,10 +5,10 @@ from django.utils import timezone
 from django.db import models
 from django.db.models import Q
 from django.conf import settings
-from elasticsearch.exceptions import NotFoundError
+from opensearchpy.exceptions import NotFoundError
 from core.base import BaseModel, SimpleBaseModel
 from functools import singledispatch
-from core.elastic import get_elastic, ESWrapperError
+from core.opensearch import get_open_search, OSWrapperError
 from cases.models import get_case
 from organisations.models import get_organisation
 from .constants import (
@@ -49,7 +49,7 @@ def _(document):
 
 class DocumentManager(models.Manager):
     @staticmethod
-    def elastic_search(
+    def open_search(
         query,
         case=None,
         confidential_status=None,
@@ -90,13 +90,13 @@ class DocumentManager(models.Manager):
                 _query["bool"].setdefault("filter", [])
                 _query["bool"]["filter"].append({"match": {"user_type": user_type}})
         try:
-            client = get_elastic()
-        except ESWrapperError as e:
+            client = get_open_search()
+        except OSWrapperError as e:
             logger.error(e)
             return None
         else:
             search_results = client.search(
-                index=settings.ELASTIC_INDEX["document"],
+                index=settings.OPENSEARCH_INDEX["document"],
                 doc_type="document",
                 body={"query": _query, "highlight": {"fields": {"content": {}}}},
             )
@@ -210,7 +210,7 @@ class Document(BaseModel):
         else:
             self.deleted_at = timezone.now()
             self.save()
-        self.delete_elastic_document()
+        self.delete_opensearch_document()
 
     @property
     def file_extension(self):
@@ -226,24 +226,23 @@ class Document(BaseModel):
         _dict["submissions"] = ([sub.to_embedded_dict() for sub in self.submissions(case)],)
         return _dict
 
-    def delete_elastic_document(self):
-        """
-        Delete an elastic representation of this documet.
+    def delete_opensearch_document(self):
+        """Delete an OpenSearch representation of this document.
         Using quite a broad exception handling to prevent any failure that will
         cause the delete to fail.
         """
         try:
-            client = get_elastic()
-        except ESWrapperError as e:
+            client = get_open_search()
+        except OSWrapperError as e:
             logger.error(e)
         else:
             try:
                 result = client.delete(
-                    index=settings.ELASTIC_INDEX["document"], doc_type="document", id=str(self.id)
+                    index=settings.OPENSEARCH_INDEX["document"], doc_type="document", id=str(self.id)
                 )
                 return result.get("result") == "deleted"
             except Exception as exc:
-                logger.error(f"cannot delete elastic document: {self.id} - {exc}")
+                logger.error(f"cannot delete OpenSearch document: {self.id} - {exc}")
         return False
 
     def to_embedded_dict(self, submission=None, case=None):
@@ -370,32 +369,32 @@ class Document(BaseModel):
             logger.error("Error extracting text: %s: %s / %s", str(exc), str(self.id), str(self))
             return "", INDEX_STATE_INDEX_FAIL
 
-    def elastic_doc(self):
+    def open_search_doc(self):
         """
-        Return the elasticsearch document for this record
+        Return the OpenSearch document for this record
         """
         try:
-            client = get_elastic()
-        except ESWrapperError as e:
+            client = get_open_search()
+        except OSWrapperError as e:
             logger.error(e)
         else:
             try:
                 return client.get(
-                    index=settings.ELASTIC_INDEX["document"],
+                    index=settings.OPENSEARCH_INDEX["document"],
                     doc_type="document",
                     id=self.id,
                 )
             except NotFoundError:
-                logger.warning("Could not find document in elastic index")
+                logger.warning("Could not find document in OpenSearch index")
         return None
 
-    def elastic_index(self, submission=None, case=None, **kwargs):  # noqa
+    def open_search_index(self, submission=None, case=None, **kwargs):  # noqa
         """
-        Create an elasticsearch indexed document for this record
+        Create an OpenSearch indexed document for this record
         """
         try:
-            client = get_elastic()
-        except ESWrapperError as e:
+            client = get_open_search()
+        except OSWrapperError as e:
             logger.error(e)
             return None
         content, index_state = self.extract_content()
@@ -479,7 +478,7 @@ class Document(BaseModel):
                 }
             )
         result = client.index(
-            index=settings.ELASTIC_INDEX["document"], doc_type="document", id=self.id, body=doc
+            index=settings.OPENSEARCH_INDEX["document"], doc_type="document", id=self.id, body=doc
         )
         if result and result.get("result") in ("created", "updated"):
             self.index_state = index_state

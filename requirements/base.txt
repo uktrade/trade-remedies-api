@@ -19,6 +19,7 @@ celery==5.2.2
 certifi==2021.5.30
     # via
     #   minio
+    #   opensearch-py
     #   requests
     #   sentry-sdk
 chardet==4.0.0
@@ -95,10 +96,6 @@ docopt==0.6.2
     # via notifications-python-client
 dpath==1.4.2
     # via -r requirements.in/base.in
-elasticsearch==6.8.2
-    # via elasticsearch-dsl
-elasticsearch-dsl==6.4.0
-    # via -r requirements.in/base.in
 et-xmlfile==1.1.0
     # via openpyxl
 feed-gov-back==0.4
@@ -142,6 +139,8 @@ odfpy==1.4.1
     # via -r requirements.in/base.in
 openpyxl==3.0.6
     # via -r requirements.in/base.in
+opensearch-py==1.0.0
+    # via -r requirements.in/base.in
 packaging==21.3
     # via redis
 phonenumbers==8.12.38
@@ -165,7 +164,6 @@ pypdf2==1.26.0
 python-dateutil==2.8.2
     # via
     #   botocore
-    #   elasticsearch-dsl
     #   freezegun
     #   minio
 python-docx==0.8.10
@@ -200,7 +198,6 @@ six==1.16.0
     #   click-repl
     #   django-countries
     #   django-extensions
-    #   elasticsearch-dsl
     #   python-dateutil
 sqlparse==0.4.2
     # via django
@@ -212,8 +209,8 @@ urllib3==1.26.5
     # via
     #   -r requirements.in/base.in
     #   botocore
-    #   elasticsearch
     #   minio
+    #   opensearch-py
     #   requests
     #   sentry-sdk
 vine==5.0.0

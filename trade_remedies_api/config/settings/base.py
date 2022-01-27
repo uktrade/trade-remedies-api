@@ -251,16 +251,16 @@ AXES_ONLY_USER_FAILURES = False
 # Use a combination of username and ip for axes
 AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
 
-# Elastic search host and port. ELASTIC_HOST/PORT are offered as
+# Opensearch host and port. OPENSEARCH HOST/PORT are offered as
 # fallback when VCAP is not set by the environment
-ELASTIC_HOST = env("ELASTIC_HOST", default=None)
-ELASTIC_PORT = env("ELASTIC_PORT", default=None)
-ELASTIC_URI = None
-elastic_vcap_config = _VCAP_SERVICES.get("elasticsearch")
-if elastic_vcap_config:
-    ELASTIC_URI = elastic_vcap_config[0]["credentials"]["uri"]
-# Elastic index mapping  by doc_type
-ELASTIC_INDEX = {
+OPENSEARCH_HOST = env("OPENSEARCH_HOST", default=None)
+OPENSEARCH_PORT = env("OPENSEARCH_PORT", default=None)
+OPENSEARCH_URI = None
+opensearch_vcap_config = _VCAP_SERVICES.get("opensearch")
+if opensearch_vcap_config:
+    OPENSEARCH_URI = opensearch_vcap_config[0]["credentials"]["uri"]
+# OpenSearch index mapping  by doc_type
+OPENSEARCH_INDEX = {
     "document": "main",
 }
 
