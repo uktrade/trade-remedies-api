@@ -31,7 +31,7 @@ def index_document(self, document_id, case_id=None):
     logger.info(f"Index document task for: '{document_id}'")
     try:
         document = Document.objects.get(id=document_id)
-        result = document.elastic_index(case=case_id)
+        result = document.open_search_index(case=case_id)
         logger.info(result)
     except Document.DoesNotExist:
         logger.warning(f"Failed to index document: '{document_id}' does" f" not exist (will retry)")

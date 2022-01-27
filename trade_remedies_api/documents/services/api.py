@@ -134,12 +134,62 @@ class CaseDocumentAPI(TradeRemediesApiView):
         if submission_id:
             submission = Submission.objects.get_submission(id=submission_id)
             sub_documents = sub_documents.filter(submission=submission)
-        return ResponseSuccess(
-            {
-                "results": [subdoc.to_dict(with_submissions=True) for subdoc in sub_documents]
-                + [notedoc.to_dict(case=case) for notedoc in note_documents]
-                + [bundledoc.to_dict(case=case) for bundledoc in bundle_documents]
-            }
+        other_documents = list(note_documents.union(bundle_documents))
+        response = {
+            "results": self.make_docs(
+                submission_documents=sub_documents,
+                other_documents=other_documents
+            )
+        }
+        return ResponseSuccess(response)
+
+    @staticmethod
+    def make_docs(submission_documents: list, other_documents: list = None) -> list:
+        """Make a heterogeneous document list.
+
+        TODO-V2:
+        Suboptimal quick fix, fix properly. What's actually required is a decent DRF
+        serializer, paginated results and the ability to filter (maybe using something
+        like https://github.com/yezyilomo/django-restql/).
+        """
+        results = []
+        for doc in submission_documents:
+            doc_data = dict(
+                id=doc.document.id,
+                name=doc.document.name,
+                created_at=doc.document.created_at.strftime(settings.API_DATETIME_FORMAT),
+                created_by=doc.document.created_by.name,
+                submission=CaseDocumentAPI.make_submission_data(doc),
+            )
+            results.append(doc_data)
+
+        for doc in other_documents or []:
+            doc_data = dict(
+                id=doc.id,
+                name=doc.name,
+                created_at=doc.created_at.strftime(settings.API_DATETIME_FORMAT),
+                created_by=doc.created_by.name,
+                submission=None,
+            )
+            results.append(doc_data)
+        return results
+
+    @staticmethod
+    def make_org_data(doc: SubmissionDocument) -> dict:
+        return dict(
+            id=doc.submission.organisation.id,
+            name=doc.submission.organisation.name,
+        ) if doc.submission.organisation else None
+
+    @staticmethod
+    def make_submission_data(doc: SubmissionDocument) -> dict:
+        case_role = doc.submission.organisation_case_role()
+        return dict(
+            id=doc.submission.id,
+            version=doc.submission.version,
+            type_name=doc.submission.type.name,
+            organisation=CaseDocumentAPI.make_org_data(doc),
+            organisation_case_role=case_role and case_role.name,
         )
 
 
@@ -708,7 +758,7 @@ class DocumentSearchAPI(TradeRemediesApiView):
         confidential_status = SEARCH_CONFIDENTIAL_STATUS_MAP[confidentiality]
         case = Case.objects.get(id=case_id) if case_id else None
 
-        documents = Document.objects.elastic_search(
+        documents = Document.objects.open_search(
             case=case,
             query=self._search,
             confidential_status=confidential_status,

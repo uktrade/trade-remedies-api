@@ -1,0 +1,2 @@
+[run]
+omit = trade_remedies_api/tests/*

@@ -17,7 +17,7 @@ services:
   celery:
     build:
        context: .
-    command: celery -A trade_remedies_api worker -l DEBUG
+    command: celery -A config worker -l DEBUG
     volumes:
       - ./trade_remedies_api:/app/
     env_file:
@@ -50,11 +50,12 @@ services:
     image: redis:alpine
     ports:
       - "6379:6379"
-  elasticsearch:
-    image: elasticsearch:6.8.7
+  opensearch:
+    image: opensearchproject/opensearch:1.0.0
     restart: unless-stopped
     ports:
       - "9200:9200"
       - "9300:9300"
     environment:
-      discovery.type: single-node
+      - discovery.type=single-node
+      - plugins.security.disabled=true
