@@ -19,9 +19,11 @@
   },
   "homepage": "https://github.com/uktrade/trade-remedies-api_archive#readme",
   "devDependencies": {
-    "all-contributors-cli": "^6.17.2"
+    "all-contributors-cli": "^6.20.0"
   },
   "overrides": {
-    "node-fetch": "2.6.7"
+    "all-contributors-cli": {
+      "node-fetch": "^2.6.7"
+    }
   }
 }
