@@ -21,12 +21,11 @@ of this `README`. Please follow [the ADR approval workflow](#ADR Workflow) below
 when adding new decisions to the record.
 
 ## Index
-
-* 001 [proposed] - [Use ADRs](adr-001-use-adrs.md)
-* 002 [proposed] - [Major TR Refactor](adr-002-major-tr-refactor.md)
-* 003 [proposed] - [Use Token Authentication](adr-003-use-token-auth.md)
-* 004 [proposed] - [Use Django RESTQL](adr-004-use-django-restql.md)
-* 005 [proposed] - TBD
+* 001 ✅ - [Use ADRs](adr-001-use-adrs.md)
+* 002 ✅ - [Major TR Refactor](adr-002-major-tr-refactor.md)
+* 003 ✅ - [Use Token Authentication](adr-003-use-token-auth.md)
+* 004 ✅ - [Use Django RESTQL](adr-004-use-django-restql.md)
+* 005 💡 - TBD
 
 ---
 
@@ -65,3 +64,11 @@ context and rationale for the change in thinking.
 
 In these circumstances a new ADR should reference the old one(s). Superseded
 or deprecated ADRs should be updated and included as part of the review process.
+
+### State Icons
+
+- `proposed`: 💡
+- `approved`: ✅
+- `rejected`: ❌
+- `deprecated`: ☠️
+- `superseded`: 🕑

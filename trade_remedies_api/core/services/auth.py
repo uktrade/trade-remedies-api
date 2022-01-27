@@ -130,7 +130,7 @@ class AuthenticationView(APIView):
                 )
             if two_factor_enabled and email_verified and (is_public or should_2fa):
                 try:
-                    user.two_factor.two_factor_auth(user_agent=user_agent)
+                    user.twofactorauth.two_factor_auth(user_agent=user_agent)
                 except Exception as exc_2fa:
                     logger.error(f"Could not 2fa for {user} / {user.id}: {exc_2fa}")
             return ResponseSuccess(
@@ -269,7 +269,7 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
             raise InvalidRequestParams("Invalid 2FA delivery type requested")
         if delivery_type == TwoFactorAuth.SMS and not request.user.phone:
             delivery_type = TwoFactorAuth.EMAIL
-        two_factor = request.user.two_factor
+        two_factor = request.user.twofactorauth
         two_factor.delivery_type = delivery_type
         two_factor.save()
         if two_factor.is_locked():
@@ -305,7 +305,7 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
     def post(request, *args, **kwargs):
         code = request.data.get("code")
         user_agent = request.META["HTTP_X_USER_AGENT"]
-        two_factor = request.user.two_factor
+        two_factor = request.user.twofactorauth
         if two_factor.is_locked():
             raise InvalidRequestLockout(
                 "You have entered an incorrect code too many times "
