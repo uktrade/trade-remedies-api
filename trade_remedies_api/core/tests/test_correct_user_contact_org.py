@@ -1,5 +1,3 @@
-import uuid
-
 from django.test import TestCase
 from django.contrib.auth.models import Group
 from core.models import User
@@ -68,7 +66,6 @@ class CorrectUserContactOrgTests(TestCase):
             "case_id": [self.case.id],
             "user_id": [self.user.id],
         }
-        print(self.organisation.id)
         call_command("correct_user_contact_org", *args, **opts)
         self.user.refresh_from_db()
 
