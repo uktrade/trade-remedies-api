@@ -1,7 +1,9 @@
 import logging
 import datetime
+
+from dateutil.relativedelta import relativedelta
 from django.db import models, transaction
-from django.db.models import Q, OuterRef, Exists
+from django.db.models import Q, OuterRef, Exists, QuerySet
 from django.conf import settings
 from django.utils import timezone
 from dateutil.parser import parse
@@ -52,6 +54,110 @@ from .submissiondocument import SubmissionDocumentType
 from .workflow import CaseWorkflow, CaseWorkflowState
 
 logger = logging.getLogger(__name__)
+
+
+class CaseLikeObject:
+    """An object that has many of the same qualities as a Case but may not be one.
+
+    Used to provide shared functionality to both Notice and Case models without duplicating
+    code. Notices share many of the same qualities as a Case, but they do not exist on the TRS system as they were
+    created before it was in use.
+    """
+
+    def filter_available_review_types(self, milestones: dict, reviews: QuerySet) -> list:
+        """Filters through a list of all possible review types to find those which actually apply to this case, based on
+        the criteria defined in the review type itself.
+
+        Args:
+        milestones: A dictionary of milestones that this object has passed: {milestone_name: date_of_completion}
+        reviews: A list of all possible review types (CaseType objects).
+
+        Returns:
+            A list of possible reviews for this object after its milestones have been taken into account.
+        """
+        now = datetime.date.today()
+        available_reviews = []
+
+        for review_type in reviews:
+            status = "ok"
+            review_dict = review_type.to_dict()
+            criteria = review_type.meta.get("criteria", [])
+            start_date = None
+            end_date = None
+            for test in criteria:
+                criterion = test["criterion"]
+                if criterion in ["before", "after"]:
+                    # This is a date test, we want to check if a review type can appear based on how far before or after
+                    # a particular milestone it currently is - now()
+                    duration_unit = test["unit"]
+                    duration_value = test["value"]
+                    offset = relativedelta(**{duration_unit: duration_value})
+                    milestone = test["milestone"]
+                    if milestone not in milestones:
+                        status = "milestone_missing"
+                        break
+                    rel_date = milestones[milestone] + offset
+                    if criterion == "after":
+                        start_date = (
+                            rel_date if not start_date or (rel_date > start_date) else start_date
+                        )
+                    else:
+                        end_date = rel_date if not end_date or (rel_date < end_date) else end_date
+                elif criterion == "parent_case_types":
+                    # Some review types are only allowed if they're on a case with a particular case type
+                    acronym = self.type.acronym
+                    if acronym not in test.get("value", []):
+                        status = "invalid_case_type"
+                elif criterion == "state_value":
+                    # Some review types are only allowed on cases which have reached a certain point in their worflow
+                    state_value = self.get_state_key(key=test["key"])
+                    if not state_value or state_value.value != test["value"]:
+                        status = "invalid_case_type"
+            if status == "ok":
+                if start_date and now < start_date:
+                    status = "before_start"
+                if end_date and now > end_date:
+                    status = "after_end"
+                review_dict["dates"] = {
+                    "start": start_date.strftime(settings.API_DATETIME_FORMAT) if start_date else None,
+                    "end": end_date.strftime(settings.API_DATETIME_FORMAT) if end_date else None,
+                    "status": status,
+                }
+                available_reviews.append(review_dict)
+        return available_reviews
+
+    @property
+    def type(self):
+        raise NotImplemented()
+
+    def available_case_review_types(self):  # noqa:C901
+        """Return all available review types available for this case.
+
+        These are based on the milestone dates associated with it and the case type criteria.
+        Returns a tuple of two lists. The first element contains the available review type models,
+        and the second is a list of dicts for all review types, with enhanced properties
+        related to the review availability durations.
+        """
+        milestones = self.case_milestone_index()
+        reviews = self.get_reviews()
+        return self.filter_available_review_types(milestones, reviews)
+
+    def case_milestone_index(self):
+        """Should return a dictionary of all milestones this case-like object has completed
+        """
+        raise NotImplemented()
+
+    def get_state_key(self, key: str):
+        """Should return a WorkFlowState object belong to this object if one matching the key parameter can be found.
+        if none can be found, return None"""
+        raise NotImplemented()
+
+    def get_reviews(self):
+        """Return all possible review types.
+
+        All review types are case types, but not all case types are review types. This filters CaseType objects to
+        those who have been explicitly marked as reviews in their meta {} field"""
+        return CaseType.objects.filter(meta__review=True)
 
 
 class CaseManager(models.Manager):
@@ -296,7 +402,7 @@ class CaseManager(models.Manager):
         return public_cases.annotate(roi_open=Exists(roi_open)).filter(roi_open=True).distinct()
 
 
-class Case(BaseModel):
+class Case(BaseModel, CaseLikeObject):
     sequence = models.IntegerField(null=True, blank=True, unique=True)
     initiated_sequence = models.IntegerField(null=True, blank=True, unique=True)
     type = models.ForeignKey(CaseType, null=True, blank=True, on_delete=models.PROTECT)
@@ -1135,3 +1241,4 @@ class Case(BaseModel):
 
     def workflow_state(self, **kwargs):
         return CaseWorkflowState.objects.value_index(case=self)
+
