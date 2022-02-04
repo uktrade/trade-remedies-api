@@ -8,6 +8,10 @@ amqp==5.0.9
     # via
     #   -r requirements.in/../requirements/base.txt
     #   kombu
+asgiref==3.5.0
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   django
 attrs==21.2.0
     # via pytest
 backcall==0.2.0
@@ -85,7 +89,7 @@ distlib==0.3.3
     # via virtualenv
 dj-database-url==0.5.0
     # via -r requirements.in/../requirements/base.txt
-django==2.2.26
+django==3.2.12
     # via
     #   -r requirements.in/../requirements/base.txt
     #   django-appconf
@@ -182,9 +186,7 @@ idna==2.10
     #   requests
 iniconfig==1.1.1
     # via pytest
-
 ipython==7.31.1
-
     # via -r requirements.in/dev.in
 ipython-genutils==0.2.0
     # via traitlets

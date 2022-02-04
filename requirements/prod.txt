@@ -8,6 +8,10 @@ amqp==5.0.9
     # via
     #   -r requirements.in/../requirements/base.txt
     #   kombu
+asgiref==3.5.0
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   django
 billiard==3.6.4.0
     # via
     #   -r requirements.in/../requirements/base.txt
@@ -63,7 +67,7 @@ deprecated==1.2.13
     #   redis
 dj-database-url==0.5.0
     # via -r requirements.in/../requirements/base.txt
-django==2.2.26
+django==3.2.12
     # via
     #   -r requirements.in/../requirements/base.txt
     #   django-appconf
@@ -123,7 +127,6 @@ docopt==0.6.2
     #   notifications-python-client
 dpath==1.4.2
     # via -r requirements.in/../requirements/base.txt
-
 et-xmlfile==1.1.0
     # via
     #   -r requirements.in/../requirements/base.txt
