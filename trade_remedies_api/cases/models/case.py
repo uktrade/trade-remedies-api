@@ -128,7 +128,7 @@ class CaseLikeObject:
 
     @property
     def type(self):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def available_case_review_types(self):  # noqa:C901
         """Return all available review types available for this case.
@@ -145,12 +145,12 @@ class CaseLikeObject:
     def case_milestone_index(self):
         """Should return a dictionary of all milestones this case-like object has completed
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def get_state_key(self, key: str):
         """Should return a WorkFlowState object belong to this object if one matching the key parameter can be found.
         if none can be found, return None"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def get_reviews(self):
         """Return all possible review types.
@@ -1246,4 +1246,3 @@ class Case(BaseModel, CaseLikeObject):
 
     def workflow_state(self, **kwargs):
         return CaseWorkflowState.objects.value_index(case=self)
-

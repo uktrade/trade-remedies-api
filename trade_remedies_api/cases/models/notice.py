@@ -20,7 +20,6 @@ class Notice(models.Model, CaseLikeObject):
     def __str__(self):
         return f"{self.reference}: {self.name}"
 
-
     def case_milestone_index(self):
         """Return the published_at and terminated_at values in a dictionary that looks like a Case's milestones."""
 
