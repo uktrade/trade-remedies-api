@@ -41,7 +41,7 @@ class WorkflowTemplate(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=250, null=False, blank=False)
     locked = models.BooleanField(default=False)
-    template = fields.JSONField(null=False, blank=False)
+    template = models.JSONField(null=False, blank=False)
 
     def __str__(self):
         return self.name
@@ -361,7 +361,7 @@ class State(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     key = models.CharField(max_length=250, null=False, blank=False)
-    value = fields.JSONField(null=True, blank=True)
+    value = models.JSONField(null=True, blank=True)
     due_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     last_modified = models.DateTimeField(auto_now=True, null=True)
