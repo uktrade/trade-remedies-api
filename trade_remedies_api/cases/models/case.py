@@ -973,17 +973,22 @@ class Case(BaseModel, CaseLikeObject):
         Assign a TRA user (team member) to the case.
         """
         if relax_security or created_by.is_tra():
-            try:
-                user_case = UserCase.objects.get(user=user, case=self, organisation=organisation)
-            except UserCase.DoesNotExist:
-                user_case = UserCase.objects.create(
-                    created_by=created_by,
-                    user=user,
-                    case=self,
-                    organisation=organisation,
-                    user_context=[created_by],
-                )
-            return user_case
+            # Inactive users should be unassigned from case for security purposes
+            for usercase in UserCase.objects.filter(case=self, organisation=organisation):
+                if not usercase.user.is_active:
+                    usercase.delete()
+            if user.is_active:
+                try:
+                    user_case = UserCase.objects.get(user=user, case=self, organisation=organisation)
+                except UserCase.DoesNotExist:
+                    user_case = UserCase.objects.create(
+                        created_by=created_by,
+                        user=user,
+                        case=self,
+                        organisation=organisation,
+                        user_context=[created_by],
+                    )
+                return user_case
         else:
             raise InvalidAccess("Denied: Only TRA users can assign case team members")
 

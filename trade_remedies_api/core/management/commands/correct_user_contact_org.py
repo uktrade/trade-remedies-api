@@ -26,14 +26,17 @@ class Command(BaseCommand):
         parser.add_argument("--user_id", nargs=1, type=str, help="User id")
 
     def handle(self, *args, **options):
-        organisation_id = options["organisation_id"]
-        case_id = options["case_id"]
-        user_id = options["user_id"]
+        case = None
+        user = None
+        organisation = None
 
         # Query database for assignments
-        organisation = Organisation.objects.get(pk=organisation_id)
-        case = Case.objects.get(pk=case_id)
-        user = User.objects.get(pk=user_id)
+        for organisation in options["organisation_id"]:
+            organisation = Organisation.objects.get(pk=organisation)
+        for case in options["case_id"]:
+            case = Case.objects.get(pk=case)
+        for user in options["user_id"]:
+            user = User.objects.get(pk=user)
 
         case.assign_organisation_user(user, organisation)
         # True
