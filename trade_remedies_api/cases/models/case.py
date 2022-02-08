@@ -111,7 +111,7 @@ class CaseLikeObject:
                 elif criterion == "state_value":
                     # Some review types are only allowed on cases which have reached a certain point in their worflow
                     state_value = self.get_state_key(key=test["key"])
-                    if not state_value or state_value.value != test["value"]:
+                    if state_value != 'pass' and (not state_value or state_value.value != test["value"]):
                         status = "invalid_case_type"
             if status == "ok":
                 if start_date and now < start_date:

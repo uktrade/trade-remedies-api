@@ -67,6 +67,8 @@ class Notice(models.Model, CaseLikeObject):
 
         If not, default to None
         """
+        if key == 'UNDERTAKINGS_ACCEPTED':
+            return 'pass'
         if self.review_case:
             return self.review_case.get_state_key(key)
         return None
