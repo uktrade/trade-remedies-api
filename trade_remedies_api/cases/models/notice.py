@@ -24,16 +24,15 @@ class Notice(models.Model, CaseLikeObject):
         """Return the published_at and terminated_at values in a dictionary that looks like a Case's milestones."""
 
         if self.published_at and self.terminated_at:
-            return {
-                'MEASURE_COMMENCEMENT': self.published_at,
-                'MEASURE_EXPIRY': self.terminated_at
-            }
+            return {"MEASURE_COMMENCEMENT": self.published_at, "MEASURE_EXPIRY": self.terminated_at}
         return {}
 
     def get_reviews(self):
         """Some review types aren't applicable to Notices, so we exclude them here."""
-        return super().get_reviews().exclude(
-            name__in=['Undertaking review', 'Dispute ruling', 'Safeguard mid-term review']
+        return (
+            super()
+            .get_reviews()
+            .exclude(name__in=["Undertaking review", "Dispute ruling", "Safeguard mid-term review"])
         )
 
     def to_dict(self):
@@ -67,8 +66,8 @@ class Notice(models.Model, CaseLikeObject):
 
         If not, default to None
         """
-        if key == 'UNDERTAKINGS_ACCEPTED':
-            return 'pass'
+        if key == "UNDERTAKINGS_ACCEPTED":
+            return "pass"
         if self.review_case:
             return self.review_case.get_state_key(key)
         return None

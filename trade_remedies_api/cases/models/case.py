@@ -111,7 +111,9 @@ class CaseLikeObject:
                 elif criterion == "state_value":
                     # Some review types are only allowed on cases which have reached a certain point in their worflow
                     state_value = self.get_state_key(key=test["key"])
-                    if state_value != 'pass' and (not state_value or state_value.value != test["value"]):
+                    if state_value != "pass" and (
+                        not state_value or state_value.value != test["value"]
+                    ):
                         status = "invalid_case_type"
             if status == "ok":
                 if start_date and now < start_date:
@@ -119,7 +121,9 @@ class CaseLikeObject:
                 if end_date and now > end_date:
                     status = "after_end"
                 review_dict["dates"] = {
-                    "start": start_date.strftime(settings.API_DATETIME_FORMAT) if start_date else None,
+                    "start": start_date.strftime(settings.API_DATETIME_FORMAT)
+                    if start_date
+                    else None,
                     "end": end_date.strftime(settings.API_DATETIME_FORMAT) if end_date else None,
                     "status": status,
                 }
@@ -143,8 +147,7 @@ class CaseLikeObject:
         return self.filter_available_review_types(milestones, reviews)
 
     def case_milestone_index(self):
-        """Should return a dictionary of all milestones this case-like object has completed
-        """
+        """Should return a dictionary of all milestones this case-like object has completed"""
         raise NotImplementedError()
 
     def get_state_key(self, key: str):
@@ -979,7 +982,9 @@ class Case(BaseModel, CaseLikeObject):
                     usercase.delete()
             if user.is_active:
                 try:
-                    user_case = UserCase.objects.get(user=user, case=self, organisation=organisation)
+                    user_case = UserCase.objects.get(
+                        user=user, case=self, organisation=organisation
+                    )
                 except UserCase.DoesNotExist:
                     user_case = UserCase.objects.create(
                         created_by=created_by,

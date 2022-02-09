@@ -137,8 +137,7 @@ class CaseDocumentAPI(TradeRemediesApiView):
         other_documents = list(note_documents.union(bundle_documents))
         response = {
             "results": self.make_docs(
-                submission_documents=sub_documents,
-                other_documents=other_documents
+                submission_documents=sub_documents, other_documents=other_documents
             )
         }
         return ResponseSuccess(response)
@@ -176,10 +175,14 @@ class CaseDocumentAPI(TradeRemediesApiView):
 
     @staticmethod
     def make_org_data(doc: SubmissionDocument) -> dict:
-        return dict(
-            id=doc.submission.organisation.id,
-            name=doc.submission.organisation.name,
-        ) if doc.submission.organisation else None
+        return (
+            dict(
+                id=doc.submission.organisation.id,
+                name=doc.submission.organisation.name,
+            )
+            if doc.submission.organisation
+            else None
+        )
 
     @staticmethod
     def make_submission_data(doc: SubmissionDocument) -> dict:
