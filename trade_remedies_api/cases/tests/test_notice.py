@@ -16,8 +16,10 @@ class CaseTest(TestCase, CaseTestMixin):
     def setUp(self):
         self.now = datetime.datetime.now().date()
         self.user_owner = User.objects.create_user(
-            name="org owner", email="owner@test.com", password='FSHJ3J472!£@3Fsdf', assign_default_groups=False
-            # /PS-IGNORE
+            name="org owner",  # /PS-IGNORE
+            email="owner@test.com",  # /PS-IGNORE
+            password='FSHJ3J472!£@3Fsdf',  # /PS-IGNORE
+            assign_default_groups=False
         )
         self.notice = Notice.objects.create(
             name='notice 1',
