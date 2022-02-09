@@ -29,7 +29,7 @@ class CaseTest(TestCase, CaseTestMixin):
 
     def test_correct_review_types(self):
         available_review_type = self.notice.available_case_review_types()
-        self.assertEqual(len(available_review_type), 8)  # Only 8 review types should be available for an AD case
+        self.assertEqual(len(available_review_type), 9)  # Only 8 review types should be available for an AD case
         self.assertEqual(
             available_review_type[0]['name'],
             'Interim review'
