@@ -913,7 +913,7 @@ class UserProfile(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     job_title = models.ForeignKey(JobTitle, null=True, blank=True, on_delete=models.PROTECT)
     timezone = TimeZoneField(null=True, blank=True)
     contact = models.OneToOneField(

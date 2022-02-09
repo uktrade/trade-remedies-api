@@ -66,6 +66,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     - Name, address and country are mandatory.
     - Phone number in E164 format, optional and globally unique.
     """
+
+    '''class Meta:
+        db_table = 'core_user'''
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
@@ -90,6 +94,16 @@ class User(AbstractBaseUser, PermissionsMixin):
         related_name="permission_users",
         related_query_name="user",
     )
+
+    #NOT USED
+    created_at = models.DateTimeField(default=timezone.now)
+    last_modified = models.DateTimeField(auto_now=True, null=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    login_code = models.CharField(max_length=50, null=True, blank=True)
+    login_code_created_at = models.DateTimeField(null=True, blank=True)
+    first_name = models.CharField(max_length=30, blank=True)  # TODO: DEPRECATED
+    last_name = models.CharField(max_length=30, blank=True)  # TODO: DEPRECATED
+    auto_assign = models.BooleanField(default=False)
 
     objects = UserManager()
 

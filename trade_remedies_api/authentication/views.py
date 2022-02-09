@@ -19,7 +19,7 @@ from .serializers import (
 class Bad(APIException):
     """Invalid2FAToken.
 
-    Exception raised when a two factor authentication request is invalid.
+    Exception raised when a two-factor authentication request is invalid.
     """
     status_code = status.HTTP_400_BAD_REQUEST
 
@@ -39,8 +39,10 @@ class AuthenticationView(ObtainAuthToken):
     authentication_classes = ()
 
     def post(self, request, *args, **kwargs):
-        serializer = TrustedAuthTokenSerializer(data=request.data,
-                                                context={'request': request})
+        serializer = TrustedAuthTokenSerializer(
+            data=request.data,
+            context={'request': request}
+        )
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data["username"]
         user = User.objects.get(email=username)
@@ -166,3 +168,6 @@ class UserView(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     http_method_names = ["get", "head", "post", "patch"]
+
+
+

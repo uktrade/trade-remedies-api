@@ -385,15 +385,16 @@ API_PREFIX = "api/v1"
 API_V2_PREFIX = "api/v2"
 API_V2_ENABLED = env.bool("API_V2_ENABLED", default=False)
 AUTH_TOKEN_MAX_AGE_MINUTES = env.int("AUTH_TOKEN_MAX_AGE_MINUTES", default=60)
-if API_V2_ENABLED:
+'''if API_V2_ENABLED:
     AUTH_USER_MODEL = "authentication.User"
     ANON_USER_TOKEN = "change-me"
-else:
-    AUTH_USER_MODEL = "core.User"
+else:'''
+AUTH_USER_MODEL = "core.User"
 # TODO-V2: Consolidate with REST_FRAMEWORK settings above
 if API_V2_ENABLED:
-    classes = ["authentication.ExpiringTokenAuthentication", ]
-    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = classes
+    '''classes = ["authentication.ExpiringTokenAuthentication", ]
+    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = classes'''
+    pass
 
 ORGANISATION_NAME = env("ORGANISATION_NAME", default="Organisation name placeholder")
 ORGANISATION_INITIALISM = env("ORGANISATION_INITIALISM", default="PLACEHOLDER")
@@ -462,7 +463,7 @@ RUN_ASYNC = True
 # portal calls to a "security group"), because we plan to use django-guardian
 # for object level permissions. In the new `authentication` package we will
 # only expect ANON_USER_TOKEN in the request, meaning only bearers of THAT
-# token will be allowed to use any unauthenticated views (e.g. `/auth/login`).
+# token will be allowed to use any unauthenticated views_new (e.g. `/auth/login`).
 CASE_WORKER_ENVIRONMENT_KEY = env("CASE_WORKER_ENVIRONMENT_KEY")
 PUBLIC_ENVIRONMENT_KEY = env("PUBLIC_ENVIRONMENT_KEY")
 # Allowed origins
