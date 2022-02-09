@@ -130,3 +130,4 @@ postgres_data
 
 # NER output
 ner_output_file.txt
+/.pii-secret-hook/
