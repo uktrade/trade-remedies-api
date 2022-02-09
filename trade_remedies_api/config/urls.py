@@ -121,18 +121,14 @@ urlpatterns = [
 
 # Ensure all V2 routers are collected here. One day the below will
 # replace all the above!
-from authentication.urls import (  # noqa: E402
-    router as auth_router
-)
+from authentication.urls import router as auth_router  # noqa: E402
 
 router = routers.DefaultRouter()
 router.registry.extend(auth_router.registry)
 
 if settings.API_V2_ENABLED:
     # Authentication app is a special case as it defines APIViews as well as ViewSets
-    urlpatterns.append(
-        path(f"{settings.API_V2_PREFIX}/auth/", include("authentication.urls"))
-    )
+    urlpatterns.append(path(f"{settings.API_V2_PREFIX}/auth/", include("authentication.urls")))
     urlpatterns.append(
         path(f"{settings.API_V2_PREFIX}/auth/", include(router.urls)),
     )

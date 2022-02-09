@@ -1,9 +1,12 @@
 import uuid
-from django.db import models
+
 from django.conf import settings
+from django.db import models
+
+from cases.models.case import CaseLikeObject
 
 
-class Notice(models.Model):
+class Notice(models.Model, CaseLikeObject):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=500, null=False, blank=False)
     reference = models.CharField(max_length=30, null=False, blank=False)
@@ -16,6 +19,21 @@ class Notice(models.Model):
 
     def __str__(self):
         return f"{self.reference}: {self.name}"
+
+    def case_milestone_index(self):
+        """Return the published_at and terminated_at values in a dictionary that looks like a Case's milestones."""
+
+        if self.published_at and self.terminated_at:
+            return {"MEASURE_COMMENCEMENT": self.published_at, "MEASURE_EXPIRY": self.terminated_at}
+        return {}
+
+    def get_reviews(self):
+        """Some review types aren't applicable to Notices, so we exclude them here."""
+        return (
+            super()
+            .get_reviews()
+            .exclude(name__in=["Undertaking review", "Dispute ruling", "Safeguard mid-term review"])
+        )
 
     def to_dict(self):
         return {
@@ -38,3 +56,18 @@ class Notice(models.Model):
             "name": self.name,
             "reference": self.reference,
         }
+
+    @property
+    def type(self):
+        return self.case_type
+
+    def get_state_key(self, key):
+        """Use the review case of this notice to return the 'correct' result if it exists.
+
+        If not, default to None
+        """
+        if key == "UNDERTAKINGS_ACCEPTED":
+            return "pass"
+        if self.review_case:
+            return self.review_case.get_state_key(key)
+        return None

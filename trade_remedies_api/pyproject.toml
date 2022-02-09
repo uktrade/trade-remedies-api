@@ -5,8 +5,8 @@
 
 [tool.black]
 line-length = 100
-diff = true
-check = true
+#diff = true
+#check = true
 target-versions = ['py39']
 exclude = '''
 /(
