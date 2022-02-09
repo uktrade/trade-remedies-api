@@ -62,9 +62,9 @@ class CorrectUserContactOrgTests(TestCase):
 
         args = []
         opts = {
-            "organisation_id": self.organisation.id,
-            "case_id": self.case.id,
-            "user_id": self.user.id,
+            "organisation_id": [self.organisation.id],
+            "case_id": [self.case.id],
+            "user_id": [self.user.id],
         }
         call_command("correct_user_contact_org", *args, **opts)
         self.user.refresh_from_db()

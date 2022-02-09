@@ -50,7 +50,7 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.staticfiles",
     "django_countries",
-    'phonenumber_field',
+    "phonenumber_field",
     "storages",
 ]
 
@@ -392,7 +392,9 @@ else:
     AUTH_USER_MODEL = "core.User"
 # TODO-V2: Consolidate with REST_FRAMEWORK settings above
 if API_V2_ENABLED:
-    classes = ["authentication.ExpiringTokenAuthentication", ]
+    classes = [
+        "authentication.ExpiringTokenAuthentication",
+    ]
     REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = classes
 
 ORGANISATION_NAME = env("ORGANISATION_NAME", default="Organisation name placeholder")

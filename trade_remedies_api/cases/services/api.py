@@ -2,6 +2,7 @@ import datetime
 import json
 import re
 from dateutil import parser
+
 from core.services.base import TradeRemediesApiView, ResponseSuccess
 from core.services.exceptions import (
     InvalidRequestParams,
@@ -746,8 +747,6 @@ class CaseUserAssignAPI(TradeRemediesApiView):
         users = User.objects.filter(id__in=user_ids)
         existing_team = case.team
         try:
-            for user in UserCase.objects.filter(case=case):
-                user.delete()
             for user in users:
                 case.assign_user(user=user, created_by=request.user)
             if existing_team:
@@ -1513,11 +1512,10 @@ class ReviewTypeAPIView(TradeRemediesApiView):
         if case_type_id:
             case.modify_case_type(case_type_id, requested_by=request.user)
         if reference_id:
-            if reference_id.startswith("notice:"):
-                reference_id = reference_id.replace("notice:", "")
+            try:
+                case.parent = get_case(reference_id)
+            except Case.DoesNotExist:
                 case.notice = Notice.objects.get(id=reference_id)
-            else:
-                case.parent = get_case(str(reference_id))
             case.save()
         return ResponseSuccess({"results": case.to_dict()}, http_status=status.HTTP_201_CREATED)
 
@@ -1771,7 +1769,7 @@ class CaseEnumsAPI(TradeRemediesApiView):
             submission_types = SubmissionType.objects.get_available_submission_types_for_case(
                 case, direction_kwargs
             )
-            available_review_types = CaseType.objects.available_case_review_types(case)
+            available_review_types = case.available_case_review_types()
         else:
             submission_types = (
                 SubmissionType.objects.select_related("requires")
@@ -1914,9 +1912,15 @@ class CaseMilestoneDatesAPI(TradeRemediesApiView):
 
 class CaseReviewTypesAPI(TradeRemediesApiView):
     def get(self, request, case_id):
-        case = Case.objects.get(id=case_id)
-        summary = request.query_params.get("summary")
-        available_review_types = CaseType.objects.available_case_review_types(case)
+        """Returns the available review types of a case-like object.
+
+        The PK passed to this view can belong either to a Notice or Case object, both of which inherit from the
+        CaseLikeObject mixin, which provides them with the available_case_review_types() method.
+        """
+        is_notice = request.query_params.get("summary", False)
+        model = Notice if is_notice else Case
+        case_like_object = model.objects.get(id=case_id)
+        available_review_types = case_like_object.available_case_review_types()
         return ResponseSuccess({"results": available_review_types})
 
 
