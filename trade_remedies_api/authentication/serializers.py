@@ -15,6 +15,7 @@ class Invalid2FAToken(APIException):
 
     Exception raised when a two factor authentication request is invalid.
     """
+
     status_code = status.HTTP_400_BAD_REQUEST
 
 
@@ -24,6 +25,7 @@ class TooManyAttempts(APIException):
     Exception raised when in excess of settings.TWO_FACTOR_MAX_ATTEMPTS
     two factor authentication requests have been made.
     """
+
     status_code = status.HTTP_401_UNAUTHORIZED
 
 
@@ -32,6 +34,7 @@ class TrustedTokenSerializer(serializers.Serializer):  # noqa
 
     Validates that API clients provide a trusted token.
     """
+
     trusted_token = serializers.CharField(
         label=_("Trusted Token"),
         write_only=True,
@@ -41,7 +44,7 @@ class TrustedTokenSerializer(serializers.Serializer):  # noqa
     def validate_trusted_token(value: str):
         error_msg = _("Unable to fulfil request without a valid trusted token.")
         if value != settings.ANON_USER_TOKEN:
-            raise serializers.ValidationError(error_msg, code='authorization')
+            raise serializers.ValidationError(error_msg, code="authorization")
         return value
 
 
@@ -59,10 +62,8 @@ class UsernameSerializer(TrustedTokenSerializer):  # noqa
     Validates the presence of `username`. It will raise if the user indicated
     by username does not exist.
     """
-    username = serializers.CharField(
-        label=_("Username"),
-        write_only=True
-    )
+
+    username = serializers.CharField(label=_("Username"), write_only=True)
 
     @staticmethod
     def get_user(username: str) -> User:
@@ -71,7 +72,7 @@ class UsernameSerializer(TrustedTokenSerializer):  # noqa
             user = User.objects.get(email=username)
         except User.DoesNotExist:
             error_msg = _("User does not exist.")
-            raise serializers.ValidationError(error_msg, code='authorization')
+            raise serializers.ValidationError(error_msg, code="authorization")
         return user
 
     def validate_username(self, value: str) -> str:
@@ -87,6 +88,7 @@ class TwoFactorTokenSerializer(UsernameSerializer):  # noqa
     Validates presence and validity of `username` (that must represent an
     existing user) and `two_factor_token` in a two-factor authentication request.
     """
+
     two_factor_token = serializers.CharField(
         label=_("Two Factor Token"),
         write_only=True,
@@ -101,19 +103,15 @@ class TwoFactorTokenSerializer(UsernameSerializer):  # noqa
         try:
             valid = user.two_factor.validate_token(two_factor_token, user_agent)
         except TwoFactorAuthLocked:
-            msg = ("Too many two factor authentication attempts "
-                   f"(exceeded {settings.TWO_FACTOR_MAX_ATTEMPTS}), "
-                   f"account locked for {settings.TWO_FACTOR_LOCK_MINUTES} minutes."
-                   )
-            raise TooManyAttempts(
-                detail=msg, code="too-many-2fa-attempts"
+            msg = (
+                "Too many two factor authentication attempts "
+                f"(exceeded {settings.TWO_FACTOR_MAX_ATTEMPTS}), "
+                f"account locked for {settings.TWO_FACTOR_LOCK_MINUTES} minutes."
             )
+            raise TooManyAttempts(detail=msg, code="too-many-2fa-attempts")
         if valid:
             return data
-        raise Invalid2FAToken(
-            detail="Two factor token is invalid.",
-            code="invalid-2fa-token"
-        )
+        raise Invalid2FAToken(detail="Two factor token is invalid.", code="invalid-2fa-token")
 
 
 class EmailVerificationSerializer(serializers.Serializer):  # noqa
@@ -122,6 +120,7 @@ class EmailVerificationSerializer(serializers.Serializer):  # noqa
     Validates presence and validity of a valid code in an email verification
     request.
     """
+
     code = serializers.CharField(
         label=_("Verification code"),
         write_only=True,
@@ -131,12 +130,13 @@ class EmailVerificationSerializer(serializers.Serializer):  # noqa
         request = self.context.get("request")
         if not request.user.email_verification.validate_code(value):
             error_msg = _("Invalid email verification code.")
-            raise serializers.ValidationError(error_msg, code='verification')
+            raise serializers.ValidationError(error_msg, code="verification")
         return value
 
 
 class UserSerializer(CountryFieldMixin, serializers.ModelSerializer):
     """User serializer."""
+
     class Meta:
         model = User
-        exclude = ('password', )
+        exclude = ("password",)

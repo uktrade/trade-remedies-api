@@ -8,12 +8,16 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class TwoFactorAuthAdmin(admin.ModelAdmin):
-    search_fields = ["user", ]
+    search_fields = [
+        "user",
+    ]
     readonly_fields = ("generated_at",)
 
 
 class EmailVerificationAdmin(admin.ModelAdmin):
-    search_fields = ["user", ]
+    search_fields = [
+        "user",
+    ]
 
 
 admin.site.register(User, UserAdmin)
