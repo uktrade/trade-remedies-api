@@ -16,6 +16,7 @@ class UserManager(BaseUserManager):
 
     Custom User Model Manager.
     """
+
     @classmethod
     def normalize_email(cls, email: str) -> str:
         """Normalise email override.
@@ -38,7 +39,7 @@ class UserManager(BaseUserManager):
         Create and save a User with the given email and password.
         """
         if not email:
-            raise ValueError('Users must have an email address')
+            raise ValueError("Users must have an email address")
         user = self.model(email=self.normalize_email(email))
         user.two_factor = TwoFactorAuth(user=user)
         user.two_factor.save()
@@ -67,9 +68,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     - Phone number in E164 format, optional and globally unique.
     """
 
-    '''class Meta:
-        db_table = 'core_user'''
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
@@ -83,10 +81,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     #  Necessary because fields.E304 is raised due to duplicate reverse accessor
     #  of V1 user model. Take out when V1 custom user removed.
     groups = models.ManyToManyField(
-        Group,
-        blank=True,
-        related_name="group_users",
-        related_query_name="user"
+        Group, blank=True, related_name="group_users", related_query_name="user"
     )
     user_permissions = models.ManyToManyField(
         Permission,
@@ -94,16 +89,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         related_name="permission_users",
         related_query_name="user",
     )
-
-    #NOT USED
-    created_at = models.DateTimeField(default=timezone.now)
-    last_modified = models.DateTimeField(auto_now=True, null=True)
-    deleted_at = models.DateTimeField(null=True, blank=True)
-    login_code = models.CharField(max_length=50, null=True, blank=True)
-    login_code_created_at = models.DateTimeField(null=True, blank=True)
-    first_name = models.CharField(max_length=30, blank=True)  # TODO: DEPRECATED
-    last_name = models.CharField(max_length=30, blank=True)  # TODO: DEPRECATED
-    auto_assign = models.BooleanField(default=False)
 
     objects = UserManager()
 

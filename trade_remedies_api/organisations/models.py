@@ -213,7 +213,7 @@ class OrganisationManager(models.Manager):
     ):
         """
         Create or update an organisation record.
-        If an organisatino id is provided, it will be updated. However, if the name has changed
+        If an organisation id is provided, it will be updated. However, if the name has changed
         a new organisation will be created (or reused if the name exists).
         The user will be made a user of the organisation only if assign_user is True. This is
         only required during organisation creation when registering a new account.

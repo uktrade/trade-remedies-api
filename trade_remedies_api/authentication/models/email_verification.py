@@ -15,11 +15,12 @@ class EmailVerification(models.Model):
 
     Persists the state of a user's email verification.
     """
+
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         primary_key=True,
         on_delete=models.CASCADE,
-        related_name="email_verification"
+        related_name="email_verification",
     )
     code = models.CharField(max_length=CODE_LENGTH, null=True, blank=True)
     sent_at = models.DateTimeField(null=True, blank=True)
@@ -29,9 +30,7 @@ class EmailVerification(models.Model):
         """Send an email verification."""
         self.code = crypto.get_random_string(CODE_LENGTH)
         link = f"{settings.PUBLIC_ROOT_URL}/email/verify/{self.code}"
-        context = {
-            "verification_link": link
-        }
+        context = {"verification_link": link}
         # TODO-TRV2 Implement a new notification package to centralise all
         #  notification logic, template IDs etc so we can do something like:
         #

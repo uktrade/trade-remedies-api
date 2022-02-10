@@ -238,7 +238,9 @@ class Document(BaseModel):
         else:
             try:
                 result = client.delete(
-                    index=settings.OPENSEARCH_INDEX["document"], doc_type="document", id=str(self.id)
+                    index=settings.OPENSEARCH_INDEX["document"],
+                    doc_type="document",
+                    id=str(self.id),
                 )
                 return result.get("result") == "deleted"
             except Exception as exc:
