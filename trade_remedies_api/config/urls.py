@@ -23,7 +23,7 @@ from core.services import auth as auth_api
 from cases.services import api as cases_api
 
 urlpatterns = [
-    #path(f"{settings.API_PREFIX}/v1_migration/", core_api.MigrationTestView.as_view()),
+    # path(f"{settings.API_PREFIX}/v1_migration/", core_api.MigrationTestView.as_view()),
     path(f"{settings.API_PREFIX}/health/", core_api.ApiHealthView.as_view()),
     path(f"{settings.API_PREFIX}/auth", auth_api.AuthenticationView.as_view()),
     path(f"{settings.API_PREFIX}/auth/email/available/", auth_api.EmailAvailabilityAPI.as_view()),
@@ -52,7 +52,8 @@ urlpatterns = [
         core_api.AssignUserToCaseView.as_view(),
     ),
     path(
-        f"{settings.API_PREFIX}/team/<uuid:organisation_id>/users/assign/<uuid:user_id>/case/<uuid:case_id>/",  # noqa: E501
+        f"{settings.API_PREFIX}/team/<uuid:organisation_id>/users/assign/<uuid:user_id>/case/<uuid:case_id>/",
+        # noqa: E501
         core_api.AssignUserToCaseView.as_view(),
     ),
     path(
@@ -92,11 +93,13 @@ urlpatterns = [
         core_api.CreatePendingUserAPI.as_view(),
     ),
     path(
-        f"{settings.API_PREFIX}/user/organisation/<uuid:organisation_id>/update/pending/<uuid:invitation_id>/",  # noqa: E501
+        f"{settings.API_PREFIX}/user/organisation/<uuid:organisation_id>/update/pending/<uuid:invitation_id>/",
+        # noqa: E501
         core_api.CreatePendingUserAPI.as_view(),
     ),
     path(
-        f"{settings.API_PREFIX}/user/organisation/<uuid:organisation_id>/delete/pending/<uuid:invitation_id>/",  # noqa: E501
+        f"{settings.API_PREFIX}/user/organisation/<uuid:organisation_id>/delete/pending/<uuid:invitation_id>/",
+        # noqa: E501
         core_api.CreatePendingUserAPI.as_view(),
     ),
     path(f"{settings.API_PREFIX}/my-account/", core_api.MyAccountView.as_view()),
@@ -119,7 +122,6 @@ urlpatterns = [
     path(f"{settings.API_PREFIX}/feedback/", include("feedback.services.urls")),
     path(f"{settings.API_PREFIX}/companieshouse/", include("core.services.urls")),
 ]
-
 
 # Ensure all V2 routers are collected here. One day the below will
 # replace all the above!

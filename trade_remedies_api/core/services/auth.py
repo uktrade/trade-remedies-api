@@ -356,7 +356,8 @@ class PasswordResetForm(APIView):
             logger.warning(f'Password reset failed for user {user_pk} as the user could not be found in the database')
 
         logger.warning(f"Could not reset password for user {user_pk}")
-        raise InvalidRequestParams(f'Invalid or expired link')
+        raise InvalidRequestParams('Invalid or expired link')
+
 
 class VerifyEmailAPI(TradeRemediesApiView):
     @staticmethod

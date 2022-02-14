@@ -5,6 +5,7 @@ from django.contrib.postgres import fields
 from core.utils import get
 from django.conf import settings
 
+
 class Task(BaseModel):
     """
     Tasks provide an achor for an activity.

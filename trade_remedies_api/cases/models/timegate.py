@@ -3,6 +3,7 @@ from django.utils import timezone
 from cases.outcomes import register_outcomes
 from django.conf import settings
 
+
 class TimeGateStatusManager(models.Manager):
     def get_to_process(self):
         return TimeGateStatus.objects.filter(

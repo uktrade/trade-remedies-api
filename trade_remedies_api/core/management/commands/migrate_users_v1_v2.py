@@ -15,7 +15,6 @@ base_dir = os.path.dirname(os.path.dirname(__file__))
 
 
 class Command(BaseCommand):
-
     help = "Migrate the auth module from v1 to v2"
 
     @transaction.atomic

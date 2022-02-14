@@ -14,6 +14,7 @@ from authentication.serializers import (
     EmailVerificationSerializer,
 )
 
+
 class PasswordResetView(views.APIView):
     """Password reset view.
 
@@ -21,6 +22,7 @@ class PasswordResetView(views.APIView):
     which triggers a 'verify email address' notification. This endpoint
     processes the validation of the code sent.
     """
+
     @staticmethod
     def post(request, *args, **kwargs):
         serializer = EmailVerificationSerializer(data=kwargs,
