@@ -27,7 +27,6 @@ from config.version import __version__
 from .base import TradeRemediesApiView, ResponseSuccess, ResponseError
 from .exceptions import InvalidRequestParams, AccessDenied, InvalidRequestLockout
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -193,7 +192,7 @@ class RegistrationAPIView(APIView):
             errors["password"] = "<br/>".join(exc.messages)
         # Temp switch to lock down registrations
         if SystemParameter.get("REGISTRATION_SOFT_LOCK") and not password.startswith(
-            SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
+                SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
         ):
             errors["lockdown"] = "Registrations are currently locked"
         if not errors:
@@ -279,7 +278,7 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
                 {
                     "result": {
                         "error": "You have entered an incorrect code too many times "
-                        "and we have temporarily locked your account.",
+                                 "and we have temporarily locked your account.",
                         "locked_until": locked_until.strftime(settings.API_DATETIME_FORMAT),
                         "locked_for_seconds": locked_for_seconds,
                     }
@@ -320,38 +319,44 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
             raise InvalidRequestParams("Invalid code")
 
 
-class PasswordResetAPI(APIView):
+class RequestPasswordReset(APIView):
+    def get(self, request, *args, **kwargs):
+        email = request.GET.get('email')
+        logger.info(f"Password reset request for: {email}")
+        # Invalidate all previous PasswordResetRequest objects for this user
+        PasswordResetRequest.objects.reset_request(email=email)
+        return ResponseSuccess({"result": True})
+
+
+class PasswordResetForm(APIView):
     @staticmethod
     def get(request, *args, **kwargs):
-        email = request.GET.get("email")
-        code = request.GET.get("code")
-        code_valid = True
-        logger.info(f"Password reset request for: {email}")
-        try:
-            if not code:
-                PasswordResetRequest.objects.reset_request(email=email)
-            else:
-                code_valid = PasswordResetRequest.objects.validate_code(code, validate_only=True)
-        except User.DoesNotExist:
-            logger.warning(f"Password reset request failed, user {email} does not exist")
-        return ResponseSuccess({"result": bool(code_valid)})
+        token = request.GET.get("token")
+        user_pk = request.GET.get("user_pk")
+        logger.info(f"Password reset link clicked for: {user_pk}")
+        if is_valid := PasswordResetRequest.objects.validate_token(token, user_pk, validate_only=True):
+            logger.info(f"Password reset link valid for: {user_pk}")
+        else:
+            logger.info(f"Password reset link invalid for: {user_pk}")
+
+        return ResponseSuccess({"result": is_valid})
 
     @staticmethod
     def post(request, *args, **kwargs):
-        code = request.data.get("code")
-        password = request.data.get("password")
+        token = request.data.get("token")
+        new_password = request.data.get("password")
+        user_pk = request.data.get("user_pk")
+
         try:
-            validate_password(password)
+            if PasswordResetRequest.objects.password_reset(token, user_pk, new_password):
+                return ResponseSuccess({"result": {"reset": True}}, http_status=status.HTTP_200_OK)
         except ValidationError as exc:
             raise InvalidRequestParams("<br/>".join(exc.messages))
-        user = PasswordResetRequest.objects.password_reset(code, password)
-        if user:
-            return ResponseSuccess(
-                {"result": {"reset": bool(user)}}, http_status=status.HTTP_201_CREATED
-            )
-        else:
-            raise InvalidRequestParams("Could not reset password")
+        except User.DoesNotExist:
+            logger.warning(f'Password reset failed for user {user_pk} as the user could not be found in the database')
 
+        logger.warning(f"Could not reset password for user {user_pk}")
+        raise InvalidRequestParams(f'Invalid or expired link')
 
 class VerifyEmailAPI(TradeRemediesApiView):
     @staticmethod

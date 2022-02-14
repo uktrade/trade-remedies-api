@@ -6,8 +6,10 @@ import uuid
 import json
 from random import randint
 from functools import singledispatch
+
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.db import models, transaction
-from django.utils import timezone, crypto
+from django.utils import timezone, crypto, http, encoding
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import PermissionsMixin, Group, Permission
@@ -1160,7 +1162,7 @@ class TwoFactorAuth(models.Model):
 
 
 class PasswordResetManager(models.Manager):
-    def validate_code(self, code, validate_only=False):
+    def validate_token(self, token, user_pk, validate_only=False):
         """
         Validate a reset request code.
         The code is made of a user's uuid and a unique 64 char code separated with an exclamation.
@@ -1168,23 +1170,14 @@ class PasswordResetManager(models.Manager):
         reset process.
         Returns the reset model if it validates ok
         """
-        user_id, code = code.split("!")
-        reset = self.filter(
-            user__id=user_id,
-            code=code,
-            created_at__gte=timezone.now()
-            - datetime.timedelta(hours=settings.PASSWORD_RESET_CODE_AGE_HOURS),
-            ack_at__isnull=True,
-            invalidated_at__isnull=True,
-        ).first()
-        if reset:
-            if not validate_only:
-                reset.ack_at = timezone.now()
-                reset.invalidated_at = timezone.now()
-                reset.save()
-            return reset
-        else:
-            return False
+        user_object = User.objects.get(pk=user_pk)
+        is_valid = PasswordResetTokenGenerator().check_token(user=user_object, token=token)
+        if not validate_only:
+            if password_reset_object := self.filter(token=token).first():
+                password_reset_object.ack_at = timezone.now()
+                password_reset_object.invalidated_at = timezone.now()
+                password_reset_object.save()
+        return is_valid
 
     def reset_request(self, email):
         try:
@@ -1197,24 +1190,23 @@ class PasswordResetManager(models.Manager):
         reset = self.create(user=user)
         reset.ack_at = None
         reset.invalidated_at = None
-        reset.generate_code()
+        reset.generate_token()
         send_report = reset.send_reset_link()
         return reset, send_report
 
-    def password_reset(self, code, new_password):
+    def password_reset(self, token, user_pk, new_password):
         """
         Performs a password reset if the code validates ok
         Raises ValidationError if the password does not pass the min requirements
         """
-        validate_password(new_password)
-        reset = self.validate_code(code)
+        reset = self.validate_token(token, user_pk)
         if reset:
-            user = reset.user
+            validate_password(new_password)
+            user = User.objects.get(pk=user_pk)
             user.set_password(new_password)
             user.save()
+            # todo - send email to user alerting them their password has been changed
             return user
-        else:
-            return None
 
 
 class PasswordResetRequest(models.Model):
@@ -1228,7 +1220,7 @@ class PasswordResetRequest(models.Model):
     """
 
     user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
-    code = models.CharField(max_length=250, null=False, blank=False, unique=True)
+    token = models.CharField(max_length=250, null=False, blank=False, unique=False)
     created_at = models.DateTimeField(auto_now_add=True)
     ack_at = models.DateTimeField(null=True, blank=True)
     invalidated_at = models.DateTimeField(null=True, blank=True)
@@ -1238,28 +1230,25 @@ class PasswordResetRequest(models.Model):
     def __str__(self):
         return f"{self.user} @ {self.created_at}"
 
-    def generate_code(self):
+    def generate_token(self):
         """
         Generate a new code and reset the last_validated date.
         """
-        self.code = crypto.get_random_string(64)
+        token = PasswordResetTokenGenerator().make_token(self.user)
+        self.token = token
         self.save()
-        return self.code
-
-    @property
-    def age_days(self):
-        return (timezone.now() - self.created_at).days
+        return self.token
 
     def get_link(self):
         if self.user.is_tra():
-            return f"{settings.CASEWORKER_ROOT_URL}/accounts/password/reset/{self.user.id}!{self.code}/"  # noqa: E501
+            return f"{settings.CASEWORKER_ROOT_URL}/accounts/password/reset/{self.user.pk}/{self.token}/"  # noqa: E501
         else:
-            return f"{settings.PUBLIC_ROOT_URL}/accounts/password/reset/{self.user.id}!{self.code}/"
+            return f"{settings.PUBLIC_ROOT_URL}/accounts/password/reset/{self.user.pk}/{self.token}/"
 
     def send_reset_link(self):
         template_id = SystemParameter.get("NOTIFY_RESET_PASSWORD")
         context = {
-            "code": self.code,
+            "code": self.token,
             "name": self.user.name,
             "password_reset_link": self.get_link(),
         }
