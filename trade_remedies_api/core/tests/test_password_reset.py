@@ -1,12 +1,9 @@
 import datetime
-import uuid
 
-from django.test import TestCase
 from django.contrib.auth.models import Group
-from django.utils import timezone
-from core.models import User, PasswordResetRequest
-from unittest.mock import patch
-from django.conf import settings
+from django.test import TestCase
+
+from core.models import PasswordResetRequest, User
 
 PASSWORD = "A7Hhfa!jfaw@f"
 

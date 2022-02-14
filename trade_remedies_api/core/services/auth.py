@@ -192,7 +192,7 @@ class RegistrationAPIView(APIView):
             errors["password"] = "<br/>".join(exc.messages)
         # Temp switch to lock down registrations
         if SystemParameter.get("REGISTRATION_SOFT_LOCK") and not password.startswith(
-                SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
+            SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
         ):
             errors["lockdown"] = "Registrations are currently locked"
         if not errors:

@@ -103,8 +103,8 @@ class UserApiView(TradeRemediesApiView):
             groups = request.query_params.getlist("groups")
             users = (
                 User.objects.exclude(groups__name=SECURITY_GROUP_SUPER_USER)
-                            .exclude(userprofile__isnull=True)
-                            .exclude(deleted_at__isnull=False)
+                .exclude(userprofile__isnull=True)
+                .exclude(deleted_at__isnull=False)
             )
             if groups:
                 users = users.filter(groups__name__in=groups)
@@ -312,10 +312,10 @@ class PublicUserApiView(TradeRemediesApiView):
         else:
             users = (
                 User.objects.exclude(groups__name=SECURITY_GROUP_SUPER_USER)
-                            .exclude(deleted_at__isnull=False)
-                            .filter(groups__name__in=SECURITY_GROUPS_PUBLIC)
-                            .filter(organisationuser__organisation__id=organisation_id)
-                            .distinct()
+                .exclude(deleted_at__isnull=False)
+                .filter(groups__name__in=SECURITY_GROUPS_PUBLIC)
+                .filter(organisationuser__organisation__id=organisation_id)
+                .distinct()
             )
             return ResponseSuccess(
                 {"results": [user.to_dict(organisation=organisation) for user in users]}
@@ -455,14 +455,14 @@ class AssignUserToCaseView(TradeRemediesApiView):
 
     @transaction.atomic
     def post(
-            self,
-            request,
-            organisation_id,
-            user_id,
-            case_id,
-            representing_id=None,
-            submission_id=None,
-            invite_id=None,
+        self,
+        request,
+        organisation_id,
+        user_id,
+        case_id,
+        representing_id=None,
+        submission_id=None,
+        invite_id=None,
     ):
         from cases.models import get_case
 
