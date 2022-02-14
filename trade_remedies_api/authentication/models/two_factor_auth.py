@@ -22,6 +22,7 @@ def check_locked(func):
     reset the lock and invoke wrapped method. If not locked at all, just
     invoke wrapped method.
     """
+
     @functools.wraps(func)
     def _check_locked(self, *args, **kwargs):
         if self.locked_until and timezone.now() < self.locked_until:
@@ -31,6 +32,7 @@ def check_locked(func):
             self.attempts = 0
         self.save()
         return func(self, *args, **kwargs)
+
     return _check_locked
 
 
@@ -39,6 +41,7 @@ class TwoFactorAuth(models.Model):
 
     Persists the state of a user's 2FA authentication.
     """
+
     SMS = "sms"
     EMAIL = "email"
     DELIVERY_TYPE_CHOICES = [
@@ -57,9 +60,7 @@ class TwoFactorAuth(models.Model):
     last_user_agent = models.CharField(max_length=1000, null=True, blank=True)
     locked_until = models.DateTimeField(null=True, blank=True)
     attempts = models.SmallIntegerField(default=0)
-    delivery_type = models.CharField(max_length=8,
-                                     choices=DELIVERY_TYPE_CHOICES,
-                                     default=SMS)
+    delivery_type = models.CharField(max_length=8, choices=DELIVERY_TYPE_CHOICES, default=SMS)
 
     def __str__(self):
         return f"{self.user} last validated at {self.validated_at}"

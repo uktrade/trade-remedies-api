@@ -21,6 +21,7 @@ class Bad(APIException):
 
     Exception raised when a two factor authentication request is invalid.
     """
+
     status_code = status.HTTP_400_BAD_REQUEST
 
 
@@ -36,11 +37,11 @@ class AuthenticationView(ObtainAuthToken):
     is required the token is withheld pending successful 2FA auth, otherwise
     the auth token is returned.
     """
+
     authentication_classes = ()
 
     def post(self, request, *args, **kwargs):
-        serializer = TrustedAuthTokenSerializer(data=request.data,
-                                                context={'request': request})
+        serializer = TrustedAuthTokenSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data["username"]
         user = User.objects.get(email=username)
@@ -65,12 +66,12 @@ class TwoFactorView(views.APIView):
     Process two-factor authentication request. Uses `TwoFactorTokenSerializer`
     to check presence and validity of `two_factor_token` and `username`.
     """
+
     authentication_classes = ()
 
     @staticmethod
     def post(request, *args, **kwargs):
-        serializer = TwoFactorTokenSerializer(data=request.data,
-                                              context={'request': request})
+        serializer = TwoFactorTokenSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data["username"]
         user = User.objects.get(email=username)
@@ -88,12 +89,12 @@ class TwoFactorResendView(views.APIView):
     Process request to regenerate and resend a 2FA token. Accessible to
     bearer of `settings.ANON_USER_TOKEN` when `username` specified.
     """
+
     authentication_classes = ()
 
     @staticmethod
     def post(request, *args, **kwargs):
-        serializer = UsernameSerializer(data=request.data,
-                                        context={'request': request})
+        serializer = UsernameSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data["username"]
         user = User.objects.get(email=username)
@@ -113,15 +114,13 @@ class UsernameAvailableView(views.APIView):
     Accessible to bearer of `settings.ANON_USER_TOKEN` when `username`
     specified.
     """
+
     authentication_classes = ()
 
     @staticmethod
     def post(request, *args, **kwargs):
-        serializer = UsernameSerializer(data=request.data,
-                                        context={'request': request})
-        response = {
-            "available": not serializer.is_valid()
-        }
+        serializer = UsernameSerializer(data=request.data, context={"request": request})
+        response = {"available": not serializer.is_valid()}
         return Response(response)
 
 
@@ -132,14 +131,12 @@ class EmailVerifyView(views.APIView):
     which triggers a 'verify email address' notification. This endpoint
     processes the validation of the code sent.
     """
+
     @staticmethod
     def post(request, *args, **kwargs):
-        serializer = EmailVerificationSerializer(data=kwargs,
-                                                 context={'request': request})
+        serializer = EmailVerificationSerializer(data=kwargs, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        response = {
-            "verified": True
-        }
+        response = {"verified": True}
         return Response(response)
 
 
@@ -148,6 +145,7 @@ class EmailVerifyResendView(views.APIView):
 
     Resend an email verification code.
     """
+
     @staticmethod
     def post(request, *args, **kwargs):
         request.user.email_verification.send()
@@ -163,6 +161,7 @@ class UserView(viewsets.ModelViewSet):
 
     API endpoint for user definitions.
     """
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
     http_method_names = ["get", "head", "post", "patch"]
