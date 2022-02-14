@@ -9,6 +9,7 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 import dj_database_url
 
 from django_log_formatter_ecs import ECSFormatter
+
 # We use django-environ but do not read a `.env` file. Locally we feed
 # docker-compose an environment from a local.env file in the project root.
 # In our PaaS the service's environment is supplied from Vault.
@@ -377,7 +378,7 @@ ENVIRONMENT_LOGGING = {
     },
 }
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # ------------------------------------------------------------------------------
 # The TRS Zone - very specifically TRS settings.
