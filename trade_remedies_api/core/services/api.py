@@ -666,28 +666,3 @@ class FeedbackExport(TradeRemediesApiView):
         response = HttpResponse(export_file.read(), content_type=mime_type)
         response["Content-Disposition"] = "attachment; filename=Feedback-export.xls"
         return response
-
-
-'''class MigrationTestView(APIView):
-
-    def get(self, request, *args, **kwargs):
-        from core.models import User as v1_user_model, UserProfile
-        from authentication.models.user import User as v2_user_model
-
-
-        for v1u in v1_user_model.objects.all():
-            if not v2_user_model.objects.filter(email=v1u.email).exist():
-                new_v2_user = v2_user_model.objects.create(
-                    id=v1u.id,
-                    email=v1u.email,
-                    name=v1u.name,
-                    address=v1u.address,
-                    country=v1u.country,
-                    phone=v1u.phone,
-                    is_active=v1u.is_active,
-                    last_login=v1u.last_login,
-                    date_joined=v1u.date_joined,
-                )
-                new_v2_userprofile = UserProfile.objects.create(
-                    user=new_v2_user
-                )'''

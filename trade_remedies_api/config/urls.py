@@ -1,13 +1,13 @@
 """trade_remedies_api URL Configuration
 
-The `urlpatterns` list routes URLs to views_new. For more information please see:
+The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.0/topics/http/urls/
 Examples:
-Function views_new
-    1. Add an import:  from my_app import views_new
-    2. Add a URL to urlpatterns:  path('', views_new.home, name='home')
-Class-based views_new
-    1. Add an import:  from other_app.views_new import Home
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
     2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
 Including another URLconf
     1. Import the include() function: from django.urls import include, path
@@ -23,7 +23,6 @@ from core.services import auth as auth_api
 from cases.services import api as cases_api
 
 urlpatterns = [
-    # path(f"{settings.API_PREFIX}/v1_migration/", core_api.MigrationTestView.as_view()),
     path(f"{settings.API_PREFIX}/health/", core_api.ApiHealthView.as_view()),
     path(f"{settings.API_PREFIX}/auth", auth_api.AuthenticationView.as_view()),
     path(f"{settings.API_PREFIX}/auth/email/available/", auth_api.EmailAvailabilityAPI.as_view()),
