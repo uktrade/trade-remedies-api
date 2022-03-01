@@ -119,3 +119,10 @@ class NotifyAuditReport(TradeRemediesApiView):
         audit.data["ack"] = True
         audit.save()
         return self.get(request, case_id=case_id)
+
+
+from audit.tasks import check_notify_send_status
+
+
+def test_notify(request):
+    check_notify_send_status()

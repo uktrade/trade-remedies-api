@@ -80,7 +80,7 @@ def check_notify_send_status():
         if delivery_id:
             try:
                 status = notify.get_notification_by_id(delivery_id)
-            except Exception:
+            except Exception as e:
                 status = {
                     "status": "unknown",
                     "sent_at": None,
