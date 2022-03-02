@@ -51,3 +51,5 @@ Revert to old branding (defined _in_ the management command):
 ## Testing
 Tests (including BDD testing) should be invoked from the
 [orchestration project repo][docker_proj].
+
+[FITNESS_FUNCTIONS]
