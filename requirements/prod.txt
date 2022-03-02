@@ -300,13 +300,13 @@ xlsxwriter==3.0.1
     #   -r requirements.in/../requirements/base.txt
     #   python-pptx
 zope-event==4.5.0
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   gevent
+    # via -r requirements.in/../requirements/base.txt
 zope-interface==5.4.0
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   gevent
+    # via -r requirements.in/../requirements/base.txt
+zope-event==4.5.0
+    # via gevent
+zope-interface==5.4.0
+    # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
