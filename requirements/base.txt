@@ -184,7 +184,7 @@ redis==4.1.1
 requests==2.25.1
     # via
     #   -r requirements.in/base.in
-    #   geckoboard-py
+    #   geckoboard.py
     #   notifications-python-client
     #   requests-toolbelt
 requests-toolbelt==0.9.1
