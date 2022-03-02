@@ -76,7 +76,7 @@ jobs:
           name: Push the updated READ.ME back to GitHub
           command: |
             . venv/bin/activate
-            git add READ.ME
+            git add README.md
             git commit -m "[ci skip] AUTOMATED - update fitness functions"
             git push << pipeline.project.git_url >> << pipeline.git.branch >>
 
