@@ -76,6 +76,8 @@ jobs:
           name: Push the updated READ.ME back to GitHub
           command: |
             . venv/bin/activate
+            git config user.email "fitness-functions-machine-user@digital.trade.gov.uk"
+            git config user.name "FITNESS-FUNCTIONS MACHINE USER"
             git add README.md
             git commit -m "[ci skip] AUTOMATED - update fitness functions"
             git push << pipeline.project.git_url >> << pipeline.git.branch >>
