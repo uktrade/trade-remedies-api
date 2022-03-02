@@ -67,7 +67,7 @@ class AuditTest(TestCase, AuditTestMixin):
         self.assertEqual(audit.assisted_by, self.caseworker)
 
     def test_submission_assisted(self):
-        submission_type = SubmissionType.objects.get(name="Application")
+        submission_type = SubmissionType.objects.get(name="Application")  # test
         submission = Submission.objects.create(
             type=submission_type,
             case=self.assisted_case,
