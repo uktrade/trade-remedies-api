@@ -80,7 +80,6 @@ def check_notify_send_status():
         delivery_id = audit.data.get("send_report", {}).get("id")
         if delivery_id:
             try:
-                delivery_id = 'asd'
                 status = notify.get_notification_by_id(delivery_id)
             except Exception as e:
                 if isinstance(e, HTTPError):
