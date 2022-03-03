@@ -88,7 +88,7 @@ def check_notify_send_status():
 
                     # Updating the potential child object(s) to mark the status as 'unknown' so the parent is
                     # not looped over again and again in the future.
-                    for child_audit in Audit.objects.filter(parent=audit):
+                    for child_audit in Audit.objects.filter(parent=audit, type=AUDIT_TYPE_DELIVERED):
                         # We know that we're not overwriting any delivered...etc. values in the 'status' key because if
                         # they were, they wouldn't have shown up in the big audit query
                         child_audit.data['status'] = 'unknown'
