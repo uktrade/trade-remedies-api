@@ -1455,3 +1455,5 @@ B8860B
 1.5.16"
 288
 GitHub
+git config user.email
+git config user.name
