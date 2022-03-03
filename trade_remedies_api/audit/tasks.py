@@ -82,7 +82,7 @@ def check_notify_send_status():
             try:
                 status = notify.get_notification_by_id(delivery_id)
             except Exception as e:
-                if isinstance(e, HTTPError):
+                if isinstance(e, HTTPError) and e.status_code == 404:
                     # The GOV.NOTIFY service cannot find a message with this delivery_id. Let's mark it as
                     # 'lost' so the service is not constantly bombarded with requests from this scheduled task.
 
