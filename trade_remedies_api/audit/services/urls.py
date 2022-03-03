@@ -13,5 +13,4 @@ urlpatterns = [
     path("notify/<uuid:case_id>/", NotifyAuditReport.as_view()),
     path("notify/<uuid:case_id>/ack/<uuid:audit_id>/", NotifyAuditReport.as_view()),
     path("notify/<uuid:case_id>/ack/<uuid:audit_id>/", NotifyAuditReport.as_view()),
-    path("notify/test", test_notify),
 ]
