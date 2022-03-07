@@ -5,6 +5,7 @@ from django.db.utils import OperationalError, IntegrityError
 from core.notifier import get_client
 from audit import AUDIT_TYPE_DELIVERED
 from audit.models import Audit
+from notifications_python_client.errors import HTTPError
 
 logger = logging.getLogger(__name__)
 
@@ -80,12 +81,26 @@ def check_notify_send_status():
         if delivery_id:
             try:
                 status = notify.get_notification_by_id(delivery_id)
-            except Exception:
+            except Exception as e:
+                if isinstance(e, HTTPError) and e.status_code == 404:
+                    # The GOV.NOTIFY service cannot find a message with this delivery_id. Let's mark it as
+                    # 'lost' so the service is not constantly bombarded with requests from this scheduled task.
+
+                    # Updating the potential child object(s) to mark the status as 'unknown' so the parent is
+                    # not looped over again and again in the future.
+                    for child_audit in Audit.objects.filter(parent=audit, type=AUDIT_TYPE_DELIVERED):
+                        # We know that we're not overwriting any delivered...etc. values in the 'status' key because if
+                        # they were, they wouldn't have shown up in the big audit query
+                        child_audit.data['status'] = 'unknown'
+                        child_audit.save()
                 status = {
                     "status": "unknown",
                     "sent_at": None,
                     "completed_at": None,
                 }
+
+            # In the case where the notification is no longer be on the GOV.NOTIFY service, the child Audit objects
+            # still exist, but they're stuck on 'sending'
             delivery_exists = Audit.objects.filter(parent=audit).exists()
             if not delivery_exists:
                 delivery_audit = Audit.objects.create(
