@@ -72,6 +72,7 @@ jobs:
             pytest --ignore=staticfiles -n 4 -m "not version2"
             coverage json
             fitness-functions run . trade_remedies_api
+            fitness-functions publish .
       - run:
           name: Push the updated READ.ME back to GitHub
           command: |
@@ -79,6 +80,8 @@ jobs:
             git config user.email "fitness-functions-machine-user@digital.trade.gov.uk"  # /PS-IGNORE
             git config user.name "FITNESS-FUNCTIONS MACHINE USER"  # /PS-IGNORE
             git add fitness/fitness_metrics.db
+            git add fitness/fitness_metrics_graph.png
+            git add README.md
             git commit -m "[ci skip] AUTOMATED - update fitness functions"
             git push << pipeline.project.git_url >> << pipeline.git.branch >>
 

@@ -53,3 +53,4 @@ Tests (including BDD testing) should be invoked from the
 [orchestration project repo][docker_proj].
 
 [FITNESS_FUNCTIONS]
+![Current fitness metrics for TRSV2](fitness/fitness_metrics_graph.png)
