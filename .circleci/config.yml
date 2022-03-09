@@ -81,7 +81,6 @@ jobs:
             git config user.name "FITNESS-FUNCTIONS MACHINE USER"  # /PS-IGNORE
             git add fitness/fitness_metrics.db
             git add fitness/fitness_metrics_graph.png
-            git add README.md
             git commit -m "[ci skip] AUTOMATED - update fitness functions"
             git push << pipeline.project.git_url >> << pipeline.git.branch >>
 
