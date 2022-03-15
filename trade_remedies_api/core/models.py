@@ -1140,23 +1140,26 @@ class TwoFactorAuth(models.Model):
         :param (str) delivery_type: TwoFactorAuth.DELIVERY_TYPE_CHOICES.
         :returns (dict): JSON send report.
         """
-        delivery_type = delivery_type or self.SMS
-        if delivery_type != self.EMAIL and not self.user.phone:
-            delivery_type = self.EMAIL
-        valid_minutes = self.validity_period_for(delivery_type)
-        code = self.generate_code(user_agent=user_agent, valid_minutes=valid_minutes)
-        context = {"code": code}
-        send_report = None
-        if delivery_type == self.SMS:
-            template_id = SystemParameter.get("2FA_CODE_MESSAGE")
-            phone = self.user.phone
-            send_report = send_sms(phone, context, template_id, country=self.user.country.code)
-        elif delivery_type == self.EMAIL:
-            template_id = SystemParameter.get("PUBLIC_2FA_CODE_EMAIL")
-            send_report = send_mail(self.user.email, context, template_id)
-        self.delivery_type = delivery_type
-        self.save()
-        return send_report
+        try:
+            delivery_type = delivery_type or self.SMS
+            if delivery_type != self.EMAIL and not self.user.phone:
+                delivery_type = self.EMAIL
+            valid_minutes = self.validity_period_for(delivery_type)
+            code = self.generate_code(user_agent=user_agent, valid_minutes=valid_minutes)
+            context = {"code": code}
+            send_report = None
+            if delivery_type == self.SMS:
+                template_id = SystemParameter.get("2FA_CODE_MESSAGE")
+                phone = self.user.phone
+                send_report = send_sms(phone, context, template_id, country=self.user.country.code)
+            elif delivery_type == self.EMAIL:
+                template_id = SystemParameter.get("PUBLIC_2FA_CODE_EMAIL")
+                send_report = send_mail(self.user.email, context, template_id)
+            self.delivery_type = delivery_type
+            self.save()
+            return send_report
+        except Exception as two_fa_exception:
+            logger.error(f"Could not 2fa for {self.user} / {self.user.id}: {two_fa_exception}")
 
 
 class PasswordResetManager(models.Manager):
@@ -1190,6 +1193,7 @@ class PasswordResetManager(models.Manager):
         try:
             user = User.objects.get(email__iexact=email)
         except User.DoesNotExist:
+            logger.warning(f"Password reset request failed, user {email} does not exist")
             return None, None
         self.filter(user=user, ack_at__isnull=True, invalidated_at__isnull=True).update(
             invalidated_at=timezone.now()

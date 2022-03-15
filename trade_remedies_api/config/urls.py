@@ -19,7 +19,7 @@ from django.conf import settings
 from rest_framework import routers
 
 from core.services import api as core_api
-from core.services import auth as auth_api
+from core.services.auth import views as auth_api
 from cases.services import api as cases_api
 
 urlpatterns = [
