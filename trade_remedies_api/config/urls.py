@@ -33,7 +33,8 @@ urlpatterns = [
     ),
     path(f"{settings.API_PREFIX}/auth/email/verify/", auth_api.VerifyEmailAPI.as_view()),
     path(f"{settings.API_PREFIX}/auth/email/verify/<str:code>/", auth_api.VerifyEmailAPI.as_view()),
-    path(f"{settings.API_PREFIX}/accounts/password/reset/", auth_api.PasswordResetAPI.as_view()),
+    path(f"{settings.API_PREFIX}/accounts/password/request_reset/", auth_api.RequestPasswordReset.as_view()),
+    path(f"{settings.API_PREFIX}/accounts/password/reset_form/", auth_api.PasswordResetForm.as_view()),
     path(f"{settings.API_PREFIX}/register/", auth_api.RegistrationAPIView.as_view()),
     path(f"{settings.API_PREFIX}/security/groups/", core_api.SecurityGroupsView.as_view()),
     path(
@@ -50,7 +51,8 @@ urlpatterns = [
         core_api.AssignUserToCaseView.as_view(),
     ),
     path(
-        f"{settings.API_PREFIX}/team/<uuid:organisation_id>/users/assign/<uuid:user_id>/case/<uuid:case_id>/",  # noqa: E501
+        f"{settings.API_PREFIX}/team/<uuid:organisation_id>/users/assign/<uuid:user_id>/case/<uuid:case_id>/",
+        # noqa: E501
         core_api.AssignUserToCaseView.as_view(),
     ),
     path(
@@ -90,11 +92,13 @@ urlpatterns = [
         core_api.CreatePendingUserAPI.as_view(),
     ),
     path(
-        f"{settings.API_PREFIX}/user/organisation/<uuid:organisation_id>/update/pending/<uuid:invitation_id>/",  # noqa: E501
+        f"{settings.API_PREFIX}/user/organisation/<uuid:organisation_id>/update/pending/<uuid:invitation_id>/",
+        # noqa: E501
         core_api.CreatePendingUserAPI.as_view(),
     ),
     path(
-        f"{settings.API_PREFIX}/user/organisation/<uuid:organisation_id>/delete/pending/<uuid:invitation_id>/",  # noqa: E501
+        f"{settings.API_PREFIX}/user/organisation/<uuid:organisation_id>/delete/pending/<uuid:invitation_id>/",
+        # noqa: E501
         core_api.CreatePendingUserAPI.as_view(),
     ),
     path(f"{settings.API_PREFIX}/my-account/", core_api.MyAccountView.as_view()),
@@ -117,7 +121,6 @@ urlpatterns = [
     path(f"{settings.API_PREFIX}/feedback/", include("feedback.services.urls")),
     path(f"{settings.API_PREFIX}/companieshouse/", include("core.services.urls")),
 ]
-
 
 # Ensure all V2 routers are collected here. One day the below will
 # replace all the above!

@@ -150,7 +150,7 @@ class Submission(BaseModel):
     version = models.SmallIntegerField(default=1)
     sent_at = models.DateTimeField(null=True, blank=True)
     sent_by = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         related_name="%(class)s_sent_by",
@@ -158,7 +158,7 @@ class Submission(BaseModel):
     )
     received_at = models.DateTimeField(null=True, blank=True)
     received_from = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         related_name="%(class)s_received_from",
@@ -174,7 +174,7 @@ class Submission(BaseModel):
     description = models.TextField(null=True, blank=True)
     time_window = models.SmallIntegerField(null=True, blank=True)
     issued_by = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         related_name="%(class)s_issued_by",

@@ -302,8 +302,8 @@ class PublicUserApiView(TradeRemediesApiView):
         if not organisation:
             raise InvalidRequestParams("User is not an owner of any organisation")
         if user_id is not None and (
-            user_id == request.user.id
-            or request.user.groups.filter(name=SECURITY_GROUP_ORGANISATION_OWNER).exists()
+                user_id == request.user.id
+                or request.user.groups.filter(name=SECURITY_GROUP_ORGANISATION_OWNER).exists()
         ):
             user = User.objects.get(id=user_id)
             _user = user.to_dict(organisation=organisation)

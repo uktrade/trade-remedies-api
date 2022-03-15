@@ -71,7 +71,7 @@ class Audit(models.Model):
     type = models.CharField(max_length=50, null=False, blank=False, choices=AUDIT_TYPES)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     created_by = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         db_index=True,
@@ -79,7 +79,7 @@ class Audit(models.Model):
         on_delete=models.PROTECT,
     )
     assisted_by = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         db_index=True,

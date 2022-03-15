@@ -666,7 +666,7 @@ class OrganisationName(models.Model):
     from_date = models.DateTimeField(null=True, blank=True)
     to_date = models.DateTimeField(null=True, blank=True)
     created_by = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         related_name="%(class)s_created_by",

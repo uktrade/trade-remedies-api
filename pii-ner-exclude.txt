@@ -1452,4 +1452,8 @@ ON a.id
 Applications
 invite_id
 B8860B
+1.5.16"
+my_app
+MigrationTestView.as_view
+Invalidate
 GOV.NOTIFY

@@ -30,7 +30,7 @@ openpyxl==3.0.6
 odfpy==1.4.1
 pillow==9.0.0
 phonenumbers==8.12.38
-psycopg2-binary==2.8.3
+psycopg2-binary==2.8.6
 python-docx==0.8.10
 python-pptx==0.6.18
 PyPDF2==1.26.0

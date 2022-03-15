@@ -231,11 +231,11 @@ class OrganisationCaseRole(SimpleBaseModel):
     non_responsive = models.BooleanField(default=False)
     validated_at = models.DateTimeField(null=True, blank=True)
     validated_by = models.ForeignKey(
-        "core.User", null=True, blank=True, on_delete=models.PROTECT, related_name="validated_by"
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT, related_name="validated_by"
     )
     approved_at = models.DateTimeField(null=True, blank=True)
     approved_by = models.ForeignKey(
-        "core.User", null=True, blank=True, on_delete=models.PROTECT, related_name="approved_by"
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT, related_name="approved_by"
     )
     auth_contact = models.ForeignKey(
         "contacts.Contact",
@@ -319,7 +319,7 @@ class OrganisationUser(SimpleBaseModel):
     organisation = models.ForeignKey(
         "organisations.Organisation", null=False, blank=False, on_delete=models.CASCADE
     )
-    user = models.ForeignKey("core.User", null=False, blank=False, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=False, blank=False, on_delete=models.CASCADE)
     security_group = models.ForeignKey(Group, null=True, blank=True, on_delete=models.CASCADE)
     confirmed = models.BooleanField(default=True)
 
@@ -367,7 +367,7 @@ class UserCase(SimpleBaseModel):
     letter of authrotiry do.
     """
 
-    user = models.ForeignKey("core.User", null=False, blank=False, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=False, blank=False, on_delete=models.CASCADE)
     case = models.ForeignKey("cases.Case", null=False, blank=False, on_delete=models.CASCADE)
     organisation = models.ForeignKey(
         "organisations.Organisation", null=True, blank=True, on_delete=models.CASCADE
@@ -375,7 +375,7 @@ class UserCase(SimpleBaseModel):
     confirmed = models.BooleanField(default=True)
     confirmed_at = models.DateTimeField(null=True, blank=True)
     confirmed_by = models.ForeignKey(
-        "core.User", null=True, blank=True, on_delete=models.PROTECT, related_name="confirmed_by"
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT, related_name="confirmed_by"
     )
 
     class Meta:
