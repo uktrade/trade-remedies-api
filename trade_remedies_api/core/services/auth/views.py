@@ -28,7 +28,7 @@ from security.constants import (
     SECURITY_GROUP_THIRD_PARTY_USER,
 )
 from .serializers import AuthenticationSerializer, EmailAvailabilitySerializer, \
-    RegistrationSerializer, \
+    PasswordResetSerializer, RegistrationSerializer, \
     TwoFactorAuthSerializer, VerifyEmailSerializer
 
 logger = logging.getLogger(__name__)
@@ -250,37 +250,45 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
             raise InvalidRequestParams("Invalid code")
 
 
-class PasswordResetAPI(APIView):
+class RequestPasswordReset(APIView):
+    def get(self, request, *args, **kwargs):
+        email = request.GET.get('email')
+        logger.info(f"Password reset request for: {email}")
+        # Invalidate all previous PasswordResetRequest objects for this user
+        PasswordResetRequest.objects.reset_request(email=email)
+        return ResponseSuccess({"result": True})
+
+
+class PasswordResetForm(APIView):
     @staticmethod
     def get(request, *args, **kwargs):
-        email = request.GET.get("email")
-        code = request.GET.get("code")
-        code_valid = True
-        logger.info(f"Password reset request for: {email}")
-        try:
-            if not code:
-                PasswordResetRequest.objects.reset_request(email=email)
-            else:
-                code_valid = PasswordResetRequest.objects.validate_code(code, validate_only=True)
-        except User.DoesNotExist:
-            logger.warning(f"Password reset request failed, user {email} does not exist")
-        return ResponseSuccess({"result": bool(code_valid)})
+        serializer = PasswordResetSerializer(data=request.GET)
+        user_pk = request.GET["user_pk"]
+        logger.info(f"Password reset link clicked for: {user_pk}")
+        if valid := serializer.is_valid():
+            logger.info(f"Password reset link valid for: {user_pk}")
+        else:
+            logger.info(f"Password reset link invalid for: {user_pk}")
+
+        return ResponseSuccess({"result": valid})
 
     @staticmethod
     def post(request, *args, **kwargs):
-        code = request.data.get("code")
-        password = request.data.get("password")
+        token = request.data.get("token")
+        new_password = request.data.get("password")
+        user_pk = request.data.get("user_pk")
+
         try:
-            validate_password(password)
+            if PasswordResetRequest.objects.password_reset(token, user_pk, new_password):
+                logger.info(f"Password reset completed for: {user_pk}")
+                return ResponseSuccess({"result": {"reset": True}}, http_status=status.HTTP_200_OK)
         except ValidationError as exc:
             raise InvalidRequestParams("<br/>".join(exc.messages))
-        user = PasswordResetRequest.objects.password_reset(code, password)
-        if user:
-            return ResponseSuccess(
-                {"result": {"reset": bool(user)}}, http_status=status.HTTP_201_CREATED
-            )
-        else:
-            raise InvalidRequestParams("Could not reset password")
+        except User.DoesNotExist:
+            logger.warning(f'Password reset failed for user {user_pk} as the user could not be found in the database')
+
+        logger.warning(f"Could not reset password for user {user_pk}")
+        raise InvalidRequestParams('Invalid or expired link')
 
 
 class VerifyEmailAPI(TradeRemediesApiView):

@@ -9,7 +9,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from config.version import __version__
-from core.models import SystemParameter, TwoFactorAuth, User
+from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User
 from core.services.exceptions import AccessDenied
 from security.constants import ENVIRONMENT_GROUPS
 
@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class PasswordSerializer(serializers.Serializer):
+    """Checks if a password is valid, i.e. meets the minimum complexity requirements."""
     password = serializers.CharField(label=_("Password"), trim_whitespace=True, write_only=True, required=True)
 
     def validate_password(self, value: str) -> str:
@@ -28,6 +29,7 @@ class PasswordSerializer(serializers.Serializer):
 
 
 class EmailSerializer(serializers.Serializer):
+    """Checks that an email address belongs to a user who exists in the database."""
     email = serializers.CharField(label=_("Email"), write_only=True, trim_whitespace=True, required=True)
 
     def user_queryset(self, email: str) -> QuerySet:
@@ -48,6 +50,7 @@ class EmailSerializer(serializers.Serializer):
 
 
 class EmailAvailabilitySerializer(EmailSerializer):
+    """Similar to EmailSerializer, but checks if the email address is available and free to use."""
     def validate_email(self, value):
         if self.user_queryset(value).exists():
             raise ValidationError(_("User already exists."), code="user_already_exists")
@@ -55,10 +58,12 @@ class EmailAvailabilitySerializer(EmailSerializer):
 
 
 class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
-    """Email address serializer.
+    """Authentication Serializer used to log users in.
 
-    Validates the presence of `email`. It will raise if the user indicated
-    by email does not exist.
+    Validates the username/password combination exists, the account is not deleted, and the request is coming from
+    a recognised environment (public/caseworker) depending on the HTTP_X_ORIGIN_ENVIRONMENT key.
+
+    Also exposes a data() method which can be easily returned as part of an HttpResponse object.
     """
     response_dict = {
         "version": __version__
@@ -98,7 +103,6 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
             if not email_verified:
                 self.response_dict["needs_verify"] = True
             self.response_dict["token"] = str(user.get_access_token())
-            self.response_dict["user"] = user.to_dict(user_agent=request.META.get("HTTP_X_USER_AGENT"))
 
         else:
             raise AccessDenied(_("Email and password are required to log in."), code='authorization')
@@ -109,12 +113,19 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
     @property
     def data(self):
         user = self.validated_data["user"]
-        user.refresh_from_db()
+        user.refresh_from_db()  # We want to refresh the User object in case we've validated invitations in the meantime
         self.response_dict["user"] = user.to_dict(user_agent=self.context["request"].META.get("HTTP_X_USER_AGENT"))
         return self.response_dict
 
 
 class RegistrationSerializer(EmailAvailabilitySerializer, PasswordSerializer, serializers.ModelSerializer):
+    """Registration serializer used to register new users on the platform.
+
+    Validates if registrations are currently being accepted (marked by the REGISTRATION_SOFT_LOCK system parameter) and
+    if they have confirmed they represent the organisation in question.
+
+    Also deals with the creation of this new user using the relevant method (create_user) on the User manager.
+    """
     code = serializers.CharField(required=False)
     case_id = serializers.CharField(required=False)
     confirm_invited_org = serializers.CharField(required=False)
@@ -155,6 +166,11 @@ class RegistrationSerializer(EmailAvailabilitySerializer, PasswordSerializer, se
 
 
 class TwoFactorAuthSerializer(EmailSerializer, serializers.ModelSerializer):
+    """Checks if a given 2fa code is valid.
+
+    Used in POST requests to confirm that the token provided by the user is correct and whether or not they should be
+    allowed to log in.
+    """
     class Meta:
         model = TwoFactorAuth
         fields = ["delivery_type", "code"]
@@ -175,6 +191,7 @@ class TwoFactorAuthSerializer(EmailSerializer, serializers.ModelSerializer):
 
 
 class VerifyEmailSerializer(serializers.Serializer):
+    """Checks if a given email verification code is valid."""
     code = serializers.CharField()
 
     def validate_code(self, value):
@@ -182,3 +199,18 @@ class VerifyEmailSerializer(serializers.Serializer):
         if value == profile.email_verify_code:
             return value
         raise ValidationError(_("Invalid verification code"), code="invalid_email_verification_code")
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    """Checks if a given password reset token is valid against a given user_pk."""
+    token = serializers.CharField()
+    user_pk = serializers.CharField()
+
+    def validate(self, attrs):
+        token = attrs["token"]
+        user_pk = attrs["user_pk"]
+
+        if PasswordResetRequest.objects.validate_token(token, user_pk, validate_only=True):
+            return attrs
+        raise ValidationError(_("Password reset link invalid"), code="password_reset_link_invalid")
+
