@@ -1,4 +1,3 @@
-import datetime
 import logging
 
 from django.contrib.auth import authenticate
@@ -186,11 +185,7 @@ class RegistrationSerializer(
 
 
 class TwoFactorAuthRequestSerializer(serializers.ModelSerializer):
-    """Checks if a given 2fa code is valid.
-
-    Used in POST requests to confirm that the token provided by the user is correct and whether or not they should be
-    allowed to log in.
-    """
+    """Checks if a 2fa token can be sent to the recipient."""
 
     class Meta:
         model = TwoFactorAuth
@@ -206,6 +201,11 @@ class TwoFactorAuthRequestSerializer(serializers.ModelSerializer):
 
 
 class TwoFactorAuthVerifySerializer(serializers.ModelSerializer):
+    """Checks if a given 2fa code is valid.
+
+    Used in POST requests to confirm that the token provided by the user is correct and whether or not they should be
+    allowed to log in.
+    """
     class Meta:
         model = TwoFactorAuth
         fields = ["code"]
