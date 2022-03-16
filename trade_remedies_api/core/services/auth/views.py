@@ -5,8 +5,6 @@ from axes.decorators import axes_dispatch
 from axes.utils import reset
 from django.conf import settings
 from django.contrib.auth import login
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
@@ -14,10 +12,9 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from notifications_python_client.errors import HTTPError
 from rest_framework import status
-from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.views import APIView
 
-from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User, UserProfile
+from core.models import PasswordResetRequest, SystemParameter, UserProfile
 from core.notifier import send_mail
 from core.services.base import ResponseError, ResponseSuccess, TradeRemediesApiView
 from core.services.exceptions import InvalidRequestParams
@@ -62,11 +59,7 @@ class EmailAvailabilityAPI(APIView):
     @staticmethod
     def post(request: HttpRequest, *args, **kwargs) -> HttpResponse:
         serializer = EmailAvailabilitySerializer(data=request.data)
-        try:
-            serializer.is_valid(raise_exception=True)
-            return ResponseSuccess({"result": {"available": True}})
-        except DRFValidationError:
-            return ResponseSuccess({"result": {"available": False}})
+        return ResponseSuccess({"result": {"available": serializer.is_valid()}})
 
 
 @method_decorator(axes_dispatch, name="dispatch")
@@ -128,17 +121,15 @@ class RegistrationAPIView(APIView):
     def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         """
         Arguments:
-            request: a Django Request object:
+            request: a Django Request object
         Returns:
-            HttpResponse response with the user's token and user data
-        Raises:
-            serializers.ValidationError if request invalid.
+            ResponseSuccess response with the user's token and user data
+            ResponseError response if the user could not be created  #todo - raise an error like the other views
         """
         serializer = RegistrationSerializer(
             data=request.data, context={"request": request}, many=False
         )
         if serializer.is_valid():
-            serializer.is_valid(raise_exception=True)
             # if code and case are provided, validate the invite, do not accept
             invitation = None
             code = serializer.initial_data["code"]
@@ -202,12 +193,21 @@ class RegistrationAPIView(APIView):
 
 
 class TwoFactorRequestAPI(TradeRemediesApiView):
-    """
-    Request or submit two-factor authentication
-    """
+    """Request or verify two-factor authentication"""
 
     @staticmethod
-    def get(request, delivery_type=None, *args, **kwargs):
+    def get(request, delivery_type: str = None, *args, **kwargs):
+        """
+        Sends a 2fa code to a user.
+
+        Arguments:
+            request: a Django Request object
+            delivery_type: How you want the code to be sent - 'sms' or 'email'
+        Returns:
+            ResponseSuccess response with the 2fa delivery send report
+        Raises:
+            InvalidRequestParams if the code could not be sent
+        """
         twofactorauth_object = request.user.twofactorauth
         serializer = TwoFactorAuthRequestSerializer(
             data={"delivery_type": delivery_type}, instance=twofactorauth_object
@@ -222,7 +222,7 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
                     {
                         "result": {
                             "error": "You have entered an incorrect code too many times "
-                            "and we have temporarily locked your account.",
+                                     "and we have temporarily locked your account.",
                             "locked_until": locked_until.strftime(settings.API_DATETIME_FORMAT),
                             "locked_for_seconds": locked_for_seconds,
                         }
@@ -250,6 +250,16 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
 
     @staticmethod
     def post(request, *args, **kwargs):
+        """
+        Verifies a 2fa code provided by a user.
+
+        Arguments:
+            request: a Django Request object
+        Returns:
+            ResponseSuccess response with the user.to_dict() if the 2fa code is valid
+        Raises:
+            InvalidRequestParams if the code could could not be validated
+        """
         twofactorauth_object = request.user.twofactorauth
         serializer = TwoFactorAuthVerifySerializer(
             data=request.data, instance=twofactorauth_object, context={"request": request}
@@ -264,8 +274,18 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
 
 
 class RequestPasswordReset(APIView):
+    """Request and send a password reset email."""
+
     @staticmethod
     def get(request, *args, **kwargs):
+        """
+        Sends a password reset email.
+
+        Arguments:
+            request: a Django Request object
+        Returns:
+            ResponseSuccess response.
+        """
         email = request.GET.get("email")
         logger.info(f"Password reset request for: {email}")
         # Invalidate all previous PasswordResetRequest objects for this user
@@ -274,8 +294,18 @@ class RequestPasswordReset(APIView):
 
 
 class PasswordResetForm(APIView):
+    """Verify a password reset link and allow user to use it."""
+
     @staticmethod
     def get(request, *args, **kwargs):
+        """
+        Verifies that a password reset link is valid.
+
+        Arguments:
+            request: a Django Request object
+        Returns:
+            ResponseSuccess response with a boolean response in the dictionary, True if valid, False if not.
+        """
         serializer = PasswordResetRequestSerializer(data=request.GET)
         user_pk = request.GET["user_pk"]
         logger.info(f"Password reset link clicked for: {user_pk}")
@@ -288,15 +318,25 @@ class PasswordResetForm(APIView):
 
     @staticmethod
     def post(request, *args, **kwargs):
+        """
+        Changes a user's password.
+
+        Arguments:
+            request: a Django Request object
+        Returns:
+            ResponseSuccess response if the password was successfully changed.
+        Raises:
+            InvalidRequestParams if link is invalid or password is not complex enough.
+        """
         token_serializer = PasswordResetRequestSerializer(data=request.data)
         password_serializer = PasswordSerializer(data=request.data)
         user_pk = request.data.get("user_pk")
 
         if token_serializer.is_valid() and password_serializer.is_valid():
             if PasswordResetRequest.objects.password_reset(
-                token_serializer.initial_data["token"],
-                token_serializer.initial_data["user_pk"],
-                token_serializer.initial_data["password"],
+                    token_serializer.initial_data["token"],
+                    token_serializer.initial_data["user_pk"],
+                    token_serializer.initial_data["password"],
             ):
                 logger.info(f"Password reset completed for: {user_pk}")
                 return ResponseSuccess({"result": {"reset": True}}, http_status=status.HTTP_200_OK)
@@ -306,8 +346,24 @@ class PasswordResetForm(APIView):
 
 
 class VerifyEmailAPI(TradeRemediesApiView):
+    """Verifies if an email address belongs to a given user."""
+
     @staticmethod
-    def post(request, code=None):
+    def post(request, code: str = None):
+        """
+        A multipurpose endpoint (for the moment), if code is provided it will verify the code is correct and note the
+        email verification in the database.
+
+        If code is not provided, it will send out a verification email to the request.user
+
+        Arguments:
+            request: a Django Request object
+            code: an email verification code
+        Returns:
+            ResponseSuccess response if the email was validated / a new link was sent out.
+        Raises:
+            InvalidRequestParams if the link was incorrect.
+        """
         if code:
             user = request.user
             try:
