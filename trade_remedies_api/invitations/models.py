@@ -265,7 +265,7 @@ class Invitation(BaseModel):
     invalid = models.BooleanField(default=False)
     code = models.CharField(max_length=50, null=True, blank=True, unique=True)
     short_code = models.CharField(max_length=16, null=True, blank=True, unique=True)
-    email_sent = models.NullBooleanField()
+    email_sent = models.BooleanField(null=True)
     accepted_at = models.DateTimeField(null=True, blank=True)
     sent_at = models.DateTimeField(null=True, blank=True)
     approved_by = models.ForeignKey(
@@ -275,7 +275,7 @@ class Invitation(BaseModel):
         on_delete=models.PROTECT,
         related_name="approved",
     )
-    meta = fields.JSONField(default=dict)
+    meta = models.JSONField(default=dict)
 
     objects = InvitationManager()
 

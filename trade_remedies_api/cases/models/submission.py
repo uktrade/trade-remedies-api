@@ -143,7 +143,7 @@ class Submission(BaseModel):
         "organisations.Organisation", null=True, blank=True, on_delete=models.PROTECT
     )
     contact = models.ForeignKey("contacts.Contact", null=True, blank=True, on_delete=models.PROTECT)
-    review = models.NullBooleanField()
+    review = models.BooleanField(null=True)
     documents = models.ManyToManyField("documents.Document", through="SubmissionDocument")
     doc_reviewed_at = models.DateTimeField(null=True, blank=True)
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.PROTECT)
@@ -181,7 +181,7 @@ class Submission(BaseModel):
         on_delete=models.SET_NULL,
     )
     issued_at = models.DateTimeField(null=True, blank=True)
-    deficiency_notice_params = fields.JSONField(null=True, blank=True)
+    deficiency_notice_params = models.JSONField(null=True, blank=True)
 
     objects = SubmissionManager()
 

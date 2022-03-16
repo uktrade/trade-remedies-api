@@ -91,7 +91,7 @@ class Audit(models.Model):
     content_type = models.ForeignKey(ContentType, null=True, blank=True, on_delete=models.PROTECT)
     milestone = models.BooleanField(default=False)
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.PROTECT)
-    data: dict = fields.JSONField(null=True, blank=True)
+    data: dict = models.JSONField(null=True, blank=True)
 
     def _case_title(self):
         if not self.data:

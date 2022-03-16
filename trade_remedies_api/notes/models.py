@@ -20,7 +20,7 @@ class Note(BaseModel):
     content_type = models.ForeignKey(ContentType, null=False, blank=False, on_delete=models.PROTECT)
     case = models.ForeignKey("cases.Case", null=True, blank=True, on_delete=models.PROTECT)
     documents = models.ManyToManyField("documents.Document", blank=True)
-    data = fields.JSONField(null=True, blank=True)
+    data = models.JSONField(null=True, blank=True)
 
     class Meta:
         index_together = ["content_type", "model_id"]
