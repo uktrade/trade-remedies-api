@@ -517,7 +517,11 @@ class DocumentBundle(SimpleBaseModel):
     description = models.TextField(null=True, blank=True)
     documents = models.ManyToManyField(Document)
     finalised_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, blank=True, related_name="finalised_by", on_delete=models.SET_NULL
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        related_name="finalised_by",
+        on_delete=models.SET_NULL,
     )
     finalised_at = models.DateTimeField(auto_now=True, null=True)
 

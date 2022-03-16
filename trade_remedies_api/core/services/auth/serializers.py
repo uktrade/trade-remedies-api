@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from django.contrib.auth import authenticate
@@ -18,7 +19,10 @@ logger = logging.getLogger(__name__)
 
 class PasswordSerializer(serializers.Serializer):
     """Checks if a password is valid, i.e. meets the minimum complexity requirements."""
-    password = serializers.CharField(label=_("Password"), trim_whitespace=True, write_only=True, required=True)
+
+    password = serializers.CharField(
+        label=_("Password"), trim_whitespace=True, write_only=True, required=True
+    )
 
     def validate_password(self, value: str) -> str:
         try:
@@ -30,7 +34,10 @@ class PasswordSerializer(serializers.Serializer):
 
 class EmailSerializer(serializers.Serializer):
     """Checks that an email address belongs to a user who exists in the database."""
-    email = serializers.CharField(label=_("Email"), write_only=True, trim_whitespace=True, required=True)
+
+    email = serializers.CharField(
+        label=_("Email"), write_only=True, trim_whitespace=True, required=True
+    )
 
     def user_queryset(self, email: str) -> QuerySet:
         return User.objects.filter(email=email.lower())
@@ -51,6 +58,7 @@ class EmailSerializer(serializers.Serializer):
 
 class EmailAvailabilitySerializer(EmailSerializer):
     """Similar to EmailSerializer, but checks if the email address is available and free to use."""
+
     def validate_email(self, value):
         if self.user_queryset(value).exists():
             raise ValidationError(_("User already exists."), code="user_already_exists")
@@ -65,31 +73,31 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
 
     Also exposes a data() method which can be easily returned as part of an HttpResponse object.
     """
-    response_dict = {
-        "version": __version__
-    }
+
+    response_dict = {"version": __version__}
 
     def validate(self, attrs):
-        email = attrs.get('email')
-        password = attrs.get('password')
+        email = attrs.get("email")
+        password = attrs.get("password")
         request = self.context.get("request")
 
         if email and password:
             user = authenticate(
-                request=self.context.get('request'),
-                username=email,
-                password=password
+                request=self.context.get("request"), username=email, password=password
             )
 
             if not user or user.deleted_at:
-                raise AccessDenied(_(
-                    "You have entered an incorrect email address or password. "
-                    "Please try again or click on the Forgotten password link below."
-                ), code='authorization')
+                raise AccessDenied(
+                    _(
+                        "You have entered an incorrect email address or password. "
+                        "Please try again or click on the Forgotten password link below."
+                    ),
+                    code="authorization",
+                )
 
             # ensure the origin of the request is allowed for this user group
             env_key = request.META.get("HTTP_X_ORIGIN_ENVIRONMENT")
-            if not self.context.get("request") or not user.has_groups(groups=ENVIRONMENT_GROUPS[env_key]):
+            if not user.has_groups(groups=ENVIRONMENT_GROUPS[env_key]):
                 if not env_key:
                     logger.error(f"env_key not defined while logging {user.email}")
                 else:
@@ -99,26 +107,32 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
                     )
                 raise AccessDenied(_("Invalid access to environment"))
 
-            email_verified = user.is_tra() or not user.userprofile.email_verified_at
+            email_verified = user.is_tra() or user.userprofile.email_verified_at
             if not email_verified:
                 self.response_dict["needs_verify"] = True
             self.response_dict["token"] = str(user.get_access_token())
 
         else:
-            raise AccessDenied(_("Email and password are required to log in."), code='authorization')
+            raise AccessDenied(
+                _("Email and password are required to log in."), code="authorization"
+            )
 
-        attrs['user'] = user
+        attrs["user"] = user
         return attrs
 
     @property
     def data(self):
         user = self.validated_data["user"]
         user.refresh_from_db()  # We want to refresh the User object in case we've validated invitations in the meantime
-        self.response_dict["user"] = user.to_dict(user_agent=self.context["request"].META.get("HTTP_X_USER_AGENT"))
+        self.response_dict["user"] = user.to_dict(
+            user_agent=self.context["request"].META.get("HTTP_X_USER_AGENT")
+        )
         return self.response_dict
 
 
-class RegistrationSerializer(EmailAvailabilitySerializer, PasswordSerializer, serializers.ModelSerializer):
+class RegistrationSerializer(
+    EmailAvailabilitySerializer, PasswordSerializer, serializers.ModelSerializer
+):
     """Registration serializer used to register new users on the platform.
 
     Validates if registrations are currently being accepted (marked by the REGISTRATION_SOFT_LOCK system parameter) and
@@ -126,9 +140,10 @@ class RegistrationSerializer(EmailAvailabilitySerializer, PasswordSerializer, se
 
     Also deals with the creation of this new user using the relevant method (create_user) on the User manager.
     """
-    code = serializers.CharField(required=False)
-    case_id = serializers.CharField(required=False)
-    confirm_invited_org = serializers.CharField(required=False)
+
+    code = serializers.CharField(required=False, allow_blank=True)
+    case_id = serializers.CharField(required=False, allow_blank=True)
+    confirm_invited_org = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = User
@@ -138,12 +153,17 @@ class RegistrationSerializer(EmailAvailabilitySerializer, PasswordSerializer, se
         attrs = super().validate(attrs=attrs)
         password = attrs["password"]
         if SystemParameter.get("REGISTRATION_SOFT_LOCK") and not password.startswith(
-                SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
+            SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
         ):
-            raise ValidationError(_("Registrations are currently locked."), code='registration_locked')
+            raise ValidationError(
+                _("Registrations are currently locked."), code="registration_locked"
+            )
 
         if attrs.get("code") and attrs.get("case_id") and not attrs.get("confirm_invited_org"):
-            raise ValidationError(_("Organisation name is required."), code="organisation_name_required")
+            raise ValidationError(
+                {"organisation_name": _("Organisation name is required.")},
+                code="organisation_name_required",
+            )
 
         return attrs
 
@@ -165,44 +185,63 @@ class RegistrationSerializer(EmailAvailabilitySerializer, PasswordSerializer, se
         return super().save(**kwargs)
 
 
-class TwoFactorAuthSerializer(EmailSerializer, serializers.ModelSerializer):
+class TwoFactorAuthRequestSerializer(serializers.ModelSerializer):
     """Checks if a given 2fa code is valid.
 
     Used in POST requests to confirm that the token provided by the user is correct and whether or not they should be
     allowed to log in.
     """
+
     class Meta:
         model = TwoFactorAuth
-        fields = ["delivery_type", "code"]
+        fields = ["delivery_type"]
+
+    def validate_delivery_type(self, value):
+        value = value or TwoFactorAuth.SMS
+        if value not in dict(TwoFactorAuth.DELIVERY_TYPE_CHOICES):
+            raise ValidationError(_("Invalid 2FA delivery type requested"))
+        if value == TwoFactorAuth.SMS and not self.instance.user.phone:
+            value = TwoFactorAuth.EMAIL
+        return value
+
+
+class TwoFactorAuthVerifySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TwoFactorAuth
+        fields = ["code"]
 
     def validate(self, attrs):
         if self.instance.is_locked():
-            raise ValidationError(_(
-                "You have entered an incorrect code too many times "
-                "and we have temporarily locked your account.",
-                code="2fa_lockout"
-            ))
+            raise ValidationError(
+                _(
+                    "You have entered an incorrect code too many times "
+                    "and we have temporarily locked your account."
+                ),
+                code="2fa_lockout",
+            )
         if self.instance.validate(attrs["code"]):
-            self.instance.success(user_agent=self.context["request"].META["HTTP_X_USER_AGENT"])
             return attrs
         else:
-            self.instance.fail()
-            raise ValidationError(_("Invalid code"), code="invalid_2fa_code")
+            raise ValidationError({"code": _("Invalid code")}, code="invalid_2fa_code")
 
 
 class VerifyEmailSerializer(serializers.Serializer):
     """Checks if a given email verification code is valid."""
+
     code = serializers.CharField()
 
     def validate_code(self, value):
         profile = self.context["profile"]
         if value == profile.email_verify_code:
             return value
-        raise ValidationError(_("Invalid verification code"), code="invalid_email_verification_code")
+        raise ValidationError(
+            {"code": _("Invalid verification code")}, code="invalid_email_verification_code"
+        )
 
 
-class PasswordResetSerializer(serializers.Serializer):
+class PasswordResetRequestSerializer(serializers.Serializer):
     """Checks if a given password reset token is valid against a given user_pk."""
+
     token = serializers.CharField()
     user_pk = serializers.CharField()
 
@@ -212,5 +251,6 @@ class PasswordResetSerializer(serializers.Serializer):
 
         if PasswordResetRequest.objects.validate_token(token, user_pk, validate_only=True):
             return attrs
-        raise ValidationError(_("Password reset link invalid"), code="password_reset_link_invalid")
-
+        raise ValidationError(
+            {"token": _("Password reset link invalid")}, code="password_reset_link_invalid"
+        )

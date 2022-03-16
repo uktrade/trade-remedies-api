@@ -257,7 +257,9 @@ class Invitation(BaseModel):
     case_role = models.ForeignKey(
         "security.CaseRole", null=True, blank=True, on_delete=models.PROTECT
     )
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT
+    )
     name = models.CharField(max_length=250, null=True, blank=True)
     email = models.EmailField(null=False, blank=False)
     invalid = models.BooleanField(default=False)
@@ -267,7 +269,11 @@ class Invitation(BaseModel):
     accepted_at = models.DateTimeField(null=True, blank=True)
     sent_at = models.DateTimeField(null=True, blank=True)
     approved_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT, related_name="approved"
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="approved",
     )
     meta = fields.JSONField(default=dict)
 

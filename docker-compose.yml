@@ -51,7 +51,7 @@ services:
     ports:
       - "6379:6379"
   opensearch:
-    image: opensearchproject/opensearch:1.0.0
+    image: opensearchproject/opensearch:1.2.4
     restart: unless-stopped
     ports:
       - "9200:9200"

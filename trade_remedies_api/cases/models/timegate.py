@@ -18,7 +18,9 @@ class TimeGateStatus(models.Model):
         "cases.CaseWorkflowState", on_delete=models.PROTECT, primary_key=True
     )
     ack_at = models.DateTimeField(null=True, blank=True)
-    ack_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT)
+    ack_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT
+    )
 
     objects = TimeGateStatusManager()
 

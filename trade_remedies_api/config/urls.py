@@ -33,8 +33,13 @@ urlpatterns = [
     ),
     path(f"{settings.API_PREFIX}/auth/email/verify/", auth_api.VerifyEmailAPI.as_view()),
     path(f"{settings.API_PREFIX}/auth/email/verify/<str:code>/", auth_api.VerifyEmailAPI.as_view()),
-    path(f"{settings.API_PREFIX}/accounts/password/request_reset/", auth_api.RequestPasswordReset.as_view()),
-    path(f"{settings.API_PREFIX}/accounts/password/reset_form/", auth_api.PasswordResetForm.as_view()),
+    path(
+        f"{settings.API_PREFIX}/accounts/password/request_reset/",
+        auth_api.RequestPasswordReset.as_view(),
+    ),
+    path(
+        f"{settings.API_PREFIX}/accounts/password/reset_form/", auth_api.PasswordResetForm.as_view()
+    ),
     path(f"{settings.API_PREFIX}/register/", auth_api.RegistrationAPIView.as_view()),
     path(f"{settings.API_PREFIX}/security/groups/", core_api.SecurityGroupsView.as_view()),
     path(

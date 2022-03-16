@@ -39,7 +39,6 @@ from .decorators import method_cache
 from .constants import SAFE_COLOURS, DEFAULT_USER_COLOUR, TRUTHFUL_INPUT_VALUES
 from .utils import convert_to_e164, filter_dict
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -1013,7 +1012,8 @@ class UserProfile(models.Model):
         template_id = SystemParameter.get("NOTIFY_VERIFY_EMAIL")
         context = {
             "name": self.user.name,
-            "verification_link": f"{settings.PUBLIC_ROOT_URL}/email/verify/?code={self.email_verify_code}",  # noqa: E501
+            "verification_link": f"{settings.PUBLIC_ROOT_URL}/email/verify/?code={self.email_verify_code}",
+            # noqa: E501
         }
         send_report = send_mail(self.user.email, context, template_id)
         return send_report
@@ -1206,11 +1206,16 @@ class PasswordResetManager(models.Manager):
         reset = self.validate_token(token, user_pk)
         if reset:
             validate_password(new_password)
-            user = User.objects.get(pk=user_pk)
-            user.set_password(new_password)
-            user.save()
-            # todo - send email to user alerting them their password has been changed
-            return user
+            try:
+                user = User.objects.get(pk=user_pk)
+                user.set_password(new_password)
+                user.save()
+                # todo - send email to user alerting them their password has been changed
+                return user
+            except User.DoesNotExist:
+                logger.warning(
+                    f"Password reset failed for user {user_pk} as the user could not be found in the database"
+                )
 
 
 class PasswordResetRequest(models.Model):
@@ -1247,7 +1252,9 @@ class PasswordResetRequest(models.Model):
         if self.user.is_tra():
             return f"{settings.CASEWORKER_ROOT_URL}/accounts/password/reset/{self.user.pk}/{self.token}/"  # noqa: E501
         else:
-            return f"{settings.PUBLIC_ROOT_URL}/accounts/password/reset/{self.user.pk}/{self.token}/"
+            return (
+                f"{settings.PUBLIC_ROOT_URL}/accounts/password/reset/{self.user.pk}/{self.token}/"
+            )
 
     def send_reset_link(self):
         template_id = SystemParameter.get("NOTIFY_RESET_PASSWORD")

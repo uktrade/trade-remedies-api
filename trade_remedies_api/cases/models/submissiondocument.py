@@ -54,7 +54,9 @@ class SubmissionDocument(SimpleBaseModel):
     deleted_at = models.DateTimeField(null=True, blank=True)
     issued = models.BooleanField(default=False, blank=True)
     issued_at = models.DateTimeField(null=True, blank=True)
-    issued_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT)
+    issued_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT
+    )
     deficient = models.BooleanField(default=False)
     sufficient = models.BooleanField(default=False)
 
