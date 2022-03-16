@@ -29,7 +29,7 @@ class CaseWorkflow(BaseModel):
     case = models.OneToOneField(
         "cases.Case", related_name="workflow", null=False, blank=False, on_delete=models.PROTECT
     )
-    workflow = fields.JSONField(default=dict)
+    workflow = models.JSONField(default=dict)
 
     objects = CaseWorkflowManager()
 
@@ -195,7 +195,7 @@ class CaseWorkflowState(BaseModel):
 
     case = models.ForeignKey("cases.Case", null=False, blank=False, on_delete=models.PROTECT)
     key = models.CharField(max_length=250, null=False, blank=False, db_index=True)
-    value = fields.JSONField(null=True, blank=True)
+    value = models.JSONField(null=True, blank=True)
     due_date = models.DateTimeField(null=True, blank=True)
 
     objects = CaseWorkflowStateManager()

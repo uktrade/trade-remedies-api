@@ -928,7 +928,7 @@ class UserProfile(models.Model):
     email_verify_code_last_sent = models.DateTimeField(null=True, blank=True)
     email_verified_at = models.DateTimeField(null=True, blank=True)
     last_modified = models.DateTimeField(auto_now=True)
-    settings = fields.JSONField(default=dict)
+    settings = models.JSONField(default=dict)
 
     def __str__(self):
         return "{0}".format(self.user.get_full_name())
@@ -1291,7 +1291,7 @@ class SystemParameter(models.Model):
             ("bool", "Boolean"),
         ],
     )
-    value = fields.JSONField(null=True, blank=True)
+    value = models.JSONField(null=True, blank=True)
     content_type = models.ForeignKey(ContentType, null=True, blank=True, on_delete=models.PROTECT)
     editable = models.BooleanField(default=False)
 

@@ -19,7 +19,7 @@ class CaseType(models.Model):
     workflow = models.ForeignKey(
         "workflow.WorkflowTemplate", null=True, blank=True, on_delete=models.PROTECT
     )
-    meta = fields.JSONField(default=dict)
+    meta = models.JSONField(default=dict)
 
     def __str__(self):
         return self.name

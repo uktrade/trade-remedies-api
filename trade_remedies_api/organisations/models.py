@@ -304,7 +304,7 @@ class Organisation(BaseModel):
     merged_from = models.ForeignKey(
         "self", null=True, blank=True, on_delete=models.PROTECT, related_name="merged_from_org"
     )
-    json_data = fields.JSONField(null=True, blank=True)
+    json_data = models.JSONField(null=True, blank=True)
 
     objects = OrganisationManager()
 
