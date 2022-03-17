@@ -280,7 +280,7 @@ pillow==9.0.1
     #   -r requirements.in/../requirements/base.txt
     #   matplotlib
     #   python-pptx
-pip-tools==6.5.0
+pip-tools==6.5.1
     # via -r requirements.in/dev.in
 platformdirs==2.4.0
     # via
@@ -295,7 +295,7 @@ prompt-toolkit==3.0.24
     #   -r requirements.in/../requirements/base.txt
     #   click-repl
     #   ipython
-psycopg2-binary==2.9.3
+psycopg2-binary==2.8.6
     # via
     #   -r requirements.in/../requirements/base.txt
     #   feed-gov-back

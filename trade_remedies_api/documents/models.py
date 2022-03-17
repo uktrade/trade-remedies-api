@@ -188,7 +188,7 @@ class Document(BaseModel):
     block_from_public_file = models.BooleanField(default=False)
     block_reason = models.CharField(max_length=128, null=True, blank=True)
     blocked_by = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         related_name="documents_blocked_by",
@@ -517,7 +517,11 @@ class DocumentBundle(SimpleBaseModel):
     description = models.TextField(null=True, blank=True)
     documents = models.ManyToManyField(Document)
     finalised_by = models.ForeignKey(
-        "core.User", null=True, blank=True, related_name="finalised_by", on_delete=models.SET_NULL
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        related_name="finalised_by",
+        on_delete=models.SET_NULL,
     )
     finalised_at = models.DateTimeField(auto_now=True, null=True)
 
