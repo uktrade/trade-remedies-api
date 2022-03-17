@@ -15,7 +15,7 @@ def invalidate_existing_reset_requests(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('core', '0024_twofactorauth_delivery_type'),
+        ('core', '0025_auto_20220207_1201'),
     ]
 
     operations = [
