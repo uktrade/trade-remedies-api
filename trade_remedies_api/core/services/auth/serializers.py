@@ -206,6 +206,7 @@ class TwoFactorAuthVerifySerializer(serializers.ModelSerializer):
     Used in POST requests to confirm that the token provided by the user is correct and whether or not they should be
     allowed to log in.
     """
+
     class Meta:
         model = TwoFactorAuth
         fields = ["code"]

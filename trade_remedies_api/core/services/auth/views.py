@@ -222,7 +222,7 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
                     {
                         "result": {
                             "error": "You have entered an incorrect code too many times "
-                                     "and we have temporarily locked your account.",
+                            "and we have temporarily locked your account.",
                             "locked_until": locked_until.strftime(settings.API_DATETIME_FORMAT),
                             "locked_for_seconds": locked_for_seconds,
                         }
@@ -334,9 +334,9 @@ class PasswordResetForm(APIView):
 
         if token_serializer.is_valid() and password_serializer.is_valid():
             if PasswordResetRequest.objects.password_reset(
-                    token_serializer.initial_data["token"],
-                    token_serializer.initial_data["user_pk"],
-                    token_serializer.initial_data["password"],
+                token_serializer.initial_data["token"],
+                token_serializer.initial_data["user_pk"],
+                token_serializer.initial_data["password"],
             ):
                 logger.info(f"Password reset completed for: {user_pk}")
                 return ResponseSuccess({"result": {"reset": True}}, http_status=status.HTTP_200_OK)
