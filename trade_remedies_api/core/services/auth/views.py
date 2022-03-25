@@ -104,7 +104,7 @@ class AuthenticationView(APIView):
             if not user.is_tra() or user.should_two_factor(user_agent=user_agent):
                 user.twofactorauth.two_factor_auth(user_agent=user_agent)
 
-            return ResponseSuccess(serializer.response_dict, http_status=status.HTTP_200_OK)
+            return ResponseSuccess(serializer.data, http_status=status.HTTP_200_OK)
 
     def perform_authentication(self, request):
         """Perform Authentication.
