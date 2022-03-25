@@ -36,14 +36,6 @@ class Command(BaseCommand):
         for user in options["user_id"]:
             user = User.objects.get(pk=user)
 
-        case.assign_organisation_user(user, organisation)
-        # True
-
-        # To fix user contact org
-        user.contact.organisation = organisation
-        user.contact.save()
-        user.refresh_from_db()
-
         organisation_role = OrganisationCaseRole.objects.get_organisation_role(
             case=case, organisation=organisation
         )
@@ -61,6 +53,14 @@ class Command(BaseCommand):
             user_ocr.approved_by = None
             user_ocr.approved_at = timezone.now()
             user_ocr.save()
+
+        case.assign_organisation_user(user, organisation)
+        # True
+
+        # To fix user contact org
+        user.contact.organisation = organisation
+        user.contact.save()
+        user.refresh_from_db()
 
         # We want to create an OrganisationUser if they do not already exist
         organisation_user = OrganisationUser.objects.filter(organisation=organisation, user=user)
