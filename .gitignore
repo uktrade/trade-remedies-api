@@ -131,3 +131,7 @@ postgres_data
 # NER output
 ner_output_file.txt
 /.pii-secret-hook/
+
+# fitness functions
+fitness/fitness_metrics.db
+fitness/fitness_metrics_graph.png
