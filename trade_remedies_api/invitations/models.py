@@ -39,26 +39,29 @@ class InvitationManager(models.Manager):
         else:
             return False
 
-    def get_invite_by_code(self, code, case_id):
+    def get_invite_by_code(self, code, case_id, ignore_accepted=True):
         """
         Validate an invitation exists for user/code/case combination.
         """
         case = get_case(case_id)
         invitation = (
             self.select_related("submission", "submission__organisation", "organisation", "contact")
-            .filter(code=code, case=case, accepted_at__isnull=True, deleted_at__isnull=True)
-            .first()
+            .filter(code=code, case=case, deleted_at__isnull=True)
         )
+        if ignore_accepted:
+            invitation = invitation.filter(accepted_at__isnull=True)
+
+        invitation = invitation.first()
         return invitation
 
-    def validate_all_pending(self, user, code=None, case_id=None):
+    def validate_all_pending(self, user, code=None, case_id=None, ignore_accepted=True):
         """
         validate all pending invitations for a user.
         If code and case are provided, prepare that invitation beforehand.
         """
         accepted = []
         if code and case_id:
-            invitation = self.get_invite_by_code(code, case_id)
+            invitation = self.get_invite_by_code(code, case_id, ignore_accepted=ignore_accepted)
             if invitation:
                 invitation.process_invitation(user, accept=True, register_interest=True)
         pending_invites = self.filter(user=user, accepted_at__isnull=True, deleted_at__isnull=True)
@@ -513,6 +516,10 @@ class Invitation(BaseModel):
             )
             if user.organisation.organisation != organisation:
                 organisation = user.organisation.organisation
+                '''if self.submission.type.id != SUBMISSION_TYPE_INVITE_3RD_PARTY:
+                    # If this is a 3rd party invite, we want to create a registration of interest it has not been
+                    # created before.
+                    pass'''
                 register_interest = False
                 assigned = True
 

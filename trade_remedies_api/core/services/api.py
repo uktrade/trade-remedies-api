@@ -1,6 +1,10 @@
 import json
 import mimetypes
-from .base import TradeRemediesApiView, ResponseSuccess
+
+from rest_framework.response import Response
+
+from .auth.serializers import EmailSerializer
+from .base import ResponseError, TradeRemediesApiView, ResponseSuccess
 from .exceptions import InvalidRequestParams, IntegrityErrorRequest, NotFoundApiExceptions
 from django.contrib.auth.models import Group
 from django.db import transaction
@@ -84,6 +88,18 @@ class SecurityGroupsView(TradeRemediesApiView):
         return ResponseSuccess({"results": groups})
 
 
+class GetUserEmailAPIView(TradeRemediesApiView):
+    def get(self, request, user_email, *args, **kwargs):
+        serializer = EmailSerializer(data={"email": user_email})
+        if serializer.is_valid():
+            return ResponseSuccess({"result": serializer.user.to_dict()})
+        else:
+            return ResponseError(
+                error="User not found",
+                http_status=status.HTTP_404_NOT_FOUND,
+            )
+
+
 class UserApiView(TradeRemediesApiView):
     allowed_groups = {
         "GET": SECURITY_GROUPS_TRA,
@@ -103,8 +119,8 @@ class UserApiView(TradeRemediesApiView):
             groups = request.query_params.getlist("groups")
             users = (
                 User.objects.exclude(groups__name=SECURITY_GROUP_SUPER_USER)
-                .exclude(userprofile__isnull=True)
-                .exclude(deleted_at__isnull=False)
+                    .exclude(userprofile__isnull=True)
+                    .exclude(deleted_at__isnull=False)
             )
             if groups:
                 users = users.filter(groups__name__in=groups)
@@ -302,8 +318,8 @@ class PublicUserApiView(TradeRemediesApiView):
         if not organisation:
             raise InvalidRequestParams("User is not an owner of any organisation")
         if user_id is not None and (
-            user_id == request.user.id
-            or request.user.groups.filter(name=SECURITY_GROUP_ORGANISATION_OWNER).exists()
+                user_id == request.user.id
+                or request.user.groups.filter(name=SECURITY_GROUP_ORGANISATION_OWNER).exists()
         ):
             user = User.objects.get(id=user_id)
             _user = user.to_dict(organisation=organisation)
@@ -312,10 +328,10 @@ class PublicUserApiView(TradeRemediesApiView):
         else:
             users = (
                 User.objects.exclude(groups__name=SECURITY_GROUP_SUPER_USER)
-                .exclude(deleted_at__isnull=False)
-                .filter(groups__name__in=SECURITY_GROUPS_PUBLIC)
-                .filter(organisationuser__organisation__id=organisation_id)
-                .distinct()
+                    .exclude(deleted_at__isnull=False)
+                    .filter(groups__name__in=SECURITY_GROUPS_PUBLIC)
+                    .filter(organisationuser__organisation__id=organisation_id)
+                    .distinct()
             )
             return ResponseSuccess(
                 {"results": [user.to_dict(organisation=organisation) for user in users]}
@@ -455,14 +471,14 @@ class AssignUserToCaseView(TradeRemediesApiView):
 
     @transaction.atomic
     def post(
-        self,
-        request,
-        organisation_id,
-        user_id,
-        case_id,
-        representing_id=None,
-        submission_id=None,
-        invite_id=None,
+            self,
+            request,
+            organisation_id,
+            user_id,
+            case_id,
+            representing_id=None,
+            submission_id=None,
+            invite_id=None,
     ):
         from cases.models import get_case
 

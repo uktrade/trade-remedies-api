@@ -169,7 +169,7 @@ class UserManager(BaseUserManager):
             except NumberParseException:
                 pass
 
-        if country == "code":
+        if country in ["code", "name"]:
             country = "GB"
 
         contact = kwargs.get("contact")

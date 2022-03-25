@@ -13,11 +13,11 @@ from django.views.decorators.csrf import csrf_exempt
 from notifications_python_client.errors import HTTPError
 from rest_framework import status
 from rest_framework.views import APIView
-
+from django.utils.translation import gettext_lazy as _
 from core.models import PasswordResetRequest, SystemParameter, UserProfile
 from core.notifier import send_mail
 from core.services.base import ResponseError, ResponseSuccess, TradeRemediesApiView
-from core.services.exceptions import InvalidRequestParams
+from core.services.exceptions import AccessDenied, InvalidRequestParams
 from invitations.models import Invitation
 from security.constants import (
     SECURITY_GROUP_ORGANISATION_OWNER,
@@ -95,7 +95,7 @@ class AuthenticationView(APIView):
             login(request, user)  # Logging the user in
             reset(username=email)  # Reset any remaining access attempts
             invites = Invitation.objects.validate_all_pending(
-                user, code, case_id
+                user, code, case_id, ignore_accepted=False
             )  # validate all pending invitations
             if invites:
                 user.refresh_from_db()
@@ -104,7 +104,15 @@ class AuthenticationView(APIView):
             if not user.is_tra() or user.should_two_factor(user_agent=user_agent):
                 user.twofactorauth.two_factor_auth(user_agent=user_agent)
 
-            return ResponseSuccess(serializer.response_dict, http_status=status.HTTP_200_OK)
+            return ResponseSuccess(serializer.data, http_status=status.HTTP_200_OK)
+        else:
+            raise AccessDenied(
+                _(
+                    "You have entered an incorrect email address or password. "
+                    "Please try again or click on the Forgotten password link below."
+                ),
+                code="authorization",
+            )
 
     def perform_authentication(self, request):
         """Perform Authentication.
