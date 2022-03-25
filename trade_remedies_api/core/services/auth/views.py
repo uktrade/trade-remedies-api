@@ -24,6 +24,7 @@ from security.constants import (
     SECURITY_GROUP_ORGANISATION_USER,
     SECURITY_GROUP_THIRD_PARTY_USER,
 )
+
 from .serializers import (
     AuthenticationSerializer,
     EmailAvailabilitySerializer,
