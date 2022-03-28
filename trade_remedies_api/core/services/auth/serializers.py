@@ -152,7 +152,7 @@ class RegistrationSerializer(
         attrs = super().validate(attrs=attrs)
         password = attrs["password"]
         if SystemParameter.get("REGISTRATION_SOFT_LOCK") and not password.startswith(
-            SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
+                SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
         ):
             raise ValidationError(
                 _("Registrations are currently locked."), code="registration_locked"
@@ -172,7 +172,7 @@ class RegistrationSerializer(
             # It gets overridden by the validated_data
             new_initial_data = dict(self.initial_data)
             nid = {}
-            for key,value in new_initial_data.items():
+            for key, value in new_initial_data.items():
                 if isinstance(value, list):
                     nid[key] = value[0]
                 else:

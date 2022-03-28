@@ -95,9 +95,7 @@ class AuthenticationView(APIView):
 
             login(request, user)  # Logging the user in
             reset(username=email)  # Reset any remaining access attempts
-            invites = Invitation.objects.validate_all_pending(
-                user, code, case_id, ignore_accepted=False
-            )  # validate all pending invitations
+            invites = Invitation.objects.validate_all_pending(user, code, case_id)  # validate all pending invitations
             if invites:
                 user.refresh_from_db()
 
