@@ -62,7 +62,8 @@ class InvitationManager(models.Manager):
         accepted = []
         if code and case_id:
             invitation = self.get_invite_by_code(code, case_id, ignore_accepted=ignore_accepted)
-            if invitation:
+            if invitation and invitation.email == user.email:
+                # We only want to process the invitation if it belongs to the user logging in
                 invitation.process_invitation(user, accept=True, register_interest=True)
         pending_invites = self.filter(user=user, accepted_at__isnull=True, deleted_at__isnull=True)
         for invite in pending_invites:
@@ -563,6 +564,22 @@ class Invitation(BaseModel):
             assigned = True
             accept = True
         elif self.submission and self.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY:
+            # Check if this organisation has an association with this case already, if not, we create a registration of
+            # interest for them
+            '''if not OrganisationCaseRole.objects.has_organisation_case_role(organisation=organisation, case=self.case):
+                # There's no association, create a registration of interest
+                submission_type = SubmissionType.objects.get(id=SUBMISSION_TYPE_REGISTER_INTEREST)
+                reg_interest = Submission(
+                    created_by=user,
+                    name=submission_type.name,
+                    type=submission_type,
+                    status=submission_type.default_status,
+                    organisation=organisation,
+                    case=self.case,
+                    contact=user.contact,
+                    user_context=user,
+                )
+                reg_interest.save()'''
             # Assign the Third Party's organisation to the case as a contributor
             case_role = CaseRole.objects.get(id=ROLE_CONTRIBUTOR)
             OrganisationCaseRole.objects.assign_organisation_case_role(
@@ -575,6 +592,7 @@ class Invitation(BaseModel):
                 approved_at=self.created_at,
             )
             assigned = self.assign_case_user(user=user, organisation=organisation)
+
         else:
             assigned = self.assign_case_user(user=user, organisation=organisation)
         if assign_to_organisation:

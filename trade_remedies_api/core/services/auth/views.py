@@ -155,7 +155,7 @@ class RegistrationAPIView(APIView):
                 # register interest if this is the first user of this organisation
                 register_interest = not invited_organisation.has_users
                 contact_kwargs = {}
-                if serializer.initial_data["confirm_invited_org"] == "true":
+                if serializer.initial_data["confirm_invited_org"] == "True":
                     contact_kwargs = {
                         "contact": invitation.contact,
                     }
