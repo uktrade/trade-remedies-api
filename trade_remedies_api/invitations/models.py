@@ -386,6 +386,7 @@ class Invitation(BaseModel):
                     "invited_by_organisation": self.submission.organisation.name
                     if self.submission
                     else "",
+                    "e_additional_invite_information": ""
                 }
             )
         # Set email and footer appropriate to case context
