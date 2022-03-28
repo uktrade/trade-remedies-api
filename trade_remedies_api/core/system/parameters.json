@@ -261,9 +261,9 @@
         "editable": true
     },
     {
-        "key": "NOTIFY_COMPANY_ROLE_CHANGED",
+        "key": "NOTIFY_COMPANY_ROLE_CHANGED_V2",
         "data_type": "str",
-        "default": "0660ce64-9f4d-4e24-91cd-cfc199fe393b"
+        "default": "1d621d2d-d7d7-403f-8fad-f13f6254660a"
     },
     {
         "key": "NOTIFY_COMPANY_ROLE_DENIED",
