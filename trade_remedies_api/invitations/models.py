@@ -588,8 +588,6 @@ class Invitation(BaseModel):
                 role=case_role,
                 sampled=True,
                 created_by=self.submission.created_by,
-                approved_by=self.created_by,
-                approved_at=self.created_at,
             )
             assign_to_organisation = True  # maybe we don't need this if the user is already assigned
             assigned = False

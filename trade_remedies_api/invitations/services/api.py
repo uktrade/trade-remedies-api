@@ -69,15 +69,15 @@ class InvitationsAPIView(TradeRemediesApiView):
     """
 
     def get(
-        self,
-        request,
-        case_id=None,
-        contact_id=None,
-        submission_id=None,
-        invitation_id=None,
-        organisation_id=None,
-        *args,
-        **kwargs,
+            self,
+            request,
+            case_id=None,
+            contact_id=None,
+            submission_id=None,
+            invitation_id=None,
+            organisation_id=None,
+            *args,
+            **kwargs,
     ):
         if invitation_id:
             invitation = Invitation.objects.get_user_invite(
@@ -107,7 +107,7 @@ class InvitationsAPIView(TradeRemediesApiView):
 
     @transaction.atomic
     def post(
-        self, request, contact_id, case_id, case_role_id=None, submission_id=None, *args, **kwargs
+            self, request, contact_id, case_id, case_role_id=None, submission_id=None, *args, **kwargs
     ):
         notify_template_key = None
         try:
@@ -322,12 +322,29 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
         :param (dict) request_data: Invite parameters.
         """
         invitee_organisation = InviteThirdPartyAPI.get_invitee_org(request_user, request_data)
-        contact = Contact.objects.create(
+
+        contact_query_kwargs = {
+            "name": request_data.get("name"),
+            "email": request_data.get("email", "").lower(),
+            "organisation": invitee_organisation,
+        }
+
+        try:
+            contact, _ = Contact.objects.get_or_create(
+                **contact_query_kwargs,
+                defaults={
+                    "created_by": request_user
+                }
+            )
+        except Contact.MultipleObjectsReturned:
+            contact = Contact.objects.filter(**contact_query_kwargs).first()
+
+        '''contact = Contact.objects.create(
             name=request_data.get("name"),
             email=request_data.get("email", "").lower(),
             organisation=invitee_organisation,
             created_by=request_user,
-        )
+        )'''
         third_party_group = Group.objects.get(name=SECURITY_GROUP_THIRD_PARTY_USER)
         invite = Invitation.objects.create(
             created_by=request_user,
@@ -371,8 +388,8 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
         :returns (Organisation): A new or existing organisation.
         """
         if requested_organisation := Organisation.objects.filter(
-            name=request_data.get("organisation_name"),
-            companies_house_id=request_data.get("companies_house_id"),
+                name=request_data.get("organisation_name"),
+                companies_house_id=request_data.get("companies_house_id"),
         ).first():
             return requested_organisation
         else:
@@ -503,8 +520,8 @@ class UserInvitations(TradeRemediesApiView):
     def get(self, request, invite_id=None, *args, **kwargs):
         invites = (
             Invitation.objects.filter(organisation=request.user.organisation.organisation)
-            .exclude(accepted_at__isnull=False)
-            .exclude(case__isnull=False)
-            .exclude(deleted_at__isnull=False)
+                .exclude(accepted_at__isnull=False)
+                .exclude(case__isnull=False)
+                .exclude(deleted_at__isnull=False)
         )
         return ResponseSuccess({"results": [invite.to_dict() for invite in invites]})
