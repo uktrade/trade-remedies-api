@@ -266,9 +266,9 @@
         "default": "1d621d2d-d7d7-403f-8fad-f13f6254660a"
     },
     {
-        "key": "NOTIFY_COMPANY_ROLE_DENIED",
+        "key": "NOTIFY_COMPANY_ROLE_DENIED_V2",
         "data_type": "str",
-        "default": "0bb921a4-1cd7-4903-8327-693692932a2d"
+        "default": "82a96f97-a4c6-4ce9-bb6f-920983f0e8ce"
     },
     {
         "key": "NOTIFY_APPLICATION_CANCELLED",
