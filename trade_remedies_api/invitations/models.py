@@ -16,7 +16,7 @@ from audit.utils import audit_log
 from audit import AUDIT_TYPE_NOTIFY, AUDIT_TYPE_EVENT
 from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST, SUBMISSION_TYPE_INVITE_3RD_PARTY
 from security.constants import (
-    SECURITY_GROUP_ORGANISATION_OWNER,
+    ROLE_AWAITING_APPROVAL, SECURITY_GROUP_ORGANISATION_OWNER,
     SECURITY_GROUP_ORGANISATION_USER,
     ROLE_PREPARING,
     ROLE_CONTRIBUTOR,
@@ -566,7 +566,7 @@ class Invitation(BaseModel):
         elif self.submission and self.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY:
             # Check if this organisation has an association with this case already, if not, we create a registration of
             # interest for them
-            '''if not OrganisationCaseRole.objects.has_organisation_case_role(organisation=organisation, case=self.case):
+            if not OrganisationCaseRole.objects.has_organisation_case_role(organisation=organisation, case=self.case):
                 # There's no association, create a registration of interest
                 submission_type = SubmissionType.objects.get(id=SUBMISSION_TYPE_REGISTER_INTEREST)
                 reg_interest = Submission(
@@ -579,7 +579,7 @@ class Invitation(BaseModel):
                     contact=user.contact,
                     user_context=user,
                 )
-                reg_interest.save()'''
+                reg_interest.save()
             # Assign the Third Party's organisation to the case as a contributor
             case_role = CaseRole.objects.get(id=ROLE_CONTRIBUTOR)
             OrganisationCaseRole.objects.assign_organisation_case_role(
@@ -591,7 +591,10 @@ class Invitation(BaseModel):
                 approved_by=self.created_by,
                 approved_at=self.created_at,
             )
-            assigned = self.assign_case_user(user=user, organisation=organisation)
+            assign_to_organisation = True  # maybe we don't need this if the user is already assigned
+            assigned = False
+            accept = True
+            #assigned = self.assign_case_user(user=user, organisation=organisation)
 
         else:
             assigned = self.assign_case_user(user=user, organisation=organisation)
@@ -611,14 +614,15 @@ class Invitation(BaseModel):
                 original_contact.delete()
                 self.save()
 
-            if accept:
-                self.accepted()
-                self.user.refresh_from_db()
-                self.refresh_from_db()
-            else:
-                self.save()
         elif self.user:
             raise InvitationFailure("could not assign user to case or organisation")
+
+        if accept:
+            self.accepted()
+            user.refresh_from_db()
+            self.refresh_from_db()
+        else:
+            self.save()
         return assigned
 
     def compare_user_contact(self):

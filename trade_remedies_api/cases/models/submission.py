@@ -583,7 +583,7 @@ class Submission(BaseModel):
             "organisation": organisation,
             "organisation_name": self.organisation_name,
             "organisation_case_role": org_case_role.to_dict() if org_case_role else None,
-            "organisation_case_role_outer": org_case_role_outer.to_dict()
+            "organisation_case_role_outer": org_case_role_outer.to_dict(self.case)
             if org_case_role_outer
             else None,
             "is_tra": str(self.organisation and self.organisation.id) == TRA_ORGANISATION_ID,
