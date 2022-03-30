@@ -599,8 +599,8 @@ class Organisation(BaseModel):
         templates_map = {
             "approve": "NOTIFY_INTERESTED_PARTY_REQUEST_PERMITTED",
             "deny": "NOTIFY_INTERESTED_PARTY_REQUEST_DENIED",
-            "change": "NOTIFY_COMPANY_ROLE_CHANGED",
-            "remove": "NOTIFY_COMPANY_ROLE_DENIED",
+            "change": "NOTIFY_COMPANY_ROLE_CHANGED_V2",
+            "remove": "NOTIFY_COMPANY_ROLE_DENIED_V2",
         }
         template_id = templates_map.get(action)
         if template_id:
