@@ -741,7 +741,9 @@ class Submission(BaseModel):
         back to the default deficiency template.
         """
         contact = contact or self.contact
-        template_id = template_id or "NOTIFY_APPLICATION_INSUFFICIENT_V2"
+        template_id = "NOTIFY_SUBMISSION_DEFICIENCY"
+        if context.get("submission_type", "") == "Application":
+            template_id = "NOTIFY_APPLICATION_INSUFFICIENT_V2"
         notify_template_id = SystemParameter.get(template_id)
         product = self.case.product_set.first()
         product_name = product.name if product else ""
