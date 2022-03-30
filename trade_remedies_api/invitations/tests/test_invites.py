@@ -11,14 +11,12 @@ from security.constants import (
     ROLE_APPLICANT,
 )
 
-
 PASSWORD = "A7Hhfa!jfaw@f"
 
 
-class InviteTest(TestCase):
-    fixtures = ["roles.json", "actions.json"]
-
+class InviteTestBase(TestCase):
     def setUp(self):
+        super().setUp()
         Group.objects.create(name=SECURITY_GROUP_ORGANISATION_OWNER)
         self.case_role = CaseRole.objects.get(id=ROLE_APPLICANT)
         self.caseworker = User.objects.create(email="case@worker.com", name="Case Worker")  # /PS-IGNORE
@@ -33,9 +31,13 @@ class InviteTest(TestCase):
         self.contact_1 = Contact.objects.create(name="Test User", email="standard@test.com")  # /PS-IGNORE
         self.contact_2 = Contact.objects.create(name="Other User", email="nonstandard@test.com")  # /PS-IGNORE
 
+
+class InviteTest(InviteTestBase):
+    fixtures = ["roles.json", "actions.json"]
+
     def test_invite_different_person(self):
         """
-        Test a scenario where invited user is different than the contact invited
+        Test a scenario where invited user is different from the contact invited
         """
         invite = Invitation.objects.create(
             created_by=self.caseworker,
@@ -52,7 +54,7 @@ class InviteTest(TestCase):
 
     def test_invite_same_person(self):
         """
-        Test a scenario where invited user is the same as than the contact invited
+        Test a scenario where invited user is the same as the contact invited
         """
         invite = Invitation.objects.create(
             created_by=self.caseworker,

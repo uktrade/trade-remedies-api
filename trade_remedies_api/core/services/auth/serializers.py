@@ -51,7 +51,7 @@ class EmailSerializer(serializers.Serializer):
 
     def validate_email(self, value: str) -> str:
         """Email field validator."""
-        self.get_user(value)
+        self.user = self.get_user(value)
         return value
 
 
@@ -170,15 +170,17 @@ class RegistrationSerializer(
         if not self.instance:  # This is a new user
             # We need the initial_data as it contains the POST data used to create the User, e.g. organisation_name
             # It gets overridden by the validated_data
-            validated_data = {**self.initial_data, **self.validated_data, **kwargs}
+
             # Very very strange, unpacking the initial_data dictionary turns strings into lists, need to revert
-            new_validated_data = {}
-            for key, value in validated_data.items():
+            new_initial_data = dict(self.initial_data)
+            nid = {}
+            for key, value in new_initial_data.items():
                 if isinstance(value, list):
-                    new_validated_data[key] = value[0]
+                    nid[key] = value[0]
                 else:
-                    new_validated_data[key] = value
-            new_user = User.objects.create_user(**new_validated_data)
+                    nid[key] = value[0]
+            validated_data = {**nid, **self.validated_data, **kwargs}
+            new_user = User.objects.create_user(**validated_data)
             new_user.userprofile.verify_email()
             return new_user
         return super().save(**kwargs)
