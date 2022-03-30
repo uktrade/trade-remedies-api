@@ -496,7 +496,7 @@ class Invitation(BaseModel):
         inviting this user to his view of the case (silo).
         The user will be added to the case under the inviting organisation.
 
-        By default the invitation is not accepted unless accept is True. This is
+        By default, the invitation is not accepted unless accept is True. This is
         done on first login where all pending invites are accepted.
         Generic invites, which are not tied to a specific user will not be updated
         with the invite details.
@@ -505,16 +505,21 @@ class Invitation(BaseModel):
         situations where the TRA are inviting a user they have added as a party themselves.
 
         If register_interest is True, a registration of interest will be created for this user
-        for the case represented in the invite. If the user arrives without an organisation
+        for the case represented in the invite.
+
+        If the user arrives without an organisation
         it will be because they have arrived via the invite flow and elected that they
         are the organisation invited. In this scenario the organisation invited will be their
         organisation.
+
         If the user already has an organisation, that differs from the one invited,
         a registration of interest will not be created.
+
         In the case where the invite originated from the caseworker, the organisation will
         be pre-approved to the case, thus retaining their role even as the user
         follows through the registration of interest
         (what would normally make them 'awaiting approval').
+
         The organisation will still require verification
         by the TRA before they are approved to the case.
         """
@@ -595,7 +600,6 @@ class Invitation(BaseModel):
                 self.create_registration_of_interest(user=user, organisation=organisation)
             # Assign the Third Party's organisation to the case as a contributor
             case_role = CaseRole.objects.get(id=ROLE_CONTRIBUTOR)
-            self.assign_organisation_case_role(organisation)
             OrganisationCaseRole.objects.assign_organisation_case_role(
                 organisation=organisation,
                 case=self.case,
