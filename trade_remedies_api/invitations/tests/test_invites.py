@@ -35,7 +35,7 @@ class InviteTest(TestCase):
 
     def test_invite_different_person(self):
         """
-        Test a scenario where invited user is different than the contact invited
+        Test a scenario where invited user is different from the contact invited
         """
         invite = Invitation.objects.create(
             created_by=self.caseworker,
@@ -52,7 +52,7 @@ class InviteTest(TestCase):
 
     def test_invite_same_person(self):
         """
-        Test a scenario where invited user is the same as than the contact invited
+        Test a scenario where invited user is the same as the contact invited
         """
         invite = Invitation.objects.create(
             created_by=self.caseworker,
