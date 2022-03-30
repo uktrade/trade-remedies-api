@@ -19,6 +19,7 @@ class InviteTest(TestCase):
     fixtures = ["roles.json", "actions.json", "submission_document_types.json"]
 
     def setUp(self):
+        super().setUp()
         Group.objects.create(name=SECURITY_GROUP_ORGANISATION_OWNER)
         self.case_role = CaseRole.objects.get(id=ROLE_APPLICANT)
         self.caseworker = User.objects.create(email="case@worker.com", name="Case Worker")  # /PS-IGNORE
