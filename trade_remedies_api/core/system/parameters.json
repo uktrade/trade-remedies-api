@@ -188,9 +188,9 @@
         "default": "d6fb3018-2338-40c9-aa6d-f1195f5f65de"
     },
     {
-        "key": "NOTIFY_APPLICATION_INSUFFICIENT",
+        "key": "NOTIFY_APPLICATION_INSUFFICIENT_V2",
         "data_type": "str",
-        "default": "6af847a8-a48b-4bf9-bf26-289302864a83"
+        "default": "d653eb1b-e4c7-46e5-a92d-6b3c16e76db7"
     },
     {
         "key": "DUPE-NOTIFY_APPLICATION_SUCCESSFUL",
