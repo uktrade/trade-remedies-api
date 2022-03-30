@@ -11,13 +11,10 @@ from security.constants import (
     ROLE_APPLICANT,
 )
 
-
 PASSWORD = "A7Hhfa!jfaw@f"
 
 
-class InviteTest(TestCase):
-    fixtures = ["roles.json", "actions.json", "submission_document_types.json"]
-
+class InviteTestBase(TestCase):
     def setUp(self):
         super().setUp()
         Group.objects.create(name=SECURITY_GROUP_ORGANISATION_OWNER)
@@ -33,6 +30,10 @@ class InviteTest(TestCase):
         self.organisation = Organisation.objects.create(name="Test Org")
         self.contact_1 = Contact.objects.create(name="Test User", email="standard@test.com")  # /PS-IGNORE
         self.contact_2 = Contact.objects.create(name="Other User", email="nonstandard@test.com")  # /PS-IGNORE
+
+
+class InviteTest(InviteTestBase):
+    fixtures = ["roles.json", "actions.json"]
 
     def test_invite_different_person(self):
         """

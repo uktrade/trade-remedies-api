@@ -5,14 +5,15 @@ from cases.models import Submission, SubmissionType
 from contacts.models import Contact
 from core.models import User
 from invitations.models import Invitation
-from invitations.tests.test_invites import InviteTest, PASSWORD
+from invitations.tests.test_invites import InviteTestBase, PASSWORD
 from organisations.models import Organisation
 from security.constants import SECURITY_GROUP_ORGANISATION_USER
 from security.models import OrganisationCaseRole
 from django.contrib.auth.models import Group
 
 
-class ThirdPartyInviteTest(InviteTest):
+class ThirdPartyInviteTest(InviteTestBase):
+    fixtures = ["roles.json", "actions.json", "submission_document_types.json"]
 
     def setUp(self) -> None:
         super().setUp()
