@@ -91,7 +91,10 @@ urlpatterns = [
     path(f"{settings.API_PREFIX}/users/", core_api.UserApiView.as_view()),
     path(f"{settings.API_PREFIX}/users/<str:user_group>/", core_api.UserApiView.as_view()),
     path(f"{settings.API_PREFIX}/user/<uuid:user_id>/", core_api.UserApiView.as_view()),
-    path(f"{settings.API_PREFIX}/user/get_user_by_email/<str:user_email>/", core_api.GetUserEmailAPIView.as_view()),
+    path(
+        f"{settings.API_PREFIX}/user/get_user_by_email/<str:user_email>/",
+        core_api.GetUserEmailAPIView.as_view(),
+    ),
     path(f"{settings.API_PREFIX}/user/create/", core_api.UserApiView.as_view()),
     path(
         f"{settings.API_PREFIX}/user/organisation/<uuid:organisation_id>/create/pending/",

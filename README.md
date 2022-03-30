@@ -3,7 +3,7 @@
 [![image](https://circleci.com/gh/uktrade/trade-remedies-api/tree/develop.svg?style=svg)](https://circleci.com/gh/uktrade/trade-remedies-api/tree/develop)
 [![GitHub license](https://badgen.net//github/license/uktrade/trade-remedies-api/)](https://github.com/uktrade/trade-remedies-api/blob/master/LICENSE)
 [![GitHub open-pull-requests](https://badgen.net/github/open-prs/uktrade/trade-remedies-api/)](https://github.com/uktrade/trade-remedies-api/pulls?q=is%3Aopen)
-[![Generic badge](https://badgen.net/badge/code%20style/black/black/)](https://github.com/psf/black/)
+[![Generic badge](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black/)
 [![Generic badge](https://badgen.net/badge/pep/flake8/grey/)](https://pypi.org/project/flake8/)
 
 [docker_proj]: (https://github.com/uktrade/trade-remedies-docker)
@@ -20,15 +20,15 @@ the box, however you will need to ask a live services team colleague for `S3`,
 `AV`, `GOV Notify` and `Companies House` keys (alternatively refer to the
 `dev` PaaS environment setup in `Vault`).
 
-All other local setup and usage should be performed using the [TRS Orchestration Project][docker_proj],
+All other local setup and usage should be performed using the [TRS Orchestration Project]([docker_proj]),
 clone the repo and follow the `README` instructions to get instances of the
 API, Caseworker and Public services running locally.
 
 ## Interacting with Django
 Most interactions can be performed using the `makefile` targets described in 
-the [TRS Orchestration Project][docker_proj].
+the [TRS Orchestration Project]([docker_proj]).
 
-Alternatively, in the [orchestration project repo][docker_proj]:
+Alternatively, in the [orchestration project repo]([docker_proj]):
 
     make bash service=api
     ./manage.py
@@ -50,7 +50,7 @@ Revert to old branding (defined _in_ the management command):
 
 ## Testing
 Tests (including BDD testing) should be invoked from the
-[orchestration project repo][docker_proj].
+[orchestration project repo]([docker_proj]).
 
 ## Fitness Functions
 ![Current fitness metrics for TRSV2](fitness/fitness_metrics_graph.png)

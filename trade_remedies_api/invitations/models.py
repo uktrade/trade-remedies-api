@@ -1,25 +1,26 @@
 import uuid
-from django.db import models, transaction
+
 from django.conf import settings
-from core.base import BaseModel
 from django.contrib.auth.models import Group
-from django.contrib.postgres import fields
-from django.utils import timezone, crypto
-from cases.models import Submission, SubmissionType, get_case
-from organisations.models import Organisation, get_organisation
-from core.tasks import send_mail
-from core.models import SystemParameter, User
-from core.notifier import notify_footer, notify_contact_email
-from core.utils import convert_to_e164
-from contacts.models import Contact, CaseContact
+from django.db import models, transaction
+from django.utils import crypto, timezone
+
+from audit import AUDIT_TYPE_EVENT, AUDIT_TYPE_NOTIFY
 from audit.utils import audit_log
-from audit import AUDIT_TYPE_NOTIFY, AUDIT_TYPE_EVENT
-from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST, SUBMISSION_TYPE_INVITE_3RD_PARTY
+from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY, SUBMISSION_TYPE_REGISTER_INTEREST
+from cases.models import Submission, SubmissionType, get_case
+from contacts.models import CaseContact, Contact
+from core.base import BaseModel
+from core.models import SystemParameter, User
+from core.notifier import notify_contact_email, notify_footer
+from core.tasks import send_mail
+from core.utils import convert_to_e164
+from organisations.models import Organisation, get_organisation
 from security.constants import (
-    ROLE_AWAITING_APPROVAL, SECURITY_GROUP_ORGANISATION_OWNER,
-    SECURITY_GROUP_ORGANISATION_USER,
-    ROLE_PREPARING,
     ROLE_CONTRIBUTOR,
+    ROLE_PREPARING,
+    SECURITY_GROUP_ORGANISATION_OWNER,
+    SECURITY_GROUP_ORGANISATION_USER,
 )
 from .exceptions import InvitationFailure, InviteAlreadyAccepted
 
@@ -44,10 +45,9 @@ class InvitationManager(models.Manager):
         Validate an invitation exists for user/code/case combination.
         """
         case = get_case(case_id)
-        invitation = (
-            self.select_related("submission", "submission__organisation", "organisation", "contact")
-                .filter(code=code, case=case, deleted_at__isnull=True)
-        )
+        invitation = self.select_related(
+            "submission", "submission__organisation", "organisation", "contact"
+        ).filter(code=code, case=case, deleted_at__isnull=True)
         if ignore_accepted:
             invitation = invitation.filter(accepted_at__isnull=True)
 
@@ -81,6 +81,7 @@ class InvitationManager(models.Manager):
         Raises an InvitationFailure if the code is not found
         """
         try:
+
             invite = self.get(short_code=short_code, deleted_at__isnull=True)
             organisation_user = invite.process_invitation(user=user, accept=False)
             organisation = organisation_user.organisation
@@ -134,9 +135,9 @@ class InvitationManager(models.Manager):
                 "and has accepted the invite."
             )
         if (
-                not created
-                and (timezone.now() - invite.created_at).seconds / 3600
-                > settings.ORGANISATION_INVITE_DURATION_HOURS
+            not created
+            and (timezone.now() - invite.created_at).seconds / 3600
+            > settings.ORGANISATION_INVITE_DURATION_HOURS
         ):
             invite = invite.recreate()
         invite.created_by = invited_by
@@ -219,8 +220,8 @@ class InvitationManager(models.Manager):
         """
         invite = Invitation.objects.get(id=invite_id, deleted_at__isnull=True)
         if (
-                requested_by.is_tra()
-                or invite.created_by.organisation.organisation == requested_by.organisation.organisation
+            requested_by.is_tra()
+            or invite.created_by.organisation.organisation == requested_by.organisation.organisation
         ):
             return invite
         return None
@@ -453,11 +454,7 @@ class Invitation(BaseModel):
         return organisation.assign_user(user, group)
 
     def create_registration_of_interest(
-            self,
-            user: User,
-            organisation: Organisation,
-            submission_type: SubmissionType = None,
-            **kwargs
+        self, user: User, organisation: Organisation, **kwargs
     ) -> Submission:
         """
         Creates and returns a new registration of interest.
@@ -472,18 +469,16 @@ class Invitation(BaseModel):
             Submission object
         """
 
-        submission_type = submission_type if submission_type else SubmissionType.objects.get(
-            id=SUBMISSION_TYPE_REGISTER_INTEREST
-        )
+        submission_type = SubmissionType.objects.get(id=SUBMISSION_TYPE_REGISTER_INTEREST)
         submission_kwargs = {
             "created_by": user,
-            "name": submission_type.name,
-            "type": submission_type,
-            "status": submission_type.default_status,
             "organisation": organisation,
+            "type": submission_type,
+            "name": submission_type.name,
+            "status": submission_type.default_status,
             "case": self.case,
             "contact": user.contact,
-            "user_context": user
+            "user_context": user,
         }
         submission_kwargs = {**submission_kwargs, **kwargs}
         new_registration_of_interest = Submission(**submission_kwargs)
@@ -491,12 +486,12 @@ class Invitation(BaseModel):
 
     @transaction.atomic  # noqa:C901
     def process_invitation(
-            self,
-            user: User,
-            accept: bool = False,
-            organisation: Organisation = None,
-            assign_to_organisation: bool = False,
-            register_interest: bool = False,
+        self,
+        user: User,
+        accept: bool = False,
+        organisation: Organisation = None,
+        assign_to_organisation: bool = False,
+        register_interest: bool = False,
     ):
         """
         Process an invitation for a user. An invitation is usually generated by another user
@@ -558,7 +553,9 @@ class Invitation(BaseModel):
 
         # if a registration of interest is to be created, do it now.
         if register_interest:
-            reg_interest = self.create_registration_of_interest(user=user, organisation=organisation)
+            reg_interest = self.create_registration_of_interest(
+                user=user, organisation=organisation
+            )
             try:
                 # retain the existing role of the organisation in the case, if available
                 existing_case_role = OrganisationCaseRole.objects.get(
@@ -586,18 +583,21 @@ class Invitation(BaseModel):
             accept = True
         elif self.submission and self.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY:
             # We're dealing with a 3rd party, currently we want to treat this as a usual contributor who has to go
-            # through a verification process like anyone else, but todo: assign them different depending on whether
-            # or not they've been verified in the past / other factors
+            # through a verification process like anyone else, but:
+            # todo: assign them different depending on whether or not they've been verified in the past / other factors
 
             # Check if this organisation has an association with this case already, if not, we create a registration of
             # interest for them
-            if not OrganisationCaseRole.objects.has_organisation_case_role(organisation=organisation, case=self.case):
+            if not OrganisationCaseRole.objects.has_organisation_case_role(
+                organisation=organisation, case=self.case
+            ):
                 # There's no existing association, create a registration of interest in DRAFT stage. Once logged in,
                 # they will be able to see and submit this draft, undergo a verification process, and submit evidence
                 # to the case
                 self.create_registration_of_interest(user=user, organisation=organisation)
             # Assign the Third Party's organisation to the case as a contributor
             case_role = CaseRole.objects.get(id=ROLE_CONTRIBUTOR)
+            self.assign_organisation_case_role(organisation)
             OrganisationCaseRole.objects.assign_organisation_case_role(
                 organisation=organisation,
                 case=self.case,
@@ -607,7 +607,9 @@ class Invitation(BaseModel):
                 # Notably, we don't want to create this OrganisationCaseRole as approved, as this will stop the
                 # registration of interest showing as draft
             )
-            assign_to_organisation = True  # todo - maybe we don't need this if the user is already assigned
+            assign_to_organisation = (
+                True  # todo - maybe we don't need this if the user is already assigned
+            )
             assigned = False  # We're not assigning them to the case yet, so this is True
             accept = True  # We want the invitation to be accepted
         else:

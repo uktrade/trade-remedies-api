@@ -152,7 +152,7 @@ class RegistrationSerializer(
         attrs = super().validate(attrs=attrs)
         password = attrs["password"]
         if SystemParameter.get("REGISTRATION_SOFT_LOCK") and not password.startswith(
-                SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
+            SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
         ):
             raise ValidationError(
                 _("Registrations are currently locked."), code="registration_locked"
