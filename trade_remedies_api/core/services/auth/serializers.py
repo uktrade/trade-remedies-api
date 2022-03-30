@@ -170,6 +170,8 @@ class RegistrationSerializer(
         if not self.instance:  # This is a new user
             # We need the initial_data as it contains the POST data used to create the User, e.g. organisation_name
             # It gets overridden by the validated_data
+
+            # Very very strange, unpacking the initial_data dictionary turns strings into lists, need to revert
             new_initial_data = dict(self.initial_data)
             nid = {}
             for key, value in new_initial_data.items():
