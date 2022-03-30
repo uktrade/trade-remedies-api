@@ -13,17 +13,18 @@ from django.views.decorators.csrf import csrf_exempt
 from notifications_python_client.errors import HTTPError
 from rest_framework import status
 from rest_framework.views import APIView
-
+from django.utils.translation import gettext_lazy as _
 from core.models import PasswordResetRequest, SystemParameter, UserProfile
 from core.notifier import send_mail
 from core.services.base import ResponseError, ResponseSuccess, TradeRemediesApiView
-from core.services.exceptions import InvalidRequestParams
+from core.services.exceptions import AccessDenied, InvalidRequestParams
 from invitations.models import Invitation
 from security.constants import (
     SECURITY_GROUP_ORGANISATION_OWNER,
     SECURITY_GROUP_ORGANISATION_USER,
     SECURITY_GROUP_THIRD_PARTY_USER,
 )
+
 from .serializers import (
     AuthenticationSerializer,
     EmailAvailabilitySerializer,
@@ -105,6 +106,14 @@ class AuthenticationView(APIView):
                 user.twofactorauth.two_factor_auth(user_agent=user_agent)
 
             return ResponseSuccess(serializer.data, http_status=status.HTTP_200_OK)
+        else:
+            raise AccessDenied(
+                _(
+                    "You have entered an incorrect email address or password. "
+                    "Please try again or click on the Forgotten password link below."
+                ),
+                code="authorization",
+            )
 
     def perform_authentication(self, request):
         """Perform Authentication.
@@ -148,7 +157,7 @@ class RegistrationAPIView(APIView):
                 # register interest if this is the first user of this organisation
                 register_interest = not invited_organisation.has_users
                 contact_kwargs = {}
-                if serializer.initial_data["confirm_invited_org"] == "true":
+                if serializer.initial_data["confirm_invited_org"] == "True":
                     contact_kwargs = {
                         "contact": invitation.contact,
                     }
