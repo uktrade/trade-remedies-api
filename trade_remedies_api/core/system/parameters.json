@@ -188,9 +188,9 @@
         "default": "d6fb3018-2338-40c9-aa6d-f1195f5f65de"
     },
     {
-        "key": "NOTIFY_APPLICATION_INSUFFICIENT",
+        "key": "NOTIFY_APPLICATION_INSUFFICIENT_V2",
         "data_type": "str",
-        "default": "6af847a8-a48b-4bf9-bf26-289302864a83"
+        "default": "d653eb1b-e4c7-46e5-a92d-6b3c16e76db7"
     },
     {
         "key": "DUPE-NOTIFY_APPLICATION_SUCCESSFUL",
@@ -261,14 +261,14 @@
         "editable": true
     },
     {
-        "key": "NOTIFY_COMPANY_ROLE_CHANGED",
+        "key": "NOTIFY_COMPANY_ROLE_CHANGED_V2",
         "data_type": "str",
-        "default": "0660ce64-9f4d-4e24-91cd-cfc199fe393b"
+        "default": "1d621d2d-d7d7-403f-8fad-f13f6254660a"
     },
     {
-        "key": "NOTIFY_COMPANY_ROLE_DENIED",
+        "key": "NOTIFY_COMPANY_ROLE_DENIED_V2",
         "data_type": "str",
-        "default": "0bb921a4-1cd7-4903-8327-693692932a2d"
+        "default": "82a96f97-a4c6-4ce9-bb6f-920983f0e8ce"
     },
     {
         "key": "NOTIFY_APPLICATION_CANCELLED",

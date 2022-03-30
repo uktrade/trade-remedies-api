@@ -375,7 +375,6 @@ class Invitation(BaseModel):
             product = self.case.product_set.first()
             export_source = self.case.exportsource_set.first()
             case_name = self.case.name or (product.sector.name if product else "N/A")
-            registration_deadline = self.case.registration_deadline
             _context.update(
                 {
                     "case_name": case_name,
@@ -386,9 +385,6 @@ class Invitation(BaseModel):
                     "country": export_source.country.name if export_source else None,
                     "notice_url": self.submission.url if self.submission else "",  # TODO: Remove
                     "notice_of_initiation_url": self.case.latest_notice_of_initiation_url,
-                    "deadline": registration_deadline.strftime(settings.FRIENDLY_DATE_FORMAT)
-                    if registration_deadline
-                    else "N/A",
                     "invited_by_name": self.submission.contact.name if self.submission else "",
                     "invited_by_organisation": self.submission.organisation.name
                     if self.submission
