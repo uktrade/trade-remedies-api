@@ -13,7 +13,6 @@ from django.contrib.auth.models import Group
 
 
 class ThirdPartyInviteTest(InviteTest):
-    fixtures = ["roles.json", "actions.json", "submission_document_types.json"]
 
     def setUp(self) -> None:
         super().setUp()

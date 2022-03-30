@@ -16,7 +16,7 @@ PASSWORD = "A7Hhfa!jfaw@f"
 
 
 class InviteTest(TestCase):
-    fixtures = ["roles.json", "actions.json"]
+    fixtures = ["roles.json", "actions.json", "submission_document_types.json"]
 
     def setUp(self):
         Group.objects.create(name=SECURITY_GROUP_ORGANISATION_OWNER)
