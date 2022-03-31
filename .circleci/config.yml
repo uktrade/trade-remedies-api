@@ -22,7 +22,7 @@ jobs:
           name: Run black
           command: |
             . venv/bin/activate
-            # black trade_remedies_api --check
+            black trade_remedies_api --check
       - run:
           name: Run Flake8
           command: |
