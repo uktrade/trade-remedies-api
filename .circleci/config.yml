@@ -22,13 +22,18 @@ jobs:
           name: Run black
           command: |
             . venv/bin/activate
-            # black trade_remedies_api --check
+            black trade_remedies_api --check
       - run:
           name: Run Flake8
           command: |
             . venv/bin/activate
-            pflake8 trade_remedies_api --config trade_remedies_api/pyproject.toml
-  test:
+            pflake8 trade_remedies_api --config pyproject.toml
+      - run:
+          name: Run pre-commit hooks
+          command: |
+            . venv/bin/activate
+            pre-commit run --all-files
+  test_fitness_functions:
     docker:
       - image: cimg/python:3.9.5
         environment:
@@ -75,7 +80,7 @@ jobs:
             fitness-functions run . trade_remedies_api
             fitness-functions publish . trade_remedies_api
       - run:
-          name: Push the updated READ.ME back to GitHub
+          name: Push the updated README.md back to GitHub
           command: |
             . venv/bin/activate
             git config user.email "fitness-functions-machine-user@digital.trade.gov.uk"  # /PS-IGNORE
@@ -87,7 +92,7 @@ jobs:
 
 workflows:
   version: 2
-  run_tests:
+  build:
     jobs:
       - code_quality
-      - test
+      - test_fitness_functions
