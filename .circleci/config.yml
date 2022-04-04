@@ -71,7 +71,6 @@ jobs:
             . venv/bin/activate
             pytest --ignore=staticfiles -n 4 -m "not version2"
             coverage json
-            ci_env=`curl -s https://codecov.io/env`
             codecov -t ${CODECOV_TOKEN} -f coverage.json
             fitness-functions run . trade_remedies_api
             fitness-functions publish . trade_remedies_api
