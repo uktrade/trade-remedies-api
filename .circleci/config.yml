@@ -49,6 +49,7 @@ jobs:
       - run:
           name: Run pre-commit hooks
           command: |
+            pre-commit autoupdate
             pre-commit run --all-files
       - save_cache:
           key: pii-secret-{{ checksum ".pii-secret-hook/file_content/pii-secret-log" }}
