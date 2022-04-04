@@ -37,7 +37,7 @@ jobs:
       - install_dependencies
       - save_dependency_cache
       - restore_cache:
-          key: pii-secret-{{ checksum ".pii-secret-hook/file_content/pii-secret-log" }}
+          key: pii-secret
       - run:
           name: Run black
           command: |
@@ -52,7 +52,7 @@ jobs:
             pre-commit autoupdate
             pre-commit run --all-files
       - save_cache:
-          key: pii-secret-{{ checksum ".pii-secret-hook/file_content/pii-secret-log" }}
+          key: pii-secret
           paths:
             - ".pii-secret-hook"
   test_and_fitness_functions:
