@@ -5,7 +5,7 @@
 [![GitHub open-pull-requests](https://badgen.net/github/open-prs/uktrade/trade-remedies-api/)](https://github.com/uktrade/trade-remedies-api/pulls?q=is%3Aopen)
 [![Generic badge](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black/)
 [![Generic badge](https://badgen.net/badge/pep/flake8/grey/)](https://pypi.org/project/flake8/)
-
+[![codecov](https://codecov.io/gh/uktrade/trade-remedies-api/branch/develop/graph/badge.svg)](https://codecov.io/gh/uktrade/trade-remedies-api/)
 
 API Service for the Trade Remedies Service, a trade dispute case management
 system. This service is a Django Rest Framework based application and
