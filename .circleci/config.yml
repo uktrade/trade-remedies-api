@@ -1,37 +1,45 @@
 version: 2.1
+
+install_depencies: &install_dependencies
+  - run:
+     name: Install Python dependencies
+     command: |
+        python3 -m venv venv
+        echo ". venv/bin/activate" >> $BASH_ENV
+        . venv/bin/activate  # 
+        pip install --upgrade pip
+        pip install -r requirements/dev.txt
+
+restore_cache: &restore_cache
+  - restore_cache:
+      key: deps2-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
+
+save_cache: &save_cache
+  - save_cache:
+      key: deps2-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
+      paths:
+        - "venv"
+
 jobs:
   code_quality:
     docker:
       - image: cimg/python:3.9.5
     steps:
       - checkout
-      - restore_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
-      - run:
-          name: Install Python deps
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install --upgrade pip
-            pip install -r requirements/dev.txt
-      - save_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
-          paths:
-            - "venv"
+      <<: *restore_cache
+      <<: *install_dependencies
+      <<: *save_cache
       - run:
           name: Run black
           command: |
-            . venv/bin/activate
             black trade_remedies_api --check
       - run:
           name: Run Flake8
           command: |
-            . venv/bin/activate
             pflake8 trade_remedies_api --config pyproject.toml
       - run:
           name: Run pre-commit hooks
           command: |
-            . venv/bin/activate
             pre-commit run --all-files
   test_fitness_functions:
     docker:
@@ -57,32 +65,25 @@ jobs:
             fingerprints:
               - "9f:19:e2:26:c4:aa:6e:4d:98:77:22:09:b9:cf:50:f3"
       - checkout
-      - restore_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
+      <<: *restore_cache
+      <<: *install_dependencies
+      <<: *save_cache
       - run:
-          name: Install Python deps
+          name: Run tests and save coverage report
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install --upgrade pip
-            pip install -r requirements/dev.txt
-      - save_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
-          paths:
-            - "venv"
-      - run:
-          name: Run tests and collect fitness functions
-          command: |
-            . venv/bin/activate
-            pytest --ignore=staticfiles -n 4 -m "not version2"
+            pytest
             coverage json
-            codecov
+      - run:
+          name: Send coverage report to codecov.io
+          command: codecov
+      - run:
+          name: Collect and publish fitness functions
+          command: |
             fitness-functions run . trade_remedies_api
             fitness-functions publish . trade_remedies_api
       - run:
           name: Push the updated README.md back to GitHub
           command: |
-            . venv/bin/activate
             git config user.email "fitness-functions-machine-user@digital.trade.gov.uk"  # /PS-IGNORE
             git config user.name "FITNESS-FUNCTIONS MACHINE USER"  # /PS-IGNORE
             git add fitness/fitness_metrics.db
