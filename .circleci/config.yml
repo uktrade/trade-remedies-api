@@ -1,7 +1,7 @@
 version: 2.1
 
 commands:
-  install_depencies:
+  install_dependencies:
     description: "Install Python dependencies"
     steps:
       - run:
@@ -13,13 +13,13 @@ commands:
             pip install --upgrade pip
             pip install -r requirements/dev.txt
 
-  restore_cache_c:
+  restore_dependency_cache:
     description: "Restore dependency cache"
     steps:
       - restore_cache:
           key: deps2-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
 
-  save_cache_c:
+  save_dependency_cache:
     description: "Save dependency cache"
     steps:
       - save_cache:
@@ -33,9 +33,11 @@ jobs:
       - image: cimg/python:3.9.5
     steps:
       - checkout
-      - restore_cache_c
-      - install_depencies
-      - save_cache_c
+      - restore_dependency_cache
+      - install_dependencies
+      - save_dependency_cache
+      - restore_cache:
+          key: pii-secret-{{ checksum ".pii-secret-hook/file_content/pii-secret-log" }}
       - run:
           name: Run black
           command: |
@@ -48,7 +50,11 @@ jobs:
           name: Run pre-commit hooks
           command: |
             pre-commit run --all-files
-  test_fitness_functions:
+      - save_cache:
+          key: pii-secret-{{ checksum ".pii-secret-hook/file_content/pii-secret-log" }}
+          paths:
+            - ".pii-secret-hook"
+  test_and_fitness_functions:
     docker:
       - image: cimg/python:3.9.5
         environment:
@@ -72,9 +78,9 @@ jobs:
             fingerprints:
               - "9f:19:e2:26:c4:aa:6e:4d:98:77:22:09:b9:cf:50:f3"
       - checkout
-      - restore_cache_c
-      - install_depencies
-      - save_cache_c
+      - restore_dependency_cache
+      - install_dependencies
+      - save_dependency_cache
       - run:
           name: Run tests and save coverage report
           command: |
@@ -103,4 +109,4 @@ workflows:
   build:
     jobs:
       - code_quality
-      - test_fitness_functions
+      - test_and_fitness_functions
