@@ -14,13 +14,13 @@ commands:
             pip install -r requirements/dev.txt
 
   restore_dependency_cache:
-    description: "Restore dependency cache"
+    description: "Restore dependency cache."
     steps:
       - restore_cache:
           key: deps2-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
 
   save_dependency_cache:
-    description: "Save dependency cache"
+    description: "Save dependency cache."
     steps:
       - save_cache:
           key: deps2-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
