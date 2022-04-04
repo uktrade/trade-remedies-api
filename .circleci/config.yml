@@ -13,13 +13,13 @@ commands:
             pip install --upgrade pip
             pip install -r requirements/dev.txt
 
-  restore_cache:
+  restore_cache_c:
     description: "Restore dependency cache"
     steps:
       - restore_cache:
           key: deps2-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
 
-  save_cache:
+  save_cache_c:
     description: "Save dependency cache"
     steps:
       - save_cache:
@@ -33,9 +33,9 @@ jobs:
       - image: cimg/python:3.9.5
     steps:
       - checkout
-      - restore_cache
+      - restore_cache_c
       - install_depencies
-      - save_cache
+      - save_cache_c
       - run:
           name: Run black
           command: |
@@ -72,9 +72,9 @@ jobs:
             fingerprints:
               - "9f:19:e2:26:c4:aa:6e:4d:98:77:22:09:b9:cf:50:f3"
       - checkout
-      - restore_cache
+      - restore_cache_c
       - install_depencies
-      - save_cache
+      - save_cache_c
       - run:
           name: Run tests and save coverage report
           command: |
