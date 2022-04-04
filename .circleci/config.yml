@@ -1,24 +1,31 @@
 version: 2.1
 
-install_depencies: &install_dependencies
-  - run:
-     name: Install Python dependencies
-     command: |
-        python3 -m venv venv
-        echo ". venv/bin/activate" >> $BASH_ENV
-        . venv/bin/activate  # 
-        pip install --upgrade pip
-        pip install -r requirements/dev.txt
+commands:
+  install_depencies:
+    description: "Install Python dependencies"
+    steps:
+      - run:
+         name: Install Python dependencies
+         command: |
+            python3 -m venv venv
+            echo ". venv/bin/activate" >> $BASH_ENV
+            . venv/bin/activate  # 
+            pip install --upgrade pip
+            pip install -r requirements/dev.txt
 
-restore_cache: &restore_cache
-  - restore_cache:
-      key: deps2-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
+  restore_cache:
+    description: "Restore dependency cache"
+    steps:
+      - restore_cache:
+          key: deps2-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
 
-save_cache: &save_cache
-  - save_cache:
-      key: deps2-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
-      paths:
-        - "venv"
+  save_cache:
+    description: "Save dependency cache"
+    steps:
+      - save_cache:
+          key: deps2-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
+          paths:
+            - "venv"
 
 jobs:
   code_quality:
@@ -26,9 +33,9 @@ jobs:
       - image: cimg/python:3.9.5
     steps:
       - checkout
-      <<: *restore_cache
-      <<: *install_dependencies
-      <<: *save_cache
+      - restore_cache
+      - install_depencies
+      - save_cache
       - run:
           name: Run black
           command: |
@@ -65,9 +72,9 @@ jobs:
             fingerprints:
               - "9f:19:e2:26:c4:aa:6e:4d:98:77:22:09:b9:cf:50:f3"
       - checkout
-      <<: *restore_cache
-      <<: *install_dependencies
-      <<: *save_cache
+      - restore_cache
+      - install_depencies
+      - save_cache
       - run:
           name: Run tests and save coverage report
           command: |
