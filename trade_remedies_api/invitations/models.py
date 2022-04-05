@@ -476,7 +476,8 @@ class Invitation(BaseModel):
         }
         submission_kwargs = {**submission_kwargs, **kwargs}
         new_registration_of_interest = Submission(**submission_kwargs)
-        return new_registration_of_interest.save()
+        new_registration_of_interest.save()
+        return new_registration_of_interest
 
     @transaction.atomic  # noqa:C901
     def process_invitation(

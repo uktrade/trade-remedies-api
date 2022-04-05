@@ -69,11 +69,14 @@ click-repl==0.2.0
     # via
     #   -r requirements.in/../requirements/base.txt
     #   celery
+codecov==2.1.12
+    # via -r requirements.in/dev.in
 colour==0.1.5
     # via -r requirements.in/../requirements/base.txt
 coverage[toml]==6.1.2
     # via
     #   -r requirements.in/dev.in
+    #   codecov
     #   pytest-cov
 cycler==0.11.0
     # via matplotlib
@@ -376,6 +379,7 @@ regex==2021.11.10
 requests==2.25.1
     # via
     #   -r requirements.in/../requirements/base.txt
+    #   codecov
     #   geckoboard.py
     #   notifications-python-client
     #   requests-toolbelt
