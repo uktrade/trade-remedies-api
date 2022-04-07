@@ -607,8 +607,8 @@ class Invitation(BaseModel):
                 # Notably, we don't want to create this OrganisationCaseRole as approved, as this will stop the
                 # registration of interest showing as draft
             )'''
-            third_party_group = SECURITY_GROUP_THIRD_PARTY_USER
-            self.organisation.assign_user(user, third_party_group)
+            #third_party_group = SECURITY_GROUP_THIRD_PARTY_USER
+            #self.organisation.assign_user(user, third_party_group)
             assign_to_organisation = (
                 True  # todo - maybe we don't need this if the user is already assigned
             )
