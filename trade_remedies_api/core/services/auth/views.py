@@ -175,7 +175,7 @@ class RegistrationAPIView(APIView):
                     groups.append(SECURITY_GROUP_ORGANISATION_OWNER)
                 user = serializer.save(groups=groups, **contact_kwargs)
                 invitation.process_invitation(
-                    user, accept=accept, register_interest=register_interest
+                    user, accept=accept, register_interest=register_interest, newly_registered=True
                 )
             else:
                 user = serializer.save()
