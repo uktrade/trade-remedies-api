@@ -611,6 +611,10 @@ class Organisation(BaseModel):
                 "case": case,
                 "model": contact,
             }
+            if template_id == "NOTIFY_INTERESTED_PARTY_REQUEST_DENIED":
+                values[
+                    "footer"
+                ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade\r\nContact: investigations@traderemedies.gov.uk"  # /PS-IGNORE
             send_mail(contact.email, values, notify_template_id, audit_kwargs=audit_kwargs)
         else:
             logger.error("Invalid action for organisation notification: %s", action)
