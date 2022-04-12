@@ -725,6 +725,10 @@ class Submission(BaseModel):
                     "footer"
                 ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade\r\nContact: investigations@traderemedies.gov.uk"  # /PS-IGNORE
             values.update(context)
+        if template_id == "NOTIFY_AD_HOC_EMAIL":
+            values[
+                "footer"
+            ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade\r\nContact: contact@traderemedies.gov.uk"  # /PS-IGNORE
 
         audit_kwargs = {
             "audit_type": AUDIT_TYPE_NOTIFY,
