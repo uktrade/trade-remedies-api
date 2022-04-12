@@ -718,7 +718,12 @@ class Submission(BaseModel):
             "notice_url": self.case.latest_notice_of_initiation_url,  # TODO: remove
             "notice_of_initiation_url": self.case.latest_notice_of_initiation_url,
         }
+
         if context:
+            if template_id == "NOTIFY_QUESTIONNAIRE":
+                context[
+                    "footer"
+                ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade\r\nContact: investigations@traderemedies.gov.uk"  # /PS-IGNORE
             values.update(context)
         if template_id == "NOTIFY_AD_HOC_EMAIL":
             values[
