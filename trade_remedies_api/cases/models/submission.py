@@ -694,6 +694,8 @@ class Submission(BaseModel):
         """
         contact = contact or self.contact
         template_id = template_id or "NOTIFY_QUESTIONNAIRE"
+        if template_id == "NOTIFY_APPLICATION_SUCCESSFUL":
+            template_id = "NOTIFY_APPLICATION_SUCCESSFUL_V2"
         notify_template_id = SystemParameter.get(template_id)
         export_sources = self.case.exportsource_set.filter(deleted_at__isnull=True)
         export_countries = [src.country.name for src in export_sources]

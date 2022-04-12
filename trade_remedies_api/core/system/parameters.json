@@ -91,6 +91,11 @@
         "default": "58dfbf2d-a39d-4e5f-b1cc-f0eb2313f212"
     },
     {
+        "key": "NOTIFY_APPLICATION_SUCCESSFUL_V2",
+        "data_type": "str",
+        "default": "6f753e5e-b3bc-4c2b-9e77-e08514431135"
+    },
+    {
         "key": "NOTIFY_FINAL_APPLICATION_RECEIVED",
         "data_type": "str",
         "default": "7faa2f2b-e25a-48d8-9608-c7374b06e5f5"
