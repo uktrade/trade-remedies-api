@@ -1114,6 +1114,11 @@ class Case(BaseModel, CaseLikeObject):
             context["submission_type"] = submission.type.name
             context["submission_name"] = submission.name
 
+        if template_name == "DRAFT_SUBMISSION_CANCELLED":
+            context[
+                "footer"
+            ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade\r\nContact: contact@traderemedies.gov.uk"  # /PS-IGNORE
+
         if extra_context:
             context.update(extra_context)
 
