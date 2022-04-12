@@ -511,7 +511,9 @@ class AssignUserToCaseView(TradeRemediesApiView):
                 "representing_clause": f" representing {representing.name}",
                 "login_url": public_login_url(),
             }
-            context["footer"] = notify_footer(notify_contact_email(context.get("case_number")))
+            context[
+                "footer"
+            ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade\r\nContact: investigations@traderemedies.gov.uk"  # /PS-IGNORE
             context["full_name"] = user.contact.name or user.name
             audit_kwargs = {
                 "audit_type": AUDIT_TYPE_NOTIFY,
