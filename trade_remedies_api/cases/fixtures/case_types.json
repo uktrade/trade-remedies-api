@@ -647,37 +647,5 @@
         ]
       }
     }
-  },
-  {
-    "model": "cases.casetype",
-    "pk": 22,
-    "fields": {
-      "name": "Tariff Rate Quota review",
-      "acronym": "TQ",
-      "colour": "#ff2bf8",
-      "workflow": "259838a3-21b9-4232-a134-630495e4835c",
-      "order": 130,
-      "meta": {
-        "review": true,
-        "criteria": [
-          {
-            "criterion": "after",
-            "milestone": "MEASURE_COMMENCEMENT",
-            "value": 12,
-            "unit": "months"
-          },
-          {
-            "criterion": "before",
-            "milestone": "MEASURE_EXPIRY",
-            "value": -12,
-            "unit": "months"
-          },
-          {
-            "criterion": "parent_case_types",
-            "value": ["SF"]
-          }
-        ]
-      }
-    }
   }
 ]

@@ -84,7 +84,7 @@ class CaseTest(TestCase, CaseTestMixin):
         self.notice.terminated_at = self.now + datetime.timedelta(weeks=104)  # Change to expire > 18 months from now
         self.notice.save()
         available_review_type = self.notice.available_case_review_types()
-        self.assertEqual(len(available_review_type), 4)  # Only 4 review types should be available for a SF notice
+        self.assertEqual(len(available_review_type), 3)  # Only 3 review types should be available for a SF notice
         review_types_extracted = [each['acronym'] for each in available_review_type]
         self.assertIn('RI', review_types_extracted)
         self.assertIn('SE', review_types_extracted)
