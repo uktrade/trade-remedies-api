@@ -36,8 +36,6 @@ jobs:
       - restore_dependency_cache
       - install_dependencies
       - save_dependency_cache
-      - restore_cache:
-          key: pii-secret
       - run:
           name: Run black
           command: |
@@ -46,6 +44,8 @@ jobs:
           name: Run Flake8
           command: |
             pflake8 trade_remedies_api --config pyproject.toml
+      - restore_cache:
+          key: pii-secret
       - run:
           name: Run pre-commit hooks
           command: |
