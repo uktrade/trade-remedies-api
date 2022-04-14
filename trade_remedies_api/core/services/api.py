@@ -512,6 +512,7 @@ class AssignUserToCaseView(TradeRemediesApiView):
                 "login_url": public_login_url(),
             }
             context["footer"] = notify_footer(notify_contact_email(context.get("case_number")))
+            context["full_name"] = user.contact.name or user.name
             audit_kwargs = {
                 "audit_type": AUDIT_TYPE_NOTIFY,
                 "case": case,
