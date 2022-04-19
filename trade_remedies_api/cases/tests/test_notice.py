@@ -28,64 +28,74 @@ class CaseTest(TestCase, CaseTestMixin):
             published_at=self.now - datetime.timedelta(weeks=60),
             terminated_at=self.now + datetime.timedelta(weeks=60)
         )
+        self.notice_expected_type_acronyms = [
+            "IR",
+            "SC",
+            "ER",
+            "AR",
+            "CR",
+            "NE",
+            "SR",
+            "RI",
+            "BU"
+        ]
 
     def test_correct_review_types(self):
-        available_review_type = self.notice.available_case_review_types()
-        self.assertEqual(len(available_review_type), 9)  # Only 8 review types should be available for an AD case
-        self.assertEqual(
-            available_review_type[0]['name'],
-            'Interim review'
-        )  # Interim review should be the first result
+        available_review_types = self.notice.available_case_review_types()
+        self.assertEqual(len(available_review_types), len(self.notice_expected_type_acronyms))
+        for available_review in available_review_types:
+            self.assertIn(available_review["acronym"], self.notice_expected_type_acronyms)
 
     def test_correct_review_types_termination_change_1(self):
         """Now we change the termination_at value of the Notice object to 6 weeks from now,
         this should change the status of all of these review types of unavailable.
         """
-        available_review_type = self.notice.available_case_review_types()
-        self.assertEqual(
-            available_review_type[0]['dates']['status'],
-            'ok'
-        )
+        available_review_types = self.notice.available_case_review_types()
+        for available_review in available_review_types:
+            self.assertIn(available_review["dates"]["status"], ["ok", "before_start"])
+
+        # Now we change the terminated_at value to 6 weeks from now
         self.notice.terminated_at = self.now + datetime.timedelta(weeks=6)
         self.notice.save()
         self.notice.refresh_from_db()
-        available_review_type = self.notice.available_case_review_types()
-        self.assertEqual(
-            available_review_type[0]['dates']['status'],
-            'after_end'  # The review type should no longer be available as the measures are ending very soon
-        )
+
+        available_review_types = self.notice.available_case_review_types()
+        for available_review in available_review_types:
+            if available_review["acronym"] != "RI":
+                self.assertEqual(available_review["dates"]["status"], "after_end")
 
     def test_correct_review_types_termination_change_2(self):
         """Now we change the termination_at value of the Notice object to 15 weeks from now,
         this should change the status of SOME of these review types of unavailable.
         """
-        available_review_type = self.notice.available_case_review_types()
-        self.assertEqual(
-            available_review_type[0]['dates']['status'],
-            'ok'
-        )
         self.notice.terminated_at = self.now + datetime.timedelta(weeks=15)
         self.notice.save()
         self.notice.refresh_from_db()
-        available_review_type = self.notice.available_case_review_types()
-        self.assertEqual(
-            available_review_type[0]['dates']['status'],
-            'after_end'  # The Interim Review type should no longer be available as the measures are ending soon
-        )
-        self.assertEqual(
-            available_review_type[1]['dates']['status'],
-            'ok'  # The Scope Review type should still be available as it's not 3 months till measure expiry
-        )
+        available_review_types = self.notice.available_case_review_types()
+        for available_review in available_review_types:
+            # The Interim Review type should no longer be available as the measures are ending soon
+            if available_review["acronym"] == "IR":
+                self.assertEqual(available_review["dates"]["status"], "after_end")
+
+            # The Scope Review type should be available as it's not 3 months till measure expiry
+            if available_review["acronym"] == "SC":
+                self.assertEqual(available_review["dates"]["status"], "ok")
 
     def test_correct_review_types_sf(self):
         """Tests that when the case_type of the Notice is changed, the review types also do.
         """
+        safeguarding_expected_type_acronyms = [
+            "RI",
+            "SE",
+            "SS",
+            "TQ",
+        ]
+
         self.notice.case_type = CaseType.objects.get(acronym='SF')  # Change to safeguarding investigation
         self.notice.terminated_at = self.now + datetime.timedelta(weeks=104)  # Change to expire > 18 months from now
         self.notice.save()
-        available_review_type = self.notice.available_case_review_types()
-        self.assertEqual(len(available_review_type), 4)  # Only 4 review types should be available for a SF notice
-        review_types_extracted = [each['acronym'] for each in available_review_type]
-        self.assertIn('RI', review_types_extracted)
-        self.assertIn('SE', review_types_extracted)
-        self.assertIn('SS', review_types_extracted)
+        available_review_types = self.notice.available_case_review_types()
+
+        self.assertEqual(len(available_review_types), len(safeguarding_expected_type_acronyms))
+        for available_review in available_review_types:
+            self.assertIn(available_review["acronym"], safeguarding_expected_type_acronyms)
