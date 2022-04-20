@@ -14,7 +14,7 @@ from notifications_python_client.errors import HTTPError
 from rest_framework import status
 from rest_framework.views import APIView
 from django.utils.translation import gettext_lazy as _
-from core.models import PasswordResetRequest, SystemParameter, UserProfile
+from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, UserProfile
 from core.notifier import send_mail
 from core.services.base import ResponseError, ResponseSuccess, TradeRemediesApiView
 from core.services.exceptions import AccessDenied, InvalidRequestParams
@@ -219,7 +219,8 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
         """
         twofactorauth_object = request.user.twofactorauth
         serializer = TwoFactorAuthRequestSerializer(
-            data={"delivery_type": delivery_type}, instance=twofactorauth_object
+            data={"delivery_type": delivery_type or TwoFactorAuth.SMS},
+            instance=twofactorauth_object
         )
         if serializer.is_valid():
             serializer.save()

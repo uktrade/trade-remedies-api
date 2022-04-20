@@ -582,33 +582,6 @@ class Invitation(BaseModel):
             assigned = True
             accept = True
         elif self.submission and self.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY:
-            # We're dealing with a 3rd party, currently we want to treat this as a usual contributor who has to go
-            # through a verification process like anyone else, but:
-            # todo: assign them different depending on whether or not they've been verified in the past / other factors
-
-            # Check if this organisation has an association with this case already, if not, we create a registration of
-            # interest for them
-            '''if not OrganisationCaseRole.objects.has_organisation_case_role(
-                organisation=organisation, case=self.case
-            ):
-                # There's no existing association, create a registration of interest in DRAFT stage. Once logged in,
-                # they will be able to see and submit this draft, undergo a verification process, and submit evidence
-                # to the case
-                self.create_registration_of_interest(user=user, organisation=organisation)'''
-            # Assign the Third Party's organisation to the case as a contributor
-            #case_role = CaseRole.objects.get(id=ROLE_CONTRIBUTOR)
-            '''case_role = CaseRole.objects.get(id=ROLE_PREPARING)
-            OrganisationCaseRole.objects.assign_organisation_case_role(
-                organisation=organisation,
-                case=self.case,
-                role=case_role,
-                sampled=True,
-                created_by=self.submission.created_by,
-                # Notably, we don't want to create this OrganisationCaseRole as approved, as this will stop the
-                # registration of interest showing as draft
-            )'''
-            #third_party_group = SECURITY_GROUP_THIRD_PARTY_USER
-            #self.organisation.assign_user(user, third_party_group)
             assign_to_organisation = (
                 True  # todo - maybe we don't need this if the user is already assigned
             )
