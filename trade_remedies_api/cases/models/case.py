@@ -56,7 +56,7 @@ from .workflow import CaseWorkflow, CaseWorkflowState
 logger = logging.getLogger(__name__)
 
 
-class CaseLikeObject:
+class CaseOrNotice:
     """An object that has many of the same qualities as a Case but may not be one.
 
     Used to provide shared functionality to both Notice and Case models without duplicating
@@ -405,7 +405,7 @@ class CaseManager(models.Manager):
         return public_cases.annotate(roi_open=Exists(roi_open)).filter(roi_open=True).distinct()
 
 
-class Case(BaseModel, CaseLikeObject):
+class Case(BaseModel, CaseOrNotice):
     sequence = models.IntegerField(null=True, blank=True, unique=True)
     initiated_sequence = models.IntegerField(null=True, blank=True, unique=True)
     type = models.ForeignKey(CaseType, null=True, blank=True, on_delete=models.PROTECT)

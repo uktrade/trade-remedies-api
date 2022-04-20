@@ -3,10 +3,10 @@ import uuid
 from django.conf import settings
 from django.db import models
 
-from cases.models.case import CaseLikeObject
+from cases.models.case import CaseOrNotice
 
 
-class Notice(models.Model, CaseLikeObject):
+class Notice(models.Model, CaseOrNotice):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=500, null=False, blank=False)
     reference = models.CharField(max_length=30, null=False, blank=False)
