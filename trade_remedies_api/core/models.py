@@ -685,7 +685,9 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
             "initials": self.initials,
             "active": self.is_active,
             "groups": [group.name for group in self.get_groups()],
-            "organisation_groups": [o_user.security_group.name for o_user in self.get_organisation_user_groups()],
+            "organisation_groups": [
+                o_user.security_group.name for o_user in self.get_organisation_user_groups()
+            ],
             "tra": self.is_tra(),
             "manager": self.is_tra(manager=True),
             "should_two_factor": self.should_two_factor(user_agent),

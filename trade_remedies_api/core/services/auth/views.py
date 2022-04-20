@@ -220,7 +220,7 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
         twofactorauth_object = request.user.twofactorauth
         serializer = TwoFactorAuthRequestSerializer(
             data={"delivery_type": delivery_type or TwoFactorAuth.SMS},
-            instance=twofactorauth_object
+            instance=twofactorauth_object,
         )
         if serializer.is_valid():
             serializer.save()
