@@ -28,7 +28,7 @@ class CaseTest(TestCase, CaseTestMixin):
             published_at=self.now - datetime.timedelta(weeks=60),
             terminated_at=self.now + datetime.timedelta(weeks=60)
         )
-        self.notice_expected_type_acronyms = [
+        self.notice_expected_type_acronyms = {
             "IR",
             "SC",
             "ER",
@@ -38,13 +38,13 @@ class CaseTest(TestCase, CaseTestMixin):
             "SR",
             "RI",
             "BU"
-        ]
+        }
 
     def test_correct_review_types(self):
         available_review_types = self.notice.available_case_review_types()
         self.assertEqual(len(available_review_types), len(self.notice_expected_type_acronyms))
-        for available_review in available_review_types:
-            self.assertIn(available_review["acronym"], self.notice_expected_type_acronyms)
+        available_review_types = set([each["acronym"] for each in available_review_types])
+        self.assertEqual(available_review_types, self.notice_expected_type_acronyms)
 
     def test_correct_review_types_termination_change_1(self):
         """Now we change the termination_at value of the Notice object to 6 weeks from now,
@@ -52,7 +52,10 @@ class CaseTest(TestCase, CaseTestMixin):
         """
         available_review_types = self.notice.available_case_review_types()
         for available_review in available_review_types:
-            self.assertIn(available_review["dates"]["status"], ["ok", "before_start"])
+            if available_review["acronym"] == "ER":
+                self.assertEqual(available_review["dates"]["status"], "before_start")
+            else:
+                self.assertEqual(available_review["dates"]["status"], "ok")
 
         # Now we change the terminated_at value to 6 weeks from now
         self.notice.terminated_at = self.now + datetime.timedelta(weeks=6)
@@ -84,12 +87,12 @@ class CaseTest(TestCase, CaseTestMixin):
     def test_correct_review_types_sf(self):
         """Tests that when the case_type of the Notice is changed, the review types also do.
         """
-        safeguarding_expected_type_acronyms = [
+        safeguarding_expected_type_acronyms = {
             "RI",
             "SE",
             "SS",
             "TQ",
-        ]
+        }
 
         self.notice.case_type = CaseType.objects.get(acronym='SF')  # Change to safeguarding investigation
         self.notice.terminated_at = self.now + datetime.timedelta(weeks=104)  # Change to expire > 18 months from now
@@ -97,5 +100,5 @@ class CaseTest(TestCase, CaseTestMixin):
         available_review_types = self.notice.available_case_review_types()
 
         self.assertEqual(len(available_review_types), len(safeguarding_expected_type_acronyms))
-        for available_review in available_review_types:
-            self.assertIn(available_review["acronym"], safeguarding_expected_type_acronyms)
+        available_review_types = set([each["acronym"] for each in available_review_types])
+        self.assertEqual(available_review_types, safeguarding_expected_type_acronyms)
