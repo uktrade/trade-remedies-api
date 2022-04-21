@@ -340,16 +340,21 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(max_length=255, unique=True, blank=False, null=False)
     name = models.CharField(max_length=250, blank=True, null=True)
-    first_name = models.CharField(max_length=30, blank=True)  # TODO: DEPRECATED
-    last_name = models.CharField(max_length=30, blank=True)  # TODO: DEPRECATED
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    is_pending = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
     last_modified = models.DateTimeField(auto_now=True, null=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
-    login_code = models.CharField(max_length=50, null=True, blank=True)
-    login_code_created_at = models.DateTimeField(null=True, blank=True)
-    auto_assign = models.BooleanField(default=False)
+
+    # UserProfile stuff
+    job_title = models.ForeignKey(JobTitle, null=True, blank=True, on_delete=models.PROTECT)
+    timezone = TimeZoneField(null=True, blank=True)
+    colour = models.CharField(max_length=8, null=True, blank=True)
+    email_verify_code = models.CharField(max_length=250, null=True, blank=True)
+    email_verify_code_last_sent = models.DateTimeField(null=True, blank=True)
+    email_verified_at = models.DateTimeField(null=True, blank=True)
+    settings = models.JSONField(default=dict, null=True, blank=True)
 
     objects = UserManager()
 

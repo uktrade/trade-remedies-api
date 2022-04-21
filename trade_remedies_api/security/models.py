@@ -16,7 +16,7 @@ from functools import singledispatch
 from django.contrib.auth.models import Group
 from django.conf import settings
 from django.utils import timezone
-from core.base import SimpleBaseModel
+from core.base import BaseModel, SimpleBaseModel
 from organisations.constants import CONTRIBUTOR_ORG_CASE_ROLE
 from security.constants import ROLE_PREPARING
 
@@ -155,14 +155,14 @@ class OrganisationCaseRoleManager(models.Manager):
         return False
 
     def assign_organisation_case_role(
-        self,
-        organisation,
-        case,
-        role,
-        sampled=False,
-        created_by=None,
-        approved_by=None,
-        approved_at=None,
+            self,
+            organisation,
+            case,
+            role,
+            sampled=False,
+            created_by=None,
+            approved_by=None,
+            approved_at=None,
     ):
         """
         Attempt to assign a user to a given model and role.
@@ -490,3 +490,28 @@ class CaseSecurityMixin:
         :param group: The Group instance or name
         """
         return get_security_group(group) in self.get_groups()
+
+
+class UserOrganisationCaseRole(BaseModel):
+    """Maps the relationship between an OrganisationCaseRole and User object.
+
+    Keeps track of the relationship that a particular user has with a particular organisation for
+    a particular case. The fundamental building block of permission within the TRS.
+    """
+    user = models.ForeignKey(
+        "core.User",
+        on_delete=models.PROTECT,
+        related_name="user_org_case_roles"
+    )
+    organisation_case_role = models.ForeignKey(
+        OrganisationCaseRole,
+        on_delete=models.PROTECT,
+        related_name="user_org_case_roles"
+    )
+    representing = models.ForeignKey(
+        OrganisationCaseRole,
+        on_delete=models.PROTECT,
+        related_name="representing_user_org_case_roles"
+    )
+    primary = models.BooleanField(default=False)
+
