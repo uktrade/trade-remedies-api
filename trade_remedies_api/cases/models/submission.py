@@ -129,11 +129,12 @@ class Submission(BaseModel):
     The parent field contains the top level original submission which is the parent of this
     and other versions of the submission. To get the direct previous version use previous_version
     """
+
     user_organisation_case_role = models.ForeignKey(
         "security.UserOrganisationCaseRole",
         null=True,
         on_delete=models.PROTECT,
-        related_name="submissions"
+        related_name="submissions",
     )
 
     type = models.ForeignKey(

@@ -155,14 +155,14 @@ class OrganisationCaseRoleManager(models.Manager):
         return False
 
     def assign_organisation_case_role(
-            self,
-            organisation,
-            case,
-            role,
-            sampled=False,
-            created_by=None,
-            approved_by=None,
-            approved_at=None,
+        self,
+        organisation,
+        case,
+        role,
+        sampled=False,
+        created_by=None,
+        approved_by=None,
+        approved_at=None,
     ):
         """
         Attempt to assign a user to a given model and role.
@@ -498,20 +498,16 @@ class UserOrganisationCaseRole(BaseModel):
     Keeps track of the relationship that a particular user has with a particular organisation for
     a particular case. The fundamental building block of permission within the TRS.
     """
+
     user = models.ForeignKey(
-        "core.User",
-        on_delete=models.PROTECT,
-        related_name="user_org_case_roles"
+        "core.User", on_delete=models.PROTECT, related_name="user_org_case_roles"
     )
     organisation_case_role = models.ForeignKey(
-        OrganisationCaseRole,
-        on_delete=models.PROTECT,
-        related_name="user_org_case_roles"
+        OrganisationCaseRole, on_delete=models.PROTECT, related_name="user_org_case_roles"
     )
     representing = models.ForeignKey(
         OrganisationCaseRole,
         on_delete=models.PROTECT,
-        related_name="representing_user_org_case_roles"
+        related_name="representing_user_org_case_roles",
     )
     primary = models.BooleanField(default=False)
-

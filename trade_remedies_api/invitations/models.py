@@ -241,23 +241,21 @@ class Invitation(BaseModel):
     but the user exercise it. Any temporary/permanent meta data
     related to the invite can be saved in the meta dict.
     """
+
     inviter = models.ForeignKey(
         "security.OrganisationCaseRole",
         on_delete=models.PROTECT,
         related_name="invitations_sent",
-        null=True
+        null=True,
     )
     invited_user = models.ForeignKey(
-        "core.User",
-        on_delete=models.PROTECT,
-        related_name="invitations_received",
-        null=True
+        "core.User", on_delete=models.PROTECT, related_name="invitations_received", null=True
     )
     invited_organisation = models.ForeignKey(
         "organisations.Organisation",
         on_delete=models.PROTECT,
         related_name="invitations_received",
-        null=True
+        null=True,
     )
 
     organisation = models.ForeignKey(
