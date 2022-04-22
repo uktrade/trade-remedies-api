@@ -651,6 +651,10 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         """
         return Group.objects.filter(user=self)
 
+    def get_organisation_user_groups(self):
+        """Return all the Organisations the user is a member of it in respect of the OrganisationUser model"""
+        return self.organisationuser_set.select_related("security_group").all()
+
     def has_groups(self, groups):
         return any([self.has_group(group) for group in groups])
 
@@ -686,6 +690,9 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
             "initials": self.initials,
             "active": self.is_active,
             "groups": [group.name for group in self.get_groups()],
+            "organisation_groups": [
+                o_user.security_group.name for o_user in self.get_organisation_user_groups()
+            ],
             "tra": self.is_tra(),
             "manager": self.is_tra(manager=True),
             "should_two_factor": self.should_two_factor(user_agent),
