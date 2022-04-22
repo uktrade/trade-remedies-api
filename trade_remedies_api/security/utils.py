@@ -39,7 +39,7 @@ def validate_user_case(user, case, organisation):
 def create_groups():
     for group_data in GROUPS:
         group, created = Group.objects.get_or_create(name=group_data[0])
-        logger.info("\t{0} created? {1}".format(group_data[0], created))
+        logger.info(f"{group_data[0]} created? {created}")
 
 
 def assign_group_permissions():

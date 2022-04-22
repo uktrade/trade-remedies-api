@@ -13,7 +13,7 @@ shortcuts to determine this access for any given model or to assign it.
 
 from django.db import models
 from functools import singledispatch
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from django.conf import settings
 from django.utils import timezone
 from core.base import BaseModel, SimpleBaseModel
@@ -511,3 +511,8 @@ class UserOrganisationCaseRole(BaseModel):
         related_name="representing_user_org_case_roles",
     )
     primary = models.BooleanField(default=False)
+
+class OrganisationUserType(BaseModel):
+    """The type of relationship a user has with an organisation, as defined by OrganisationUser.
+    """
+    name = models.CharField(max_length=150, unique=True)
