@@ -17,11 +17,9 @@ from core.tasks import send_mail
 from core.utils import convert_to_e164
 from organisations.models import Organisation, get_organisation
 from security.constants import (
-    ROLE_CONTRIBUTOR,
     ROLE_PREPARING,
     SECURITY_GROUP_ORGANISATION_OWNER,
     SECURITY_GROUP_ORGANISATION_USER,
-    SECURITY_GROUP_THIRD_PARTY_USER,
 )
 from .exceptions import InvitationFailure, InviteAlreadyAccepted
 

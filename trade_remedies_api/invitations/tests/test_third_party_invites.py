@@ -1,6 +1,6 @@
-from django.test import TestCase
+from django.contrib.auth.models import Group
 
-from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY, SUBMISSION_TYPE_REGISTER_INTEREST
+from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
 from cases.models import Submission, SubmissionType
 from contacts.models import CaseContact, Contact
 from core.models import User
@@ -8,8 +8,7 @@ from invitations.models import Invitation
 from invitations.tests.test_invites import InviteTestBase, PASSWORD
 from organisations.models import Organisation
 from security.constants import SECURITY_GROUP_ORGANISATION_USER
-from security.models import OrganisationCaseRole, UserCase
-from django.contrib.auth.models import Group
+from security.models import UserCase
 
 
 class ThirdPartyInviteTest(InviteTestBase):

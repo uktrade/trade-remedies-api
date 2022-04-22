@@ -1,15 +1,14 @@
-from django.test import TestCase
-from invitations.models import Invitation
-from contacts.models import Contact
-from cases.models import Case
-from core.models import User
-from organisations.models import Organisation
-from security.models import CaseRole, OrganisationCaseRole
 from django.contrib.auth.models import Group
-from security.constants import (
-    ROLE_DOMESTIC_PRODUCER, ROLE_PREPARING, SECURITY_GROUP_ORGANISATION_OWNER,
-    ROLE_APPLICANT,
-)
+from django.test import TestCase
+
+from cases.models import Case
+from contacts.models import Contact
+from core.models import User
+from invitations.models import Invitation
+from organisations.models import Organisation
+from security.constants import (ROLE_APPLICANT, ROLE_DOMESTIC_PRODUCER,
+                                SECURITY_GROUP_ORGANISATION_OWNER)
+from security.models import CaseRole, OrganisationCaseRole
 
 PASSWORD = "A7Hhfa!jfaw@f"
 
