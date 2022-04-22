@@ -22,6 +22,9 @@ def migrate_user_profile_information(apps, schema_editor):
         except UserProfile.DoesNotExist:
             continue
 
+def reverse_migrate_user_profile_information(apps, schema_editor):
+    return True  # The added fields are deleted so no need to do anything
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -61,7 +64,10 @@ class Migration(migrations.Migration):
             name='settings',
             field=models.JSONField(blank=True, default=dict, null=True),
         ),
-        migrations.RunPython(migrate_user_profile_information),
+        migrations.RunPython(
+            migrate_user_profile_information,
+            reverse_code=reverse_migrate_user_profile_information
+        ),
         migrations.RemoveField(
             model_name='user',
             name='auto_assign',
