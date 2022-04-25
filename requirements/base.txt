@@ -161,7 +161,7 @@ pyjwt==2.1.0
     # via notifications-python-client
 pyparsing==3.0.7
     # via packaging
-pypdf2==1.26.0
+pypdf2==1.27.5
     # via -r requirements.in/base.in
 python-dateutil==2.8.2
     # via

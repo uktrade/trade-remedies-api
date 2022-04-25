@@ -33,7 +33,7 @@ phonenumbers==8.12.38
 psycopg2-binary==2.8.6
 python-docx==0.8.10
 python-pptx==0.6.18
-PyPDF2==1.26.0
+PyPDF2==1.27.5
 pytz
 sentry-sdk==0.13.1
 striprtf==0.0.10
