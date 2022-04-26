@@ -1,15 +1,14 @@
-from django.test import TestCase
-from invitations.models import Invitation
-from contacts.models import Contact
-from cases.models import Case
-from core.models import User
-from organisations.models import Organisation
-from security.models import CaseRole
 from django.contrib.auth.models import Group
-from security.constants import (
-    SECURITY_GROUP_ORGANISATION_OWNER,
-    ROLE_APPLICANT,
-)
+from django.test import TestCase
+
+from cases.models import Case
+from contacts.models import Contact
+from core.models import User
+from invitations.models import Invitation
+from organisations.models import Organisation
+from security.constants import (ROLE_APPLICANT, ROLE_DOMESTIC_PRODUCER,
+                                SECURITY_GROUP_ORGANISATION_OWNER)
+from security.models import CaseRole, OrganisationCaseRole
 
 PASSWORD = "A7Hhfa!jfaw@f"
 
@@ -30,6 +29,15 @@ class InviteTestBase(TestCase):
         self.organisation = Organisation.objects.create(name="Test Org")
         self.contact_1 = Contact.objects.create(name="Test User", email="standard@test.com")  # /PS-IGNORE
         self.contact_2 = Contact.objects.create(name="Other User", email="nonstandard@test.com")  # /PS-IGNORE
+
+        case_role = CaseRole.objects.get(id=ROLE_DOMESTIC_PRODUCER)
+        self.org_case_role = OrganisationCaseRole.objects.assign_organisation_case_role(
+            organisation=self.organisation,
+            case=self.case,
+            role=case_role,
+            sampled=True,
+            created_by=self.user,
+        )
 
 
 class InviteTest(InviteTestBase):
