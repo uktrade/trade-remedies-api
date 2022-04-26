@@ -725,7 +725,7 @@ class Submission(BaseModel):
             if template_id == "NOTIFY_QUESTIONNAIRE":
                 context[
                     "footer"
-                ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade\r\nContact: investigations@traderemedies.gov.uk"  # /PS-IGNORE
+                ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade"  # /PS-IGNORE
             values.update(context)
         if template_id == "NOTIFY_AD_HOC_EMAIL":
             values[
