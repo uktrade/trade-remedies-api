@@ -513,7 +513,7 @@ class AssignUserToCaseView(TradeRemediesApiView):
             }
             context[
                 "footer"
-            ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade\r\nContact: investigations@traderemedies.gov.uk"  # /PS-IGNORE
+            ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade"
             context["full_name"] = user.contact.name or user.name
             audit_kwargs = {
                 "audit_type": AUDIT_TYPE_NOTIFY,
