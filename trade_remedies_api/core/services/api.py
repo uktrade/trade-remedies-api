@@ -1,6 +1,10 @@
 import json
 import mimetypes
-from .base import TradeRemediesApiView, ResponseSuccess
+
+from rest_framework.response import Response
+
+from .auth.serializers import EmailSerializer
+from .base import ResponseError, TradeRemediesApiView, ResponseSuccess
 from .exceptions import InvalidRequestParams, IntegrityErrorRequest, NotFoundApiExceptions
 from django.contrib.auth.models import Group
 from django.db import transaction
@@ -82,6 +86,18 @@ class SecurityGroupsView(TradeRemediesApiView):
         )
         groups = [item for item in GROUPS[1:] if item[0] in group_limiter]
         return ResponseSuccess({"results": groups})
+
+
+class GetUserEmailAPIView(TradeRemediesApiView):
+    def get(self, request, user_email, *args, **kwargs):
+        serializer = EmailSerializer(data={"email": user_email})
+        if serializer.is_valid():
+            return ResponseSuccess({"result": serializer.user.to_dict()})
+        else:
+            return ResponseError(
+                error="User not found",
+                http_status=status.HTTP_404_NOT_FOUND,
+            )
 
 
 class UserApiView(TradeRemediesApiView):
@@ -495,7 +511,10 @@ class AssignUserToCaseView(TradeRemediesApiView):
                 "representing_clause": f" representing {representing.name}",
                 "login_url": public_login_url(),
             }
-            context["footer"] = notify_footer(notify_contact_email(context.get("case_number")))
+            context[
+                "footer"
+            ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade"  # /PS-IGNORE
+            context["full_name"] = user.contact.name or user.name
             audit_kwargs = {
                 "audit_type": AUDIT_TYPE_NOTIFY,
                 "case": case,

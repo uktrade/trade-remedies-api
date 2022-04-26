@@ -1,2 +1,6 @@
 [run]
-omit = trade_remedies_api/tests/*
+omit =
+    trade_remedies_api/tests/*
+    */migrations/*
+    *__init__*
+    *test_*

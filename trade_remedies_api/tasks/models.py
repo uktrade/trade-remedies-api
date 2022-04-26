@@ -3,6 +3,7 @@ from core.base import BaseModel
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres import fields
 from core.utils import get
+from django.conf import settings
 
 
 class Task(BaseModel):
@@ -21,7 +22,7 @@ class Task(BaseModel):
     case = models.ForeignKey("cases.Case", null=True, blank=True, on_delete=models.PROTECT)
     due_date = models.DateField(null=True)
     assignee = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         related_name="%(class)s_assignee",
@@ -29,7 +30,7 @@ class Task(BaseModel):
     )
     priority = models.CharField(max_length=20, null=True, blank=True)
     status = models.CharField(max_length=20, null=True, blank=True)
-    data = fields.JSONField(null=True, blank=True)
+    data = models.JSONField(null=True, blank=True)
 
     options = (
         {

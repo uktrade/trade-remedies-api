@@ -1,25 +1,25 @@
 import uuid
-from django.db import models, transaction
+
 from django.conf import settings
-from core.base import BaseModel
 from django.contrib.auth.models import Group
-from django.contrib.postgres import fields
-from django.utils import timezone, crypto
-from cases.models import get_case
-from organisations.models import get_organisation
-from core.tasks import send_mail
-from core.models import SystemParameter
-from core.notifier import notify_footer, notify_contact_email
-from core.utils import convert_to_e164
-from contacts.models import Contact, CaseContact
+from django.db import models, transaction
+from django.utils import crypto, timezone
+
+from audit import AUDIT_TYPE_EVENT, AUDIT_TYPE_NOTIFY
 from audit.utils import audit_log
-from audit import AUDIT_TYPE_NOTIFY, AUDIT_TYPE_EVENT
-from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST, SUBMISSION_TYPE_INVITE_3RD_PARTY
+from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY, SUBMISSION_TYPE_REGISTER_INTEREST
+from cases.models import Submission, SubmissionType, get_case
+from contacts.models import CaseContact, Contact
+from core.base import BaseModel
+from core.models import SystemParameter, User
+from core.notifier import notify_contact_email, notify_footer
+from core.tasks import send_mail
+from core.utils import convert_to_e164
+from organisations.models import Organisation, get_organisation
 from security.constants import (
+    ROLE_PREPARING,
     SECURITY_GROUP_ORGANISATION_OWNER,
     SECURITY_GROUP_ORGANISATION_USER,
-    ROLE_PREPARING,
-    ROLE_CONTRIBUTOR,
 )
 from .exceptions import InvitationFailure, InviteAlreadyAccepted
 
@@ -44,11 +44,11 @@ class InvitationManager(models.Manager):
         Validate an invitation exists for user/code/case combination.
         """
         case = get_case(case_id)
-        invitation = (
-            self.select_related("submission", "submission__organisation", "organisation", "contact")
-            .filter(code=code, case=case, accepted_at__isnull=True, deleted_at__isnull=True)
-            .first()
-        )
+        invitation = self.select_related(
+            "submission", "submission__organisation", "organisation", "contact"
+        ).filter(code=code, case=case, deleted_at__isnull=True, accepted_at__isnull=True)
+
+        invitation = invitation.first()
         return invitation
 
     def validate_all_pending(self, user, code=None, case_id=None):
@@ -59,7 +59,8 @@ class InvitationManager(models.Manager):
         accepted = []
         if code and case_id:
             invitation = self.get_invite_by_code(code, case_id)
-            if invitation:
+            if invitation and invitation.email == user.email:
+                # We only want to process the invitation if it belongs to the user logging in
                 invitation.process_invitation(user, accept=True, register_interest=True)
         pending_invites = self.filter(user=user, accepted_at__isnull=True, deleted_at__isnull=True)
         for invite in pending_invites:
@@ -77,6 +78,7 @@ class InvitationManager(models.Manager):
         Raises an InvitationFailure if the code is not found
         """
         try:
+
             invite = self.get(short_code=short_code, deleted_at__isnull=True)
             organisation_user = invite.process_invitation(user=user, accept=False)
             organisation = organisation_user.organisation
@@ -257,19 +259,25 @@ class Invitation(BaseModel):
     case_role = models.ForeignKey(
         "security.CaseRole", null=True, blank=True, on_delete=models.PROTECT
     )
-    user = models.ForeignKey("core.User", null=True, blank=True, on_delete=models.PROTECT)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT
+    )
     name = models.CharField(max_length=250, null=True, blank=True)
     email = models.EmailField(null=False, blank=False)
     invalid = models.BooleanField(default=False)
     code = models.CharField(max_length=50, null=True, blank=True, unique=True)
     short_code = models.CharField(max_length=16, null=True, blank=True, unique=True)
-    email_sent = models.NullBooleanField()
+    email_sent = models.BooleanField(null=True)
     accepted_at = models.DateTimeField(null=True, blank=True)
     sent_at = models.DateTimeField(null=True, blank=True)
     approved_by = models.ForeignKey(
-        "core.User", null=True, blank=True, on_delete=models.PROTECT, related_name="approved"
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="approved",
     )
-    meta = fields.JSONField(default=dict)
+    meta = models.JSONField(default=dict)
 
     objects = InvitationManager()
 
@@ -366,7 +374,6 @@ class Invitation(BaseModel):
             product = self.case.product_set.first()
             export_source = self.case.exportsource_set.first()
             case_name = self.case.name or (product.sector.name if product else "N/A")
-            registration_deadline = self.case.registration_deadline
             _context.update(
                 {
                     "case_name": case_name,
@@ -377,9 +384,6 @@ class Invitation(BaseModel):
                     "country": export_source.country.name if export_source else None,
                     "notice_url": self.submission.url if self.submission else "",  # TODO: Remove
                     "notice_of_initiation_url": self.case.latest_notice_of_initiation_url,
-                    "deadline": registration_deadline.strftime(settings.FRIENDLY_DATE_FORMAT)
-                    if registration_deadline
-                    else "N/A",
                     "invited_by_name": self.submission.contact.name if self.submission else "",
                     "invited_by_organisation": self.submission.organisation.name
                     if self.submission
@@ -442,21 +446,54 @@ class Invitation(BaseModel):
         )
         return organisation.assign_user(user, group)
 
+    def create_registration_of_interest(
+        self, user: User, organisation: Organisation, **kwargs
+    ) -> Submission:
+        """
+        Creates and returns a new registration of interest.
+
+        Arguments:
+            user: A User object
+            organisation: an Organisation object
+            submission_type: a SubmissionType object, defaults to SUBMISSION_TYPE_REGISTER_INTEREST if not provided
+            **kwargs: any value you provide in this dictionary will get passed to the Submission object and take
+            precedence over defaults
+        Returns:
+            Submission object
+        """
+
+        submission_type = SubmissionType.objects.get(id=SUBMISSION_TYPE_REGISTER_INTEREST)
+        submission_kwargs = {
+            "created_by": user,
+            "organisation": organisation,
+            "type": submission_type,
+            "name": submission_type.name,
+            "status": submission_type.default_status,
+            "case": self.case,
+            "contact": user.contact,
+            "user_context": user,
+        }
+        submission_kwargs = {**submission_kwargs, **kwargs}
+        new_registration_of_interest = Submission(**submission_kwargs)
+        new_registration_of_interest.save()
+        return new_registration_of_interest
+
     @transaction.atomic  # noqa:C901
     def process_invitation(
         self,
-        user,
-        accept=False,
-        organisation=None,
-        assign_to_organisation=False,
-        register_interest=False,
+        user: User,
+        accept: bool = False,
+        organisation: Organisation = None,
+        assign_to_organisation: bool = False,
+        register_interest: bool = False,
+        newly_registered: bool = False,
     ):
         """
         Process an invitation for a user. An invitation is usually generated by another user
         inviting this user to his view of the case (silo).
         The user will be added to the case under the inviting organisation.
 
-        By default the invitation is not accepted unless accept is True. This is
+        By default, the invitation is not accepted unless accept is True. This is
         done on first login where all pending invites are accepted.
         Generic invites, which are not tied to a specific user will not be updated
         with the invite details.
@@ -465,16 +502,21 @@ class Invitation(BaseModel):
         situations where the TRA are inviting a user they have added as a party themselves.
 
         If register_interest is True, a registration of interest will be created for this user
-        for the case represented in the invite. If the user arrives without an organisation
+        for the case represented in the invite.
+
+        If the user arrives without an organisation
         it will be because they have arrived via the invite flow and elected that they
         are the organisation invited. In this scenario the organisation invited will be their
         organisation.
+
         If the user already has an organisation, that differs from the one invited,
         a registration of interest will not be created.
+
         In the case where the invite originated from the caseworker, the organisation will
         be pre-approved to the case, thus retaining their role even as the user
         follows through the registration of interest
         (what would normally make them 'awaiting approval').
+
         The organisation will still require verification
         by the TRA before they are approved to the case.
         """
@@ -508,22 +550,12 @@ class Invitation(BaseModel):
             if user.organisation.organisation != organisation:
                 organisation = user.organisation.organisation
                 register_interest = False
-                assigned = True
 
         # if a registration of interest is to be created, do it now.
         if register_interest:
-            submission_type = SubmissionType.objects.get(id=SUBMISSION_TYPE_REGISTER_INTEREST)
-            reg_interest = Submission(
-                created_by=user,
-                name=submission_type.name,
-                type=submission_type,
-                status=submission_type.default_status,
-                organisation=organisation,
-                case=self.case,
-                contact=user.contact,
-                user_context=user,
+            reg_interest = self.create_registration_of_interest(
+                user=user, organisation=organisation
             )
-            reg_interest.save()
             try:
                 # retain the existing role of the organisation in the case, if available
                 existing_case_role = OrganisationCaseRole.objects.get(
@@ -550,23 +582,27 @@ class Invitation(BaseModel):
             assigned = True
             accept = True
         elif self.submission and self.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY:
-            # Assign the Third Party's organisation to the case as a contributor
-            case_role = CaseRole.objects.get(id=ROLE_CONTRIBUTOR)
-            OrganisationCaseRole.objects.assign_organisation_case_role(
-                organisation=organisation,
-                case=self.case,
-                role=case_role,
-                sampled=True,
-                created_by=self.submission.created_by,
-                approved_by=self.created_by,
-                approved_at=self.created_at,
+            assign_to_organisation = (
+                True  # todo - maybe we don't need this if the user is already assigned
             )
-            assigned = self.assign_case_user(user=user, organisation=organisation)
+            assigned = self.assign_case_user(user=user, organisation=self.organisation)
+            accept = True  # We want the invitation to be accepted
+            CaseContact.objects.get_or_create(
+                case=self.case,
+                contact=user.contact,
+                organisation=self.organisation,
+                primary=False,
+            )
         else:
             assigned = self.assign_case_user(user=user, organisation=organisation)
         if assign_to_organisation:
-            self.assign_organisation_user(user=user, organisation=organisation)
+            if not newly_registered:
+                # If the user has just been newly registered as part of the RegistrationAPIView, then they have been
+                # assigned to the organisation already, we don't want to overwrite it here as it will cause the
+                # created OrganisationUser object to be an Organisation Member when in reality they should be a owner
+                self.assign_organisation_user(user=user, organisation=organisation)
         if assigned:
+            # We want to assign the contact to the case
             self.user = user
             if self.contact != user.contact and self.contact.email == user.contact.email:
                 CaseContact.objects.get_or_create(
@@ -580,14 +616,15 @@ class Invitation(BaseModel):
                 original_contact.delete()
                 self.save()
 
-            if accept:
-                self.accepted()
-                self.user.refresh_from_db()
-                self.refresh_from_db()
-            else:
-                self.save()
         elif self.user:
             raise InvitationFailure("could not assign user to case or organisation")
+
+        if accept:
+            self.accepted()
+            user.refresh_from_db()
+            self.refresh_from_db()
+        else:
+            self.save()
         return assigned
 
     def compare_user_contact(self):

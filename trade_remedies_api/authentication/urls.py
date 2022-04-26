@@ -19,6 +19,7 @@ urlpatterns = [
     path("verify/code/<str:code>/", EmailVerifyView.as_view()),
     path("verify/resend/", EmailVerifyResendView.as_view()),
     path("email-availability/", UsernameAvailableView.as_view()),
+    path("password_reset/", UsernameAvailableView.as_view()),
 ]
 
 router = routers.DefaultRouter()

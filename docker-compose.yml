@@ -46,12 +46,13 @@ services:
       - ./postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: trade_remedies
+      POSTGRES_PASSWORD: postgres
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
   opensearch:
-    image: opensearchproject/opensearch:1.0.0
+    image: opensearchproject/opensearch:1.2.4
     restart: unless-stopped
     ports:
       - "9200:9200"
