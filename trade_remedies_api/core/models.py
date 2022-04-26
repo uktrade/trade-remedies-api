@@ -1169,6 +1169,7 @@ class TwoFactorAuth(models.Model):
             return send_report
         except Exception as two_fa_exception:
             logger.error(f"Could not 2fa for {self.user} / {self.user.id}: {two_fa_exception}")
+            raise
 
 
 class PasswordResetManager(models.Manager):

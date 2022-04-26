@@ -12,6 +12,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from notifications_python_client.errors import HTTPError
 from rest_framework import status
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
 from django.utils.translation import gettext_lazy as _
 from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, UserProfile
@@ -35,6 +36,9 @@ from .serializers import (
     TwoFactorAuthVerifySerializer,
     VerifyEmailSerializer,
 )
+from ...exceptions import CustomValidationError, SingleValidationAPIException, \
+    ValidationAPIException
+from ...validation_errors import validation_errors
 
 logger = logging.getLogger(__name__)
 
@@ -88,32 +92,17 @@ class AuthenticationView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data["user"]
             email = serializer.validated_data["email"]
-
-            code = request.data.get("code")
-            case_id = request.data.get("case_id")
-            user_agent = request.META.get("HTTP_X_USER_AGENT")
+            invitation_code = request.data.get("invitation_code")
 
             login(request, user)  # Logging the user in
             reset(username=email)  # Reset any remaining access attempts
-            invites = Invitation.objects.validate_all_pending(
-                user, code, case_id
+            Invitation.objects.validate_all_pending(
+                user, invitation_code
             )  # validate all pending invitations
-            if invites:
-                user.refresh_from_db()
-
-            # Do we need to redirect the user after this? i.e. to 2fa (public users are always prompted)
-            if not user.is_tra() or user.should_two_factor(user_agent=user_agent):
-                user.twofactorauth.two_factor_auth(user_agent=user_agent)
 
             return ResponseSuccess(serializer.data, http_status=status.HTTP_200_OK)
         else:
-            raise AccessDenied(
-                _(
-                    "You have entered an incorrect email address or password. "
-                    "Please try again or click on the Forgotten password link below."
-                ),
-                code="authorization",
-            )
+            raise ValidationAPIException(serializer_errors=serializer.errors)
 
     def perform_authentication(self, request):
         """Perform Authentication.
@@ -145,7 +134,7 @@ class RegistrationAPIView(APIView):
             case_id = serializer.initial_data["case_id"]
 
             if code and case_id:
-                invitation = Invitation.objects.get_invite_by_code(code, case_id)
+                invitation = Invitation.objects.get_invite_by_code(code)
             if invitation:
                 invited_organisation = invitation.organisation
                 if group := invitation.organisation_security_group:
@@ -218,45 +207,39 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
             InvalidRequestParams if the code could not be sent
         """
         twofactorauth_object = request.user.twofactorauth
-        serializer = TwoFactorAuthRequestSerializer(
-            data={"delivery_type": delivery_type or TwoFactorAuth.SMS},
-            instance=twofactorauth_object,
-        )
-        if serializer.is_valid():
-            serializer.save()
+        delivery_type = twofactorauth_object.delivery_type
+        if delivery_type == TwoFactorAuth.SMS and not request.user.phone:
+            # We want to use email if we don't have their mobile number
+            delivery_type = TwoFactorAuth.EMAIL
+        twofactorauth_object.delivery_type = delivery_type
+        twofactorauth_object.save()
 
-            if twofactorauth_object.is_locked():
-                locked_until = twofactorauth_object.locked_until + datetime.timedelta(seconds=15)
-                locked_for_seconds = (locked_until - timezone.now()).seconds
-                return ResponseSuccess(
-                    {
-                        "result": {
-                            "error": "You have entered an incorrect code too many times "
-                            "and we have temporarily locked your account.",
-                            "locked_until": locked_until.strftime(settings.API_DATETIME_FORMAT),
-                            "locked_for_seconds": locked_for_seconds,
-                        }
-                    }
-                )
-            try:
-                send_report = twofactorauth_object.two_factor_auth(
-                    user_agent=request.META["HTTP_X_USER_AGENT"], delivery_type=delivery_type
-                )
-            except HTTPError:
-                raise InvalidRequestParams("Could not send code to phone")
-            except Exception as exc:
-                raise InvalidRequestParams(f"Error occurred when sending code: {exc}")
-            if send_report:
-                send_report["delivery_type"] = serializer.validated_data["delivery_type"]
+        """if twofactorauth_object.is_locked():
+            locked_until = twofactorauth_object.locked_until + datetime.timedelta(seconds=15)
+            locked_for_seconds = (locked_until - timezone.now()).seconds
             return ResponseSuccess(
                 {
-                    "result": send_report,
+                    "result": {
+                        "error": "You have entered an incorrect code too many times "
+                        "and we have temporarily locked your account.",
+                        "locked_until": locked_until.strftime(settings.API_DATETIME_FORMAT),
+                        "locked_for_seconds": locked_for_seconds,
+                    }
                 }
+            )"""
+        try:
+            send_report = twofactorauth_object.two_factor_auth(
+                user_agent=request.META["HTTP_X_USER_AGENT"], delivery_type=delivery_type
+            )
+        except Exception as e:
+            raise SingleValidationAPIException(
+                validation_error=CustomValidationError(
+                    **validation_errors["two_code_failed_delivery"]
+                )
             )
         else:
-            raise InvalidRequestParams(
-                f"Error occurred when sending 2fa code to {twofactorauth_object.user}"
-            )
+            send_report["delivery_type"] = delivery_type
+        return ResponseSuccess({"result": send_report,})
 
     @staticmethod
     def post(request, *args, **kwargs):

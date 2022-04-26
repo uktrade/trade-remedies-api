@@ -2,40 +2,43 @@ import logging
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import AuthenticationFailed, ValidationError
 
-from config.version import __version__
+from config.serializers import CustomValidationSerializer
+from core.serializers import UserSerializer
+from core.validation_errors import validation_errors
+from core.exceptions import CustomValidationError
 from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User
-from core.services.exceptions import AccessDenied
+from core.validators import email_validator
 from security.constants import ENVIRONMENT_GROUPS
 
 logger = logging.getLogger(__name__)
 
 
-class PasswordSerializer(serializers.Serializer):
+class PasswordSerializer(CustomValidationSerializer):
     """Checks if a password is valid, i.e. meets the minimum complexity requirements."""
 
     password = serializers.CharField(
-        label=_("Password"), trim_whitespace=True, write_only=True, required=True
+        label=_("Password"),
+        trim_whitespace=True,
+        write_only=True,
+        required=True,
+        validators=[validate_password, ]
     )
 
-    def validate_password(self, value: str) -> str:
-        try:
-            validate_password(value)
-        except DjangoValidationError as exc:
-            raise ValidationError(detail="<br/>".join(exc.messages), code="password_not_complex")
-        return value
 
-
-class EmailSerializer(serializers.Serializer):
+class EmailSerializer(CustomValidationSerializer):
     """Checks that an email address belongs to a user who exists in the database."""
 
     email = serializers.CharField(
-        label=_("Email"), write_only=True, trim_whitespace=True, required=True
+        label=_("Email"),
+        write_only=True,
+        trim_whitespace=True,
+        required=True,
+        validators=[email_validator, ]
     )
 
     def user_queryset(self, email: str) -> QuerySet:
@@ -46,7 +49,9 @@ class EmailSerializer(serializers.Serializer):
         try:
             user = self.user_queryset(email=email).get()
         except User.DoesNotExist:
-            raise ValidationError(_("User does not exist."), code="user_does_not_exist")
+            raise CustomValidationError(
+                **validation_errors["wrong_email_password_combination"]
+            )
         return user
 
     def validate_email(self, value: str) -> str:
@@ -72,8 +77,9 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
 
     Also exposes a data() method which can be easily returned as part of an HttpResponse object.
     """
-
-    response_dict = {"version": __version__}
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.response_dict = dict()
 
     def validate(self, attrs):
         email = attrs.get("email")
@@ -86,12 +92,8 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
             )
 
             if not user or user.deleted_at:
-                raise AccessDenied(
-                    _(
-                        "You have entered an incorrect email address or password. "
-                        "Please try again or click on the Forgotten password link below."
-                    ),
-                    code="authorization",
+                raise CustomValidationError(
+                    **validation_errors["wrong_email_password_combination"]
                 )
 
             # ensure the origin of the request is allowed for this user group
@@ -104,7 +106,7 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
                         f"env_key = {env_key};"
                         f"{user.email} does not have access to {ENVIRONMENT_GROUPS[env_key]}"
                     )
-                raise AccessDenied(_("Invalid access to environment"))
+                raise AuthenticationFailed(_("Invalid access to environment"))
 
             email_verified = user.is_tra() or user.userprofile.email_verified_at
             if not email_verified:
@@ -112,7 +114,7 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
             self.response_dict["token"] = str(user.get_access_token())
 
         else:
-            raise AccessDenied(
+            raise AuthenticationFailed(
                 _("Email and password are required to log in."), code="authorization"
             )
 
@@ -152,7 +154,7 @@ class RegistrationSerializer(
         attrs = super().validate(attrs=attrs)
         password = attrs["password"]
         if SystemParameter.get("REGISTRATION_SOFT_LOCK") and not password.startswith(
-            SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
+                SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
         ):
             raise ValidationError(
                 _("Registrations are currently locked."), code="registration_locked"
