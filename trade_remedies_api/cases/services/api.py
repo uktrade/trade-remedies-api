@@ -1915,9 +1915,9 @@ class CaseReviewTypesAPI(TradeRemediesApiView):
         """Returns the available review types of a case-like object.
 
         The PK passed to this view can belong either to a Notice or Case object, both of which inherit from the
-        CaseLikeObject mixin, which provides them with the available_case_review_types() method.
+        CaseOrNotice mixin, which provides them with the available_case_review_types() method.
         """
-        is_notice = request.query_params.get("summary", False)
+        is_notice = request.query_params.get("is_notice", False)
         model = Notice if is_notice else Case
         case_like_object = model.objects.get(id=case_id)
         available_review_types = case_like_object.available_case_review_types()

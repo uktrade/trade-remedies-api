@@ -143,14 +143,14 @@ class Submission(BaseModel):
         "organisations.Organisation", null=True, blank=True, on_delete=models.PROTECT
     )
     contact = models.ForeignKey("contacts.Contact", null=True, blank=True, on_delete=models.PROTECT)
-    review = models.NullBooleanField()
+    review = models.BooleanField(null=True)
     documents = models.ManyToManyField("documents.Document", through="SubmissionDocument")
     doc_reviewed_at = models.DateTimeField(null=True, blank=True)
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.PROTECT)
     version = models.SmallIntegerField(default=1)
     sent_at = models.DateTimeField(null=True, blank=True)
     sent_by = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         related_name="%(class)s_sent_by",
@@ -158,7 +158,7 @@ class Submission(BaseModel):
     )
     received_at = models.DateTimeField(null=True, blank=True)
     received_from = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         related_name="%(class)s_received_from",
@@ -174,14 +174,14 @@ class Submission(BaseModel):
     description = models.TextField(null=True, blank=True)
     time_window = models.SmallIntegerField(null=True, blank=True)
     issued_by = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         related_name="%(class)s_issued_by",
         on_delete=models.SET_NULL,
     )
     issued_at = models.DateTimeField(null=True, blank=True)
-    deficiency_notice_params = fields.JSONField(null=True, blank=True)
+    deficiency_notice_params = models.JSONField(null=True, blank=True)
 
     objects = SubmissionManager()
 
@@ -583,7 +583,7 @@ class Submission(BaseModel):
             "organisation": organisation,
             "organisation_name": self.organisation_name,
             "organisation_case_role": org_case_role.to_dict() if org_case_role else None,
-            "organisation_case_role_outer": org_case_role_outer.to_dict()
+            "organisation_case_role_outer": org_case_role_outer.to_dict(self.case)
             if org_case_role_outer
             else None,
             "is_tra": str(self.organisation and self.organisation.id) == TRA_ORGANISATION_ID,
@@ -694,6 +694,8 @@ class Submission(BaseModel):
         """
         contact = contact or self.contact
         template_id = template_id or "NOTIFY_QUESTIONNAIRE"
+        if template_id == "NOTIFY_APPLICATION_SUCCESSFUL":
+            template_id = "NOTIFY_APPLICATION_SUCCESSFUL_V2"
         notify_template_id = SystemParameter.get(template_id)
         export_sources = self.case.exportsource_set.filter(deleted_at__isnull=True)
         export_countries = [src.country.name for src in export_sources]
@@ -718,8 +720,18 @@ class Submission(BaseModel):
             "notice_url": self.case.latest_notice_of_initiation_url,  # TODO: remove
             "notice_of_initiation_url": self.case.latest_notice_of_initiation_url,
         }
+
         if context:
+            if template_id == "NOTIFY_QUESTIONNAIRE":
+                context[
+                    "footer"
+                ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade"  # /PS-IGNORE
             values.update(context)
+        if template_id == "NOTIFY_AD_HOC_EMAIL":
+            values[
+                "footer"
+            ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade\r\nContact: contact@traderemedies.gov.uk"  # /PS-IGNORE
+
         audit_kwargs = {
             "audit_type": AUDIT_TYPE_NOTIFY,
             "user": sent_by,
@@ -741,7 +753,9 @@ class Submission(BaseModel):
         back to the default deficiency template.
         """
         contact = contact or self.contact
-        template_id = template_id or self.type.deficiency_template or "NOTIFY_SUBMISSION_DEFICIENCY"
+        template_id = "NOTIFY_SUBMISSION_DEFICIENCY"
+        if context.get("submission_type", "") == "Application":
+            template_id = "NOTIFY_APPLICATION_INSUFFICIENT_V2"
         notify_template_id = SystemParameter.get(template_id)
         product = self.case.product_set.first()
         product_name = product.name if product else ""

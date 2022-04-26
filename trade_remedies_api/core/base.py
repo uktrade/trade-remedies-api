@@ -22,14 +22,14 @@ class SimpleBaseModel(models.Model, DirtyFieldsMixin, AuditableMixin):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     last_modified = models.DateTimeField(auto_now=True, null=True)
     created_by = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         related_name="%(class)s_created_by",
         on_delete=models.SET_NULL,
     )
     modified_by = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         related_name="%(class)s_modified_by",

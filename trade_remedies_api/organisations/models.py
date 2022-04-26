@@ -304,7 +304,7 @@ class Organisation(BaseModel):
     merged_from = models.ForeignKey(
         "self", null=True, blank=True, on_delete=models.PROTECT, related_name="merged_from_org"
     )
-    json_data = fields.JSONField(null=True, blank=True)
+    json_data = models.JSONField(null=True, blank=True)
 
     objects = OrganisationManager()
 
@@ -599,8 +599,8 @@ class Organisation(BaseModel):
         templates_map = {
             "approve": "NOTIFY_INTERESTED_PARTY_REQUEST_PERMITTED",
             "deny": "NOTIFY_INTERESTED_PARTY_REQUEST_DENIED",
-            "change": "NOTIFY_COMPANY_ROLE_CHANGED",
-            "remove": "NOTIFY_COMPANY_ROLE_DENIED",
+            "change": "NOTIFY_COMPANY_ROLE_CHANGED_V2",
+            "remove": "NOTIFY_COMPANY_ROLE_DENIED_V2",
         }
         template_id = templates_map.get(action)
         if template_id:
@@ -666,7 +666,7 @@ class OrganisationName(models.Model):
     from_date = models.DateTimeField(null=True, blank=True)
     to_date = models.DateTimeField(null=True, blank=True)
     created_by = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         related_name="%(class)s_created_by",

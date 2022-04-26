@@ -24,7 +24,6 @@ from cases.constants import (
 from organisations.models import Organisation
 from documents.models import DocumentBundle
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -322,12 +321,25 @@ class InviteThirdPartyAPI(TradeRemediesApiView):
         :param (dict) request_data: Invite parameters.
         """
         invitee_organisation = InviteThirdPartyAPI.get_invitee_org(request_user, request_data)
-        contact = Contact.objects.create(
-            name=request_data.get("name"),
-            email=request_data.get("email", "").lower(),
-            organisation=invitee_organisation,
-            created_by=request_user,
-        )
+
+        contact_query_kwargs = {
+            "name": request_data.get("name"),
+            "email": request_data.get("email", "").lower(),
+            "organisation": invitee_organisation,
+        }
+
+        # We want to reuse a Contact object if it already exists, if it's an existing third party user, we don't want
+        # many contact objects created with the same information
+        try:
+            contact, _ = Contact.objects.get_or_create(
+                **contact_query_kwargs, defaults={"created_by": request_user}
+            )
+        except Contact.MultipleObjectsReturned:
+            # These is to deal with cases where it's already too late, and multiple Contact objects have been created,
+            # what we can do is ensure we always pick the same one going forward.
+            # todo - a potential merge strategy for this, it would be a one-off merge rather than an ongoing tool
+            contact = Contact.objects.filter(**contact_query_kwargs).first()
+
         third_party_group = Group.objects.get(name=SECURITY_GROUP_THIRD_PARTY_USER)
         invite = Invitation.objects.create(
             created_by=request_user,

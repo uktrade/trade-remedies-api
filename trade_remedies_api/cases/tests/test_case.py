@@ -1,22 +1,16 @@
 import json
-from django.test import TestCase
-from django.contrib.auth.models import Group
-from core.models import User, SystemParameter
-from organisations.models import Organisation
-from cases.models import (
-    Case,
-    CaseType,
-    CaseStage,
-    CaseWorkflow,
-)
+import os
+from pathlib import Path
 
-from security.constants import (
-    SECURITY_GROUP_ORGANISATION_OWNER,
-    SECURITY_GROUP_ORGANISATION_USER,
-    SECURITY_GROUP_TRA_ADMINISTRATOR,
-    SECURITY_GROUP_TRA_INVESTIGATOR,
-    ROLE_APPLICANT,
-)
+from django.conf import settings
+from django.contrib.auth.models import Group
+from django.test import TestCase
+
+from cases.models import (Case, CaseStage, CaseType, CaseWorkflow)
+from core.models import SystemParameter, User
+from organisations.models import Organisation
+from security.constants import (ROLE_APPLICANT, SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER,
+                                SECURITY_GROUP_TRA_ADMINISTRATOR, SECURITY_GROUP_TRA_INVESTIGATOR)
 
 PASSWORD = "A7Hhfa!jfaw@f"
 
@@ -41,8 +35,7 @@ def get_case_fixtures(*extra):
 
 
 def load_system_params():
-    path = "core/system/parameters.json"
-    with open(path) as json_data:
+    with open(os.path.join(Path(settings.BASE_DIR).parent.absolute(), "core/system/parameters.json")) as json_data:
         objects = json.loads(str(json_data.read()))
     return SystemParameter.load_parameters(objects)
 

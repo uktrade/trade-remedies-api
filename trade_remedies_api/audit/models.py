@@ -71,7 +71,7 @@ class Audit(models.Model):
     type = models.CharField(max_length=50, null=False, blank=False, choices=AUDIT_TYPES)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     created_by = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         db_index=True,
@@ -79,7 +79,7 @@ class Audit(models.Model):
         on_delete=models.PROTECT,
     )
     assisted_by = models.ForeignKey(
-        "core.User",
+        settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         db_index=True,
@@ -91,7 +91,7 @@ class Audit(models.Model):
     content_type = models.ForeignKey(ContentType, null=True, blank=True, on_delete=models.PROTECT)
     milestone = models.BooleanField(default=False)
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.PROTECT)
-    data: dict = fields.JSONField(null=True, blank=True)
+    data: dict = models.JSONField(null=True, blank=True)
 
     def _case_title(self):
         if not self.data:
