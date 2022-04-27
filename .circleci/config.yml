@@ -85,7 +85,7 @@ jobs:
       - run:
           name: Run tests and save coverage report
           command: |
-            pytest
+            pytest trade_remedies_api
             coverage json
       - run:
           name: Send coverage report to codecov.io
