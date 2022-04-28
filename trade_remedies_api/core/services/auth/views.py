@@ -207,7 +207,6 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
             InvalidRequestParams if the code could not be sent
         """
         twofactorauth_object = request.user.twofactorauth
-        delivery_type = twofactorauth_object.delivery_type
         if delivery_type == TwoFactorAuth.SMS and not request.user.phone:
             # We want to use email if we don't have their mobile number
             delivery_type = TwoFactorAuth.EMAIL
@@ -239,7 +238,7 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
             )
         else:
             send_report["delivery_type"] = delivery_type
-        return ResponseSuccess({"result": send_report,})
+        return ResponseSuccess({"result": send_report})
 
     @staticmethod
     def post(request, *args, **kwargs):
@@ -254,16 +253,26 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
             InvalidRequestParams if the code could could not be validated
         """
         twofactorauth_object = request.user.twofactorauth
-        serializer = TwoFactorAuthVerifySerializer(
-            data=request.data, instance=twofactorauth_object, context={"request": request}
-        )
-        if serializer.is_valid():
-            request.user.refresh_from_db()
+
+        if not twofactorauth_object.code_within_valid_timeframe():
+            # The code has expired
+            raise SingleValidationAPIException(
+                validation_error=CustomValidationError(
+                    **validation_errors["2fa_code_expired"]
+                )
+            )
+
+        if twofactorauth_object.validate(request.POST["code"]):
+            # The code is valid!
             twofactorauth_object.success(user_agent=request.META["HTTP_X_USER_AGENT"])
-            return ResponseSuccess({"result": request.user.to_dict()})
+            return ResponseSuccess({"result": twofactorauth_object.user.to_dict()})
         else:
-            twofactorauth_object.fail()
-            raise InvalidRequestParams("Invalid code")
+            #twofactorauth_object.fail()
+            raise SingleValidationAPIException(
+                validation_error=CustomValidationError(
+                    **validation_errors["2fa_code_not_valid"]
+                )
+            )
 
 
 class RequestPasswordReset(APIView):

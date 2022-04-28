@@ -51,6 +51,7 @@ class SingleValidationAPIException(APIException):
 
     def __init__(self, validation_error: CustomValidationError, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.detail = defaultdict(list)
-        self.detail["error_summaries"].append(validation_error.error_summary)
-        self.detail[validation_error.field].append(validation_error.error_text)
+        detail = defaultdict(list)
+        detail["error_summaries"].append(validation_error.error_summary)
+        detail[validation_error.field].append(validation_error.error_text)
+        self.detail = dict(detail)

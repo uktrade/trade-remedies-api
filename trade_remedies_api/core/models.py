@@ -1107,8 +1107,23 @@ class TwoFactorAuth(models.Model):
         :param (str) code: 2FA code.
         :returns (bool): True if code is valid, False otherwise.
         """
+        return code == self.code and self.code_within_valid_timeframe()
+
+    def code_within_valid_timeframe(self) -> bool:
+        """Checks that the code is still within the relevant timeframe for validation.
+
+        It does not matter if the code is correct, if this is False then the code is ultimately
+        deemed invalid.
+
+        Returns:
+            True if the code is within the valid duration, False if not
+        """
         valid_minutes = self.validity_period_for(self.delivery_type)
-        return code == self.code and self.code_duration < (valid_minutes * 60)
+        # self.code_duration is in seconds, so we need to compare it against seconds
+        if self.code_duration < (valid_minutes * 60):
+            return True
+        else:
+            return False
 
     @property
     def code_duration(self):

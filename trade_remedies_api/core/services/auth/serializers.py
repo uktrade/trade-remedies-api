@@ -8,10 +8,9 @@ from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
 
 from config.serializers import CustomValidationSerializer
-from core.serializers import UserSerializer
-from core.validation_errors import validation_errors
 from core.exceptions import CustomValidationError
 from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User
+from core.validation_errors import validation_errors
 from core.validators import email_validator
 from security.constants import ENVIRONMENT_GROUPS
 
@@ -25,7 +24,6 @@ class PasswordSerializer(CustomValidationSerializer):
         label=_("Password"),
         trim_whitespace=True,
         write_only=True,
-        required=True,
         validators=[validate_password, ]
     )
 
@@ -37,7 +35,6 @@ class EmailSerializer(CustomValidationSerializer):
         label=_("Email"),
         write_only=True,
         trim_whitespace=True,
-        required=True,
         validators=[email_validator, ]
     )
 
@@ -216,14 +213,14 @@ class TwoFactorAuthVerifySerializer(serializers.ModelSerializer):
         fields = ["code"]
 
     def validate(self, attrs):
-        if self.instance.is_locked():
+        """if self.instance.is_locked():
             raise ValidationError(
                 _(
                     "You have entered an incorrect code too many times "
                     "and we have temporarily locked your account."
                 ),
                 code="2fa_lockout",
-            )
+            )"""
         if self.instance.validate(attrs["code"]):
             return attrs
         else:
