@@ -33,7 +33,7 @@ from security.models import CaseSecurityMixin, UserCase, OrganisationUser
 from core.notifier import send_sms
 from timezone_field import TimeZoneField
 from phonenumbers.phonenumberutil import NumberParseException
-from .exceptions import UserExists
+from .exceptions import TwoFactorRequestedTooMany, UserExists
 from .tasks import send_mail
 from .decorators import method_cache
 from .constants import SAFE_COLOURS, DEFAULT_USER_COLOUR, TRUTHFUL_INPUT_VALUES
@@ -827,6 +827,9 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
             twofactor, _ = TwoFactorAuth.objects.get_or_create(user=self)
             self.twofactorauth = twofactor
             self.save()
+        if not self.is_tra():
+            # This is a public user, force 2FA
+            return True
         user_agent = user_agent or self.twofactorauth.last_user_agent
         return (
             not self.twofactorauth.last_validated
@@ -1147,6 +1150,12 @@ class TwoFactorAuth(models.Model):
         :param (int) valid_minutes: 2FA validity period in minutes.
         :returns (str): New or existing 2FA code.
         """
+        now = timezone.now()
+        if self.generated_at and (now-self.generated_at).seconds <= \
+                    settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS:
+            # They have requested a new code in the last TWO_FACTOR_RESEND_TIMEOUT_SECONDS seconds
+            raise TwoFactorRequestedTooMany()
+
         if self.attempts == 0 or self.code_duration >= (valid_minutes * 60):
             self.code = str(randint(10000, 99999))
             self.last_user_agent = user_agent

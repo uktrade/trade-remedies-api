@@ -16,10 +16,14 @@ validation_errors = {
         "field": "password",
         "error_text": "Password must include both upper and lower case characters",
     },
+    "password_required": {
+        "field": "password",
+        "error_summary": "You need to enter your password",
+        "error_text": "Enter your password",
+    },
     "2fa_code_failed_delivery": {
         "field": "2fa_code",
-        "error_text": "The code could not be sent. Please retry in 2 minutes",
-        "error_summary": "The authentication code could not be sent",
+        "error_summary": "The authentication code could not be sent, try again shortly",
     },
     "2fa_code_expired": {
         "field": "2fa_code",
@@ -31,5 +35,28 @@ validation_errors = {
         "error_text": "Enter a valid authentication code",
         "error_summary": "The authentication code is incorrect",
     },
-
+    "2fa_requested_too_many_times": {
+        "field": "2fa_code",
+        "error_summary": "Please wait %s seconds before requesting another authentication code",
+    },
+    "email_not_valid": {
+        "field": "email",
+        "error_text": "Enter your email address in the correct format. Eg. name@example.com",
+        "error_summary": "Your email address needs to be in the correct format. Eg. name@example.com"
+    },
+    "email_required": {
+        "field": "email",
+        "error_text": "Enter your email address. Eg. name@example.com",
+        "error_summary": "Enter your email address"
+    },
+    "2fa_code_required": {
+        "field": "2fa_code",
+        "error_text": "Enter the correct authentication code or request a new code",
+        "error_summary": "You need to enter an authentication code"
+    },
+    "2fa_code_locked": {
+        "field": "2fa_code",
+        "error_text": "The authentication code is incorrect and your account has been temporarily locked. Try again in 5 minutes",
+        "error_summary": "The authentication code is incorrect and your account has been temporarily locked. Try again in 5 minutes"
+    }
 }

@@ -1,17 +1,19 @@
 import logging
+import re
 
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.db.models import QuerySet
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
 
-from config.serializers import CustomValidationSerializer
-from core.exceptions import CustomValidationError
+from config.serializers import CustomValidationModelSerializer, CustomValidationSerializer
+from core.exceptions import CustomValidationError, TwoFactorRequestedTooMany
 from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User
 from core.validation_errors import validation_errors
-from core.validators import email_validator
 from security.constants import ENVIRONMENT_GROUPS
 
 logger = logging.getLogger(__name__)
@@ -24,7 +26,10 @@ class PasswordSerializer(CustomValidationSerializer):
         label=_("Password"),
         trim_whitespace=True,
         write_only=True,
-        validators=[validate_password, ]
+        required=True,
+        error_messages={
+            "blank": validation_errors["password_required"]
+        }
     )
 
 
@@ -35,7 +40,9 @@ class EmailSerializer(CustomValidationSerializer):
         label=_("Email"),
         write_only=True,
         trim_whitespace=True,
-        validators=[email_validator, ]
+        error_messages={
+            "blank": validation_errors["email_required"]
+        }
     )
 
     def user_queryset(self, email: str) -> QuerySet:
@@ -53,6 +60,9 @@ class EmailSerializer(CustomValidationSerializer):
 
     def validate_email(self, value: str) -> str:
         """Email field validator."""
+        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        if not re.search(email_regex, value) or not value:
+            raise CustomValidationError(error_key="email_not_valid")
         self.user = self.get_user(value)
         return value
 
@@ -74,6 +84,7 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
 
     Also exposes a data() method which can be easily returned as part of an HttpResponse object.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.response_dict = dict()
@@ -121,11 +132,12 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
     @property
     def data(self):
         user = self.validated_data["user"]
-        user.refresh_from_db()  # We want to refresh the User object in case we've validated invitations in the meantime
+        # We want to refresh the User object in case we've validated invitations in the meantime
+        user.refresh_from_db()
         self.response_dict["user"] = user.to_dict(
             user_agent=self.context["request"].META.get("HTTP_X_USER_AGENT")
         )
-        return self.response_dict
+        return {"result": self.response_dict}
 
 
 class RegistrationSerializer(
@@ -185,12 +197,30 @@ class RegistrationSerializer(
         return super().save(**kwargs)
 
 
-class TwoFactorAuthRequestSerializer(serializers.ModelSerializer):
-    """Checks if a 2fa token can be sent to the recipient."""
+class TwoFactorAuthRequestSerializer(CustomValidationModelSerializer):
+    """Checks if a 2fa token can be sent to the recipient, and if so, sends it."""
 
     class Meta:
         model = TwoFactorAuth
         fields = ["delivery_type"]
+
+    def validate(self, attrs):
+        try:
+            self.send_report = self.instance.two_factor_auth(
+                user_agent=self.context["request"].META["HTTP_X_USER_AGENT"],
+                delivery_type=attrs["delivery_type"]
+            )
+            return attrs
+        except TwoFactorRequestedTooMany:
+            last_requested_seconds_ago = settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS - (
+                    timezone.now() - self.instance.generated_at).seconds
+            raise CustomValidationError(
+                field=validation_errors["2fa_requested_too_many_times"]["field"],
+                error_summary=validation_errors["2fa_requested_too_many_times"][
+                                  "error_summary"] % last_requested_seconds_ago,
+            )
+        except Exception as e:
+            raise CustomValidationError(error_key="2fa_code_failed_delivery")
 
     def validate_delivery_type(self, value):
         value = value or TwoFactorAuth.SMS
@@ -200,32 +230,52 @@ class TwoFactorAuthRequestSerializer(serializers.ModelSerializer):
             value = TwoFactorAuth.EMAIL
         return value
 
+    @property
+    def data(self):
+        self.send_report["delivery_type"] = self.validated_data["delivery_type"]
+        return {"result": self.send_report}
 
-class TwoFactorAuthVerifySerializer(serializers.ModelSerializer):
+
+class TwoFactorAuthVerifySerializer(CustomValidationModelSerializer):
     """Checks if a given 2fa code is valid.
 
-    Used in POST requests to confirm that the token provided by the user is correct and whether or not they should be
-    allowed to log in.
+    Used in POST requests to confirm that the token provided by the user is correct and
+    whether or not they should be allowed to log in.
     """
-
     class Meta:
         model = TwoFactorAuth
         fields = ["code"]
 
     def validate(self, attrs):
-        """if self.instance.is_locked():
-            raise ValidationError(
-                _(
-                    "You have entered an incorrect code too many times "
-                    "and we have temporarily locked your account."
-                ),
-                code="2fa_lockout",
-            )"""
-        if self.instance.validate(attrs["code"]):
-            return attrs
-        else:
-            raise ValidationError({"code": _("Invalid code")}, code="invalid_2fa_code")
+        if not self.instance.code_within_valid_timeframe:
+            raise CustomValidationError(error_key="2fa_code_expired")
 
+        return attrs
+
+    def validate_code(self, code):
+        if not code:
+            raise CustomValidationError(error_key="2fa_code_required")
+
+        if self.instance.is_locked():
+            raise CustomValidationError(error_key="2fa_code_locked")
+
+        if self.instance.validate(code):
+            # The code is valid!
+            self.instance.success(user_agent=self.context["request"].META["HTTP_X_USER_AGENT"])
+            return code
+        else:
+            # The code is invalid!
+            self.instance.fail()
+            if self.instance.is_locked():
+                # The code has been incorrectly entered too many times, it is now locked
+                raise CustomValidationError(error_key="2fa_code_locked")
+            else:
+                # The code was incorrect but the account is still not locked
+                raise CustomValidationError(error_key="2fa_code_not_valid", field="code")
+
+    @property
+    def data(self):
+        return {"result": self.instance.user.to_dict()}
 
 class VerifyEmailSerializer(serializers.Serializer):
     """Checks if a given email verification code is valid."""

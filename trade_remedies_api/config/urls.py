@@ -26,10 +26,15 @@ urlpatterns = [
     path(f"{settings.API_PREFIX}/health/", core_api.ApiHealthView.as_view()),
     path(f"{settings.API_PREFIX}/auth", auth_api.AuthenticationView.as_view()),
     path(f"{settings.API_PREFIX}/auth/email/available/", auth_api.EmailAvailabilityAPI.as_view()),
-    path(f"{settings.API_PREFIX}/auth/2fa/", auth_api.TwoFactorRequestAPI.as_view()),
+    path(
+        f"{settings.API_PREFIX}/auth/2fa/",
+        auth_api.TwoFactorRequestAPI.as_view(),
+        name="two_factor_verify"
+    ),
     path(
         f"{settings.API_PREFIX}/auth/2fa/<str:delivery_type>/",
         auth_api.TwoFactorRequestAPI.as_view(),
+        name="two_factor_request"
     ),
     path(f"{settings.API_PREFIX}/auth/email/verify/", auth_api.VerifyEmailAPI.as_view()),
     path(f"{settings.API_PREFIX}/auth/email/verify/<str:code>/", auth_api.VerifyEmailAPI.as_view()),

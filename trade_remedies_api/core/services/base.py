@@ -183,11 +183,7 @@ class ResponseSuccess(Response):
         _status = http_status or status.HTTP_200_OK
         data = data or {}
         reply = {"response": {"success": True}}
-        reply["response"]["version"] = __version__
-        if "result" not in data or "results" not in data:
-            reply["response"]["result"] = data
-        else:
-            reply["response"].update(data)
+        reply["response"].update(data)
         super().__init__(data=reply, status=_status, content_type=content_type)
 
 

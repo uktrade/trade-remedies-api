@@ -37,7 +37,7 @@ from .serializers import (
     VerifyEmailSerializer,
 )
 from ...exceptions import CustomValidationError, SingleValidationAPIException, \
-    ValidationAPIException
+    TwoFactorRequestedTooMany, ValidationAPIException
 from ...validation_errors import validation_errors
 
 logger = logging.getLogger(__name__)
@@ -194,7 +194,7 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
     """Request or verify two-factor authentication"""
 
     @staticmethod
-    def get(request, delivery_type: str = None, *args, **kwargs):
+    def get(request, delivery_type: str = TwoFactorAuth.SMS, *args, **kwargs):
         """
         Sends a 2fa code to a user.
 
@@ -210,35 +210,17 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
         if delivery_type == TwoFactorAuth.SMS and not request.user.phone:
             # We want to use email if we don't have their mobile number
             delivery_type = TwoFactorAuth.EMAIL
-        twofactorauth_object.delivery_type = delivery_type
-        twofactorauth_object.save()
 
-        """if twofactorauth_object.is_locked():
-            locked_until = twofactorauth_object.locked_until + datetime.timedelta(seconds=15)
-            locked_for_seconds = (locked_until - timezone.now()).seconds
-            return ResponseSuccess(
-                {
-                    "result": {
-                        "error": "You have entered an incorrect code too many times "
-                        "and we have temporarily locked your account.",
-                        "locked_until": locked_until.strftime(settings.API_DATETIME_FORMAT),
-                        "locked_for_seconds": locked_for_seconds,
-                    }
-                }
-            )"""
-        try:
-            send_report = twofactorauth_object.two_factor_auth(
-                user_agent=request.META["HTTP_X_USER_AGENT"], delivery_type=delivery_type
-            )
-        except Exception as e:
-            raise SingleValidationAPIException(
-                validation_error=CustomValidationError(
-                    **validation_errors["two_code_failed_delivery"]
-                )
-            )
+        serializer = TwoFactorAuthRequestSerializer(
+            instance=twofactorauth_object,
+            data={"delivery_type": delivery_type},
+            context={"request": request}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return ResponseSuccess(serializer.data, http_status=status.HTTP_200_OK)
         else:
-            send_report["delivery_type"] = delivery_type
-        return ResponseSuccess({"result": send_report})
+            raise ValidationAPIException(serializer_errors=serializer.errors)
 
     @staticmethod
     def post(request, *args, **kwargs):
@@ -253,27 +235,16 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
             InvalidRequestParams if the code could could not be validated
         """
         twofactorauth_object = request.user.twofactorauth
-
-        if not twofactorauth_object.code_within_valid_timeframe():
-            # The code has expired
-            raise SingleValidationAPIException(
-                validation_error=CustomValidationError(
-                    **validation_errors["2fa_code_expired"]
-                )
-            )
-
-        if twofactorauth_object.validate(request.POST["code"]):
-            # The code is valid!
-            twofactorauth_object.success(user_agent=request.META["HTTP_X_USER_AGENT"])
-            return ResponseSuccess({"result": twofactorauth_object.user.to_dict()})
+        serializer = TwoFactorAuthVerifySerializer(
+            instance=twofactorauth_object,
+            data={"code": request.POST.get("2fa_code", None)},
+            context={"request": request}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return ResponseSuccess(serializer.data, http_status=status.HTTP_200_OK)
         else:
-            #twofactorauth_object.fail()
-            raise SingleValidationAPIException(
-                validation_error=CustomValidationError(
-                    **validation_errors["2fa_code_not_valid"]
-                )
-            )
-
+            raise ValidationAPIException(serializer_errors=serializer.errors)
 
 class RequestPasswordReset(APIView):
     """Request and send a password reset email."""
@@ -336,9 +307,9 @@ class PasswordResetForm(APIView):
 
         if token_serializer.is_valid() and password_serializer.is_valid():
             if PasswordResetRequest.objects.password_reset(
-                token_serializer.initial_data["token"],
-                token_serializer.initial_data["user_pk"],
-                token_serializer.initial_data["password"],
+                    token_serializer.initial_data["token"],
+                    token_serializer.initial_data["user_pk"],
+                    token_serializer.initial_data["password"],
             ):
                 logger.info(f"Password reset completed for: {user_pk}")
                 return ResponseSuccess({"result": {"reset": True}}, http_status=status.HTTP_200_OK)
