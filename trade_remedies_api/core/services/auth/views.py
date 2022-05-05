@@ -1,31 +1,26 @@
-import datetime
 import logging
 
 from axes.decorators import axes_dispatch
 from axes.utils import reset
-from django.conf import settings
 from django.contrib.auth import login
 from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from notifications_python_client.errors import HTTPError
 from rest_framework import status
-from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
-from django.utils.translation import gettext_lazy as _
+
 from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, UserProfile
 from core.notifier import send_mail
 from core.services.base import ResponseError, ResponseSuccess, TradeRemediesApiView
-from core.services.exceptions import AccessDenied, InvalidRequestParams
+from core.services.exceptions import InvalidRequestParams
 from invitations.models import Invitation
 from security.constants import (
     SECURITY_GROUP_ORGANISATION_OWNER,
     SECURITY_GROUP_ORGANISATION_USER,
     SECURITY_GROUP_THIRD_PARTY_USER,
 )
-
 from .serializers import (
     AuthenticationSerializer,
     EmailAvailabilitySerializer,
@@ -36,9 +31,7 @@ from .serializers import (
     TwoFactorAuthVerifySerializer,
     VerifyEmailSerializer,
 )
-from ...exceptions import CustomValidationError, SingleValidationAPIException, \
-    TwoFactorRequestedTooMany, ValidationAPIException
-from ...validation_errors import validation_errors
+from ...exceptions import ValidationAPIException
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +60,7 @@ class EmailAvailabilityAPI(APIView):
         return ResponseSuccess({"result": {"available": serializer.is_valid()}})
 
 
-@method_decorator(axes_dispatch, name="dispatch")
+#@method_decorator(axes_dispatch, name="dispatch")
 @method_decorator(csrf_exempt, name="dispatch")
 class AuthenticationView(APIView):
     authentication_classes = ()

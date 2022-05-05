@@ -61,7 +61,6 @@ DRF_APPS = [
 
 LOCAL_APPS = [
     "audit",
-    "authentication",
     "cases",
     "contacts",
     "content",
@@ -122,7 +121,7 @@ TEMPLATES = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    "axes.backends.AxesBackend",
+    "config.backends.CustomAxesBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
 

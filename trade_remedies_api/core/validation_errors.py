@@ -1,3 +1,5 @@
+from config.settings.base import env
+
 validation_errors = {
     "wrong_email_password_combination": {
         "field": "email",
@@ -58,5 +60,8 @@ validation_errors = {
         "field": "2fa_code",
         "error_text": "The authentication code is incorrect and your account has been temporarily locked. Try again in 5 minutes",
         "error_summary": "The authentication code is incorrect and your account has been temporarily locked. Try again in 5 minutes"
-    }
+    },
+    "login_incorrect_timeout": {
+        "error_summary": f"You have entered incorrect sign in details too many times and your account will be locked for {env('FAILED_LOGIN_COOLOFF', default=10)} minutes"
+    },
 }

@@ -61,7 +61,7 @@ class CustomValidationSerializer(serializers.Serializer):
 
         if errors:
             self.error_list.update(errors)
-            #raise CustomValidationError(error_list=errors)
+            raise CustomValidationError(error_list=errors)
 
         return ret
 

@@ -1,6 +1,7 @@
 import logging
 import re
 
+from axes.exceptions import AxesBackendPermissionDenied
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
@@ -10,9 +11,13 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
 
+from audit import AUDIT_TYPE_LOGIN, AUDIT_TYPE_LOGIN_FAILED
+from audit.utils import audit_log
 from config.serializers import CustomValidationModelSerializer, CustomValidationSerializer
-from core.exceptions import CustomValidationError, TwoFactorRequestedTooMany
+from core.exceptions import CustomValidationError
+from .exceptions import TwoFactorRequestedTooMany, AxesLockedOutException
 from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User
+from core.services.auth.exceptions import AxesLockedOutException
 from core.validation_errors import validation_errors
 from security.constants import ENVIRONMENT_GROUPS
 
@@ -95,15 +100,22 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
         request = self.context.get("request")
 
         if email and password:
-            user = authenticate(
-                request=self.context.get("request"), username=email, password=password
-            )
+            try:
+                user = authenticate(
+                    request=self.context.get("request"), email=email, password=password
+                )
+            except AxesLockedOutException:
+                # The user has been locked out after too many incorrect attempts
+                raise CustomValidationError(error_key="login_incorrect_timeout")
 
             if not user or user.deleted_at:
-                raise CustomValidationError(
-                    **validation_errors["wrong_email_password_combination"]
+                audit_log(
+                    audit_type=AUDIT_TYPE_LOGIN_FAILED,
+                    data={"email": email}
                 )
+                raise CustomValidationError(error_key="wrong_email_password_combination")
 
+            audit_log(audit_type=AUDIT_TYPE_LOGIN, user=user)
             # ensure the origin of the request is allowed for this user group
             env_key = request.META.get("HTTP_X_ORIGIN_ENVIRONMENT")
             if not user.has_groups(groups=ENVIRONMENT_GROUPS[env_key]):

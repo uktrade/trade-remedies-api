@@ -11,10 +11,12 @@ password = "F734!2jcjfdka-"  # /PS-IGNORE
 
 
 class MockRequest:
-    """A helper object used in the serializer to verify the origin of the request, only needs the META attribute"""
+    """A helper object used in the serializer to verify the origin of the request."""
 
     def __init__(self, META=None):
         self.META = META or dict()
+        self.GET = dict()
+        self.POST = dict()
         super().__init__()
 
 

@@ -33,7 +33,8 @@ from security.models import CaseSecurityMixin, UserCase, OrganisationUser
 from core.notifier import send_sms
 from timezone_field import TimeZoneField
 from phonenumbers.phonenumberutil import NumberParseException
-from .exceptions import TwoFactorRequestedTooMany, UserExists
+from .exceptions import UserExists
+from .services.auth.exceptions import TwoFactorRequestedTooMany
 from .tasks import send_mail
 from .decorators import method_cache
 from .constants import SAFE_COLOURS, DEFAULT_USER_COLOUR, TRUTHFUL_INPUT_VALUES

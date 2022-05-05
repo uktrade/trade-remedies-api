@@ -2,6 +2,8 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.test import RequestFactory, TestCase
 
+from audit import AUDIT_TYPE_LOGIN, AUDIT_TYPE_LOGIN_FAILED
+from audit.models import Audit
 from config.test_bases import MockRequest, UserSetupTestBase, email, password
 from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User
 from core.services.auth.serializers import (AuthenticationSerializer, EmailAvailabilitySerializer,
@@ -177,6 +179,39 @@ class TestAuthenticationSerializer(UserSetupTestBase):
         })
         self.assertFalse(serializer.is_valid())
 
+    def test_login_successful_audit_log_created(self):
+        """A successful login should create a related audit log"""
+        self.assertEqual(
+            Audit.objects.filter(type=AUDIT_TYPE_LOGIN, created_by=self.user).count(),
+            0
+        )
+        self.user.userprofile.verify_email()  # verifying their email
+        serializer = AuthenticationSerializer(data={
+            "email": email,
+            "password": password
+        }, context={"request": self.valid_mock_request})
+        serializer.is_valid()
+        self.assertEqual(
+            Audit.objects.filter(type=AUDIT_TYPE_LOGIN, created_by=self.user).count(),
+            1
+        )
+
+    def test_login_failure_audit_log_created(self):
+        """A failed login should create a related audit log"""
+        self.assertEqual(
+            Audit.objects.filter(type=AUDIT_TYPE_LOGIN_FAILED, data__email=self.user.email).count(),
+            0
+        )
+        self.user.userprofile.verify_email()  # verifying their email
+        serializer = AuthenticationSerializer(data={
+            "email": email,
+            "password": "incorrect"
+        }, context={"request": self.valid_mock_request})
+        serializer.is_valid()
+        self.assertEqual(
+            Audit.objects.filter(type=AUDIT_TYPE_LOGIN_FAILED, data__email=self.user.email).count(),
+            1
+        )
 
 class TestRegistrationSerializer(TestCase):
     """Tests the AuthenticationSerializer class."""

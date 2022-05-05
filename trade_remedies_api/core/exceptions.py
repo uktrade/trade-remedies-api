@@ -20,7 +20,12 @@ class ValidationAPIException(APIException):
         for field, error in self.serializer_errors.items():
             if isinstance(error, CustomValidationError):
                 self.detail["error_summaries"].append(error.error_summary)
-                self.detail[field].append(error.error_text)
+                if isinstance(field, list):
+                    # Multiple fields should be highlighted with the same error
+                    for each in field:
+                        self.detail[each].append(error.error_text)
+                else:
+                    self.detail[field].append(error.error_text)
             else:
                 if isinstance(error.detail, list):
                     # Getting the last element as the first element is the field
@@ -85,7 +90,3 @@ class SingleValidationAPIException(APIException):
         if validation_error.additional_information:
             detail["additional_information"] = validation_error.additional_information
         self.detail = dict(detail)
-
-
-class TwoFactorRequestedTooMany(Exception):
-    """TwoFactor code could not be generated as it was generated too recently in the past"""
