@@ -2,8 +2,11 @@ from django.contrib.auth.models import Group
 from django.test import TestCase
 
 from core.models import User
-from security.constants import (SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER,
-                                SECURITY_GROUP_THIRD_PARTY_USER)
+from security.constants import (
+    SECURITY_GROUP_ORGANISATION_OWNER,
+    SECURITY_GROUP_ORGANISATION_USER,
+    SECURITY_GROUP_THIRD_PARTY_USER,
+)
 
 email = "test@example.com"  # /PS-IGNORE
 password = "F734!2jcjfdka-"  # /PS-IGNORE

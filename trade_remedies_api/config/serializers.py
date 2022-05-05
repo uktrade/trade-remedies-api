@@ -4,11 +4,17 @@ from collections.abc import Mapping
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import MISSING_ERROR_MESSAGE, SkipField, empty, get_error_detail, \
-    set_value
+from rest_framework.fields import (
+    MISSING_ERROR_MESSAGE,
+    SkipField,
+    empty,
+    get_error_detail,
+    set_value,
+)
 from rest_framework.settings import api_settings
 
 from core.exceptions import CustomValidationError, CustomValidationErrors
+
 
 class CustomValidationSerializer(serializers.Serializer):
     """Custom default base serializer used to handle validation errors intelligently (hopefully).
@@ -32,7 +38,8 @@ class CustomValidationSerializer(serializers.Serializer):
     property.
 
     todo - currently this runs validate_{field} and validate() methods separately, which doesn't
-    lead to an ideal user experience as they may have to fix errors twice. """
+    lead to an ideal user experience as they may have to fix errors twice."""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.error_list = {}
@@ -42,19 +49,15 @@ class CustomValidationSerializer(serializers.Serializer):
         Dict of native values <- Dict of primitive datatypes.
         """
         if not isinstance(data, Mapping):
-            message = self.error_messages['invalid'].format(
-                datatype=type(data).__name__
-            )
-            raise ValidationError({
-                api_settings.NON_FIELD_ERRORS_KEY: [message]
-            }, code='invalid')
+            message = self.error_messages["invalid"].format(datatype=type(data).__name__)
+            raise ValidationError({api_settings.NON_FIELD_ERRORS_KEY: [message]}, code="invalid")
 
         ret = OrderedDict()
         errors = OrderedDict()
         fields = self._writable_fields
 
         for field in fields:
-            validate_method = getattr(self, 'validate_' + field.field_name, None)
+            validate_method = getattr(self, "validate_" + field.field_name, None)
             primitive_value = field.get_value(data)
             try:
                 validated_value = field.run_validation(primitive_value)
@@ -90,7 +93,7 @@ class CustomValidationSerializer(serializers.Serializer):
         try:
             self.run_validators(value)
             value = self.validate(value)
-            assert value is not None, '.validate() should return the validated data'
+            assert value is not None, ".validate() should return the validated data"
         except (ValidationError, DjangoValidationError, CustomValidationError) as exc:
             # Add these 'general' errors to the non_field_errors key of the error_list dictionary
             self.error_list["non_field_errors"] = exc
@@ -101,12 +104,12 @@ class CustomValidationSerializer(serializers.Serializer):
         return value
 
     def is_valid(self, raise_exception=False):
-        assert hasattr(self, 'initial_data'), (
-            'Cannot call `.is_valid()` as no `data=` keyword argument was '
-            'passed when instantiating the serializer instance.'
+        assert hasattr(self, "initial_data"), (
+            "Cannot call `.is_valid()` as no `data=` keyword argument was "
+            "passed when instantiating the serializer instance."
         )
 
-        if not hasattr(self, '_validated_data'):
+        if not hasattr(self, "_validated_data"):
             try:
                 self._validated_data = self.run_validation(self.initial_data)
             except ValidationError as exc:
@@ -119,8 +122,8 @@ class CustomValidationSerializer(serializers.Serializer):
 
     @property
     def errors(self):
-        if not hasattr(self, '_errors'):
-            msg = 'You must call `.is_valid()` before accessing `.errors`.'
+        if not hasattr(self, "_errors"):
+            msg = "You must call `.is_valid()` before accessing `.errors`."
             raise AssertionError(msg)
         return self._errors
 

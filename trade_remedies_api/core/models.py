@@ -1152,8 +1152,10 @@ class TwoFactorAuth(models.Model):
         :returns (str): New or existing 2FA code.
         """
         now = timezone.now()
-        if self.generated_at and (now-self.generated_at).seconds <= \
-                    settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS:
+        if (
+            self.generated_at
+            and (now - self.generated_at).seconds <= settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS
+        ):
             # They have requested a new code in the last TWO_FACTOR_RESEND_TIMEOUT_SECONDS seconds
             raise TwoFactorRequestedTooMany()
 

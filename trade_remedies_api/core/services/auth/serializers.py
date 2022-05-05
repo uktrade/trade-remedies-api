@@ -32,9 +32,7 @@ class PasswordSerializer(CustomValidationSerializer):
         trim_whitespace=True,
         write_only=True,
         required=True,
-        error_messages={
-            "blank": validation_errors["password_required"]
-        }
+        error_messages={"blank": validation_errors["password_required"]},
     )
 
 
@@ -45,9 +43,7 @@ class EmailSerializer(CustomValidationSerializer):
         label=_("Email"),
         write_only=True,
         trim_whitespace=True,
-        error_messages={
-            "blank": validation_errors["email_required"]
-        }
+        error_messages={"blank": validation_errors["email_required"]},
     )
 
     def user_queryset(self, email: str) -> QuerySet:
@@ -107,10 +103,7 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
                 raise CustomValidationError(error_key="login_incorrect_timeout")
 
             if not user or user.deleted_at:
-                audit_log(
-                    audit_type=AUDIT_TYPE_LOGIN_FAILED,
-                    data={"email": email}
-                )
+                audit_log(audit_type=AUDIT_TYPE_LOGIN_FAILED, data={"email": email})
                 raise CustomValidationError(error_key="wrong_email_password_combination")
 
             audit_log(audit_type=AUDIT_TYPE_LOGIN, user=user)
@@ -173,7 +166,7 @@ class RegistrationSerializer(
         attrs = super().validate(attrs=attrs)
         password = attrs["password"]
         if SystemParameter.get("REGISTRATION_SOFT_LOCK") and not password.startswith(
-                SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
+            SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
         ):
             raise ValidationError(
                 _("Registrations are currently locked."), code="registration_locked"
@@ -218,16 +211,18 @@ class TwoFactorAuthRequestSerializer(CustomValidationModelSerializer):
         try:
             self.send_report = self.instance.two_factor_auth(
                 user_agent=self.context["request"].META["HTTP_X_USER_AGENT"],
-                delivery_type=attrs["delivery_type"]
+                delivery_type=attrs["delivery_type"],
             )
             return attrs
         except TwoFactorRequestedTooMany:
-            last_requested_seconds_ago = settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS - (
-                    timezone.now() - self.instance.generated_at).seconds
+            last_requested_seconds_ago = (
+                settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS
+                - (timezone.now() - self.instance.generated_at).seconds
+            )
             raise CustomValidationError(
                 field=validation_errors["2fa_requested_too_many_times"]["field"],
-                error_summary=validation_errors["2fa_requested_too_many_times"][
-                                  "error_summary"] % last_requested_seconds_ago,
+                error_summary=validation_errors["2fa_requested_too_many_times"]["error_summary"]
+                % last_requested_seconds_ago,
             )
         except Exception as e:
             raise CustomValidationError(error_key="2fa_code_failed_delivery")
@@ -252,6 +247,7 @@ class TwoFactorAuthVerifySerializer(CustomValidationModelSerializer):
     Used in POST requests to confirm that the token provided by the user is correct and
     whether or not they should be allowed to log in.
     """
+
     class Meta:
         model = TwoFactorAuth
         fields = ["code"]
@@ -286,6 +282,7 @@ class TwoFactorAuthVerifySerializer(CustomValidationModelSerializer):
     @property
     def data(self):
         return {"result": self.instance.user.to_dict()}
+
 
 class VerifyEmailSerializer(serializers.Serializer):
     """Checks if a given email verification code is valid."""

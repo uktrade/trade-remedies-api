@@ -60,7 +60,7 @@ class EmailAvailabilityAPI(APIView):
         return ResponseSuccess({"result": {"available": serializer.is_valid()}})
 
 
-#@method_decorator(axes_dispatch, name="dispatch")
+# @method_decorator(axes_dispatch, name="dispatch")
 @method_decorator(csrf_exempt, name="dispatch")
 class AuthenticationView(APIView):
     authentication_classes = ()
@@ -207,7 +207,7 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
         serializer = TwoFactorAuthRequestSerializer(
             instance=twofactorauth_object,
             data={"delivery_type": delivery_type},
-            context={"request": request}
+            context={"request": request},
         )
         if serializer.is_valid():
             serializer.save()
@@ -231,13 +231,14 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
         serializer = TwoFactorAuthVerifySerializer(
             instance=twofactorauth_object,
             data={"code": request.POST.get("2fa_code", None)},
-            context={"request": request}
+            context={"request": request},
         )
         if serializer.is_valid():
             serializer.save()
             return ResponseSuccess(serializer.data, http_status=status.HTTP_200_OK)
         else:
             raise ValidationAPIException(serializer_errors=serializer.errors)
+
 
 class RequestPasswordReset(APIView):
     """Request and send a password reset email."""
@@ -300,9 +301,9 @@ class PasswordResetForm(APIView):
 
         if token_serializer.is_valid() and password_serializer.is_valid():
             if PasswordResetRequest.objects.password_reset(
-                    token_serializer.initial_data["token"],
-                    token_serializer.initial_data["user_pk"],
-                    token_serializer.initial_data["password"],
+                token_serializer.initial_data["token"],
+                token_serializer.initial_data["user_pk"],
+                token_serializer.initial_data["password"],
             ):
                 logger.info(f"Password reset completed for: {user_pk}")
                 return ResponseSuccess({"result": {"reset": True}}, http_status=status.HTTP_200_OK)

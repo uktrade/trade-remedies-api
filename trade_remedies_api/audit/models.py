@@ -8,7 +8,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres import fields
 from django.conf import settings
 from . import (
-    AUDIT_TYPE_LOGIN_FAILED, AUDIT_TYPE_UPDATE,
+    AUDIT_TYPE_LOGIN_FAILED,
+    AUDIT_TYPE_UPDATE,
     AUDIT_TYPE_CREATE,
     AUDIT_TYPE_DELETE,
     AUDIT_TYPE_PURGE,

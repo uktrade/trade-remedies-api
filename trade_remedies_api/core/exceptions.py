@@ -19,6 +19,7 @@ class ValidationAPIException(APIException):
 
     The response body (self.detail) is then parsed by the client for display to the end user.
     """
+
     status_code = status.HTTP_400_BAD_REQUEST
 
     def __init__(self, serializer_errors, *args, **kwargs):
@@ -45,6 +46,7 @@ class ValidationAPIException(APIException):
 
 class CustomValidationErrors(serializers.ValidationError):
     """A wrapper exception for raising multiple CustomValidationError objects."""
+
     def __init__(self, error_list, *args, **kwargs):
         self.error_list = error_list
         super().__init__(*args, **kwargs)
@@ -60,6 +62,7 @@ class CustomValidationError(serializers.ValidationError):
             error_key {str} -- Ease of use, key of this error in the validation_errors.py file
             additional_information {str} -- Pass additional information back to client
     """
+
     def __new__(cls, error_list=None, *args, **kwargs):
         if error_list:
             return CustomValidationErrors(error_list=error_list)
@@ -67,12 +70,12 @@ class CustomValidationError(serializers.ValidationError):
             return super().__new__(cls, *args, **kwargs)
 
     def __init__(
-            self,
-            field=None,
-            error_summary=None,
-            error_text=None,
-            error_key=None,
-            additional_information=None
+        self,
+        field=None,
+        error_summary=None,
+        error_text=None,
+        error_key=None,
+        additional_information=None,
     ):
         super().__init__()
         if error_key:
@@ -80,7 +83,7 @@ class CustomValidationError(serializers.ValidationError):
             try:
                 validation_error = validation_errors[error_key]
             except KeyError:
-                #todo - raise to sentry
+                # todo - raise to sentry
                 self.error_summary = "An unexpected error has occurred"
             else:
                 self.field = validation_error.get("field", None)
