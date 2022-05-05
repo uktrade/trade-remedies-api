@@ -6,23 +6,33 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import MISSING_ERROR_MESSAGE, SkipField, empty, get_error_detail, \
     set_value
-from rest_framework.serializers import as_serializer_error
 from rest_framework.settings import api_settings
 
 from core.exceptions import CustomValidationError, CustomValidationErrors
 
-
-class BaseSerializer(serializers.Serializer):
-    @property
-    def data(self):
-        return {"result": super().data}
-
-
-class BaseModelSerializer(BaseSerializer, serializers.ModelSerializer):
-    pass
-
-
 class CustomValidationSerializer(serializers.Serializer):
+    """Custom default base serializer used to handle validation errors intelligently (hopefully).
+
+    The default DRF implementation cycles through all the validate_{field} methods, collects all
+    exceptions thrown, and raises them all in a DRFValidationError, which in turn stores them
+    as an odd list of lists which is a bit troublesome to parse on the client side. A similar
+    thing happens for the validate() method, basically allowing for multiple ValidationExceptions
+    to be thrown at one time.
+
+    This operates in a by-and-large similar way, however throws a CustomValidationError exception
+    instead of a DRFValidationError, this (I think) acts as a better data storage format for
+    exceptions, which can be parsed by the client-side and ultimately displayed to the user with
+    a lot more ease. The CustomValidationError is meant to be used ValidationAPIException, which
+    can accept a list of these CustomValidationError exceptions and add them to the response body
+    to be parsed by the client
+
+    This overrides a lot of the methods of serializers.Serializer however much of the code is
+    left unchanged, the main difference between what type of exceptions are caught, and how
+    they're handled. This wouldn't have been necessary if DRF exposed a default_error_class
+    property.
+
+    todo - currently this runs validate_{field} and validate() methods separately, which doesn't
+    lead to an ideal user experience as they may have to fix errors twice. """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.error_list = {}
@@ -61,7 +71,8 @@ class CustomValidationSerializer(serializers.Serializer):
 
         if errors:
             self.error_list.update(errors)
-            raise CustomValidationError(error_list=errors)
+            # Raise a CustomValidationErrors with the list of ValidationErrors
+            raise CustomValidationErrors(error_list=errors)
 
         return ret
 
@@ -81,6 +92,7 @@ class CustomValidationSerializer(serializers.Serializer):
             value = self.validate(value)
             assert value is not None, '.validate() should return the validated data'
         except (ValidationError, DjangoValidationError, CustomValidationError) as exc:
+            # Add these 'general' errors to the non_field_errors key of the error_list dictionary
             self.error_list["non_field_errors"] = exc
 
         if self.error_list:
@@ -124,6 +136,10 @@ class CustomValidationModelSerializer(CustomValidationSerializer, serializers.Mo
 def custom_fail(self, key, **kwargs):
     """
     A helper method that simply raises a validation error.
+
+    If we pass validators to a DRF serializer through the error_messages argument, this allows us
+    to provide dictionary entries found in validation_errors.py, which are then raised as
+    CustomValidationErrors.
     """
     try:
         msg = self.error_messages[key]

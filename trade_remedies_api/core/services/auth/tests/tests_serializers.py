@@ -180,7 +180,14 @@ class TestAuthenticationSerializer(UserSetupTestBase):
         self.assertFalse(serializer.is_valid())
 
     def test_login_successful_audit_log_created(self):
-        """A successful login should create a related audit log"""
+        """A successful login should create a related audit log.
+
+        Given that a public user attempts to log in
+
+        When they successfully log-in
+
+        Then a record recording the successful log-in is written to the audit log
+        """
         self.assertEqual(
             Audit.objects.filter(type=AUDIT_TYPE_LOGIN, created_by=self.user).count(),
             0
@@ -197,7 +204,14 @@ class TestAuthenticationSerializer(UserSetupTestBase):
         )
 
     def test_login_failure_audit_log_created(self):
-        """A failed login should create a related audit log"""
+        """A failed login should create a related audit log.
+
+        Given that a public user attempts to log in
+
+        When they fail to log in
+
+        Then a record recording the unsuccessful log-in is written to the audit log
+        """
         self.assertEqual(
             Audit.objects.filter(type=AUDIT_TYPE_LOGIN_FAILED, data__email=self.user.email).count(),
             0
@@ -212,6 +226,7 @@ class TestAuthenticationSerializer(UserSetupTestBase):
             Audit.objects.filter(type=AUDIT_TYPE_LOGIN_FAILED, data__email=self.user.email).count(),
             1
         )
+
 
 class TestRegistrationSerializer(TestCase):
     """Tests the AuthenticationSerializer class."""

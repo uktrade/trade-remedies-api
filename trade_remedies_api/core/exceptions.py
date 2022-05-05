@@ -11,6 +11,14 @@ class UserExists(Exception):
 
 
 class ValidationAPIException(APIException):
+    """Exception raised when a serializer raises a validation error.
+
+    This accepts a dictionary of errors (which serializers will already have), which it then loops
+    over and appends to the body of the error response. It accepts dictionaries containing both
+    CustomValidationErrors and native DRF ValidationErrors.
+
+    The response body (self.detail) is then parsed by the client for display to the end user.
+    """
     status_code = status.HTTP_400_BAD_REQUEST
 
     def __init__(self, serializer_errors, *args, **kwargs):
@@ -27,6 +35,7 @@ class ValidationAPIException(APIException):
                 else:
                     self.detail[field].append(error.error_text)
             else:
+                # It's a DRF ValidationError
                 if isinstance(error.detail, list):
                     # Getting the last element as the first element is the field
                     self.detail[field].append(error.detail[-1])
@@ -35,12 +44,22 @@ class ValidationAPIException(APIException):
 
 
 class CustomValidationErrors(serializers.ValidationError):
+    """A wrapper exception for raising multiple CustomValidationError objects."""
     def __init__(self, error_list, *args, **kwargs):
         self.error_list = error_list
         super().__init__(*args, **kwargs)
 
 
 class CustomValidationError(serializers.ValidationError):
+    """Exception raised when a serializer is invalid.
+
+    Arguments:
+            field {str} -- The HTML name of the field that this error relates to
+            error_summary {str} -- The summary of the error, to be displayed at the top of the page
+            error_text {str} -- The error displayed next to the incorrect field
+            error_key {str} -- Ease of use, key of this error in the validation_errors.py file
+            additional_information {str} -- Pass additional information back to client
+    """
     def __new__(cls, error_list=None, *args, **kwargs):
         if error_list:
             return CustomValidationErrors(error_list=error_list)
@@ -73,20 +92,3 @@ class CustomValidationError(serializers.ValidationError):
             self.error_text = error_text
             self.error_key = error_key
             self.additional_information = additional_information
-
-
-class SingleValidationAPIException(APIException):
-    status_code = status.HTTP_400_BAD_REQUEST
-
-    def __init__(self, validation_error: CustomValidationError, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        detail = defaultdict(list)
-        if validation_error.error_summary:
-            detail["error_summaries"].append(validation_error.error_summary)
-        if validation_error.error_text:
-            detail[validation_error.field].append(validation_error.error_text)
-        if validation_error.error_key:
-            detail["error_keys"] = validation_error.error_key
-        if validation_error.additional_information:
-            detail["additional_information"] = validation_error.additional_information
-        self.detail = dict(detail)

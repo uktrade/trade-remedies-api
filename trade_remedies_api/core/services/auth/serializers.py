@@ -58,9 +58,7 @@ class EmailSerializer(CustomValidationSerializer):
         try:
             user = self.user_queryset(email=email).get()
         except User.DoesNotExist:
-            raise CustomValidationError(
-                **validation_errors["wrong_email_password_combination"]
-            )
+            raise CustomValidationError(error_key="wrong_email_password_combination")
         return user
 
     def validate_email(self, value: str) -> str:

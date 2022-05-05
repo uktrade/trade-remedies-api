@@ -1,7 +1,6 @@
 from django.contrib.auth.models import Group
-from django.conf import settings
 from django.test import TestCase
-from django.test.client import Client
+
 from core.models import User
 from security.constants import (SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER,
                                 SECURITY_GROUP_THIRD_PARTY_USER)
@@ -35,16 +34,3 @@ class UserSetupTestBase(TestCase):
         self.user.groups.add(g2)
         self.user.groups.add(g3)
         self.user.save()
-
-
-class APITestBase(UserSetupTestBase):
-    """Test base class that allows you to use Django TestCase.client() to test the API"""
-
-    def get_headers(self):
-        return {
-            "HTTP_AUTHORIZATION": f"Token {self.user.auth_token}",
-            "HTTP_X_USER_AGENT": "TEST_BROWSER",
-        }
-
-    def get_request(self, url):
-        return self.client.get(url, **self.get_headers())
