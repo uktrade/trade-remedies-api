@@ -101,7 +101,6 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
                     logger.error(f"env_key not defined while logging {user.email}")
                 else:
                     logger.error(
-                        f"env_key = {env_key};"
                         f"{user.email} does not have access to {ENVIRONMENT_GROUPS[env_key]}"
                     )
                 raise AccessDenied(_("Invalid access to environment"))
