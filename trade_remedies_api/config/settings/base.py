@@ -34,7 +34,6 @@ sentry_sdk.init(
     integrations=[DjangoIntegration(), CeleryIntegration()],
     environment=env("SENTRY_ENVIRONMENT", default="uat"),
     before_send=strip_sensitive_data,
-    debug=True
 )
 
 SITE_ROOT = root()
@@ -107,8 +106,8 @@ MIDDLEWARE = [
 
 if DJANGO_ADMIN:
     MIDDLEWARE = [
-                     "whitenoise.middleware.WhiteNoiseMiddleware",
-                 ] + MIDDLEWARE
+        "whitenoise.middleware.WhiteNoiseMiddleware",
+    ] + MIDDLEWARE
 
 ROOT_URLCONF = "config.urls"
 
