@@ -238,7 +238,6 @@
         "key": "NOTIFY_BLOCK_FOOTER",
         "data_type": "str",
         "default": "Investigations Team\nTrade Remedies\nDepartment for International Trade",
-        "value": "Investigations Team\nTrade Remedies\nDepartment for International Trade",
         "editable": true
     },
     {
