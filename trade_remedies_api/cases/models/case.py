@@ -1075,6 +1075,7 @@ class Case(BaseModel, CaseOrNotice):
 
     def derive_case_name(self):
         from . import Product
+
         try:
             name = []
             try:
