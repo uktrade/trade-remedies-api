@@ -22,10 +22,18 @@ env = environ.Env(
     DEBUG=(bool, False),
 )
 
+
+def strip_sensitive_data(event, hint):
+    """Removing any potential passwords from being sent to Sentry as part of an exception/log"""
+    event.get("request", {}).get("data", {}).pop("password", None)
+    return event
+
+
 sentry_sdk.init(
     dsn=env("SENTRY_DSN", default=""),
     integrations=[DjangoIntegration(), CeleryIntegration()],
-    environment=env("SENTRY_ENVIRONMENT", default="local"),
+    environment=env("SENTRY_ENVIRONMENT", default="uat"),
+    before_send=strip_sensitive_data,
 )
 
 SITE_ROOT = root()
