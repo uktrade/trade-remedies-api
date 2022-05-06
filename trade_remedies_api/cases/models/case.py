@@ -1074,10 +1074,15 @@ class Case(BaseModel, CaseOrNotice):
             raise InvalidAccess("Denied: Only TRA users can remove case team members")
 
     def derive_case_name(self):
+        from . import Product
         try:
             name = []
-            product = self.product_set.get()
-            name.append(product.name)
+            try:
+                product = self.product_set.get()
+            except Product.DoesNotExist:
+                name.append("N/A")
+            else:
+                name.append(product.name)
             first_export_country = self.exportsource_set.all().order_by("created_at").first()
             if first_export_country:
                 name.append("from")

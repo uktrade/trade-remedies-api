@@ -1,9 +1,10 @@
 import datetime
 import json
 import re
+import logging
 from dateutil import parser
 
-from core.services.base import TradeRemediesApiView, ResponseSuccess
+from core.services.base import ResponseError, TradeRemediesApiView, ResponseSuccess
 from core.services.exceptions import (
     InvalidRequestParams,
     NotFoundApiExceptions,
@@ -84,16 +85,23 @@ from workflow.models import WorkflowTemplate
 from django_countries import countries
 from django.utils import timezone
 
+logger = logging.getLogger(__name__)
 
 class PublicCaseView(APIView):
     def get(self, request, case_number=None, *args, **kwargs):
         match = re.search("([A-Za-z]{1,3})([0-9]+)", case_number)
-        case = Case.objects.get(
-            type__acronym__iexact=match.group(1),
-            initiated_sequence=match.group(2),
-            deleted_at__isnull=True,
-        )
-        return ResponseSuccess({"result": case.to_dict()})
+        if match:
+            case = Case.objects.get(
+                type__acronym__iexact=match.group(1),
+                initiated_sequence=match.group(2),
+                deleted_at__isnull=True,
+            )
+            return ResponseSuccess({"result": case.to_dict()})
+        else:
+            logger.debug(f"Request to this view with case_number {case_number}")
+            return ResponseSuccess({"result": None})
+
+
 
 
 class PublicNoticeView(APIView):
@@ -108,8 +116,8 @@ class PublicNoticeView(APIView):
             Submission.objects.filter(
                 type__key="public", issued_at__isnull=False, type__id__in=SUBMISSION_NOTICE_TYPES
             )
-            .order_by("issued_at")
-            .reverse()[:limit]
+                .order_by("issued_at")
+                .reverse()[:limit]
         )
         return ResponseSuccess(
             {
@@ -152,8 +160,8 @@ class CaseStateAPI(APIView):
                 Submission.objects.filter(
                     case_id__in=cases, issued_at__isnull=False, deleted_at__isnull=True
                 )
-                .values("case_id")
-                .annotate(last_publish=models.Max("issued_at"))
+                    .values("case_id")
+                    .annotate(last_publish=models.Max("issued_at"))
             )
             for last_update in last_updates:
                 last_publish = last_update.get("last_publish")
@@ -198,13 +206,13 @@ class CasesAPIView(TradeRemediesApiView):
     all_cases = False  # set by the url def. to denote all cases
 
     def get(  # noqa: C901
-        self,
-        request,
-        organisation_id=None,
-        case_id=None,
-        user_id=None,
-        *args,
-        **kwargs,
+            self,
+            request,
+            organisation_id=None,
+            case_id=None,
+            user_id=None,
+            *args,
+            **kwargs,
     ):
         archived = request.query_params.get("archived", "false")
         new_cases = request.query_params.get("new_cases", "false") in TRUTHFUL_INPUT_VALUES
@@ -235,13 +243,13 @@ class CasesAPIView(TradeRemediesApiView):
                 Case.objects.filter(
                     deleted_at__isnull=True, archived_at__isnull=False, initiated_at__isnull=False
                 )
-                .select_related(
+                    .select_related(
                     "type",
                     "stage",
                     "archive_reason",
                     "created_by",
                 )
-                .order_by("sequence")
+                    .order_by("sequence")
             )
         elif new_cases in TRUTHFUL_INPUT_VALUES:
             cases = (
@@ -250,14 +258,14 @@ class CasesAPIView(TradeRemediesApiView):
                     archived_at__isnull=True,
                     initiated_at__isnull=True,
                 )
-                .exclude(usercase__user__groups__name__in=SECURITY_GROUPS_TRA)
-                .select_related(
+                    .exclude(usercase__user__groups__name__in=SECURITY_GROUPS_TRA)
+                    .select_related(
                     "type",
                     "stage",
                     "archive_reason",
                     "created_by",
                 )
-                .order_by("sequence")
+                    .order_by("sequence")
             )
         elif all_investigator_cases in TRUTHFUL_INPUT_VALUES:
             user_cases = Case.objects.all_user_cases(user=request.user, **_kwargs)
@@ -296,7 +304,7 @@ class CasesAPIView(TradeRemediesApiView):
                 for caserole in caseroles:
                     org_case_idx[
                         str(caserole.case.id) + ":" + str(caserole.organisation.id)
-                    ] = caserole.role
+                        ] = caserole.role
                 results = []
                 for user_case in user_cases:
                     _dict = user_case.to_embedded_dict()
@@ -407,10 +415,10 @@ class CasesAPIView(TradeRemediesApiView):
                         # reset any workflow related switches to control exit path
                         case.reset_initiation_decision()
                 if (
-                    was_initiated
-                    and not case.initiated_at
-                    or case.initiated_at
-                    and not was_initiated
+                        was_initiated
+                        and not case.initiated_at
+                        or case.initiated_at
+                        and not was_initiated
                 ):
                     initiation_action = (
                         "un-initiated" if was_initiated and not case.initiated_at else "initiated"
@@ -432,9 +440,9 @@ class CasesAPIView(TradeRemediesApiView):
                     new_stage = case.set_stage(case_stage, ignore_flow=ignore_flow)
                 # Reset the workflow if the type has changed
                 if (
-                    not case.initiated_at
-                    and request.data.get("type_id")
-                    and request.data.get("type_id") != str(case.type.id)
+                        not case.initiated_at
+                        and request.data.get("type_id")
+                        and request.data.get("type_id") != str(case.type.id)
                 ):
                     CaseWorkflow.objects.snapshot_from_template(
                         case, case.type.workflow, requested_by=self.user
@@ -458,7 +466,6 @@ class CasesCountAPIView(TradeRemediesApiView):
     """
 
     def get(self, request, organisation_id=None, case_id=None, user_id=None, *args, **kwargs):
-
         not_archived = not request.query_params.get("archived")
         not_initiated = not request.query_params.get("initiated")
         count = Case.objects.filter(
@@ -485,7 +492,7 @@ class CaseInitiationAPIView(TradeRemediesApiView):
         hs_codes = request.data.getlist("hs_code")
         ex_oficio = request_params.pop("ex_oficio", None) in TRUTHFUL_INPUT_VALUES
         if not request_params.get("organisation_name") and not request_params.get(
-            "organisation_id"
+                "organisation_id"
         ):
             if request.user.is_tra():
                 if not request_params.get("organisation_id"):
@@ -511,7 +518,7 @@ class CaseInitiationAPIView(TradeRemediesApiView):
             for export_country_code in export_country_codes:
                 if export_country_code:
                     if not ExportSource.objects.filter(
-                        case=case, country=export_country_code
+                            case=case, country=export_country_code
                     ).exists():
                         export_source = ExportSource.objects.create(
                             case=case,
@@ -815,7 +822,8 @@ class SubmissionsAPIView(TradeRemediesApiView):
             "global", "false"
         ).lower() in ("true", "1", "t", "y")
         sampled_only = (
-            request.query_params.get("sampled", "false") in ("true", "1", "Y") and not submission_id
+                request.query_params.get("sampled", "false") in (
+        "true", "1", "Y") and not submission_id
         )
         fields = request.query_params.get("fields")
         if case_id:
@@ -858,7 +866,7 @@ class SubmissionsAPIView(TradeRemediesApiView):
 
     @transaction.atomic
     def post(
-        self, request, organisation_id=None, case_id=None, submission_id=None, *args, **kwargs
+            self, request, organisation_id=None, case_id=None, submission_id=None, *args, **kwargs
     ):
         case = get_case(str(case_id))
         _is_tra = request.user.is_tra()
@@ -940,11 +948,11 @@ class SubmissionsAPIView(TradeRemediesApiView):
 
     @transaction.atomic
     def delete(
-        self,
-        request,
-        case_id,
-        submission_id,
-        organisation_id=None,
+            self,
+            request,
+            case_id,
+            submission_id,
+            organisation_id=None,
     ):
         case = get_case(str(case_id))
         submission = Submission.objects.get_submission(id=submission_id, case=case)
@@ -1066,7 +1074,8 @@ class SubmissionOrganisationAPI(TradeRemediesApiView):
 
 class SubmissionNotifyAPI(TradeRemediesApiView):
     def post(
-        self, request, case_id, organisation_id, submission_id, notice_type=None, *args, **kwargs
+            self, request, case_id, organisation_id, submission_id, notice_type=None, *args,
+            **kwargs
     ):
         notice_type = notice_type or SUBMISSION_NOTICE_TYPE_INVITE
         case = get_case(case_id)
@@ -1142,7 +1151,7 @@ class SubmissionStatusAPIView(TradeRemediesApiView):
 
     @transaction.atomic  # noqa: C901
     def post(
-        self, request, organisation_id=None, case_id=None, submission_id=None, *args, **kwargs
+            self, request, organisation_id=None, case_id=None, submission_id=None, *args, **kwargs
     ):
         """
         Either status id or context can be provided. A context is one of sent|received|default
@@ -1161,13 +1170,13 @@ class SubmissionStatusAPIView(TradeRemediesApiView):
         stage_change_if_sufficient = request.data.get("stage_change_if_sufficient")
         stage_change_if_deficient = request.data.get("stage_change_if_deficient")
         if submission_status_context and submission_status_context not in (
-            "received",
-            "review",
-            "sent",
-            "default",
-            "draft",
-            "deficient",
-            "sufficient",
+                "received",
+                "review",
+                "sent",
+                "default",
+                "draft",
+                "deficient",
+                "sufficient",
         ):
             raise InvalidRequestParams(
                 'Invalid status context "' + (submission_status_context or "empty") + '"'
@@ -1224,9 +1233,9 @@ class SubmissionStatusAPIView(TradeRemediesApiView):
                 case.stage = CaseStage.objects.get(key=stage_change_if_sufficient)
                 case.save()
             elif (
-                submission_status.version
-                and not submission_status.sufficient
-                and stage_change_if_deficient
+                    submission_status.version
+                    and not submission_status.sufficient
+                    and stage_change_if_deficient
             ):
                 case.stage = CaseStage.objects.get(key=stage_change_if_deficient)
                 case.save()
@@ -1283,7 +1292,7 @@ class SubmissionStatusAPIView(TradeRemediesApiView):
         # do we need to issue (or un-issue) the submission?
         if issue_submission:
             if ((issue_submission == "issue") and not submission.issued_at) or (
-                (issue_submission == "un-issue") and submission.issued_at
+                    (issue_submission == "un-issue") and submission.issued_at
             ):
                 submission.issued_at = None if submission.issued_at else timezone.now()
                 submission.issued_by = request.user if submission.issued_at else None
@@ -1332,7 +1341,7 @@ class SubmissionDocumentStatusAPI(TradeRemediesApiView):
             raise InvalidRequestParams("status should be either sufficient or deficient")
 
         block_from_public_file = (
-            request.data.get("block_from_public_file", False) in TRUTHFUL_INPUT_VALUES
+                request.data.get("block_from_public_file", False) in TRUTHFUL_INPUT_VALUES
         )
         block_reason = request.data.get("block_reason", "")
 
@@ -1540,8 +1549,8 @@ class ApplicationStateAPIView(TradeRemediesApiView):
                 Submission.objects.select_related(
                     "case", "type", "status", "organisation", "created_by"
                 )
-                .filter(case=case, type=submission_type)
-                .first()
+                    .filter(case=case, type=submission_type)
+                    .first()
             )
         if application_submission:
             product = Product.objects.filter(case=case).first()
@@ -1578,14 +1587,14 @@ class RequestReviewAPIView(TradeRemediesApiView):
 
     @transaction.atomic
     def post(
-        self,
-        request,
-        organisation_id=None,
-        case_id=None,
-        submission_id=None,
-        review=None,
-        *args,
-        **kwargs,
+            self,
+            request,
+            organisation_id=None,
+            case_id=None,
+            submission_id=None,
+            review=None,
+            *args,
+            **kwargs,
     ):
         case = get_case(str(case_id))
         submission = Submission.objects.get_submission(id=submission_id, case=case)
@@ -1773,8 +1782,8 @@ class CaseEnumsAPI(TradeRemediesApiView):
         else:
             submission_types = (
                 SubmissionType.objects.select_related("requires")
-                .filter(**direction_kwargs)
-                .order_by("order", "name")
+                    .filter(**direction_kwargs)
+                    .order_by("order", "name")
             )
         _submission_types = [
             submission_type.to_dict(case=case) for submission_type in submission_types
@@ -1870,8 +1879,8 @@ class ThirdPartyInvitesAPI(TradeRemediesApiView):
             _filter_kwargs["case"] = Case.objects.get(id=case_id)
         submissions = (
             Submission.objects.select_related()
-            .filter(type=invite_type, deleted_at__isnull=True, **_filter_kwargs)
-            .order_by("created_at")
+                .filter(type=invite_type, deleted_at__isnull=True, **_filter_kwargs)
+                .order_by("created_at")
         )
         return ResponseSuccess(
             {"results": [submission.to_embedded_dict() for submission in submissions]}
