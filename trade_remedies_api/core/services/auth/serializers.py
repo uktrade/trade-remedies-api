@@ -1,10 +1,8 @@
 import logging
 import re
 
-from axes.exceptions import AxesBackendPermissionDenied
 from django.conf import settings
 from django.contrib.auth import authenticate
-from django.contrib.auth.password_validation import validate_password
 from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -15,11 +13,11 @@ from audit import AUDIT_TYPE_LOGIN, AUDIT_TYPE_LOGIN_FAILED
 from audit.utils import audit_log
 from config.serializers import CustomValidationModelSerializer, CustomValidationSerializer
 from core.exceptions import CustomValidationError
-from .exceptions import TwoFactorRequestedTooMany, AxesLockedOutException
 from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User
 from core.services.auth.exceptions import AxesLockedOutException
 from core.validation_errors import validation_errors
 from security.constants import ENVIRONMENT_GROUPS
+from .exceptions import TwoFactorRequestedTooMany
 
 logger = logging.getLogger(__name__)
 
