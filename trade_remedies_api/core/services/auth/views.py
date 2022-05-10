@@ -26,11 +26,11 @@ from .serializers import (
     EmailAvailabilitySerializer,
     PasswordResetRequestSerializer,
     PasswordSerializer,
-    RegistrationSerializer,
     TwoFactorAuthRequestSerializer,
     TwoFactorAuthVerifySerializer,
     VerifyEmailSerializer,
 )
+from ..registration.serializers import RegistrationSerializer
 from ...exceptions import ValidationAPIException
 
 logger = logging.getLogger(__name__)

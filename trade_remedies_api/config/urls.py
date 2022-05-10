@@ -20,6 +20,7 @@ from rest_framework import routers
 
 from core.services import api as core_api
 from core.services.auth import views as auth_api
+from core.services.registration import views as registration_api
 from cases.services import api as cases_api
 
 urlpatterns = [
@@ -134,6 +135,12 @@ urlpatterns = [
     path(f"{settings.API_PREFIX}/contacts/", include("contacts.services.urls")),
     path(f"{settings.API_PREFIX}/feedback/", include("feedback.services.urls")),
     path(f"{settings.API_PREFIX}/companieshouse/", include("core.services.urls")),
+    path(
+        f"{settings.API_PREFIX}/v2_register/",
+        registration_api.V2RegistrationAPIView.as_view(),
+        name="v2_registration"
+    ),
+
 ]
 
 if settings.DJANGO_ADMIN:
