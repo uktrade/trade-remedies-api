@@ -26,6 +26,7 @@ env = environ.Env(
 def strip_sensitive_data(event, hint):
     """Removing any potential passwords from being sent to Sentry as part of an exception/log"""
     event.get("request", {}).get("data", {}).pop("password", None)
+    event.get("request", {}).get("headers", {}).pop("X-Origin-Environment")
     return event
 
 
