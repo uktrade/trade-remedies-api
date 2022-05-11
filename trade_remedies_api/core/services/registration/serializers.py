@@ -64,3 +64,7 @@ class RegistrationSerializer(
             new_user.userprofile.verify_email()
             return new_user
         return super().save(**kwargs)
+
+
+class V2RegistrationSerializer(serializers.ModelSerializer):
+    pass

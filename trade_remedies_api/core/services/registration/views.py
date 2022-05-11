@@ -1,6 +1,9 @@
+import json
+
 from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from rest_framework import status
+from rest_framework.generics import CreateAPIView
 from rest_framework.views import APIView
 
 from core.models import SystemParameter
@@ -12,11 +15,12 @@ from security.constants import (
     SECURITY_GROUP_ORGANISATION_USER,
     SECURITY_GROUP_THIRD_PARTY_USER,
 )
-from core.services.registration.serializers import RegistrationSerializer
+from core.services.registration.serializers import RegistrationSerializer, V2RegistrationSerializer
 
 
-class V2RegistrationAPIView(APIView):
+class V2RegistrationAPIView(CreateAPIView):
     authentication_classes = ()
+    serializer_class = V2RegistrationSerializer
 
     @transaction.atomic  # noqa: C901
     def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
@@ -27,6 +31,7 @@ class V2RegistrationAPIView(APIView):
             ResponseSuccess response with the user's token and user data
             ResponseError response if the user could not be created  #todo - raise an error like the other views
         """
+        registration_data = json.loads(request.POST["registration_data"])
         serializer = RegistrationSerializer(
             data=request.data, context={"request": request}, many=False
         )
