@@ -1,4 +1,5 @@
 """Django settings for trade_remedies_api project."""
+import logging
 import sys
 import os
 import datetime
@@ -27,6 +28,13 @@ def strip_sensitive_data(event, hint):
     """Removing any potential passwords from being sent to Sentry as part of an exception/log"""
     event.get("request", {}).get("data", {}).pop("password", None)
     event.get("request", {}).get("headers", {}).pop("X-Origin-Environment")
+    try:
+        for each in event.get("exception", {}).get("values", {}):
+            for sub_each in each.get("stacktrace", {}).get("frames"):
+                if "password" in sub_each.get("vars", {}).get("serializer", ""):
+                    sub_each["vars"]["serializer"] = "REDACTED"
+    except Exception as exc:
+        pass
     return event
 
 
@@ -107,8 +115,8 @@ MIDDLEWARE = [
 
 if DJANGO_ADMIN:
     MIDDLEWARE = [
-        "whitenoise.middleware.WhiteNoiseMiddleware",
-    ] + MIDDLEWARE
+                     "whitenoise.middleware.WhiteNoiseMiddleware",
+                 ] + MIDDLEWARE
 
 ROOT_URLCONF = "config.urls"
 
