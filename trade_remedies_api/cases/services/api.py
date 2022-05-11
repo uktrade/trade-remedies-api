@@ -1,9 +1,9 @@
 import datetime
 import json
 import re
+import logging
 from dateutil import parser
-
-from core.services.base import TradeRemediesApiView, ResponseSuccess
+from core.services.base import ResponseError, TradeRemediesApiView, ResponseSuccess
 from core.services.exceptions import (
     InvalidRequestParams,
     NotFoundApiExceptions,
@@ -84,16 +84,22 @@ from workflow.models import WorkflowTemplate
 from django_countries import countries
 from django.utils import timezone
 
+logger = logging.getLogger(__name__)
+
 
 class PublicCaseView(APIView):
     def get(self, request, case_number=None, *args, **kwargs):
         match = re.search("([A-Za-z]{1,3})([0-9]+)", case_number)
-        case = Case.objects.get(
-            type__acronym__iexact=match.group(1),
-            initiated_sequence=match.group(2),
-            deleted_at__isnull=True,
-        )
-        return ResponseSuccess({"result": case.to_dict()})
+        if match:
+            case = Case.objects.get(
+                type__acronym__iexact=match.group(1),
+                initiated_sequence=match.group(2),
+                deleted_at__isnull=True,
+            )
+            return ResponseSuccess({"result": case.to_dict()})
+        else:
+            logger.debug(f"Request to this view with case_number {case_number}")
+            return ResponseSuccess({"result": None})
 
 
 class PublicNoticeView(APIView):
@@ -458,7 +464,6 @@ class CasesCountAPIView(TradeRemediesApiView):
     """
 
     def get(self, request, organisation_id=None, case_id=None, user_id=None, *args, **kwargs):
-
         not_archived = not request.query_params.get("archived")
         not_initiated = not request.query_params.get("initiated")
         count = Case.objects.filter(
