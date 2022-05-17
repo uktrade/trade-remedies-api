@@ -1270,11 +1270,11 @@ class PasswordResetRequest(models.Model):
             )
 
     def send_reset_link(self):
-        template_id = SystemParameter.get("NOTIFY_RESET_PASSWORD")
+        template_id = SystemParameter.get("NOTIFY_RESET_PASSWORD_V2")
         context = {
-            "code": self.token,
-            "name": self.user.name,
             "password_reset_link": self.get_link(),
+            "footer": "Investigations Team\r\nTrade Remedies\r\n"
+            "Contact: investigations@traderemedies.gov.uk",  # /PS-IGNORE
         }
         send_mail(self.user.email, context, template_id)
         return True
