@@ -131,6 +131,11 @@
         "default": "b88e3ace-223d-4651-b080-bb2d663402a0"
     },
     {
+        "key": "NOTIFY_RESET_PASSWORD_V2",
+        "data_type": "str",
+        "default": "d464417c-9a62-46d5-a725-0f9579416566"
+    },
+    {
         "key": "NOTIFY_VERIFY_EMAIL",
         "data_type": "str",
         "default": "57e6211a-3878-4178-8065-def16465fe60"
@@ -238,7 +243,6 @@
         "key": "NOTIFY_BLOCK_FOOTER",
         "data_type": "str",
         "default": "Investigations Team\nTrade Remedies\nDepartment for International Trade",
-        "value": "Investigations Team\nTrade Remedies\nDepartment for International Trade",
         "editable": true
     },
     {
