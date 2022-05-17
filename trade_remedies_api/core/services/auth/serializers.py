@@ -117,7 +117,7 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
                         f"env_key = {env_key};"
                         f"{user.email} does not have access to {ENVIRONMENT_GROUPS[env_key]}"
                     )
-                raise AuthenticationFailed(_("Invalid access to environment"))
+                raise CustomValidationError(error_key="invalid_access")
 
             email_verified = user.is_tra() or user.userprofile.email_verified_at
             if not email_verified:

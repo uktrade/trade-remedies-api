@@ -64,4 +64,7 @@ validation_errors = {
     "login_incorrect_timeout": {
         "error_summary": f"You have entered incorrect sign in details too many times and your account will be locked for {env('FAILED_LOGIN_COOLOFF', default=10)} minutes"
     },
+    "invalid_access": {
+        "error_summary": "Invalid access to environment"
+    },
 }
