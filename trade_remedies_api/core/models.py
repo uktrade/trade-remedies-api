@@ -1268,7 +1268,7 @@ class PasswordResetRequest(models.Model):
         context = {
             "password_reset_link": self.get_link(),
             "footer": "Investigations Team\r\nTrade Remedies\r\n"
-            "Contact: investigations@traderemedies.gov.uk",  # /PS-IGNORE
+            "Contact: contact@traderemedies.gov.uk",  # /PS-IGNORE
         }
         send_mail(self.user.email, context, template_id)
         return True
