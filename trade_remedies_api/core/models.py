@@ -1167,8 +1167,8 @@ class TwoFactorAuth(models.Model):
                 template_id = SystemParameter.get("PUBLIC_2FA_CODE_EMAIL")
                 context["footer"] = (
                     "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade\r\n"
-                    "Contact: contact@traderemedies.gov.uk"  # /PS-IGNORE
-                )
+                    "Contact: contact@traderemedies.gov.uk"
+                )  # /PS-IGNORE
                 send_report = send_mail(self.user.email, context, template_id)
             self.delivery_type = delivery_type
             self.save()
