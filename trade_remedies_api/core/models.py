@@ -1020,8 +1020,6 @@ class UserProfile(models.Model):
         context = {
             "name": self.user.name,
             "verification_link": f"{settings.PUBLIC_ROOT_URL}/email/verify/?code={self.email_verify_code}",
-            "footer": "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade\r\n"
-            "Contact: contact@traderemedies.gov.uk"  # /PS-IGNORE
             # noqa: E501
         }
         send_report = send_mail(self.user.email, context, template_id)
@@ -1165,10 +1163,6 @@ class TwoFactorAuth(models.Model):
                 send_report = send_sms(phone, context, template_id, country=self.user.country.code)
             elif delivery_type == self.EMAIL:
                 template_id = SystemParameter.get("PUBLIC_2FA_CODE_EMAIL")
-                context["footer"] = (
-                    "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade\r\n"
-                    "Contact: contact@traderemedies.gov.uk"  # /PS-IGNORE
-                )
                 send_report = send_mail(self.user.email, context, template_id)
             self.delivery_type = delivery_type
             self.save()
