@@ -1462,7 +1462,7 @@ Raises
 user_does_not_exist
 Authentication Serializer
 Tests the PasswordSerializer
-EmailSerializer
+UserExistsSerializer
 EmailAvailabilitySerializer
 Tests the AuthenticationSerializer
 AuthenticationSerializer

@@ -3,6 +3,7 @@ import re
 
 from django.conf import settings
 from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
 from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -33,6 +34,14 @@ class PasswordSerializer(CustomValidationSerializer):
         error_messages={"blank": validation_errors["password_required"]},
     )
 
+    def validate_password(self, value):
+        try:
+            validate_password(value)
+        except ValidationError:
+            print("asd")
+        else:
+            return value
+
 
 class EmailSerializer(CustomValidationSerializer):
     """Checks that an email address belongs to a user who exists in the database."""
@@ -44,8 +53,18 @@ class EmailSerializer(CustomValidationSerializer):
         error_messages={"blank": validation_errors["email_required"]},
     )
 
+    def validate_email(self, value):
+        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        if not re.search(email_regex, value) or not value:
+            raise CustomValidationError(error_key="email_not_valid")
+        return value
+
     def user_queryset(self, email: str) -> QuerySet:
         return User.objects.filter(email=email.lower())
+
+
+class UserExistsSerializer(EmailSerializer):
+    """Checks that an email address belongs to a user who exists in the database."""
 
     def get_user(self, email: str) -> User:
         """Get User model helper."""
@@ -57,23 +76,22 @@ class EmailSerializer(CustomValidationSerializer):
 
     def validate_email(self, value: str) -> str:
         """Email field validator."""
-        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
-        if not re.search(email_regex, value) or not value:
-            raise CustomValidationError(error_key="email_not_valid")
+        value = super().validate_email(value)
         self.user = self.get_user(value)
         return value
 
 
 class EmailAvailabilitySerializer(EmailSerializer):
-    """Similar to EmailSerializer, but checks if the email address is available and free to use."""
+    """Checks if the email address is available and free to use."""
 
     def validate_email(self, value):
+        value = super().validate_email(value)
         if self.user_queryset(value).exists():
             raise ValidationError(_("User already exists."), code="user_already_exists")
         return value
 
 
-class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
+class AuthenticationSerializer(UserExistsSerializer, PasswordSerializer):  # noqa
     """Authentication Serializer used to log users in.
 
     Validates the username/password combination exists, the account is not deleted, and the request is coming from
