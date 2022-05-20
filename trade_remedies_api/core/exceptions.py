@@ -1,9 +1,12 @@
+import logging
 from collections import defaultdict
 
 from rest_framework.exceptions import APIException
 from rest_framework import serializers, status
 
 from core.validation_errors import validation_errors
+
+logger = logging.getLogger(__name__)
 
 
 class UserExists(Exception):
@@ -29,12 +32,13 @@ class ValidationAPIException(APIException):
         for field, error in self.serializer_errors.items():
             if isinstance(error, CustomValidationError):
                 self.detail["error_summaries"].append(error.error_summary)
-                if isinstance(field, list):
-                    # Multiple fields should be highlighted with the same error
-                    for each in field:
-                        self.detail[each].append(error.error_text)
-                else:
-                    self.detail[field].append(error.error_text)
+                if hasattr(error, "error_text"):
+                    if isinstance(field, list):
+                        # Multiple fields should be highlighted with the same error
+                        for each in field:
+                            self.detail[each].append(error.error_text)
+                    else:
+                        self.detail[field].append(error.error_text)
             else:
                 # It's a DRF ValidationError
                 if isinstance(error.detail, list):
@@ -70,12 +74,12 @@ class CustomValidationError(serializers.ValidationError):
             return super().__new__(cls, *args, **kwargs)
 
     def __init__(
-        self,
-        field=None,
-        error_summary=None,
-        error_text=None,
-        error_key=None,
-        additional_information=None,
+            self,
+            field=None,
+            error_summary=None,
+            error_text=None,
+            error_key=None,
+            additional_information=None,
     ):
         super().__init__()
         if error_key:
@@ -83,7 +87,7 @@ class CustomValidationError(serializers.ValidationError):
             try:
                 validation_error = validation_errors[error_key]
             except KeyError:
-                # todo - raise to sentry
+                logging.error(f'Unknown error key {error_key} attempted lookup')
                 self.error_summary = "An unexpected error has occurred"
             else:
                 self.field = validation_error.get("field", None)
