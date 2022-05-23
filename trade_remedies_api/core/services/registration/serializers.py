@@ -98,7 +98,7 @@ class V2RegistrationSerializer(
             new_user = User.objects.create_user(
                 contact_country=self.initial_data["mobile_country_code"],
                 contact_address=self.initial_data["address_snippet"],
-                contact_post_code=self.initial_data["address"]["postal_code"],
+                contact_post_code=self.initial_data["post_code"],
                 contact_phone=self.initial_data["mobile"],
                 **self.validated_data
             )
@@ -109,12 +109,13 @@ class V2RegistrationSerializer(
                 name=self.initial_data["name"],
                 address=self.initial_data["address_snippet"],
                 country=self.initial_data["country"],
-                post_code=self.initial_data["address"]["postal_code"],
+                post_code=self.initial_data["post_code"],
                 vat_number=self.initial_data["company_vat_number"],
                 eori_number=self.initial_data["company_eori_number"],
                 duns_number=self.initial_data["company_duns_number"],
                 organisation_website=self.initial_data["company_website"],
                 companies_house_id=self.initial_data["company_number"],
+                contact_object=new_user.contact
             )
             security_group_name = OrganisationUser.objects.user_organisation_security_group(
                 new_user, organisation
@@ -144,5 +145,7 @@ class VerifyEmailSerializer(CustomValidationModelSerializer):
         raise CustomValidationError(error_key="wrong_email_verification_code")
 
     def save(self, **kwargs):
-        self.instance.email_verified_at = timezone.now()
+        if not self.instance.email_verified_at:
+            # If they have already verified their email, we don't want to overwrite the time
+            self.instance.email_verified_at = timezone.now()
         return self.instance.save()
