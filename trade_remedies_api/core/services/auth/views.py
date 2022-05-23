@@ -33,8 +33,9 @@ from .serializers import (
     RegistrationSerializer,
     TwoFactorAuthRequestSerializer,
     TwoFactorAuthVerifySerializer,
-    VerifyEmailSerializer,
+    VerifyEmailSerializer, EmailSerializer,
 )
+from ...exceptions import ValidationAPIException
 
 logger = logging.getLogger(__name__)
 
@@ -297,10 +298,14 @@ class RequestPasswordReset(APIView):
             ResponseSuccess response.
         """
         email = request.GET.get("email")
+        serializer = EmailSerializer(data={"email": email})
         logger.info(f"Password reset request for: {email}")
-        # Invalidate all previous PasswordResetRequest objects for this user
-        PasswordResetRequest.objects.reset_request(email=email)
-        return ResponseSuccess({"result": True})
+        if serializer.is_valid():
+            # Invalidate all previous PasswordResetRequest objects for this user
+            PasswordResetRequest.objects.reset_request(email=email)
+            return ResponseSuccess({"result": True})
+        else:
+            raise ValidationAPIException(serializer_errors=serializer.errors)
 
 
 class PasswordResetForm(APIView):

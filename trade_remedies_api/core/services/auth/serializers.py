@@ -1,4 +1,5 @@
 import logging
+import re
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
@@ -8,9 +9,12 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from config.serializers import CustomValidationSerializer
 from config.version import __version__
+from core.exceptions import CustomValidationError
 from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User
 from core.services.exceptions import AccessDenied
+from core.validation_errors import validation_errors
 from security.constants import ENVIRONMENT_GROUPS
 
 logger = logging.getLogger(__name__)
@@ -31,11 +35,14 @@ class PasswordSerializer(serializers.Serializer):
         return value
 
 
-class EmailSerializer(serializers.Serializer):
+class EmailSerializer(CustomValidationSerializer):
     """Checks that an email address belongs to a user who exists in the database."""
 
     email = serializers.CharField(
-        label=_("Email"), write_only=True, trim_whitespace=True, required=True
+        label=_("Email"),
+        write_only=True,
+        trim_whitespace=True,
+        error_messages={"blank": validation_errors["email_required"]},
     )
 
     def user_queryset(self, email: str) -> QuerySet:
@@ -51,6 +58,9 @@ class EmailSerializer(serializers.Serializer):
 
     def validate_email(self, value: str) -> str:
         """Email field validator."""
+        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        if not re.search(email_regex, value) or not value:
+            raise CustomValidationError(error_key="email_not_valid")
         self.user = self.get_user(value)
         return value
 
