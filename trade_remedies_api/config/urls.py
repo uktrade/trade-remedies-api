@@ -138,16 +138,16 @@ urlpatterns = [
     path(
         f"{settings.API_PREFIX}/v2_register/",
         registration_api.V2RegistrationAPIView.as_view(),
-        name="v2_registration"
+        name="v2_registration",
     ),
     path(
         f"{settings.API_PREFIX}/email_verify/<uuid:user_pk>/",
-        registration_api.EmailVerifyAPIView.as_view()
+        registration_api.EmailVerifyAPIView.as_view(),
     ),
     path(
         f"{settings.API_PREFIX}/email_verify/<uuid:user_pk>/<str:email_verify_code>",
         registration_api.EmailVerifyAPIView.as_view(),
-        name="email_verify"
+        name="email_verify",
     ),
 ]
 

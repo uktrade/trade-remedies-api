@@ -134,6 +134,7 @@ class CustomValidationSerializer(serializers.Serializer):
     def return_data(self):
         return super().data()
 
+
 class CustomValidationModelSerializer(CustomValidationSerializer, serializers.ModelSerializer):
     """Raises CustomValidationErrors for use in V2 error handling using a DRF ModelSerializer"""
 

@@ -17,8 +17,11 @@ from security.constants import (
     SECURITY_GROUP_ORGANISATION_USER,
     SECURITY_GROUP_THIRD_PARTY_USER,
 )
-from core.services.registration.serializers import RegistrationSerializer, V2RegistrationSerializer, \
-    VerifyEmailSerializer
+from core.services.registration.serializers import (
+    RegistrationSerializer,
+    V2RegistrationSerializer,
+    VerifyEmailSerializer,
+)
 
 
 class V2RegistrationAPIView(APIView):
@@ -38,10 +41,7 @@ class V2RegistrationAPIView(APIView):
         serializer = V2RegistrationSerializer(data=registration_data)
         if serializer.is_valid():
             serializer.save()
-            return ResponseSuccess(
-                {"result": serializer.data},
-                http_status=status.HTTP_201_CREATED
-            )
+            return ResponseSuccess({"result": serializer.data}, http_status=status.HTTP_201_CREATED)
         else:
             if serializer.errors.get("email", []) == ["User already exists."]:
                 # If the email already exists,
@@ -74,8 +74,7 @@ class EmailVerifyAPIView(APIView):
             if email_verify_code:
                 # We want to verify the code, not send a new one
                 serializer = VerifyEmailSerializer(
-                    instance=user_object.userprofile,
-                    data={"email_verify_code": email_verify_code}
+                    instance=user_object.userprofile, data={"email_verify_code": email_verify_code}
                 )
                 if serializer.is_valid():
                     serializer.save()

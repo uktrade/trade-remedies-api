@@ -9,8 +9,11 @@ from rest_framework.exceptions import ValidationError
 from config.serializers import CustomValidationModelSerializer
 from core.exceptions import CustomValidationError
 from core.models import SystemParameter, User, UserProfile
-from core.services.auth.serializers import EmailAvailabilitySerializer, EmailSerializer, \
-    PasswordSerializer
+from core.services.auth.serializers import (
+    EmailAvailabilitySerializer,
+    EmailSerializer,
+    PasswordSerializer,
+)
 from organisations.models import Organisation
 from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
 from security.models import OrganisationUser
@@ -41,7 +44,7 @@ class RegistrationSerializer(
         attrs = super().validate(attrs=attrs)
         password = attrs["password"]
         if SystemParameter.get("REGISTRATION_SOFT_LOCK") and not password.startswith(
-                SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
+            SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
         ):
             raise ValidationError(
                 _("Registrations are currently locked."), code="registration_locked"
@@ -86,7 +89,7 @@ class V2RegistrationSerializer(
         attrs = super().validate(attrs=attrs)
         password = attrs["password"]
         if SystemParameter.get("REGISTRATION_SOFT_LOCK") and not password.startswith(
-                SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
+            SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
         ):
             raise ValidationError(
                 _("Registrations are currently locked."), code="registration_locked"
@@ -115,7 +118,7 @@ class V2RegistrationSerializer(
                 duns_number=self.initial_data["company_duns_number"],
                 organisation_website=self.initial_data["company_website"],
                 companies_house_id=self.initial_data["company_number"],
-                contact_object=new_user.contact
+                contact_object=new_user.contact,
             )
             security_group_name = OrganisationUser.objects.user_organisation_security_group(
                 new_user, organisation
@@ -128,10 +131,7 @@ class V2RegistrationSerializer(
 
     @property
     def data(self):
-        return {
-            "email": self.instance.email,
-            "pk": self.instance.pk
-        }
+        return {"email": self.instance.email, "pk": self.instance.pk}
 
 
 class VerifyEmailSerializer(CustomValidationModelSerializer):

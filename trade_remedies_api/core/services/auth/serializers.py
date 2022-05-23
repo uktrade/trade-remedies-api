@@ -175,13 +175,13 @@ class TwoFactorAuthRequestSerializer(CustomValidationModelSerializer):
             return attrs
         except TwoFactorRequestedTooMany:
             last_requested_seconds_ago = (
-                    settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS
-                    - (timezone.now() - self.instance.generated_at).seconds
+                settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS
+                - (timezone.now() - self.instance.generated_at).seconds
             )
             raise CustomValidationError(
                 field=validation_errors["2fa_requested_too_many_times"]["field"],
                 error_summary=validation_errors["2fa_requested_too_many_times"]["error_summary"]
-                              % last_requested_seconds_ago,
+                % last_requested_seconds_ago,
             )
         except Exception as e:
             raise CustomValidationError(error_key="2fa_code_failed_delivery")

@@ -1480,3 +1480,10 @@ django-db-geventpool==4.0.0
 Holborn
 the third party
 terminated_at
+mobile_country_code
+r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$
+CustomValidationError
+ValidationExceptions
+ValidationErrors
+Raises CustomValidationErrors
+SECONDS
