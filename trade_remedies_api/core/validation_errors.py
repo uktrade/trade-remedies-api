@@ -67,4 +67,7 @@ validation_errors = {
     "invalid_access": {
         "error_summary": "Invalid access to environment"
     },
+    "wrong_email_verification_code": {
+        "error_summary": "Invalid access to environment"
+    },
 }
