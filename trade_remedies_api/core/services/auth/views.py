@@ -355,6 +355,8 @@ class PasswordResetForm(APIView):
             ):
                 logger.info(f"Password reset completed for: {user_pk}")
                 return ResponseSuccess({"result": {"reset": True}}, http_status=status.HTTP_200_OK)
+        elif not password_serializer.is_valid():
+            raise ValidationAPIException(serializer_errors=password_serializer.errors)
         else:
             logger.warning(f"Could not reset password for user {user_pk}")
             raise InvalidRequestParams("Invalid or expired link")

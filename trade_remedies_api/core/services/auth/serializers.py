@@ -2,8 +2,6 @@ import logging
 import re
 
 from django.contrib.auth import authenticate
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
@@ -20,18 +18,31 @@ from security.constants import ENVIRONMENT_GROUPS
 logger = logging.getLogger(__name__)
 
 
-class PasswordSerializer(serializers.Serializer):
+class PasswordSerializer(CustomValidationSerializer):
     """Checks if a password is valid, i.e. meets the minimum complexity requirements."""
 
     password = serializers.CharField(
-        label=_("Password"), trim_whitespace=True, write_only=True, required=True
+        label=_("Password"),
+        trim_whitespace=True,
+        write_only=True,
+        required=True,
+        error_messages={"blank": validation_errors["password_required"]},
     )
 
     def validate_password(self, value: str) -> str:
-        try:
-            validate_password(value)
-        except DjangoValidationError as exc:
-            raise ValidationError(detail="<br/>".join(exc.messages), code="password_not_complex")
+        capital_regex = r"[A-Z]"
+        lowercase_regex = r"[a-z]"
+        number_regex = r"[0-9]"
+        special_regex = r"[!\"$%&\'#()*+,\-./:;<=>?\\@[\]^_`{|}~]"
+        if (
+            not re.search(capital_regex, value)
+            or not re.search(lowercase_regex, value)
+            or not re.search(number_regex, value)
+            or not re.search(special_regex, value)
+            or not len(value) >= 8
+            or not value
+        ):
+            raise CustomValidationError(error_key="password_fails_requirements")
         return value
 
 
