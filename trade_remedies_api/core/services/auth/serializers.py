@@ -130,7 +130,6 @@ class AuthenticationSerializer(UserExistsSerializer, PasswordSerializer):  # noq
                     logger.error(f"env_key not defined while logging {user.email}")
                 else:
                     logger.error(
-                        f"env_key = {env_key};"
                         f"{user.email} does not have access to {ENVIRONMENT_GROUPS[env_key]}"
                     )
                 raise CustomValidationError(error_key="invalid_access")

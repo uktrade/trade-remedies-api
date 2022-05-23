@@ -243,6 +243,9 @@ class Document(BaseModel):
                     id=str(self.id),
                 )
                 return result.get("result") == "deleted"
+            except NotFoundError as exc:
+                # OpenSearch document not found, probably uploaded before opensearch was activated
+                pass
             except Exception as exc:
                 logger.error(f"cannot delete OpenSearch document: {self.id} - {exc}")
         return False
