@@ -12,7 +12,7 @@ validation_errors = {
     "password_fails_requirements": {
         "field": "password",
         "error_text": "Enter a password that contains 8 or more characters, at least one lowercase letter, at least one capital letter, at least one number and at least one special character for example  !@#$%^&",
-        "error_summary": "The password is not using the correct format",
+        "error_summary": "Your password needs to contain the correct characters",
     },
     "password_upper_lower_case": {
         "field": "password",
@@ -71,4 +71,49 @@ validation_errors = {
         "error_text": "Enter your name",
         "error_summary": "You need to enter your name"
     },
+    "no_email_entered": {
+        "field": "email",
+        "error_text": "Enter your email address",
+        "error_summary": "You need to enter your email address"
+    },
+    "terms_and_conditions_not_accepted": {
+        "field": "terms_and_conditions_accept",
+        "error_text": "Select if you have read and understood the Terms of Use and Privacy Notice",
+        "error_summary": "Agree to the Terms of Use and Privacy Notice to create your account"
+    },
+    "no_password_entered": {
+        "field": "password",
+        "error_text": "Enter your password",
+        "error_summary": "You need to enter your password"
+    },
+    "no_two_factor_selected": {
+        "field": "two_factor_choice",
+        "error_text": "Choose mobile or email",
+        "error_summary": "Choose how to complete two-factor authentication"
+    },
+    "no_country_selected": {
+        "field": "mobile_country_code",
+        "error_text": "Select your country code",
+        "error_summary": "Select the country code for your mobile number"
+    },
+    "invalid_mobile_number": {
+        "field": "mobile",
+        "error_text": "Enter a mobile number using digits only and without using the characters  () or -",
+        "error_summary": "Your mobile number needs to be entered in the correct format"
+    },
+    "no_mobile_entered": {
+        "field": "mobile",
+        "error_text": "Enter your mobile number",
+        "error_summary": "You need to enter your mobile number"
+    },
+    "organisation_registered_country_not_selected": {
+        "field": "uk_employer",
+        "error_text": "Select Yes or No",
+        "error_summary": "You need to select if your organisation is a UK registered company"
+    },
+    "companies_house_not_searched": {
+        "field": "uk_employer",
+        "error_text": "Enter your company name or company number",
+        "error_summary": "You need to enter your registered company name or company number"
+    }
 }
