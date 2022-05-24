@@ -1,3 +1,7 @@
+ValidationExceptions
+ValidationErrors
+r"(^+@+\.+$
+CustomValidationError
 assert app.label
 "Trade Remedies Authentication
 Authentication V2
