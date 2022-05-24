@@ -69,7 +69,7 @@ class EmailSerializer(CustomValidationSerializer):
 
     def validate_email(self, value: str) -> str:
         """Email field validator."""
-        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"  # /PS-IGNORE
         if not re.search(email_regex, value) or not value:
             raise CustomValidationError(error_key="email_not_valid")
         self.user = self.get_user(value)
