@@ -46,7 +46,7 @@ class PasswordSerializer(CustomValidationSerializer):
         return value
 
 
-class EmailSerializer(CustomValidationSerializer):
+class PasswordResetEmailSerializer(CustomValidationSerializer):
     """Checks that an email address belongs to a user who exists in the database."""
 
     email = serializers.CharField(
@@ -54,6 +54,24 @@ class EmailSerializer(CustomValidationSerializer):
         write_only=True,
         trim_whitespace=True,
         error_messages={"blank": validation_errors["email_required"]},
+    )
+
+    def validate_email(self, value: str) -> str:
+        """Email field validator."""
+        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"  # /PS-IGNORE
+        if not re.search(email_regex, value) or not value:
+            raise CustomValidationError(error_key="email_not_valid")
+        return value
+
+
+class EmailSerializer(serializers.Serializer):
+    """Checks that an email address belongs to a user who exists in the database."""
+
+    email = serializers.CharField(
+        label=_("Email"),
+        write_only=True,
+        trim_whitespace=True,
+        required=True,
     )
 
     def user_queryset(self, email: str) -> QuerySet:
@@ -69,9 +87,6 @@ class EmailSerializer(CustomValidationSerializer):
 
     def validate_email(self, value: str) -> str:
         """Email field validator."""
-        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"  # /PS-IGNORE
-        if not re.search(email_regex, value) or not value:
-            raise CustomValidationError(error_key="email_not_valid")
         self.user = self.get_user(value)
         return value
 

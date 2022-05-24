@@ -36,6 +36,7 @@ from .serializers import (
     VerifyEmailSerializer,
     EmailSerializer,
     UserPkSerializer,
+    PasswordResetEmailSerializer,
 )
 from ...exceptions import ValidationAPIException
 
@@ -300,7 +301,7 @@ class RequestPasswordReset(APIView):
             ResponseSuccess response.
         """
         email = request.GET.get("email")
-        serializer = EmailSerializer(data={"email": email})
+        serializer = PasswordResetEmailSerializer(data={"email": email})
         logger.info(f"Password reset request for: {email}")
         if serializer.is_valid():
             # Invalidate all previous PasswordResetRequest objects for this user
