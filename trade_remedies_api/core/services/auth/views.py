@@ -33,7 +33,9 @@ from .serializers import (
     RegistrationSerializer,
     TwoFactorAuthRequestSerializer,
     TwoFactorAuthVerifySerializer,
-    VerifyEmailSerializer, EmailSerializer,
+    VerifyEmailSerializer,
+    EmailSerializer,
+    UserPkSerializer,
 )
 from ...exceptions import ValidationAPIException
 
@@ -303,6 +305,30 @@ class RequestPasswordReset(APIView):
         if serializer.is_valid():
             # Invalidate all previous PasswordResetRequest objects for this user
             PasswordResetRequest.objects.reset_request(email=email)
+            return ResponseSuccess({"result": True})
+        else:
+            raise ValidationAPIException(serializer_errors=serializer.errors)
+
+
+class PrimaryKeyRequestPasswordReset(APIView):
+    """Request and send a password reset email."""
+
+    @staticmethod
+    def get(request, *args, **kwargs):
+        """
+        Sends a password reset email.
+
+        Arguments:
+            request: a Django Request object
+        Returns:
+            ResponseSuccess response.
+        """
+        user_pk = request.GET.get("user_pk")
+        serializer = UserPkSerializer(data={"user_pk": user_pk})
+        logger.info(f"Password reset request for: user {user_pk}")
+        if serializer.is_valid():
+            # Invalidate all previous PasswordResetRequest objects for this user
+            PasswordResetRequest.objects.pk_reset_request(user_pk=user_pk)
             return ResponseSuccess({"result": True})
         else:
             raise ValidationAPIException(serializer_errors=serializer.errors)
