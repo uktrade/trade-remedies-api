@@ -34,7 +34,6 @@ from .serializers import (
     TwoFactorAuthRequestSerializer,
     TwoFactorAuthVerifySerializer,
     VerifyEmailSerializer,
-    EmailSerializer,
     UserPkSerializer,
     PasswordResetEmailSerializer,
 )
