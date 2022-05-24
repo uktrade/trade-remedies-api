@@ -293,7 +293,7 @@
     {
         "key": "TRADE_REMEDIES_EMAIL",
         "data_type": "str",
-        "default": "investigations@traderemedies.gov.uk",
+        "default": "contact@traderemedies.gov.uk",
         "editable": true
     },
     {
