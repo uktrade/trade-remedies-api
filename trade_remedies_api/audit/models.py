@@ -61,7 +61,7 @@ class Audit(models.Model):
         (AUDIT_TYPE_RESTORE, "Restore"),
         (AUDIT_TYPE_READ, "Read"),
         (AUDIT_TYPE_LOGIN, "Log In"),
-        (AUDIT_TYPE_LOGIN_FAILED, "Log In"),
+        (AUDIT_TYPE_LOGIN_FAILED, "Log In Failed"),
         (AUDIT_TYPE_LOGOUT, "Log Out"),
         (AUDIT_TYPE_EVENT, "Event"),
         (AUDIT_TYPE_ATTACH, "Attach"),
