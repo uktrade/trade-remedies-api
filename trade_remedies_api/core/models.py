@@ -1189,12 +1189,7 @@ class PasswordResetManager(models.Manager):
                 password_reset_object.save()
         return is_valid
 
-    def reset_request(self, email):
-        try:
-            user = User.objects.get(email__iexact=email)
-        except User.DoesNotExist:
-            logger.warning(f"Password reset request failed, user {email} does not exist")
-            return None, None
+    def send_reset(self, user):
         self.filter(user=user, ack_at__isnull=True, invalidated_at__isnull=True).update(
             invalidated_at=timezone.now()
         )
@@ -1205,20 +1200,22 @@ class PasswordResetManager(models.Manager):
         send_report = reset.send_reset_link()
         return reset, send_report
 
+    def reset_request(self, email):
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            logger.warning(f"Password reset request failed, user {email} does not exist")
+            return None, None
+        reset, send_report = self.send_reset(user)
+        return reset, send_report
+
     def pk_reset_request(self, user_pk):
         try:
             user = User.objects.get(id=user_pk)
         except User.DoesNotExist:
             logger.warning(f"Password reset request failed, user {user_pk} does not exist")
             return None, None
-        self.filter(user=user, ack_at__isnull=True, invalidated_at__isnull=True).update(
-            invalidated_at=timezone.now()
-        )
-        reset = self.create(user=user)
-        reset.ack_at = None
-        reset.invalidated_at = None
-        reset.generate_token()
-        send_report = reset.send_reset_link()
+        reset, send_report = self.send_reset(user)
         return reset, send_report
 
     def password_reset(self, token, user_pk, new_password):
