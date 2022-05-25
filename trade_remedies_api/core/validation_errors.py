@@ -115,5 +115,48 @@ validation_errors = {
         "field": "uk_employer",
         "error_text": "Enter your company name or company number",
         "error_summary": "You need to enter your registered company name or company number"
+    },
+    "companies_house_not_selected": {
+        "field": "input-autocomplete",
+        "error_text": "Select your company",
+        "error_summary": "Select your company"
+    },
+    "no_company_name_entered": {
+        "field": "organisation_name",
+        "error_text": "Enter the name of your organisation",
+        "error_summary": "We need the name of your organisation"
+    },
+    "no_company_post_code_or_number_entered": {
+        "field": ["address", "post_code"],
+        "error_text": "Enter a registered company number or the postcode for your company address",
+        "error_summary": "We need a registered company number or the postcode for your company address"
+    },
+    "no_company_address_entered": {
+        "field": "address",
+        "error_text": "Enter your organisation's address",
+        "error_summary": "We need an address for your organisation"
+    },
+    "no_company_country_selected": {
+        "field": "country",
+        "error_text": "Select your country",
+        "error_summary": "Select the country for your organisation"
+    },
+    "incorrect_vat_format": {
+        "field": "company_vat_number",
+        "error_summary": "You have entered an incorrect VAT number"
+    },
+    "incorrect_eori_format": {
+        "field": "company_eori_number",
+        "error_summary": "You have entered an incorrect EORI number"
+    },
+    "incorrect_duns_format": {
+        "field": "company_duns_number",
+        "error_text": "Enter your D‑U‑N‑S Number using 9 digits",
+        "error_summary": "You have entered an incorrect D‑U‑N‑S Number"
+    },
+    "incorrect_url": {
+        "field": "company_website",
+        "error_text": "Enter the correct web address",
+        "error_summary": "We cannot find this website"
     }
 }
