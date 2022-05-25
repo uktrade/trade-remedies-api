@@ -250,6 +250,7 @@ class PasswordResetRequestSerializer(serializers.Serializer):
     def validate(self, attrs):
         token = attrs["token"]
         user_pk = attrs["user_pk"]
+        pass
 
         if PasswordResetRequest.objects.validate_token(token, user_pk, validate_only=True):
             return attrs
