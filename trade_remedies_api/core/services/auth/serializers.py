@@ -114,7 +114,6 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
                     logger.error(f"env_key not defined while logging {user.email}")
                 else:
                     logger.error(
-                        f"env_key = {env_key};"
                         f"{user.email} does not have access to {ENVIRONMENT_GROUPS[env_key]}"
                     )
                 raise CustomValidationError(error_key="invalid_access")
@@ -309,6 +308,7 @@ class PasswordResetRequestSerializer(serializers.Serializer):
     def validate(self, attrs):
         token = attrs["token"]
         user_pk = attrs["user_pk"]
+        pass
 
         if PasswordResetRequest.objects.validate_token(token, user_pk, validate_only=True):
             return attrs
