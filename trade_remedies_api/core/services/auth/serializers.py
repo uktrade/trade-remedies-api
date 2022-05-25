@@ -92,11 +92,7 @@ class EmailSerializer(serializers.Serializer):
 
 
 class UserPkSerializer(CustomValidationSerializer):
-    """Checks that an email address belongs to a user who exists in the database."""
-
-    user_pk = serializers.UUIDField(
-        error_messages={"blank": validation_errors["email_required"]},
-    )
+    user_pk = serializers.UUIDField(required=True)
 
     def validate_user_pk(self, value):
         if not User.objects.filter(id=value).exists():
