@@ -45,11 +45,15 @@ def create_user(email):
         groups=[SECURITY_GROUP_ORGANISATION_OWNER],
         country="GB",
         timezone="Europe/London",
-        phone="012345678",
-        organisation_name="Test Organisation",
-        organisation_country="GB",
+        contact_phone="012345678",
+    )
+    organisation = Organisation.objects.create_or_update_organisation(
+        user=user,
+        assign_user=True,
+        name="Test Organisation",
+        address="Test address",
+        country="GB",
         companies_house_id="TE5 TS1",
-        organisation_address="Test address",
     )
     return user
 

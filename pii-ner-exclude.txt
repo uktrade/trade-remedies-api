@@ -1,4 +1,11 @@
 uk_employer
+Custom Axes Authentication
+DELETE
+Log Out'
+'Log Out''
+Log Out
+'Log Out'
+TwoFactor
 VAT
 EORI
 assert app.label
