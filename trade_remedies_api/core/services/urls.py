@@ -5,7 +5,7 @@ from .api import (
     NotificationTemplateAPI,
     JobTitlesView,
     FeedbackExport,
-    ValidationErrorAPIView
+    ValidationErrorAPIView,
 )
 from .ch_proxy import CompaniesHouseApiSearch
 

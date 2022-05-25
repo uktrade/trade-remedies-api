@@ -1,5 +1,6 @@
 import json
 import logging
+import uuid
 
 from django.db import transaction
 from django.http import HttpRequest, HttpResponse
@@ -43,10 +44,10 @@ class V2RegistrationAPIView(APIView):
             serializer.save()
             return ResponseSuccess({"result": serializer.data}, http_status=status.HTTP_201_CREATED)
         else:
-            if serializer.errors.get("email", []) == ["User already exists."]:
+            if "User already exists." in serializer.errors.get("email", []).detail:
                 # If the email already exists,
                 # notify the original user and pretend registration completed ok.
-                user = serializer.get_user(serializer.initial_data["email"])
+                user = User.objects.get(email=serializer.initial_data["email"])
                 template_id = SystemParameter.get("NOTIFY_EMAIL_EXISTS")
                 send_mail(user.email, {"full_name": user.name}, template_id)
 
@@ -54,12 +55,13 @@ class V2RegistrationAPIView(APIView):
                     {
                         "result": {
                             "email": serializer.initial_data["email"],
-                            "id": None,
+                            "pk": uuid.uuid4(),  # Give them a random UUID
                         }
                     },
                     http_status=status.HTTP_201_CREATED,
                 )
-            return ResponseError(serializer.errors)
+            else:
+                raise ValidationAPIException(serializer_errors=serializer.errors)
 
 
 class EmailVerifyAPIView(APIView):

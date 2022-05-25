@@ -1,3 +1,6 @@
+uk_employer
+VAT
+EORI
 assert app.label
 "Trade Remedies Authentication
 Authentication V2
