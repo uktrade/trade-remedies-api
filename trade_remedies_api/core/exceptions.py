@@ -74,12 +74,12 @@ class CustomValidationError(serializers.ValidationError):
             return super().__new__(cls, *args, **kwargs)
 
     def __init__(
-            self,
-            field=None,
-            error_summary=None,
-            error_text=None,
-            error_key=None,
-            additional_information=None,
+        self,
+        field=None,
+        error_summary=None,
+        error_text=None,
+        error_key=None,
+        additional_information=None,
     ):
         super().__init__()
         if error_key:
@@ -87,7 +87,7 @@ class CustomValidationError(serializers.ValidationError):
             try:
                 validation_error = validation_errors[error_key]
             except KeyError:
-                logging.error(f'Unknown error key {error_key} attempted lookup')
+                logging.error(f"Unknown error key {error_key} attempted lookup")
                 self.error_summary = "An unexpected error has occurred"
             else:
                 self.field = validation_error.get("field", None)
