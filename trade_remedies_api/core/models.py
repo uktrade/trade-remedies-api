@@ -128,7 +128,7 @@ class UserManager(BaseUserManager):
             email=user.email,
             phone=kwargs.get("contact_phone"),
             address=kwargs.get("contact_address"),
-            post_code=kwargs.get("contact_postcode"),
+            post_code=kwargs.get("contact_post_code"),
             country=kwargs.get("contact_country"),
             created_by=user,
         )
