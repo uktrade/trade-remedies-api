@@ -91,12 +91,12 @@ class EmailSerializer(serializers.Serializer):
         return value
 
 
-class UserPkSerializer(CustomValidationSerializer):
-    user_pk = serializers.UUIDField(required=True)
+class PasswordRequestIdSerializer(CustomValidationSerializer):
+    request_id = serializers.UUIDField(required=True)
 
-    def validate_user_pk(self, value):
-        if not User.objects.filter(id=value).exists():
-            raise ValidationError(_("User does not exist."), code="user_does_not_exist")
+    def validate_request_id(self, value):
+        if not PasswordResetRequest.objects.filter(request_id=value).exists():
+            raise ValidationError(_("Request does not exist."), code="request_does_not_exist")
         return value
 
 
@@ -283,6 +283,26 @@ class VerifyEmailSerializer(serializers.Serializer):
             return value
         raise ValidationError(
             {"code": _("Invalid verification code")}, code="invalid_email_verification_code"
+        )
+
+
+class PasswordResetRequestSerializerV2(serializers.Serializer):
+    """Checks if a given password reset token is valid against a given user_pk."""
+
+    token = serializers.CharField()
+    request_id = serializers.UUIDField()
+
+    def validate(self, attrs):
+        token = attrs["token"]
+        request_id = attrs["request_id"]
+        pass
+
+        if PasswordResetRequest.objects.validate_token_using_request_id(
+            token, request_id, validate_only=True
+        ):
+            return attrs
+        raise ValidationError(
+            {"token": _("Password reset link invalid")}, code="password_reset_link_invalid"
         )
 
 

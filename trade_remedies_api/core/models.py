@@ -1189,6 +1189,23 @@ class PasswordResetManager(models.Manager):
                 password_reset_object.save()
         return is_valid
 
+    def validate_token_using_request_id(self, token, request_id, validate_only=False):
+        """
+        Validate a reset request code.
+        The code is made of a user's uuid and a unique 64 char code separated with an exclamation.
+        Once acknowledged, the code becomes useless, even if the user did not complete the password
+        reset process.
+        Returns the reset model if it validates ok
+        """
+        user_object = PasswordResetRequest.objects.get(request_id=request_id).user
+        is_valid = PasswordResetTokenGenerator().check_token(user=user_object, token=token)
+        if not validate_only:
+            if password_reset_object := self.filter(token=token).first():
+                password_reset_object.ack_at = timezone.now()
+                password_reset_object.invalidated_at = timezone.now()
+                password_reset_object.save()
+        return is_valid
+
     def send_reset(self, user):
         self.filter(user=user, ack_at__isnull=True, invalidated_at__isnull=True).update(
             invalidated_at=timezone.now()
@@ -1209,11 +1226,14 @@ class PasswordResetManager(models.Manager):
         reset, send_report = self.send_reset(user)
         return reset, send_report
 
-    def pk_reset_request(self, user_pk):
+    def reset_request_using_request_id(self, request_id):
         try:
+            user_pk = PasswordResetRequest.objects.get(request_id=request_id).user.pk
             user = User.objects.get(id=user_pk)
         except User.DoesNotExist:
-            logger.warning(f"Password reset request failed, user {user_pk} does not exist")
+            logger.warning(
+                f"Password reset request failed, no user associated with request {request_id}"
+            )
             return None, None
         reset, send_report = self.send_reset(user)
         return reset, send_report
@@ -1237,6 +1257,25 @@ class PasswordResetManager(models.Manager):
                     f"Password reset failed for user {user_pk} as the user could not be found in the database"
                 )
 
+    def password_reset_v2(self, token, request_id, new_password):
+        """
+        Performs a password reset if the code validates ok
+        Raises ValidationError if the password does not pass the min requirements
+        """
+        reset = self.validate_token_using_request_id(token, request_id)
+        if reset:
+            validate_password(new_password)
+            try:
+                user_pk = PasswordResetRequest.objects.get(request_id=request_id).user.pk
+                user = User.objects.get(pk=user_pk)
+                user.set_password(new_password)
+                user.save()
+                return user
+            except User.DoesNotExist:
+                logger.warning(
+                    f"Password reset failed for request {request_id} as the user could not be found in the database"
+                )
+
 
 class PasswordResetRequest(models.Model):
     """
@@ -1253,6 +1292,7 @@ class PasswordResetRequest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     ack_at = models.DateTimeField(null=True, blank=True)
     invalidated_at = models.DateTimeField(null=True, blank=True)
+    request_id = models.UUIDField(default=uuid.uuid4, editable=False)
 
     objects = PasswordResetManager()
 
@@ -1272,9 +1312,7 @@ class PasswordResetRequest(models.Model):
         if self.user.is_tra():
             return f"{settings.CASEWORKER_ROOT_URL}/accounts/password/reset/{self.user.pk}/{self.token}/"  # noqa: E501
         else:
-            return (
-                f"{settings.PUBLIC_ROOT_URL}/accounts/password/reset/{self.user.pk}/{self.token}/"
-            )
+            return f"{settings.PUBLIC_ROOT_URL}/accounts/password/reset/{self.request_id}/{self.token}/"
 
     def send_reset_link(self):
         template_id = SystemParameter.get("NOTIFY_RESET_PASSWORD_V2")

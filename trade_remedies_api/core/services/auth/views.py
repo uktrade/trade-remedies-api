@@ -34,8 +34,9 @@ from .serializers import (
     TwoFactorAuthRequestSerializer,
     TwoFactorAuthVerifySerializer,
     VerifyEmailSerializer,
-    UserPkSerializer,
+    PasswordRequestIdSerializer,
     PasswordResetEmailSerializer,
+    PasswordResetRequestSerializerV2,
 )
 from ...exceptions import ValidationAPIException
 
@@ -310,7 +311,7 @@ class RequestPasswordReset(APIView):
             raise ValidationAPIException(serializer_errors=serializer.errors)
 
 
-class PrimaryKeyRequestPasswordReset(APIView):
+class RequestPasswordResetV2(APIView):
     """Request and send a password reset email."""
 
     @staticmethod
@@ -323,15 +324,69 @@ class PrimaryKeyRequestPasswordReset(APIView):
         Returns:
             ResponseSuccess response.
         """
-        user_pk = request.GET.get("user_pk")
-        serializer = UserPkSerializer(data={"user_pk": user_pk})
-        logger.info(f"Password reset request for: user {user_pk}")
+        request_id = request.GET.get("request_id")
+        serializer = PasswordRequestIdSerializer(data={"request_id": request_id})
+        logger.info(f"Password reset request {request_id}")
         if serializer.is_valid():
             # Invalidate all previous PasswordResetRequest objects for this user
-            PasswordResetRequest.objects.pk_reset_request(user_pk=user_pk)
+            PasswordResetRequest.objects.reset_request_using_request_id(request_id=request_id)
             return ResponseSuccess({"result": True})
         else:
             raise ValidationAPIException(serializer_errors=serializer.errors)
+
+
+class PasswordResetFormV2(APIView):
+    """Verify a password reset link and allow user to use it."""
+
+    @staticmethod
+    def get(request, *args, **kwargs):
+        """
+        Verifies that a password reset link is valid.
+
+        Arguments:
+            request: a Django Request object
+        Returns:
+            ResponseSuccess response with a boolean response in the dictionary, True if valid, False if not.
+        """
+        serializer = PasswordResetRequestSerializerV2(data=request.GET)
+        request_id = request.GET["request_id"]
+        logger.info(f"Password reset link clicked for: request {request_id}")
+        if valid := serializer.is_valid():
+            logger.info(f"Password reset link valid for: request {request_id}")
+        else:
+            logger.info(f"Password reset link invalid for: request {request_id}")
+
+        return ResponseSuccess({"result": valid})
+
+    @staticmethod
+    def post(request, *args, **kwargs):
+        """
+        Changes a user's password.
+
+        Arguments:
+            request: a Django Request object
+        Returns:
+            ResponseSuccess response if the password was successfully changed.
+        Raises:
+            InvalidRequestParams if link is invalid or password is not complex enough.
+        """
+        token_serializer = PasswordResetRequestSerializerV2(data=request.data)
+        password_serializer = PasswordSerializer(data=request.data)
+        request_id = request.data.get("request_id")
+
+        if token_serializer.is_valid() and password_serializer.is_valid():
+            if PasswordResetRequest.objects.password_reset_v2(
+                token_serializer.initial_data["token"],
+                token_serializer.initial_data["request_id"],
+                token_serializer.initial_data["password"],
+            ):
+                logger.info(f"Password reset completed for: request {request_id}")
+                return ResponseSuccess({"result": {"reset": True}}, http_status=status.HTTP_200_OK)
+        elif not password_serializer.is_valid():
+            raise ValidationAPIException(serializer_errors=password_serializer.errors)
+        else:
+            logger.warning(f"Could not reset password for request {request_id}")
+            raise InvalidRequestParams("Invalid or expired link")
 
 
 class PasswordResetForm(APIView):
