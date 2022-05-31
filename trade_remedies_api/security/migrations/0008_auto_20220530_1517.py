@@ -22,8 +22,9 @@ def add_case_role(apps, schema_editor):
 
     # get case actions and add to case role
     CaseAction = apps.get_model("security", "CaseAction")
-    view_application = CaseAction.objects.get(id="VIEW_APPLICATION")
     view_case = CaseAction.objects.get(id="VIEW_CASE")
+    view_application = CaseAction.objects.get(id="VIEW_APPLICATION")
+    
 
     new_case_role.actions.add(view_application, view_case)
 
