@@ -2,6 +2,8 @@
 
 from django.db import migrations
 
+import pytest
+
 
 def multiply_order_by_10(apps, schema_editor):
     CaseRole = apps.get_model("security", "CaseRole")
@@ -11,6 +13,7 @@ def multiply_order_by_10(apps, schema_editor):
         case_role.save()
 
 
+@pytest.mark.django_db(transaction=True)
 def add_case_role(apps, schema_editor):
     CaseRole = apps.get_model("security", "CaseRole")
     new_case_role = CaseRole.objects.create(
@@ -25,7 +28,6 @@ def add_case_role(apps, schema_editor):
     view_case = CaseAction.objects.get(id="VIEW_CASE")
     view_application = CaseAction.objects.get(id="VIEW_APPLICATION")
     
-
     new_case_role.actions.add(view_application, view_case)
 
 
