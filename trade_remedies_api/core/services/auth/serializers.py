@@ -287,7 +287,7 @@ class VerifyEmailSerializer(serializers.Serializer):
 
 
 class PasswordResetRequestSerializerV2(serializers.Serializer):
-    """Checks if a given password reset token is valid against a given user_pk."""
+    """Checks if a given password reset token is valid against a given reset request id"""
 
     token = serializers.CharField()
     request_id = serializers.UUIDField()
@@ -295,7 +295,6 @@ class PasswordResetRequestSerializerV2(serializers.Serializer):
     def validate(self, attrs):
         token = attrs["token"]
         request_id = attrs["request_id"]
-        pass
 
         if PasswordResetRequest.objects.validate_token_using_request_id(
             token, request_id, validate_only=True
