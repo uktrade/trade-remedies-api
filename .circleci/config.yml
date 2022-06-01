@@ -39,6 +39,7 @@ jobs:
       - run:
           name: Run black
           command: |
+            pip install black==22.3.0
             black trade_remedies_api --check
       - run:
           name: Run Flake8
