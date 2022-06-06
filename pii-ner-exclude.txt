@@ -1,8 +1,8 @@
-'DELETE'
-'Log Out'
-'Log In Failed'
-'Password Reset'
-'Password Reset Failed'
+DELETE
+Log Out
+Log In Failed
+Password Reset
+Password Reset Failed
 ValidationExceptions
 ValidationErrors
 r"(^+@+\.+$
