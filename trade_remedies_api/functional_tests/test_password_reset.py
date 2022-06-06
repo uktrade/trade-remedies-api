@@ -1,22 +1,82 @@
+from rest_framework.authtoken.models import Token
 from rest_framework.test import APITransactionTestCase
 from rest_framework import status
 
+from core.models import User, PasswordResetRequest
+
 
 class PasswordResetTest(APITransactionTestCase):
+    def setUp(self):
+        self.user = User.objects.create(
+            name="Health Check",
+            email="standard@gov.uk",  # /PS-IGNORE
+            password="super-secret-password1!",
+        )
+        token = Token.objects.create(user=self.user, key="super-secret-token1!")
+        self.client.force_authenticate(user=self.user, token=token)
+
     def test_requests_password_reset(self):
-        self.client.force_authenticate()
-        response = self.client.get("/api/v2/accounts/password/request_reset/")
-        print(response.data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(
+            f"/api/v1/accounts/password/request_reset/?email={self.user.email}"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == {"response": {"success": True, "result": True}}
+        assert PasswordResetRequest.objects.filter(user=self.user).exists()
 
-    def test_requests_password_reset_via_request_id(self):
-        self.client.force_authenticate()
-        response = self.client.get("/api/v2/accounts/password/request_reset/")
-        print(response.data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_request_password_reset_fails_if_invalid_email(self):
+        response = self.client.get(
+            f"/api/v1/accounts/password/request_reset/?email=notarealemailaddress"
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data == {
+            "error_summaries": [
+                "Your email address needs to be in the correct format. Eg. name@example.com"  # /PS-IGNORE
+            ],
+            "email": [
+                "Enter your email address in the correct format. Eg. name@example.com"
+            ],  # /PS-IGNORE
+        }
 
-    def test_resets_password(self):
-        self.client.force_authenticate()
-        response = self.client.get("/api/v2/accounts/password/reset_form/")
-        print(response.data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_request_password_reset_fails_if_email_missing(self):
+        response = self.client.get(f"/api/v1/accounts/password/request_reset/?email=")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data == {
+            "error_summaries": ["Enter your email address"],
+            "email": ["Enter your email address. Eg. name@example.com"],  # /PS-IGNORE
+        }
+
+    def test_no_password_reset_request_if_no_user_for_email(self):
+        response = self.client.get(f"/api/v1/accounts/password/request_reset/?email=nouser@gov.uk")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == {"response": {"success": True, "result": True}}
+        assert not PasswordResetRequest.objects.filter(user=self.user).exists()
+
+    def test_requests_password_reset_again_via_request_id(self):
+        self.client.get(f"/api/v1/accounts/password/request_reset/?email={self.user.email}")
+        first_request_id = PasswordResetRequest.objects.get(user=self.user).request_id
+        response = self.client.get(
+            f"/api/v2/accounts/password/request_reset/?request_id={first_request_id}"
+        )
+        assert response.data == {"response": {"success": True, "result": True}}
+        assert (
+            PasswordResetRequest.objects.filter(user=self.user)
+            .exclude(request_id=first_request_id)
+            .exists()
+        )
+
+    def test_request_password_reset_fails_if_no_request_for_request_id(self):
+        response = self.client.get(
+            f"/api/v2/accounts/password/request_reset/?request_id=68f88b49-8a09-47ef-8a6c-ffbf4319aafe"
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data["request_id"][0] == "Request does not exist."
+
+    def test_request_password_reset_request_id_must_be_uuid(self):
+        response = self.client.get(f"/api/v2/accounts/password/request_reset/?request_id=")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data["request_id"][0] == "Must be a valid UUID."
+
+    # def test_resets_password(self):
+    #     response = self.client.get("/api/v2/accounts/password/reset_form/")
+    #     print(response.data)
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
