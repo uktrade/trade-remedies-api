@@ -79,9 +79,7 @@ class PasswordResetTest(APITransactionTestCase):
         assert response.data["request_id"][0] == "Must be a valid UUID."
 
     def test_reset_password_using_valid_token_for_reset_request_then_invalidates_token(self):
-        self.client.get(
-            f"/api/v1/accounts/password/request_reset/?email={self.user.email}"
-        )
+        self.client.get(f"/api/v1/accounts/password/request_reset/?email={self.user.email}")
         reset_token = PasswordResetRequest.objects.get(user=self.user).token
         request_id = PasswordResetRequest.objects.get(user=self.user).request_id
         response = self.client.get(
@@ -115,9 +113,7 @@ class PasswordResetTest(APITransactionTestCase):
         assert user.check_password("super-secret-pAssword2!")
 
     def test_reset_password_validates_new_password(self):
-        self.client.get(
-            f"/api/v1/accounts/password/request_reset/?email={self.user.email}"
-        )
+        self.client.get(f"/api/v1/accounts/password/request_reset/?email={self.user.email}")
         reset_token = PasswordResetRequest.objects.get(user=self.user).token
         request_id = PasswordResetRequest.objects.get(user=self.user).request_id
         response = self.client.post(
