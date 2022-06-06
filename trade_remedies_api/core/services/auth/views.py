@@ -14,7 +14,7 @@ from notifications_python_client.errors import HTTPError
 from rest_framework import status
 from rest_framework.views import APIView
 from django.utils.translation import gettext_lazy as _
-from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, UserProfile
+from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, UserProfile, User
 from core.notifier import send_mail
 from core.services.base import ResponseError, ResponseSuccess, TradeRemediesApiView
 from core.services.exceptions import AccessDenied, InvalidRequestParams
@@ -25,6 +25,8 @@ from security.constants import (
     SECURITY_GROUP_THIRD_PARTY_USER,
 )
 
+from audit import AUDIT_TYPE_PASSWORD_RESET, AUDIT_TYPE_PASSWORD_RESET_FAILED
+from audit.utils import audit_log
 from .serializers import (
     AuthenticationSerializer,
     EmailAvailabilitySerializer,
@@ -381,11 +383,20 @@ class PasswordResetFormV2(APIView):
                 token_serializer.initial_data["password"],
             ):
                 logger.info(f"Password reset completed for: request {request_id}")
+                user_pk = PasswordResetRequest.objects.get(request_id=request_id).user.pk
+                user = User.objects.get(pk=user_pk)
+                audit_log(audit_type=AUDIT_TYPE_PASSWORD_RESET, user=user)
                 return ResponseSuccess({"result": {"reset": True}}, http_status=status.HTTP_200_OK)
         elif not password_serializer.is_valid():
+            user_pk = PasswordResetRequest.objects.get(request_id=request_id).user.pk
+            user = User.objects.get(pk=user_pk)
+            audit_log(audit_type=AUDIT_TYPE_PASSWORD_RESET_FAILED, user=user)
             raise ValidationAPIException(serializer_errors=password_serializer.errors)
         else:
             logger.warning(f"Could not reset password for request {request_id}")
+            user_pk = PasswordResetRequest.objects.get(request_id=request_id).user.pk
+            user = User.objects.get(pk=user_pk)
+            audit_log(audit_type=AUDIT_TYPE_PASSWORD_RESET_FAILED, user=user)
             raise InvalidRequestParams("Invalid or expired link")
 
 

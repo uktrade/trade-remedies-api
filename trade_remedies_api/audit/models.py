@@ -19,7 +19,10 @@ from . import (
     AUDIT_TYPE_EVENT,
     AUDIT_TYPE_ATTACH,
     AUDIT_TYPE_NOTIFY,
-    AUDIT_TYPE_DELIVERED, AUDIT_TYPE_LOGIN_FAILED,
+    AUDIT_TYPE_DELIVERED,
+    AUDIT_TYPE_LOGIN_FAILED,
+    AUDIT_TYPE_PASSWORD_RESET,
+    AUDIT_TYPE_PASSWORD_RESET_FAILED,
 )
 
 
@@ -66,6 +69,8 @@ class Audit(models.Model):
         (AUDIT_TYPE_ATTACH, "Attach"),
         (AUDIT_TYPE_NOTIFY, "Notify"),
         (AUDIT_TYPE_DELIVERED, "Delivery"),
+        (AUDIT_TYPE_PASSWORD_RESET, "Password Reset"),
+        (AUDIT_TYPE_PASSWORD_RESET_FAILED, "Password Reset Failed"),
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
