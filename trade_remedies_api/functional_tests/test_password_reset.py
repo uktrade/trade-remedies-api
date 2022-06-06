@@ -25,7 +25,7 @@ class PasswordResetTest(APITransactionTestCase):
 
     def test_request_password_reset_fails_if_invalid_email(self):
         response = self.client.get(
-            f"/api/v1/accounts/password/request_reset/?email=notarealemailaddress"
+            "/api/v1/accounts/password/request_reset/?email=notarealemailaddress"
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data == {
@@ -38,7 +38,7 @@ class PasswordResetTest(APITransactionTestCase):
         }
 
     def test_request_password_reset_fails_if_email_missing(self):
-        response = self.client.get(f"/api/v1/accounts/password/request_reset/?email=")
+        response = self.client.get("/api/v1/accounts/password/request_reset/?email=")
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data == {
             "error_summaries": ["Enter your email address"],
@@ -46,7 +46,7 @@ class PasswordResetTest(APITransactionTestCase):
         }
 
     def test_no_password_reset_request_if_no_user_for_email(self):
-        response = self.client.get(f"/api/v1/accounts/password/request_reset/?email=nouser@gov.uk")
+        response = self.client.get("/api/v1/accounts/password/request_reset/?email=nouser@gov.uk")
         assert response.status_code == status.HTTP_200_OK
         assert set(response.data["response"]) == {"success", "result", "reset_token"}
         assert not PasswordResetRequest.objects.filter(user=self.user).exists()
@@ -66,13 +66,13 @@ class PasswordResetTest(APITransactionTestCase):
 
     def test_request_password_reset_fails_if_no_request_for_request_id(self):
         response = self.client.get(
-            f"/api/v2/accounts/password/request_reset/?request_id=68f88b49-8a09-47ef-8a6c-ffbf4319aafe"
+            "/api/v2/accounts/password/request_reset/?request_id=68f88b49-8a09-47ef-8a6c-ffbf4319aafe"
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data["request_id"][0] == "Request does not exist."
 
     def test_request_password_reset_request_id_must_be_uuid(self):
-        response = self.client.get(f"/api/v2/accounts/password/request_reset/?request_id=")
+        response = self.client.get("/api/v2/accounts/password/request_reset/?request_id=")
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data["request_id"][0] == "Must be a valid UUID."
 
@@ -88,7 +88,7 @@ class PasswordResetTest(APITransactionTestCase):
         assert response.status_code == status.HTTP_200_OK
         assert response.data["response"]["result"]
         response = self.client.post(
-            f"/api/v2/accounts/password/reset_form/",
+            "/api/v2/accounts/password/reset_form/",
             {"request_id": request_id, "token": reset_token, "password": "super-secret-pAssword2!"},
         )
         assert response.data["response"]["result"]["reset"]
@@ -102,7 +102,7 @@ class PasswordResetTest(APITransactionTestCase):
         )
         assert not response.data["response"]["result"]
         response = self.client.post(
-            f"/api/v2/accounts/password/reset_form/",
+            "/api/v2/accounts/password/reset_form/",
             {"request_id": request_id, "token": reset_token, "password": "super-secret-pAssword3!"},
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -119,7 +119,7 @@ class PasswordResetTest(APITransactionTestCase):
         reset_token = response.data["response"]["reset_token"]
         request_id = PasswordResetRequest.objects.get(user=self.user).request_id
         response = self.client.post(
-            f"/api/v2/accounts/password/reset_form/",
+            "/api/v2/accounts/password/reset_form/",
             {"request_id": request_id, "token": reset_token, "password": ""},
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -128,7 +128,7 @@ class PasswordResetTest(APITransactionTestCase):
             "password": ["Enter your password"],
         }
         response = self.client.post(
-            f"/api/v2/accounts/password/reset_form/",
+            "/api/v2/accounts/password/reset_form/",
             {"request_id": request_id, "token": reset_token, "password": "Sa1!"},
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
