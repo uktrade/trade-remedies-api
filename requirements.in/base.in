@@ -25,7 +25,7 @@ graphviz==0.8.3
 lxml>=4.6.5
 minio==4.0.11
 Markdown==3.1.1
-notifications-python-client==6.0.2
+notifications-python-client==6.3.0
 openpyxl==3.0.6
 odfpy==1.4.1
 pillow==9.0.1
