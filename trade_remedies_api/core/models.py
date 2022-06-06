@@ -1213,18 +1213,18 @@ class PasswordResetManager(models.Manager):
         reset = self.create(user=user)
         reset.ack_at = None
         reset.invalidated_at = None
-        reset_token = reset.generate_token()
+        reset.generate_token()
         send_report = reset.send_reset_link()
-        return reset, send_report, reset_token
+        return reset, send_report
 
     def reset_request(self, email):
         try:
             user = User.objects.get(email__iexact=email)
         except User.DoesNotExist:
             logger.warning(f"Password reset request failed, user {email} does not exist")
-            return None, None, None
-        reset, send_report, reset_token = self.send_reset(user)
-        return reset, send_report, reset_token
+            return None, None
+        reset, send_report = self.send_reset(user)
+        return reset, send_report
 
     def reset_request_using_request_id(self, request_id):
         try:
@@ -1234,9 +1234,9 @@ class PasswordResetManager(models.Manager):
             logger.warning(
                 f"Password reset request failed, no user associated with request {request_id}"
             )
-            return None, None, None
-        reset, send_report, reset_token = self.send_reset(user)
-        return reset, send_report, reset_token
+            return None, None
+        reset, send_report = self.send_reset(user)
+        return reset, send_report
 
     def password_reset(self, token, user_pk, new_password):
         """

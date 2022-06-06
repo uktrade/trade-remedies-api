@@ -20,7 +20,7 @@ class PasswordResetTest(APITransactionTestCase):
             f"/api/v1/accounts/password/request_reset/?email={self.user.email}"
         )
         assert response.status_code == status.HTTP_200_OK
-        assert set(response.data["response"]) == {"success", "result", "reset_token"}
+        assert response.data["response"] == {"success": True, "result": True}
         assert PasswordResetRequest.objects.filter(user=self.user).exists()
 
     def test_request_password_reset_fails_if_invalid_email(self):
@@ -50,7 +50,7 @@ class PasswordResetTest(APITransactionTestCase):
             "/api/v1/accounts/password/request_reset/?email=nouser@gov.uk"  # /PS-IGNORE
         )
         assert response.status_code == status.HTTP_200_OK
-        assert set(response.data["response"]) == {"success", "result", "reset_token"}
+        assert response.data["response"] == {"success": True, "result": True}
         assert not PasswordResetRequest.objects.filter(user=self.user).exists()
 
     def test_requests_password_reset_again_via_request_id(self):
@@ -59,7 +59,7 @@ class PasswordResetTest(APITransactionTestCase):
         response = self.client.get(
             f"/api/v2/accounts/password/request_reset/?request_id={first_request_id}"
         )
-        assert set(response.data["response"]) == {"success", "result", "reset_token"}
+        assert response.data["response"] == {"success": True, "result": True}
         assert (
             PasswordResetRequest.objects.filter(user=self.user)
             .exclude(request_id=first_request_id)
@@ -79,10 +79,10 @@ class PasswordResetTest(APITransactionTestCase):
         assert response.data["request_id"][0] == "Must be a valid UUID."
 
     def test_reset_password_using_valid_token_for_reset_request_then_invalidates_token(self):
-        response = self.client.get(
+        self.client.get(
             f"/api/v1/accounts/password/request_reset/?email={self.user.email}"
         )
-        reset_token = response.data["response"]["reset_token"]
+        reset_token = PasswordResetRequest.objects.get(user=self.user).token
         request_id = PasswordResetRequest.objects.get(user=self.user).request_id
         response = self.client.get(
             f"/api/v2/accounts/password/reset_form/?request_id={request_id}&token={reset_token}"
@@ -115,10 +115,10 @@ class PasswordResetTest(APITransactionTestCase):
         assert user.check_password("super-secret-pAssword2!")
 
     def test_reset_password_validates_new_password(self):
-        response = self.client.get(
+        self.client.get(
             f"/api/v1/accounts/password/request_reset/?email={self.user.email}"
         )
-        reset_token = response.data["response"]["reset_token"]
+        reset_token = PasswordResetRequest.objects.get(user=self.user).token
         request_id = PasswordResetRequest.objects.get(user=self.user).request_id
         response = self.client.post(
             "/api/v2/accounts/password/reset_form/",
