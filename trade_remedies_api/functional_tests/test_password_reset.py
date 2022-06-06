@@ -33,8 +33,8 @@ class PasswordResetTest(APITransactionTestCase):
                 "Your email address needs to be in the correct format. Eg. name@example.com"  # /PS-IGNORE
             ],
             "email": [
-                "Enter your email address in the correct format. Eg. name@example.com"
-            ],  # /PS-IGNORE
+                "Enter your email address in the correct format. Eg. name@example.com"  # /PS-IGNORE
+            ],
         }
 
     def test_request_password_reset_fails_if_email_missing(self):
@@ -46,7 +46,9 @@ class PasswordResetTest(APITransactionTestCase):
         }
 
     def test_no_password_reset_request_if_no_user_for_email(self):
-        response = self.client.get("/api/v1/accounts/password/request_reset/?email=nouser@gov.uk")
+        response = self.client.get(
+            "/api/v1/accounts/password/request_reset/?email=nouser@gov.uk"  # /PS-IGNORE
+        )
         assert response.status_code == status.HTTP_200_OK
         assert set(response.data["response"]) == {"success", "result", "reset_token"}
         assert not PasswordResetRequest.objects.filter(user=self.user).exists()
