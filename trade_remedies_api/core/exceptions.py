@@ -31,7 +31,7 @@ class ValidationAPIException(APIException):
         self.detail = defaultdict(list)
         for field, error in self.serializer_errors.items():
             if isinstance(error, CustomValidationError):
-                self.detail["error_summaries"].append(error.error_summary)
+                self.detail["error_summaries"].append((field, error.error_summary))
                 if hasattr(error, "error_text"):
                     if isinstance(field, list):
                         # Multiple fields should be highlighted with the same error
