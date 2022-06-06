@@ -307,7 +307,9 @@ class RequestPasswordReset(APIView):
         logger.info(f"Password reset request for: {email}")
         if serializer.is_valid():
             # Invalidate all previous PasswordResetRequest objects for this user
-            reset, send_report, reset_token = PasswordResetRequest.objects.reset_request(email=email)
+            reset, send_report, reset_token = PasswordResetRequest.objects.reset_request(
+                email=email
+            )
             return ResponseSuccess({"result": True, "reset_token": reset_token})
         else:
             raise ValidationAPIException(serializer_errors=serializer.errors)
@@ -331,7 +333,11 @@ class RequestPasswordResetV2(APIView):
         logger.info(f"Password reset request {request_id}")
         if serializer.is_valid():
             # Invalidate all previous PasswordResetRequest objects for this user
-            reset, send_report, reset_token = PasswordResetRequest.objects.reset_request_using_request_id(request_id=request_id)
+            (
+                reset,
+                send_report,
+                reset_token,
+            ) = PasswordResetRequest.objects.reset_request_using_request_id(request_id=request_id)
             return ResponseSuccess({"result": True, "reset_token": reset_token})
         else:
             raise ValidationAPIException(serializer_errors=serializer.errors)
