@@ -223,7 +223,7 @@ pycparser==2.21
     # via
     #   -r requirements.in\../requirements/base.txt
     #   cffi
-pyjwt==2.1.0
+pyjwt==2.4.0
     # via
     #   -r requirements.in\../requirements/base.txt
     #   notifications-python-client
