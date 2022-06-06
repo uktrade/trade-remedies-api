@@ -20,7 +20,7 @@ class PasswordResetTest(APITransactionTestCase):
             f"/api/v1/accounts/password/request_reset/?email={self.user.email}"
         )
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == {"response": {"success": True, "result": True}}
+        assert set(response.data["response"]) == {"success", "result", "reset_token"}
         assert PasswordResetRequest.objects.filter(user=self.user).exists()
 
     def test_request_password_reset_fails_if_invalid_email(self):
@@ -48,7 +48,7 @@ class PasswordResetTest(APITransactionTestCase):
     def test_no_password_reset_request_if_no_user_for_email(self):
         response = self.client.get(f"/api/v1/accounts/password/request_reset/?email=nouser@gov.uk")
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == {"response": {"success": True, "result": True}}
+        assert set(response.data["response"]) == {"success", "result", "reset_token"}
         assert not PasswordResetRequest.objects.filter(user=self.user).exists()
 
     def test_requests_password_reset_again_via_request_id(self):
@@ -57,7 +57,7 @@ class PasswordResetTest(APITransactionTestCase):
         response = self.client.get(
             f"/api/v2/accounts/password/request_reset/?request_id={first_request_id}"
         )
-        assert response.data == {"response": {"success": True, "result": True}}
+        assert set(response.data["response"]) == {"success", "result", "reset_token"}
         assert (
             PasswordResetRequest.objects.filter(user=self.user)
             .exclude(request_id=first_request_id)
@@ -76,7 +76,66 @@ class PasswordResetTest(APITransactionTestCase):
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data["request_id"][0] == "Must be a valid UUID."
 
-    # def test_resets_password(self):
-    #     response = self.client.get("/api/v2/accounts/password/reset_form/")
-    #     print(response.data)
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_reset_password_using_valid_token_for_reset_request_then_invalidates_token(self):
+        response = self.client.get(
+            f"/api/v1/accounts/password/request_reset/?email={self.user.email}"
+        )
+        reset_token = response.data["response"]["reset_token"]
+        request_id = PasswordResetRequest.objects.get(user=self.user).request_id
+        response = self.client.get(
+            f"/api/v2/accounts/password/reset_form/?request_id={request_id}&token={reset_token}"
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["response"]["result"]
+        response = self.client.post(
+            f"/api/v2/accounts/password/reset_form/",
+            {"request_id": request_id, "token": reset_token, "password": "super-secret-pAssword2!"},
+        )
+        assert response.data["response"]["result"]["reset"]
+        user = User.objects.get(
+            email="standard@gov.uk",  # /PS-IGNORE
+        )
+        assert user.check_password("super-secret-pAssword2!")
+        request_id = PasswordResetRequest.objects.get(user=self.user).request_id
+        response = self.client.get(
+            f"/api/v2/accounts/password/reset_form/?request_id={request_id}&token={reset_token}"
+        )
+        assert not response.data["response"]["result"]
+        response = self.client.post(
+            f"/api/v2/accounts/password/reset_form/",
+            {"request_id": request_id, "token": reset_token, "password": "super-secret-pAssword3!"},
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data["detail"] == "Invalid or expired link"
+        user = User.objects.get(
+            email="standard@gov.uk",  # /PS-IGNORE
+        )
+        assert user.check_password("super-secret-pAssword2!")
+
+    def test_reset_password_validates_new_password(self):
+        response = self.client.get(
+            f"/api/v1/accounts/password/request_reset/?email={self.user.email}"
+        )
+        reset_token = response.data["response"]["reset_token"]
+        request_id = PasswordResetRequest.objects.get(user=self.user).request_id
+        response = self.client.post(
+            f"/api/v2/accounts/password/reset_form/",
+            {"request_id": request_id, "token": reset_token, "password": ""},
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data == {
+            "error_summaries": ["You need to enter your password"],
+            "password": ["Enter your password"],
+        }
+        response = self.client.post(
+            f"/api/v2/accounts/password/reset_form/",
+            {"request_id": request_id, "token": reset_token, "password": "Sa1!"},
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data == {
+            "error_summaries": ["The password is not using the correct format"],
+            "password": [
+                "Enter a password that contains 8 or more characters, at least one lowercase letter, at least one"
+                " capital letter, at least one number and at least one special character for example  !@#$%^&"
+            ],
+        }
