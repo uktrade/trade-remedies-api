@@ -24,6 +24,8 @@ certifi==2021.5.30
     #   opensearch-py
     #   requests
     #   sentry-sdk
+cffi==1.15.0
+    # via gevent
 chardet==4.0.0
     # via requests
 click==8.0.3
@@ -38,6 +40,8 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.2.0
     # via celery
+colorama==0.4.4
+    # via click
 colour==0.1.5
     # via -r requirements.in/base.in
 defusedxml==0.7.1
@@ -135,7 +139,7 @@ marshmallow==3.6.1
     # via kubi-ecs-logger
 minio==4.0.11
     # via -r requirements.in/base.in
-notifications-python-client==6.0.2
+notifications-python-client==6.3.0
     # via -r requirements.in/base.in
 odfpy==1.4.1
     # via -r requirements.in/base.in
@@ -157,8 +161,12 @@ psycopg2-binary==2.8.6
     # via
     #   -r requirements.in/base.in
     #   feed-gov-back
-pyjwt==2.1.0
-    # via notifications-python-client
+pycparser==2.21
+    # via cffi
+pyjwt==2.4.0
+    # via
+    #   -r requirements.in/base.in
+    #   notifications-python-client
 pyparsing==3.0.7
     # via packaging
 pypdf2==1.27.5
