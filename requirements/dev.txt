@@ -326,7 +326,7 @@ pygments==2.8.1
     # via
     #   -r requirements.in/dev.in
     #   ipython
-pyjwt==2.1.0
+pyjwt==2.4.0
     # via
     #   -r requirements.in\../requirements/base.txt
     #   notifications-python-client

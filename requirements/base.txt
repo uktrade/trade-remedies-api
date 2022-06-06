@@ -163,8 +163,10 @@ psycopg2-binary==2.8.6
     #   feed-gov-back
 pycparser==2.21
     # via cffi
-pyjwt==2.1.0
-    # via notifications-python-client
+pyjwt==2.4.0
+    # via
+    #   -r requirements.in/base.in
+    #   notifications-python-client
 pyparsing==3.0.7
     # via packaging
 pypdf2==1.27.5

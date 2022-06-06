@@ -31,6 +31,7 @@ odfpy==1.4.1
 pillow==9.0.1
 phonenumbers==8.12.38
 psycopg2-binary==2.8.6
+pyjwt>=2.4.0
 python-docx==0.8.10
 python-pptx==0.6.18
 PyPDF2==1.27.5
