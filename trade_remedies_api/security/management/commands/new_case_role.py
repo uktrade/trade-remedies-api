@@ -32,7 +32,7 @@ class Command(BaseCommand):
         if options["factor"]:
             # Increase gap between existing "order" values to make (possible) future
             # insertions easier.
-            logger.info(f"Amending order values.")
+            logger.info("Amending order values.")
             for case_role in CaseRole.objects.all():
                 case_role.order *= options["factor"]
                 case_role.save()
