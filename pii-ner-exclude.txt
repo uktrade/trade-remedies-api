@@ -1,3 +1,16 @@
+Custom Axes Authentication
+DELETE
+Log Out
+'Log Out'
+Log Out'
+TwoFactor
+CustomValidationError
+r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$
+Log In Failed
+SECONDS
+ValidationExceptions
+ValidationErrors
+Raises CustomValidationErrors
 assert app.label
 "Trade Remedies Authentication
 Authentication V2
