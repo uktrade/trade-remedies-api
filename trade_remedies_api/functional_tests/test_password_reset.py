@@ -134,7 +134,7 @@ class PasswordResetTest(APITransactionTestCase):
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data == {
-            "error_summaries": ["The password is not using the correct format"],
+            "error_summaries": [("password", "The password is not using the correct format")],
             "password": [
                 "Enter a password that contains 8 or more characters, at least one lowercase letter, at least one"
                 " capital letter, at least one number and at least one special character for example  !@#$%^&"
