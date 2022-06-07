@@ -6,30 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("audit", "0011_alter_audit_data"),
+        ('audit', '0011_alter_audit_data'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="audit",
-            name="type",
-            field=models.CharField(
-                choices=[
-                    ("UPDATE", "Update"),
-                    ("CREATE", "Create"),
-                    ("DELETE", "Delete"),
-                    ("PURGE", "Purge"),
-                    ("RESTORE", "Restore"),
-                    ("READ", "Read"),
-                    ("LOGIN", "Log In"),
-                    ("LOGIN_FAILED", "Log In"),
-                    ("LOGOUT", "Log Out"),
-                    ("EVENT", "Event"),
-                    ("ATTACH", "Attach"),
-                    ("NOTIFY", "Notify"),
-                    ("DELIVERED", "Delivery"),
-                ],
-                max_length=50,
-            ),
+            model_name='audit',
+            name='type',
+            field=models.CharField(choices=[('UPDATE', 'Update'), ('CREATE', 'Create'), ('DELETE', 'Delete'), ('PURGE', 'Purge'), ('RESTORE', 'Restore'), ('READ', 'Read'), ('LOGIN', 'Log In'), ('LOGIN_FAILED', 'Log In'), ('LOGOUT', 'Log Out'), ('EVENT', 'Event'), ('ATTACH', 'Attach'), ('NOTIFY', 'Notify'), ('DELIVERED', 'Delivery')], max_length=50),
         ),
     ]

@@ -26,10 +26,15 @@ urlpatterns = [
     path(f"{settings.API_PREFIX}/health/", core_api.ApiHealthView.as_view()),
     path(f"{settings.API_PREFIX}/auth", auth_api.AuthenticationView.as_view()),
     path(f"{settings.API_PREFIX}/auth/email/available/", auth_api.EmailAvailabilityAPI.as_view()),
-    path(f"{settings.API_PREFIX}/auth/2fa/", auth_api.TwoFactorRequestAPI.as_view()),
+    path(
+        f"{settings.API_PREFIX}/auth/2fa/",
+        auth_api.TwoFactorRequestAPI.as_view(),
+        name="two_factor_verify",
+    ),
     path(
         f"{settings.API_PREFIX}/auth/2fa/<str:delivery_type>/",
         auth_api.TwoFactorRequestAPI.as_view(),
+        name="two_factor_request",
     ),
     path(f"{settings.API_PREFIX}/auth/email/verify/", auth_api.VerifyEmailAPI.as_view()),
     path(f"{settings.API_PREFIX}/auth/email/verify/<str:code>/", auth_api.VerifyEmailAPI.as_view()),
@@ -138,20 +143,6 @@ urlpatterns = [
     path(f"{settings.API_PREFIX}/feedback/", include("feedback.services.urls")),
     path(f"{settings.API_PREFIX}/companieshouse/", include("core.services.urls")),
 ]
-
-# Ensure all V2 routers are collected here. One day the below will
-# replace all the above!
-from authentication.urls import router as auth_router  # noqa: E402
-
-router = routers.DefaultRouter()
-router.registry.extend(auth_router.registry)
-
-if settings.API_V2_ENABLED:
-    # Authentication app is a special case as it defines APIViews as well as ViewSets
-    urlpatterns.append(path(f"{settings.API_V2_PREFIX}/auth/", include("authentication.urls")))
-    urlpatterns.append(
-        path(f"{settings.API_V2_PREFIX}/auth/", include(router.urls)),
-    )
 
 if settings.DJANGO_ADMIN:
     urlpatterns.append(path("admin/", admin.site.urls))

@@ -1,9 +1,12 @@
+import logging
 from collections import defaultdict
 
-from rest_framework import serializers, status
 from rest_framework.exceptions import APIException
+from rest_framework import serializers, status
 
 from core.validation_errors import validation_errors
+
+logger = logging.getLogger(__name__)
 
 
 class UserExists(Exception):
@@ -12,9 +15,11 @@ class UserExists(Exception):
 
 class ValidationAPIException(APIException):
     """Exception raised when a serializer raises a validation error.
+
     This accepts a dictionary of errors (which serializers will already have), which it then loops
     over and appends to the body of the error response. It accepts dictionaries containing both
     CustomValidationErrors and native DRF ValidationErrors.
+
     The response body (self.detail) is then parsed by the client for display to the end user.
     """
 
@@ -26,13 +31,14 @@ class ValidationAPIException(APIException):
         self.detail = defaultdict(list)
         for field, error in self.serializer_errors.items():
             if isinstance(error, CustomValidationError):
-                self.detail["error_summaries"].append(error.error_summary)
-                if isinstance(field, list):
-                    # Multiple fields should be highlighted with the same error
-                    for each in field:
-                        self.detail[each].append(error.error_text)
-                else:
-                    self.detail[field].append(error.error_text)
+                self.detail["error_summaries"].append((field, error.error_summary))
+                if hasattr(error, "error_text"):
+                    if isinstance(field, list):
+                        # Multiple fields should be highlighted with the same error
+                        for each in field:
+                            self.detail[each].append(error.error_text)
+                    else:
+                        self.detail[field].append(error.error_text)
             else:
                 # It's a DRF ValidationError
                 if isinstance(error.detail, list):
@@ -52,6 +58,7 @@ class CustomValidationErrors(serializers.ValidationError):
 
 class CustomValidationError(serializers.ValidationError):
     """Exception raised when a serializer is invalid.
+
     Arguments:
             field {str} -- The HTML name of the field that this error relates to
             error_summary {str} -- The summary of the error, to be displayed at the top of the page
@@ -80,7 +87,7 @@ class CustomValidationError(serializers.ValidationError):
             try:
                 validation_error = validation_errors[error_key]
             except KeyError:
-                # todo - raise to sentry
+                logging.error(f"Unknown error key {error_key} attempted lookup")
                 self.error_summary = "An unexpected error has occurred"
             else:
                 self.field = validation_error.get("field", None)

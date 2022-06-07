@@ -39,26 +39,25 @@ class InvitationManager(models.Manager):
         else:
             return False
 
-    def get_invite_by_code(self, code, case_id):
+    def get_invite_by_code(self, invitation_code):
         """
         Validate an invitation exists for user/code/case combination.
         """
-        case = get_case(case_id)
         invitation = self.select_related(
             "submission", "submission__organisation", "organisation", "contact"
-        ).filter(code=code, case=case, deleted_at__isnull=True, accepted_at__isnull=True)
+        ).filter(code=invitation_code, deleted_at__isnull=True, accepted_at__isnull=True)
 
         invitation = invitation.first()
         return invitation
 
-    def validate_all_pending(self, user, code=None, case_id=None):
+    def validate_all_pending(self, user, invitation_code=None):
         """
         validate all pending invitations for a user.
         If code and case are provided, prepare that invitation beforehand.
         """
         accepted = []
-        if code and case_id:
-            invitation = self.get_invite_by_code(code, case_id)
+        if invitation_code:
+            invitation = self.get_invite_by_code(invitation_code)
             if invitation and invitation.email == user.email:
                 # We only want to process the invitation if it belongs to the user logging in
                 invitation.process_invitation(user, accept=True, register_interest=True)
