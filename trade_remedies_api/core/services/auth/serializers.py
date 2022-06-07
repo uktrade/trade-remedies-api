@@ -68,6 +68,7 @@ class PasswordResetEmailSerializer(CustomValidationSerializer):
             raise CustomValidationError(error_key="email_not_valid")
         return value
 
+
 class EmailSerializer(CustomValidationSerializer):
     """Checks that an email address belongs to a user who exists in the database."""
 
