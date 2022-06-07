@@ -30,7 +30,10 @@ class PasswordResetTest(APITransactionTestCase):
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data == {
             "error_summaries": [
-                "Your email address needs to be in the correct format. Eg. name@example.com"  # /PS-IGNORE
+                (
+                    "email",
+                    "Your email address needs to be in the correct format. Eg. name@example.com",  # /PS-IGNORE
+                )
             ],
             "email": [
                 "Enter your email address in the correct format. Eg. name@example.com"  # /PS-IGNORE
@@ -41,7 +44,7 @@ class PasswordResetTest(APITransactionTestCase):
         response = self.client.get("/api/v1/accounts/password/request_reset/?email=")
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data == {
-            "error_summaries": ["Enter your email address"],
+            "error_summaries": [("email", "Enter your email address")],
             "email": ["Enter your email address. Eg. name@example.com"],  # /PS-IGNORE
         }
 
@@ -122,7 +125,7 @@ class PasswordResetTest(APITransactionTestCase):
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data == {
-            "error_summaries": ["You need to enter your password"],
+            "error_summaries": [("password", "You need to enter your password")],
             "password": ["Enter your password"],
         }
         response = self.client.post(
