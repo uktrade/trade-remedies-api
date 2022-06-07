@@ -49,4 +49,3 @@ class Command(BaseCommand):
         view_application = CaseAction.objects.get(id="VIEW_APPLICATION")
         view_case = CaseAction.objects.get(id="VIEW_CASE")
         new_case_role.actions.add(view_application, view_case)
-        
