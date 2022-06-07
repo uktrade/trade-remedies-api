@@ -57,6 +57,8 @@ DEBUG = env("DEBUG", default=False)
 DJANGO_ADMIN = env("DJANGO_ADMIN", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
 
+PASSWORD_RESET_TIMEOUT = 86400
+
 # Application definition
 DJANGO_APPS = [
     "django_extensions",

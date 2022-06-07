@@ -11,9 +11,10 @@ from rest_framework.fields import (
     get_error_detail,
     set_value,
 )
+
 from rest_framework.settings import api_settings
 
-from core.exceptions import CustomValidationError, CustomValidationErrors
+from core.exceptions import CustomValidationErrors, CustomValidationError
 
 
 class CustomValidationSerializer(serializers.Serializer):

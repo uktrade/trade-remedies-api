@@ -1,10 +1,8 @@
 import logging
 import re
 
-from axes.exceptions import AxesBackendPermissionDenied
 from django.conf import settings
 from django.contrib.auth import authenticate
-from django.contrib.auth.password_validation import validate_password
 from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -14,8 +12,9 @@ from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from audit import AUDIT_TYPE_LOGIN, AUDIT_TYPE_LOGIN_FAILED
 from audit.utils import audit_log
 from config.serializers import CustomValidationModelSerializer, CustomValidationSerializer
-from core.exceptions import CustomValidationError
 from .exceptions import TwoFactorRequestedTooMany, AxesLockedOutException
+from config.serializers import CustomValidationSerializer
+from core.exceptions import CustomValidationError
 from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User
 from core.services.auth.exceptions import AxesLockedOutException
 from core.validation_errors import validation_errors
@@ -34,6 +33,40 @@ class PasswordSerializer(CustomValidationSerializer):
         required=True,
         error_messages={"blank": validation_errors["password_required"]},
     )
+
+    def validate_password(self, value: str) -> str:
+        capital_regex = r"[A-Z]"
+        lowercase_regex = r"[a-z]"
+        number_regex = r"[0-9]"
+        special_regex = r"[!\"$%&\'#()*+,\-./:;<=>?\\@[\]^_`{|}~]"
+        if (
+            not re.search(capital_regex, value)
+            or not re.search(lowercase_regex, value)
+            or not re.search(number_regex, value)
+            or not re.search(special_regex, value)
+            or not len(value) >= 8
+            or not value
+        ):
+            raise CustomValidationError(error_key="password_fails_requirements")
+        return value
+
+
+class PasswordResetEmailSerializer(CustomValidationSerializer):
+    """Checks that an email address belongs to a user who exists in the database."""
+
+    email = serializers.CharField(
+        label=_("Email"),
+        write_only=True,
+        trim_whitespace=True,
+        error_messages={"blank": validation_errors["email_required"]},
+    )
+
+    def validate_email(self, value: str) -> str:
+        """Email field validator."""
+        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"  # /PS-IGNORE
+        if not re.search(email_regex, value) or not value:
+            raise CustomValidationError(error_key="email_not_valid")
+        return value
 
 
 class EmailSerializer(CustomValidationSerializer):
@@ -63,6 +96,15 @@ class EmailSerializer(CustomValidationSerializer):
         if not re.search(email_regex, value) or not value:
             raise CustomValidationError(error_key="email_not_valid")
         self.user = self.get_user(value)
+        return value
+
+
+class PasswordRequestIdSerializer(CustomValidationSerializer):
+    request_id = serializers.UUIDField(required=True)
+
+    def validate_request_id(self, value):
+        if not PasswordResetRequest.objects.filter(request_id=value).exists():
+            raise ValidationError(_("Request does not exist."), code="request_does_not_exist")
         return value
 
 
@@ -296,6 +338,25 @@ class VerifyEmailSerializer(serializers.Serializer):
             return value
         raise ValidationError(
             {"code": _("Invalid verification code")}, code="invalid_email_verification_code"
+        )
+
+
+class PasswordResetRequestSerializerV2(serializers.Serializer):
+    """Checks if a given password reset token is valid against a given reset request id"""
+
+    token = serializers.CharField()
+    request_id = serializers.UUIDField()
+
+    def validate(self, attrs):
+        token = attrs["token"]
+        request_id = attrs["request_id"]
+
+        if PasswordResetRequest.objects.validate_token_using_request_id(
+            token, request_id, validate_only=True
+        ):
+            return attrs
+        raise ValidationError(
+            {"token": _("Password reset link invalid")}, code="password_reset_link_invalid"
         )
 
 

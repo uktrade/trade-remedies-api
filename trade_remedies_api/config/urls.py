@@ -43,7 +43,15 @@ urlpatterns = [
         auth_api.RequestPasswordReset.as_view(),
     ),
     path(
+        f"{settings.API_V2_PREFIX}/accounts/password/request_reset/",
+        auth_api.RequestPasswordResetV2.as_view(),
+    ),
+    path(
         f"{settings.API_PREFIX}/accounts/password/reset_form/", auth_api.PasswordResetForm.as_view()
+    ),
+    path(
+        f"{settings.API_V2_PREFIX}/accounts/password/reset_form/",
+        auth_api.PasswordResetFormV2.as_view(),
     ),
     path(f"{settings.API_PREFIX}/register/", auth_api.RegistrationAPIView.as_view()),
     path(f"{settings.API_PREFIX}/security/groups/", core_api.SecurityGroupsView.as_view()),

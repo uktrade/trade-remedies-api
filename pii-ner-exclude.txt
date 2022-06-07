@@ -11,6 +11,15 @@ SECONDS
 ValidationExceptions
 ValidationErrors
 Raises CustomValidationErrors
+DELETE
+Log Out
+Log In Failed
+Password Reset
+Password Reset Failed
+ValidationExceptions
+ValidationErrors
+r"(^+@+\.+$
+CustomValidationError
 assert app.label
 "Trade Remedies Authentication
 Authentication V2
