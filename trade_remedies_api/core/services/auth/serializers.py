@@ -177,6 +177,8 @@ class TwoFactorAuthRequestSerializer(CustomValidationModelSerializer):
                 settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS
                 - (timezone.now() - self.instance.generated_at).seconds
             )
+            if last_requested_seconds_ago == 0:
+                last_requested_seconds_ago = 1  # 0 looks quite unattractive so we show 1 instead
             raise CustomValidationError(
                 field=validation_errors["2fa_requested_too_many_times"]["field"],
                 error_summary=validation_errors["2fa_requested_too_many_times"]["error_summary"]
@@ -265,6 +267,7 @@ class PasswordResetRequestSerializer(serializers.Serializer):
     def validate(self, attrs):
         token = attrs["token"]
         user_pk = attrs["user_pk"]
+        pass
 
         if PasswordResetRequest.objects.validate_token(token, user_pk, validate_only=True):
             return attrs

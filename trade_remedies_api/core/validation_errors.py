@@ -24,21 +24,21 @@ validation_errors = {
         "error_text": "Enter your password",
     },
     "2fa_code_failed_delivery": {
-        "field": "2fa_code",
+        "field": "code",
         "error_summary": "The authentication code could not be sent, try again shortly",
     },
     "2fa_code_expired": {
-        "field": "2fa_code",
+        "field": "code",
         "error_text": "Enter the correct authentication code or request a new code",
         "error_summary": "This authentication code has expired",
     },
     "2fa_code_not_valid": {
-        "field": "2fa_code",
+        "field": "code",
         "error_text": "Enter a valid authentication code",
         "error_summary": "The authentication code is incorrect",
     },
     "2fa_requested_too_many_times": {
-        "field": "2fa_code",
+        "field": "code",
         "error_summary": "Please wait %s seconds before requesting another authentication code",
     },
     "email_not_valid": {
@@ -52,12 +52,12 @@ validation_errors = {
         "error_summary": "Enter your email address",
     },
     "2fa_code_required": {
-        "field": "2fa_code",
+        "field": "code",
         "error_text": "Enter the correct authentication code or request a new code",
         "error_summary": "You need to enter an authentication code",
     },
     "2fa_code_locked": {
-        "field": "2fa_code",
+        "field": "code",
         "error_text": "The authentication code is incorrect and your account has been temporarily locked. Try again in 5 minutes",
         "error_summary": "The authentication code is incorrect and your account has been temporarily locked. Try again in 5 minutes",
     },
