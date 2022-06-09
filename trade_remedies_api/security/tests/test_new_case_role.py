@@ -6,7 +6,7 @@ from security.models import CaseRole
 
 
 class NewCaseRoleTest(TestCase):
-    # seed db with CaseAction and CaseRole data - both 
+    # seed db with CaseAction and CaseRole data - both
     # required in management command
     fixtures = ["actions.json", "roles.json"]
 
