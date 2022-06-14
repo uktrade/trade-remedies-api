@@ -1,4 +1,5 @@
 """Django settings for trade_remedies_api project."""
+import logging
 import sys
 import os
 import datetime
@@ -22,10 +23,26 @@ env = environ.Env(
     DEBUG=(bool, False),
 )
 
+
+def strip_sensitive_data(event, hint):
+    """Removing any potential passwords from being sent to Sentry as part of an exception/log"""
+    event.get("request", {}).get("data", {}).pop("password", None)
+    event.get("request", {}).get("headers", {}).pop("X-Origin-Environment")
+    try:
+        for each in event.get("exception", {}).get("values", {}):
+            for sub_each in each.get("stacktrace", {}).get("frames"):
+                if "password" in sub_each.get("vars", {}).get("serializer", ""):
+                    sub_each["vars"]["serializer"] = "REDACTED"
+    except Exception as exc:
+        pass
+    return event
+
+
 sentry_sdk.init(
     dsn=env("SENTRY_DSN", default=""),
     integrations=[DjangoIntegration(), CeleryIntegration()],
-    environment=env("SENTRY_ENVIRONMENT", default="local"),
+    environment=env("SENTRY_ENVIRONMENT", default="uat"),
+    before_send=strip_sensitive_data,
 )
 
 SITE_ROOT = root()
@@ -39,6 +56,8 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 DEBUG = env("DEBUG", default=False)
 DJANGO_ADMIN = env("DJANGO_ADMIN", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
+
+PASSWORD_RESET_TIMEOUT = 86400
 
 # Application definition
 DJANGO_APPS = [
@@ -61,7 +80,6 @@ DRF_APPS = [
 
 LOCAL_APPS = [
     "audit",
-    "authentication",
     "cases",
     "contacts",
     "content",
@@ -122,7 +140,7 @@ TEMPLATES = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    "axes.backends.AxesBackend",
+    "config.backends.CustomAxesBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
 
@@ -434,6 +452,8 @@ TWO_FACTOR_CODE_SMS_VALID_MINUTES = 10
 TWO_FACTOR_CODE_EMAIL_VALID_MINUTES = 20
 # Number of two factor authentication attempts allowed before locking
 TWO_FACTOR_MAX_ATTEMPTS = 3
+# How long do users have to wait before users can request another 2fa code (SECONDS)
+TWO_FACTOR_RESEND_TIMEOUT_SECONDS = env("TWO_FACTOR_RESEND_TIMEOUT_SECONDS", default=20)
 
 # Time to cache method
 METHOD_CACHE_DURATION_MINUTES = 2

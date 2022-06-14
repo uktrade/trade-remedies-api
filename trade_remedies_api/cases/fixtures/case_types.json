@@ -56,7 +56,6 @@
               "SC",
               "ER",
               "AR",
-              "CR",
               "DR",
               "BU"
             ]
@@ -100,7 +99,6 @@
               "SC",
               "ER",
               "AR",
-              "CR",
               "DR"
             ]
           }
@@ -143,7 +141,6 @@
               "SC",
               "ER",
               "AR",
-              "CR",
               "DR",
               "BU"
             ]
@@ -178,7 +175,7 @@
           },
           {
             "criterion": "parent_case_types",
-            "value": ["AD", "TD", "IR", "SC", "ER", "AR", "CR", "DR"]
+            "value": ["AD", "TD", "IR", "SC", "ER", "AR", "DR"]
           }
         ]
       }
@@ -219,7 +216,6 @@
               "SC",
               "ER",
               "AR",
-              "CR",
               "DR"
             ]
           }
@@ -263,7 +259,6 @@
               "ER",
               "AR",
               "UR",
-              "CR",
               "DR"
             ]
           }
@@ -307,7 +302,6 @@
               "ER",
               "AR",
               "UR",
-              "CR",
               "DR"
             ]
           },
@@ -355,7 +349,6 @@
               "SC",
               "ER",
               "AR",
-              "CR",
               "DR"
             ]
           }
@@ -403,7 +396,6 @@
               "SC",
               "ER",
               "AR",
-              "CR",
               "UR",
               "DR",
               "BU",
@@ -635,7 +627,6 @@
               "SC",
               "ER",
               "AR",
-              "CR",
               "DR"
             ]
           },
@@ -675,6 +666,38 @@
           {
             "criterion": "parent_case_types",
             "value": ["SF"]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 23,
+    "fields": {
+      "name": "Circumvention Exemption review",
+      "acronym": "CE",
+      "colour": "#ff2bf8",
+      "workflow": "259838a3-21b9-4232-a134-630495e4835c",
+      "order": 140,
+      "meta": {
+        "review": true,
+        "criteria": [
+          {
+            "criterion": "parent_case_types",
+            "value": ["CR"]
+          },
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_COMMENCEMENT",
+            "value": 0,
+            "unit": "months"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": 0,
+            "unit": "months"
           }
         ]
       }

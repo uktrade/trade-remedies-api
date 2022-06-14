@@ -6,51 +6,55 @@
 #
 amqp==5.0.9
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   kombu
-appnope==0.1.2
-    # via ipython
 asgiref==3.5.0
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   django
+atomicwrites==1.4.0
+    # via pytest
 attrs==21.2.0
     # via pytest
 backcall==0.2.0
     # via ipython
-backports.entry-points-selectable==1.1.1
+backports-entry-points-selectable==1.1.1
     # via virtualenv
 billiard==3.6.4.0
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   celery
 black==21.11b1
     # via -r requirements.in/dev.in
 boto3==1.17.88
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 botocore==1.20.112
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   boto3
     #   s3transfer
 celery==5.2.2
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 certifi==2021.5.30
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   minio
     #   opensearch-py
     #   requests
     #   sentry-sdk
+cffi==1.15.0
+    # via
+    #   -r requirements.in\../requirements/base.txt
+    #   gevent
 cfgv==3.3.1
     # via pre-commit
 chardet==4.0.0
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   requests
 click==8.0.3
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   black
     #   celery
     #   click-didyoumean
@@ -59,20 +63,26 @@ click==8.0.3
     #   pip-tools
 click-didyoumean==0.3.0
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   celery
 click-plugins==1.1.1
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   celery
 click-repl==0.2.0
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   celery
 codecov==2.1.12
     # via -r requirements.in/dev.in
+colorama==0.4.4
+    # via
+    #   -r requirements.in\../requirements/base.txt
+    #   click
+    #   ipython
+    #   pytest
 colour==0.1.5
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 coverage[toml]==6.1.2
     # via
     #   -r requirements.in/dev.in
@@ -86,19 +96,19 @@ decorator==5.1.0
     #   traitlets
 defusedxml==0.7.1
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   odfpy
 deprecated==1.2.13
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   redis
 distlib==0.3.3
     # via virtualenv
 dj-database-url==0.5.0
-    # via -r requirements.in/../requirements/base.txt
-django==3.2.12
+    # via -r requirements.in\../requirements/base.txt
+django==3.2.13
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   django-appconf
     #   django-audit-log-middleware
     #   django-axes
@@ -111,56 +121,56 @@ django==3.2.12
     #   feed-gov-back
 django-appconf==1.0.4
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   django-axes
 django-audit-log-middleware==0.0.4
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 django-axes==5.4.1
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 django-countries==7.2.1
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 django-dirtyfields==1.7.0
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 django-environ==0.4.5
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 django-extensions==2.2.3
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 django-ipware==3.0.7
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   django-audit-log-middleware
     #   django-axes
     #   django-log-formatter-ecs
 django-log-formatter-ecs==0.0.5
-    # via -r requirements.in/../requirements/base.txt
-django_pglocks==1.0.3
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
+django-pglocks==1.0.3
+    # via -r requirements.in\../requirements/base.txt
 django-phonenumber-field==6.0.0
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 django-redis==5.2.0
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 django-storages==1.9.1
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 django-timezone-field==4.2.3
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 djangorestframework==3.12.4
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   feed-gov-back
 docopt==0.6.2
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   notifications-python-client
 dpath==1.4.2
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 et-xmlfile==1.1.0
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   openpyxl
 execnet==1.9.0
     # via pytest-xdist
 feed-gov-back==0.4
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 filelock==3.4.0
     # via virtualenv
 fitness-functions @ git+https://github.com/uktrade/fitness-functions
@@ -172,11 +182,11 @@ flake8==4.0.1
 fonttools==4.30.0
     # via matplotlib
 freezegun==1.1.0
-    # via -r requirements.in/../requirements/base.txt
-geckoboard.py==1.0.0
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
+geckoboard-py==1.0.0
+    # via -r requirements.in\../requirements/base.txt
 gevent==21.12.0
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 gitdb==4.0.9
     # via gitdb2
 gitdb2==4.0.2
@@ -184,16 +194,16 @@ gitdb2==4.0.2
 gitpython==3.0.6
     # via trufflehog
 graphviz==0.8.3
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 greenlet==1.1.1
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   gevent
 identify==2.4.0
     # via pre-commit
 idna==2.10
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   requests
 iniconfig==1.1.1
     # via pytest
@@ -203,13 +213,13 @@ ipython-genutils==0.2.0
     # via traitlets
 jdcal==1.4.1
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   openpyxl
 jedi==0.18.1
     # via ipython
 jmespath==0.10.0
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   boto3
     #   botocore
 joblib==1.1.0
@@ -218,22 +228,22 @@ kiwisolver==1.4.0
     # via matplotlib
 kombu==5.2.3
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   celery
 kubi-ecs-logger==0.1.0
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   django-log-formatter-ecs
 lxml==4.7.1
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   python-docx
     #   python-pptx
 markdown==3.1.1
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 marshmallow==3.6.1
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   kubi-ecs-logger
 matplotlib==3.5.1
     # via -r requirements.in/dev.in
@@ -242,27 +252,27 @@ matplotlib-inline==0.1.3
 mccabe==0.6.1
     # via flake8
 minio==4.0.11
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 mypy-extensions==0.4.3
     # via black
 nodeenv==1.6.0
     # via pre-commit
-notifications-python-client==6.0.2
-    # via -r requirements.in/../requirements/base.txt
+notifications-python-client==6.3.0
+    # via -r requirements.in\../requirements/base.txt
 numpy==1.22.3
     # via
     #   matplotlib
     #   scikit-learn
     #   scipy
 odfpy==1.4.1
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 openpyxl==3.0.6
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 opensearch-py==1.0.0
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 packaging==21.3
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   matplotlib
     #   pytest
     #   redis
@@ -272,15 +282,13 @@ pathspec==0.9.0
     # via black
 pep517==0.12.0
     # via pip-tools
-pexpect==4.8.0
-    # via ipython
 phonenumbers==8.12.38
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 pickleshare==0.7.5
     # via ipython
 pillow==9.0.1
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   matplotlib
     #   python-pptx
 pip-tools==6.5.1
@@ -295,38 +303,40 @@ pre-commit==2.15.0
     # via -r requirements.in/dev.in
 prompt-toolkit==3.0.24
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   click-repl
     #   ipython
 psycopg2-binary==2.8.6
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   feed-gov-back
-ptyprocess==0.7.0
-    # via pexpect
 py==1.11.0
     # via
     #   pytest
     #   pytest-forked
 pycodestyle==2.8.0
     # via flake8
+pycparser==2.21
+    # via
+    #   -r requirements.in\../requirements/base.txt
+    #   cffi
 pyflakes==2.4.0
     # via flake8
 pygments==2.8.1
     # via
     #   -r requirements.in/dev.in
     #   ipython
-pyjwt==2.1.0
+pyjwt==2.4.0
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   notifications-python-client
 pyparsing==3.0.7
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   matplotlib
     #   packaging
-pypdf2==1.26.0
-    # via -r requirements.in/../requirements/base.txt
+pypdf2==1.27.5
+    # via -r requirements.in\../requirements/base.txt
 pyproject-flake8==0.0.1a2
     # via -r requirements.in/dev.in
 pytest==6.2.5
@@ -352,18 +362,18 @@ pytest-xdist==2.4.0
     # via -r requirements.in/dev.in
 python-dateutil==2.8.2
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   botocore
     #   freezegun
     #   matplotlib
     #   minio
 python-docx==0.8.10
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 python-pptx==0.6.18
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 pytz==2021.1
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   celery
     #   django
     #   django-timezone-field
@@ -372,32 +382,32 @@ pyyaml==6.0
     # via pre-commit
 redis==4.1.1
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   django-redis
 regex==2021.11.10
     # via black
 requests==2.25.1
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   codecov
-    #   geckoboard.py
+    #   geckoboard-py
     #   notifications-python-client
     #   requests-toolbelt
-requests_toolbelt==0.9.1
-    # via -r requirements.in/../requirements/base.txt
+requests-toolbelt==0.9.1
+    # via -r requirements.in\../requirements/base.txt
 s3transfer==0.4.2
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   boto3
 scikit-learn==1.0.2
     # via sklearn
 scipy==1.8.0
     # via scikit-learn
 sentry-sdk==0.13.1
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 six==1.16.0
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   click-repl
     #   django-extensions
     #   python-dateutil
@@ -409,14 +419,14 @@ smmap==5.0.0
     # via gitdb
 sqlparse==0.4.2
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   django
 striprtf==0.0.10
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 threadpoolctl==3.1.0
     # via scikit-learn
 titlecase==0.12.0
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 toml==0.10.2
     # via
     #   pre-commit
@@ -440,7 +450,7 @@ typing-extensions==4.0.0
     # via black
 urllib3==1.26.5
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   botocore
     #   minio
     #   opensearch-py
@@ -448,7 +458,7 @@ urllib3==1.26.5
     #   sentry-sdk
 vine==5.0.0
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   amqp
     #   celery
     #   kombu
@@ -456,31 +466,31 @@ virtualenv==20.10.0
     # via pre-commit
 wcwidth==0.2.5
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   prompt-toolkit
 werkzeug==0.15.3
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 wheel==0.37.0
     # via pip-tools
 whitenoise==5.3.0
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 wrapt==1.13.3
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   deprecated
 xlrd==1.2.0
-    # via -r requirements.in/../requirements/base.txt
+    # via -r requirements.in\../requirements/base.txt
 xlsxwriter==3.0.1
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   python-pptx
-zope.event==4.5.0
+zope-event==4.5.0
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   gevent
-zope.interface==5.4.0
+zope-interface==5.4.0
     # via
-    #   -r requirements.in/../requirements/base.txt
+    #   -r requirements.in\../requirements/base.txt
     #   gevent
 
 # The following packages are considered to be unsafe in a requirements file:

@@ -15,7 +15,7 @@ django-storages==1.9.1
 django-timezone-field==4.2.3
 django-log-formatter-ecs==0.0.5
 django-audit-log-middleware==0.0.4
-Django==3.2.12
+Django==3.2.13
 djangorestframework==3.12.4
 dpath==1.4.2
 feed-gov-back==0.4
@@ -25,15 +25,16 @@ graphviz==0.8.3
 lxml>=4.6.5
 minio==4.0.11
 Markdown==3.1.1
-notifications-python-client==6.0.2
+notifications-python-client==6.3.0
 openpyxl==3.0.6
 odfpy==1.4.1
 pillow==9.0.1
 phonenumbers==8.12.38
 psycopg2-binary==2.8.6
+pyjwt>=2.4.0
 python-docx==0.8.10
 python-pptx==0.6.18
-PyPDF2==1.26.0
+PyPDF2==1.27.5
 pytz
 sentry-sdk==0.13.1
 striprtf==0.0.10

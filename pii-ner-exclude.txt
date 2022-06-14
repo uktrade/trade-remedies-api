@@ -1,3 +1,25 @@
+Custom Axes Authentication
+DELETE
+Log Out
+'Log Out'
+Log Out'
+TwoFactor
+CustomValidationError
+r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$
+Log In Failed
+SECONDS
+ValidationExceptions
+ValidationErrors
+Raises CustomValidationErrors
+DELETE
+Log Out
+Log In Failed
+Password Reset
+Password Reset Failed
+ValidationExceptions
+ValidationErrors
+r"(^+@+\.+$
+CustomValidationError
 assert app.label
 "Trade Remedies Authentication
 Authentication V2
@@ -1479,3 +1501,4 @@ django-db-geventpool==4.0.0
 3rd Party Law Incorporated
 Holborn
 the third party
+terminated_at

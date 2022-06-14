@@ -24,6 +24,8 @@ certifi==2021.5.30
     #   opensearch-py
     #   requests
     #   sentry-sdk
+cffi==1.15.0
+    # via gevent
 chardet==4.0.0
     # via requests
 click==8.0.3
@@ -38,6 +40,8 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.2.0
     # via celery
+colorama==0.4.4
+    # via click
 colour==0.1.5
     # via -r requirements.in/base.in
 defusedxml==0.7.1
@@ -46,7 +50,7 @@ deprecated==1.2.13
     # via redis
 dj-database-url==0.5.0
     # via -r requirements.in/base.in
-django==3.2.12
+django==3.2.13
     # via
     #   -r requirements.in/base.in
     #   django-appconf
@@ -80,7 +84,7 @@ django-ipware==3.0.7
     #   django-log-formatter-ecs
 django-log-formatter-ecs==0.0.5
     # via -r requirements.in/base.in
-django_pglocks==1.0.3
+django-pglocks==1.0.3
     # via -r requirements.in/base.in
 django-phonenumber-field==6.0.0
     # via -r requirements.in/base.in
@@ -104,7 +108,7 @@ feed-gov-back==0.4
     # via -r requirements.in/base.in
 freezegun==1.1.0
     # via -r requirements.in/base.in
-geckoboard.py==1.0.0
+geckoboard-py==1.0.0
     # via -r requirements.in/base.in
 gevent==21.12.0
     # via -r requirements.in/base.in
@@ -135,7 +139,7 @@ marshmallow==3.6.1
     # via kubi-ecs-logger
 minio==4.0.11
     # via -r requirements.in/base.in
-notifications-python-client==6.0.2
+notifications-python-client==6.3.0
     # via -r requirements.in/base.in
 odfpy==1.4.1
     # via -r requirements.in/base.in
@@ -157,11 +161,15 @@ psycopg2-binary==2.8.6
     # via
     #   -r requirements.in/base.in
     #   feed-gov-back
-pyjwt==2.1.0
-    # via notifications-python-client
+pycparser==2.21
+    # via cffi
+pyjwt==2.4.0
+    # via
+    #   -r requirements.in/base.in
+    #   notifications-python-client
 pyparsing==3.0.7
     # via packaging
-pypdf2==1.26.0
+pypdf2==1.27.5
     # via -r requirements.in/base.in
 python-dateutil==2.8.2
     # via
@@ -186,10 +194,10 @@ redis==4.1.1
 requests==2.25.1
     # via
     #   -r requirements.in/base.in
-    #   geckoboard.py
+    #   geckoboard-py
     #   notifications-python-client
     #   requests-toolbelt
-requests_toolbelt==0.9.1
+requests-toolbelt==0.9.1
     # via -r requirements.in/base.in
 s3transfer==0.4.2
     # via boto3
@@ -231,9 +239,9 @@ xlrd==1.2.0
     # via -r requirements.in/base.in
 xlsxwriter==3.0.1
     # via python-pptx
-zope.event==4.5.0
+zope-event==4.5.0
     # via gevent
-zope.interface==5.4.0
+zope-interface==5.4.0
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:

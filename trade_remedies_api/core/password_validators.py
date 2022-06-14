@@ -1,6 +1,8 @@
 import string
 from django.core.exceptions import ValidationError
 
+from core.validation_errors import validation_errors
+
 
 class UpperAndLowerCase:
     def validate(self, password, user=None):
@@ -8,10 +10,7 @@ class UpperAndLowerCase:
             letter.isupper() for letter in password
         )
         if not mixed:
-            raise ValidationError(
-                "Password must include both upper and lower case characters",
-                code="no_mixed_case",
-            )
+            raise ValidationError(validation_errors["password_upper_lower_case"])
 
     def get_help_text(self):
         return "Your password must contain both upper and lower case characters"
