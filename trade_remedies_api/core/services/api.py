@@ -3,7 +3,7 @@ import mimetypes
 
 from rest_framework.response import Response
 
-from .auth.serializers import UserExistsSerializer
+from .auth.serializers import EmailSerializer
 from .base import ResponseError, TradeRemediesApiView, ResponseSuccess
 from .exceptions import InvalidRequestParams, IntegrityErrorRequest, NotFoundApiExceptions
 from django.contrib.auth.models import Group
@@ -91,7 +91,7 @@ class SecurityGroupsView(TradeRemediesApiView):
 
 class GetUserEmailAPIView(TradeRemediesApiView):
     def get(self, request, user_email, *args, **kwargs):
-        serializer = UserExistsSerializer(data={"email": user_email})
+        serializer = EmailSerializer(data={"email": user_email})
         if serializer.is_valid():
             return ResponseSuccess({"result": serializer.user.to_dict()})
         else:
