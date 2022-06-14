@@ -230,7 +230,7 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
         twofactorauth_object = request.user.twofactorauth
         serializer = TwoFactorAuthVerifySerializer(
             instance=twofactorauth_object,
-            data={"code": request.POST.get("2fa_code", None)},
+            data={"code": request.data.get("2fa_code", None)},
             context={"request": request},
         )
         if serializer.is_valid():

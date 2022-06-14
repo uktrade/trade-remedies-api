@@ -497,3 +497,6 @@ CASE_REGISTRATION_DURATION = 15
 # is not). Bin it.
 GECKOBOARD_API_KEY = env("GECKOBOARD_API_KEY", default=None)
 GECKOBOARD_ENV = env("GECKOBOARD_ENV", default="dev")
+
+# Variable so we know if we're running in testing mode or not, this is True in the test.py settings
+TESTING = False

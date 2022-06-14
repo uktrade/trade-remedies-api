@@ -15,7 +15,7 @@ class TestV2RegistrationSerializer(TestCase):
         Group.objects.create(name=SECURITY_GROUP_ORGANISATION_USER)
 
         self.mock_data = {
-            "email": "test@example.com",
+            "email": "test@example.com",  # /PS-IGNORE
             "password": "123!@£!@£DDSJDJDSsdf",
             "name": "Test",
             'two_factor_choice': 'mobile',
@@ -34,7 +34,7 @@ class TestV2RegistrationSerializer(TestCase):
         }
 
     def test_valid_serializer(self):
-        user_query = User.objects.filter(email="test@example.com")
+        user_query = User.objects.filter(email="test@example.com")  # /PS-IGNORE
         organisation_query = Organisation.objects.filter(
             name="Test",
             companies_house_id='000000'
@@ -49,13 +49,13 @@ class TestV2RegistrationSerializer(TestCase):
         self.assertTrue(user_query.exists())
         self.assertTrue(organisation_query.exists())
 
-        new_user_object = User.objects.get(email="test@example.com")
+        new_user_object = User.objects.get(email="test@example.com")  # /PS-IGNORE
 
         self.assertTrue(UserProfile.objects.filter(user=new_user_object).exists())
         self.assertTrue(new_user_object.contact)
         self.assertEqual(
             new_user_object.contact.email,
-            "test@example.com"
+            "test@example.com"  # /PS-IGNORE
         )
         self.assertEqual(
             new_user_object.contact.phone,
@@ -97,4 +97,3 @@ class TestVerifyEmailSerializer(UserSetupTestBase):
             instance=self.user.userprofile
         )
         self.assertFalse(serializer.is_valid())
-

@@ -38,7 +38,7 @@ class V2RegistrationAPIView(APIView):
             ResponseSuccess response with the user's token and user data
             ResponseError response if the user could not be created  #todo - raise an error like the other views
         """
-        registration_data = json.loads(request.POST["registration_data"])
+        registration_data = json.loads(request.data["registration_data"])
         serializer = V2RegistrationSerializer(data=registration_data)
         if serializer.is_valid():
             serializer.save()

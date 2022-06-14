@@ -168,7 +168,7 @@ class TwoFactorAuthRequestSerializer(CustomValidationModelSerializer):
     def validate(self, attrs):
         try:
             self.send_report = self.instance.two_factor_auth(
-                user_agent=self.context["request"].META["HTTP_X_USER_AGENT"],
+                user_agent=self.context["request"].META.get("HTTP_X_USER_AGENT"),
                 delivery_type=attrs["delivery_type"],
             )
             return attrs
@@ -185,6 +185,7 @@ class TwoFactorAuthRequestSerializer(CustomValidationModelSerializer):
                 % last_requested_seconds_ago,
             )
         except Exception as e:
+            logging.error(f"Error when sending two-factor code to {self.instance.user.email}")
             raise CustomValidationError(error_key="2fa_code_failed_delivery")
 
     def validate_delivery_type(self, value):
@@ -227,7 +228,7 @@ class TwoFactorAuthVerifySerializer(CustomValidationModelSerializer):
 
         if self.instance.validate(code):
             # The code is valid!
-            self.instance.success(user_agent=self.context["request"].META["HTTP_X_USER_AGENT"])
+            self.instance.success(user_agent=self.context["request"].META.get("HTTP_X_USER_AGENT"))
             return code
         else:
             # The code is invalid!

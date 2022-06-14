@@ -143,6 +143,7 @@ urlpatterns = [
     path(
         f"{settings.API_PREFIX}/email_verify/<uuid:user_pk>/",
         registration_api.EmailVerifyAPIView.as_view(),
+        name="request_email_verify",
     ),
     path(
         f"{settings.API_PREFIX}/email_verify/<uuid:user_pk>/<str:email_verify_code>",
