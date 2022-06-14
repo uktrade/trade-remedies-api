@@ -1,6 +1,3 @@
-Health Check
-Super-Secret-Password1
-the GOV.UK Test Number
 Custom Axes Authentication
 DELETE
 Log Out
@@ -14,16 +11,15 @@ SECONDS
 ValidationExceptions
 ValidationErrors
 Raises CustomValidationErrors
-uk_employer
-Custom Axes Authentication
 DELETE
-Log Out'
-'Log Out''
 Log Out
-'Log Out'
-TwoFactor
-VAT
-EORI
+Log In Failed
+Password Reset
+Password Reset Failed
+ValidationExceptions
+ValidationErrors
+r"(^+@+\.+$
+CustomValidationError
 assert app.label
 "Trade Remedies Authentication
 Authentication V2
@@ -1488,7 +1484,7 @@ Raises
 user_does_not_exist
 Authentication Serializer
 Tests the PasswordSerializer
-UserExistsSerializer
+EmailSerializer
 EmailAvailabilitySerializer
 Tests the AuthenticationSerializer
 AuthenticationSerializer
@@ -1506,10 +1502,3 @@ django-db-geventpool==4.0.0
 Holborn
 the third party
 terminated_at
-mobile_country_code
-r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$
-CustomValidationError
-ValidationExceptions
-ValidationErrors
-Raises CustomValidationErrors
-SECONDS
