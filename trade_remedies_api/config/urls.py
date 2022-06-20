@@ -18,6 +18,7 @@ from django.urls import include, path
 from django.conf import settings
 from rest_framework import routers
 
+from cases.services.v2.api import CaseViewSet
 from core.services import api as core_api
 from core.services.auth import views as auth_api
 from cases.services import api as cases_api
@@ -143,6 +144,10 @@ urlpatterns = [
     path(f"{settings.API_PREFIX}/feedback/", include("feedback.services.urls")),
     path(f"{settings.API_PREFIX}/companieshouse/", include("core.services.urls")),
 ]
+
+router = routers.SimpleRouter()
+router.register(f'{settings.API_PREFIX}/v2_cases', CaseViewSet, basename="v2_case")
+urlpatterns += router.urls
 
 if settings.DJANGO_ADMIN:
     urlpatterns.append(path("admin/", admin.site.urls))
