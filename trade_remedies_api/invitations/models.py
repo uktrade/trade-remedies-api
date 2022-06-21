@@ -613,7 +613,7 @@ class Invitation(BaseModel):
                     case=self.case,
                     contact=user.contact,
                     organisation=self.organisation,
-                    defaults={"primary": False}
+                    defaults={"primary": False},
                 )
 
         elif self.user:
