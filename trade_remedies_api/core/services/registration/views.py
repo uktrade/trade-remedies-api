@@ -5,21 +5,13 @@ import uuid
 from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
 from rest_framework.views import APIView
 
 from core.exceptions import ValidationAPIException
 from core.models import SystemParameter, User
 from core.notifier import send_mail
-from core.services.base import ResponseError, ResponseSuccess
-from invitations.models import Invitation
-from security.constants import (
-    SECURITY_GROUP_ORGANISATION_OWNER,
-    SECURITY_GROUP_ORGANISATION_USER,
-    SECURITY_GROUP_THIRD_PARTY_USER,
-)
+from core.services.base import ResponseSuccess
 from core.services.registration.serializers import (
-    RegistrationSerializer,
     V2RegistrationSerializer,
     VerifyEmailSerializer,
 )
@@ -80,6 +72,7 @@ class EmailVerifyAPIView(APIView):
                 )
                 if serializer.is_valid():
                     serializer.save()
+                    return ResponseSuccess(data={"result": user_object.to_dict()})
                 else:
                     raise ValidationAPIException(serializer_errors=serializer.errors)
             else:
