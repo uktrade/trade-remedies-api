@@ -90,7 +90,7 @@ class TestRegistration(HealthCheckTestBase):
         assert response.status_code == status.HTTP_201_CREATED
 
         # The PK returned by the view should be random and not match the new user
-        assert str(response.data["response"]["result"]["pk"]) == str(new_user_object.pk)
+        assert str(response.data["response"]["result"]["pk"]) != str(new_user_object.pk)
 
 
 class TestEmailVerify(HealthCheckTestBase):

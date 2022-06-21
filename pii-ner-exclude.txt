@@ -1484,8 +1484,8 @@ Raises
 user_does_not_exist
 Authentication Serializer
 Tests the PasswordSerializer
-EmailSerializer
-EmailAvailabilitySerializer
+UserExistsSerializer
+UserDoesNotExistSerializer
 Tests the AuthenticationSerializer
 AuthenticationSerializer
 GB

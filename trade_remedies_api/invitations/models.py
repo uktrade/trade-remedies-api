@@ -604,16 +604,17 @@ class Invitation(BaseModel):
             # We want to assign the contact to the case
             self.user = user
             if self.contact != user.contact and self.contact.email == user.contact.email:
-                CaseContact.objects.get_or_create(
-                    case=self.case,
-                    contact=user.contact,
-                    organisation=self.organisation,
-                    primary=False,
-                )
                 original_contact = self.contact
                 self.contact = user.contact
                 original_contact.delete()
                 self.save()
+
+                CaseContact.objects.get_or_create(
+                    case=self.case,
+                    contact=user.contact,
+                    organisation=self.organisation,
+                    defaults={"primary": False}
+                )
 
         elif self.user:
             raise InvitationFailure("could not assign user to case or organisation")
