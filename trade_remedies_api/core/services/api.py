@@ -3,7 +3,7 @@ import mimetypes
 
 from rest_framework.response import Response
 
-from .auth.serializers import EmailSerializer
+from .auth.serializers import UserExistsSerializer
 from .base import ResponseError, TradeRemediesApiView, ResponseSuccess
 from .exceptions import InvalidRequestParams, IntegrityErrorRequest, NotFoundApiExceptions
 from django.contrib.auth.models import Group
@@ -36,6 +36,7 @@ from security.constants import (
     SECURITY_GROUPS_PUBLIC,
     SECURITY_GROUP_ORGANISATION_OWNER,
 )
+from ..validation_errors import validation_errors
 
 
 class ApiHealthView(APIView):
@@ -90,7 +91,7 @@ class SecurityGroupsView(TradeRemediesApiView):
 
 class GetUserEmailAPIView(TradeRemediesApiView):
     def get(self, request, user_email, *args, **kwargs):
-        serializer = EmailSerializer(data={"email": user_email})
+        serializer = UserExistsSerializer(data={"email": user_email})
         if serializer.is_valid():
             return ResponseSuccess({"result": serializer.user.to_dict()})
         else:
@@ -182,9 +183,9 @@ class UserApiView(TradeRemediesApiView):
                         name=name,
                         groups=roles,
                         assign_default_groups=False,
-                        country=country,
+                        contact_country=country,
+                        contact_phone=phone,
                         timezone=timezone,
-                        phone=phone,
                         job_title_id=title_id,
                         is_active=active,
                     )
@@ -685,3 +686,12 @@ class FeedbackExport(TradeRemediesApiView):
         response = HttpResponse(export_file.read(), content_type=mime_type)
         response["Content-Disposition"] = "attachment; filename=Feedback-export.xls"
         return response
+
+
+class ValidationErrorAPIView(APIView):
+    """
+    When given a key, returns the validation error dictionary found in core/validation_errors.py
+    """
+
+    def get(self, request, key, *args, **kwargs):
+        return ResponseSuccess({"result": validation_errors.get(key, None)})

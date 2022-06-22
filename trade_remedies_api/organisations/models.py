@@ -209,6 +209,7 @@ class OrganisationManager(models.Manager):
         gov_body=False,
         case=None,
         json_data=None,
+        contact_object=None,
         **kwargs,
     ):
         """
@@ -272,6 +273,9 @@ class OrganisationManager(models.Manager):
             org_user = OrganisationUser.objects.assign_user(
                 organisation=organisation, user=user, security_group=user_group
             )
+            if contact_object:
+                contact_object.organisation = organisation
+                contact_object.save()
         return organisation
 
     def user_organisation(self, user, organisation_id=None):

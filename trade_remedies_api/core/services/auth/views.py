@@ -25,7 +25,7 @@ from audit import AUDIT_TYPE_PASSWORD_RESET, AUDIT_TYPE_PASSWORD_RESET_FAILED
 from audit.utils import audit_log
 from .serializers import (
     AuthenticationSerializer,
-    EmailAvailabilitySerializer,
+    UserDoesNotExistSerializer,
     PasswordResetRequestSerializer,
     PasswordSerializer,
     RegistrationSerializer,
@@ -33,7 +33,7 @@ from .serializers import (
     TwoFactorAuthVerifySerializer,
     VerifyEmailSerializer,
     PasswordRequestIdSerializer,
-    PasswordResetEmailSerializer,
+    EmailSerializer,
     PasswordResetRequestSerializerV2,
 )
 from ...exceptions import ValidationAPIException
@@ -61,7 +61,7 @@ class EmailAvailabilityAPI(APIView):
 
     @staticmethod
     def post(request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        serializer = EmailAvailabilitySerializer(data=request.data)
+        serializer = UserDoesNotExistSerializer(data=request.data)
         return ResponseSuccess({"result": {"available": serializer.is_valid()}})
 
 
@@ -162,7 +162,7 @@ class RegistrationAPIView(APIView):
                     groups.append(SECURITY_GROUP_ORGANISATION_OWNER)
                 user = serializer.save(groups=groups, **contact_kwargs)
                 invitation.process_invitation(
-                    user, accept=accept, register_interest=register_interest, newly_registered=True
+                    user, accept=accept, register_interest=register_interest
                 )
             else:
                 user = serializer.save()
@@ -235,7 +235,7 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
         twofactorauth_object = request.user.twofactorauth
         serializer = TwoFactorAuthVerifySerializer(
             instance=twofactorauth_object,
-            data={"code": request.POST.get("2fa_code", None)},
+            data={"code": request.data.get("2fa_code", None)},
             context={"request": request},
         )
         if serializer.is_valid():
@@ -259,7 +259,7 @@ class RequestPasswordReset(APIView):
             ResponseSuccess response.
         """
         email = request.GET.get("email")
-        serializer = PasswordResetEmailSerializer(data={"email": email})
+        serializer = EmailSerializer(data={"email": email})
         logger.info(f"Password reset request for: {email}")
         if serializer.is_valid():
             # Invalidate all previous PasswordResetRequest objects for this user

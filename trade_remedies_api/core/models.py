@@ -9,6 +9,7 @@ from functools import singledispatch
 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.db import models, transaction
+from django.urls import reverse
 from django.utils import timezone, crypto, http, encoding
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -90,67 +91,28 @@ class UserManager(BaseUserManager):
 
     @transaction.atomic
     def create_user(
-        self, email, password=None, assign_default_groups=True, groups=None, admin=False, **kwargs
+        self, email, password=None, assign_default_groups=True, groups=(), admin=False, **kwargs
     ):
         """
         Creates and saves a User with the given email and password.
         Along with the user, a profile and contact is also created.
         If an organisation name is provided, it is created and associated with the
-        user. Optionally a ready made organisation record can be passed along as well.
+        user. Optionally a ready-made organisation record can be passed along as well.
         """
         from contacts.models import Contact
-        from organisations.models import Organisation
 
         user = self.create_base_user_model(email, **kwargs)
-        # Will raise validation error if password validation fails
-        validate_password(password)
+        validate_password(password)  # Will raise validation error if password validation fails
         user.set_password(password)
         user.twofactorauth = TwoFactorAuth(user=user)
-        user.save()
-        if groups is None:
-            groups = []
-
-        user_timezone = kwargs.get("timezone")
-
         UserProfile.objects.create(
             user=user,
             contact=None,
-            timezone=pytz.timezone(user_timezone) if user_timezone else None,
+            timezone=pytz.timezone(kwargs.get("timezone")) if kwargs.get("timezone") else None,
             colour=str(user.get_user_colour() or "black"),
             job_title_id=kwargs.get("job_title_id"),
         )
-
         user.save()
-
-        # Determine Organisation
-        organisation_name = kwargs.get("organisation_name")
-        organisation_address = kwargs.get("organisation_address")
-        post_code = kwargs.get("organisation_postcode")
-        organisation = None
-        if organisation_name:
-            organisation = Organisation.objects.create_or_update_organisation(
-                organisation_id=kwargs.get("organisation_id"),
-                user=user,
-                name=organisation_name,
-                address=organisation_address,
-                country=kwargs.get("organisation_country"),
-                post_code=post_code,
-                assign_user=True,
-                **filter_dict(
-                    kwargs,
-                    [
-                        "vat_number",
-                        "eori_number",
-                        "duns_number",
-                        "organisation_website",
-                        "companies_house_id",
-                    ],
-                ),
-            )
-            if organisation.users.count() > 1:
-                groups.append(SECURITY_GROUP_ORGANISATION_USER)
-            else:
-                groups.append(SECURITY_GROUP_ORGANISATION_OWNER)
 
         if assign_default_groups and not groups:
             permissions = DEFAULT_ADMIN_PERMISSIONS if admin is True else DEFAULT_USER_PERMISSIONS
@@ -161,38 +123,18 @@ class UserManager(BaseUserManager):
         self.evaluate_sos_membership(user, groups)
 
         # Contact and profile details
-        phone = kwargs.get("phone")
-        country = kwargs.get("country", "GB")
-
-        if phone:
-            try:
-                phone = convert_to_e164(phone, country=country)
-            except NumberParseException:
-                pass
-
-        if country in ["code", "name"]:
-            country = "GB"
-
-        contact = kwargs.get("contact")
-
-        if not contact:
-            contact = Contact.objects.create_contact(
+        contact = kwargs.get(
+            "contact",
+            Contact.objects.create_contact(
                 name=user.name,
                 email=user.email,
-                organisation=organisation,
-                phone=phone,
-                address=kwargs.get("contact_address") or organisation_address,
-                post_code=kwargs.get("contact_postcode") or post_code,
-                country=country,
+                phone=kwargs.get("contact_phone"),
+                address=kwargs.get("contact_address"),
+                post_code=kwargs.get("contact_post_code"),
+                country=kwargs.get("contact_country"),
                 created_by=user,
-            )
-        else:
-            contact.phone = phone
-            contact.address = kwargs.get("contact_address") or contact.address
-            contact.post_code = kwargs.get("contact_postcode") or contact.post_code
-            contact.country = country
-            contact.save()
-
+            ),
+        )
         UserProfile.objects.filter(user=user).update(contact=contact)
 
         user.save()
@@ -1023,8 +965,7 @@ class UserProfile(models.Model):
         template_id = SystemParameter.get("NOTIFY_VERIFY_EMAIL")
         context = {
             "name": self.user.name,
-            "verification_link": f"{settings.PUBLIC_ROOT_URL}/email/verify/?code={self.email_verify_code}",
-            # noqa: E501
+            "verification_link": f"{settings.PUBLIC_ROOT_URL}/register/verify_email/{self.user.pk}/{self.email_verify_code}",
         }
         send_report = send_mail(self.user.email, context, template_id)
         return send_report
