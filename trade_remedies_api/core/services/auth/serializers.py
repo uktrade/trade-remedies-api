@@ -61,12 +61,12 @@ class PasswordSerializer(CustomValidationSerializer):
         number_regex = r"[0-9]"
         special_regex = r"[!\"$%&\'#()*+,\-./:;<=>?\\@[\]^_`{|}~]"
         if (
-                not re.search(capital_regex, value)
-                or not re.search(lowercase_regex, value)
-                or not re.search(number_regex, value)
-                or not re.search(special_regex, value)
-                or not len(value) >= 8
-                or not value
+            not re.search(capital_regex, value)
+            or not re.search(lowercase_regex, value)
+            or not re.search(number_regex, value)
+            or not re.search(special_regex, value)
+            or not len(value) >= 8
+            or not value
         ):
             raise CustomValidationError(error_key="password_fails_requirements")
         return value
@@ -199,7 +199,7 @@ class RegistrationSerializer(
         attrs = super().validate(attrs=attrs)
         password = attrs["password"]
         if SystemParameter.get("REGISTRATION_SOFT_LOCK") and not password.startswith(
-                SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
+            SystemParameter.get("REGISTRATION_SOFT_LOCK_KEY")
         ):
             raise ValidationError(
                 _("Registrations are currently locked."), code="registration_locked"
@@ -243,15 +243,15 @@ class TwoFactorAuthRequestSerializer(CustomValidationModelSerializer):
             return attrs
         except TwoFactorRequestedTooMany:
             last_requested_seconds_ago = (
-                    settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS
-                    - (timezone.now() - self.instance.generated_at).seconds
+                settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS
+                - (timezone.now() - self.instance.generated_at).seconds
             )
             if last_requested_seconds_ago == 0:
                 last_requested_seconds_ago = 1  # 0 looks quite unattractive so we show 1 instead
             raise CustomValidationError(
                 field=validation_errors["2fa_requested_too_many_times"]["field"],
                 error_summary=validation_errors["2fa_requested_too_many_times"]["error_summary"]
-                              % last_requested_seconds_ago,
+                % last_requested_seconds_ago,
             )
         except Exception as e:
             raise CustomValidationError(error_key="2fa_code_failed_delivery")
@@ -296,9 +296,9 @@ class TwoFactorAuthVerifySerializer(CustomValidationModelSerializer):
 
         if self.instance.validate(code):
             # The code is valid!
-            self.instance.success(user_agent=self.context["request"].META.get(
-                "HTTP_X_USER_AGENT", "NO_USER_AGENT"
-            ))
+            self.instance.success(
+                user_agent=self.context["request"].META.get("HTTP_X_USER_AGENT", "NO_USER_AGENT")
+            )
             return code
         else:
             # The code is invalid!
@@ -340,7 +340,7 @@ class PasswordResetRequestSerializerV2(serializers.Serializer):
         request_id = attrs["request_id"]
 
         if PasswordResetRequest.objects.validate_token_using_request_id(
-                token, request_id, validate_only=True
+            token, request_id, validate_only=True
         ):
             return attrs
         raise ValidationError(

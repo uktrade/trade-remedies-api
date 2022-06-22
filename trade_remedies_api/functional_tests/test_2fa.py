@@ -12,27 +12,26 @@ class TestTwoFactorRequest(HealthCheckTestBase):
         self.user.save()
 
     def test_success_request(self):
-        call_command('load_sysparams')  # Load system parameters
-        call_command('notify_env')  # Load the template IDs from GOV.NOTIFY
+        call_command("load_sysparams")  # Load system parameters
+        call_command("notify_env")  # Load the template IDs from GOV.NOTIFY
 
-        response = self.client.get(reverse(
-            "two_factor_request", kwargs={"delivery_type": TwoFactorAuth.SMS})
+        response = self.client.get(
+            reverse("two_factor_request", kwargs={"delivery_type": TwoFactorAuth.SMS})
         )
         assert response.status_code == 200
-        assert self.user.twofactorauth.code in response.data["response"]["result"]["content"][
-            "body"]
+        assert (
+            self.user.twofactorauth.code in response.data["response"]["result"]["content"]["body"]
+        )
 
     def test_success_validate(self):
         response = self.client.post(
-            reverse("two_factor_verify"),
-            data={"2fa_code": self.user.twofactorauth.generate_code()}
+            reverse("two_factor_verify"), data={"2fa_code": self.user.twofactorauth.generate_code()}
         )
         assert response.status_code == 200
         assert response.data["response"]["result"]["email"] == "standard@gov.uk"  # /PS-IGNORE
 
     def test_unsuccessful_validate(self):
         response = self.client.post(
-            reverse("two_factor_verify"),
-            data={"2fa_code": "incorrect_code"}
+            reverse("two_factor_verify"), data={"2fa_code": "incorrect_code"}
         )
         assert response.status_code != 200

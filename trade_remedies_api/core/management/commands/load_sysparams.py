@@ -39,9 +39,7 @@ class Command(BaseCommand):
         path = options.get("path")
         if not path:
             path = os.path.join(
-                pathlib.Path(__file__).parent.parent.parent,
-                'system',
-                'parameters.json'
+                pathlib.Path(__file__).parent.parent.parent, "system", "parameters.json"
             )
         with open(path) as json_data:
             objects = json.loads(str(json_data.read()))
