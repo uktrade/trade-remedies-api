@@ -6,6 +6,8 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from audit import AUDIT_TYPE_LOGIN, AUDIT_TYPE_USER_CREATED
+from audit.utils import audit_log
 from config.serializers import CustomValidationModelSerializer
 from core.exceptions import CustomValidationError
 from core.models import SystemParameter, User, UserProfile
@@ -68,6 +70,7 @@ class V2RegistrationSerializer(
             )
             new_user.groups.add(security_group_name)  # Add the user to same group
             new_user.userprofile.verify_email()
+            audit_log(audit_type=AUDIT_TYPE_USER_CREATED, user=new_user)
             return new_user
         else:
             return super().save(**kwargs)
