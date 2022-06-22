@@ -25,6 +25,7 @@ from . import (
     AUDIT_TYPE_PASSWORD_RESET,
     AUDIT_TYPE_PASSWORD_RESET_FAILED,
     AUDIT_TYPE_USER_CREATED,
+    AUDIT_TYPE_EMAIL_VERIFIED,
 )
 
 
@@ -74,6 +75,7 @@ class Audit(models.Model):
         (AUDIT_TYPE_PASSWORD_RESET, "Password Reset"),
         (AUDIT_TYPE_PASSWORD_RESET_FAILED, "Password Reset Failed"),
         (AUDIT_TYPE_USER_CREATED, "New User Created"),
+        (AUDIT_TYPE_EMAIL_VERIFIED, "Email Verified"),
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
