@@ -1,9 +1,8 @@
 from django.core.management import call_command
 from django.urls import reverse
-from django.utils import crypto
 
 from core.models import TwoFactorAuth
-from core.services.registration.tests.test_functional import HealthCheckTestBase
+from functional_tests.test_registration import HealthCheckTestBase
 
 
 class TestTwoFactorRequest(HealthCheckTestBase):

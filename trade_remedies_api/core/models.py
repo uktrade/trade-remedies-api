@@ -91,7 +91,7 @@ class UserManager(BaseUserManager):
 
     @transaction.atomic
     def create_user(
-            self, email, password=None, assign_default_groups=True, groups=(), admin=False, **kwargs
+        self, email, password=None, assign_default_groups=True, groups=(), admin=False, **kwargs
     ):
         """
         Creates and saves a User with the given email and password.
@@ -123,15 +123,18 @@ class UserManager(BaseUserManager):
         self.evaluate_sos_membership(user, groups)
 
         # Contact and profile details
-        contact = kwargs.get("contact", Contact.objects.create_contact(
-            name=user.name,
-            email=user.email,
-            phone=kwargs.get("contact_phone"),
-            address=kwargs.get("contact_address"),
-            post_code=kwargs.get("contact_post_code"),
-            country=kwargs.get("contact_country"),
-            created_by=user,
-        ))
+        contact = kwargs.get(
+            "contact",
+            Contact.objects.create_contact(
+                name=user.name,
+                email=user.email,
+                phone=kwargs.get("contact_phone"),
+                address=kwargs.get("contact_address"),
+                post_code=kwargs.get("contact_post_code"),
+                country=kwargs.get("contact_country"),
+                created_by=user,
+            ),
+        )
         UserProfile.objects.filter(user=user).update(contact=contact)
 
         user.save()
@@ -141,8 +144,7 @@ class UserManager(BaseUserManager):
 
     @transaction.atomic
     def create_pending_user(
-            self, email, name, organisation, group=None, cases=None, phone=None, request=None,
-            **kwargs
+        self, email, name, organisation, group=None, cases=None, phone=None, request=None, **kwargs
     ):
         """
         Create a user which cannot yet log in to the system. The user is pending
@@ -506,8 +508,8 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
             self.organisationuser_set.select_related(
                 "organisation",
             )
-                .filter(security_group__name=SECURITY_GROUP_ORGANISATION_OWNER)
-                .first()
+            .filter(security_group__name=SECURITY_GROUP_ORGANISATION_OWNER)
+            .first()
         )
         if user_org:
             return user_org.organisation
@@ -711,7 +713,7 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         if not profile.contact:
             contact = profile.get_contact()
             contact.country = (
-                    attrs.get("country_code") or self.organisation.organisation.country.code
+                attrs.get("country_code") or self.organisation.organisation.country.code
             )
             contact.phone = convert_to_e164(attrs.get("phone"), contact.country.code)
             contact.save()
@@ -736,8 +738,8 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
                 User.objects.select_related(
                     "userprofile",
                 )
-                    .filter(userprofile__isnull=False, created_at__lt=self.created_at)
-                    .count()
+                .filter(userprofile__isnull=False, created_at__lt=self.created_at)
+                .count()
             )
             total_colours = len(SAFE_COLOURS)
             index = user_count % total_colours
@@ -773,10 +775,10 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
             return True
         user_agent = user_agent or self.twofactorauth.last_user_agent
         return (
-                not self.twofactorauth.last_validated
-                or user_agent != self.twofactorauth.last_user_agent
-                or (timezone.now() - self.twofactorauth.last_validated).days
-                > settings.TWO_FACTOR_AUTH_VALID_DAYS
+            not self.twofactorauth.last_validated
+            or user_agent != self.twofactorauth.last_user_agent
+            or (timezone.now() - self.twofactorauth.last_validated).days
+            > settings.TWO_FACTOR_AUTH_VALID_DAYS
         )
 
     def get_access_token(self):
@@ -927,8 +929,8 @@ class UserProfile(models.Model):
                 "user",
                 "security_group",
             )
-                .filter(user=self.user)
-                .distinct("organisation")
+            .filter(user=self.user)
+            .distinct("organisation")
         )
 
     def get_contact(self):
@@ -951,10 +953,10 @@ class UserProfile(models.Model):
 
     def verify_email(self):
         if (
-                not self.email_verify_code
-                or self.last_modified
-                + datetime.timedelta(minutes=settings.EMAIL_VERIFY_CODE_REGENERATE_TIMEOUT)
-                < timezone.now()
+            not self.email_verify_code
+            or self.last_modified
+            + datetime.timedelta(minutes=settings.EMAIL_VERIFY_CODE_REGENERATE_TIMEOUT)
+            < timezone.now()
         ):
             self.email_verify_code = crypto.get_random_string(64)
             self.email_verify_code_last_sent = timezone.now()
@@ -1092,8 +1094,8 @@ class TwoFactorAuth(models.Model):
         """
         now = timezone.now()
         if (
-                self.generated_at
-                and (now - self.generated_at).seconds <= settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS
+            self.generated_at
+            and (now - self.generated_at).seconds <= settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS
         ):
             # They have requested a new code in the last TWO_FACTOR_RESEND_TIMEOUT_SECONDS seconds
             raise TwoFactorRequestedTooMany()

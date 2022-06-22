@@ -1,4 +1,6 @@
 import logging
+import os
+import pathlib
 import json
 from core.models import SystemParameter
 from django.core.management.base import BaseCommand
@@ -29,12 +31,18 @@ class Command(BaseCommand):
         parser.add_argument(
             "--path",
             type=str,
-            default="core/system/parameters.json",
+            default="",
         )
 
     def handle(self, *args, **options):
         logger.info("Loading system parameters")
         path = options.get("path")
+        if not path:
+            path = os.path.join(
+                pathlib.Path(__file__).parent.parent.parent,
+                'system',
+                'parameters.json'
+            )
         with open(path) as json_data:
             objects = json.loads(str(json_data.read()))
         count_created, count_updated, count_removed = SystemParameter.load_parameters(objects)
