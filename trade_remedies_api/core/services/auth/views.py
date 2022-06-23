@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.views import APIView
 
+from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
 from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, UserProfile, User
 from core.notifier import send_mail
 from core.services.base import ResponseError, ResponseSuccess, TradeRemediesApiView
@@ -143,6 +144,9 @@ class RegistrationAPIView(APIView):
                     invited_organisation = invitation.organisation
                 # register interest if this is the first user of this organisation
                 register_interest = not invited_organisation.has_users
+                # If it's a third party invite, we don't want to create a registration of interest
+                if invitation.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY:
+                    register_interest = False
                 contact_kwargs = {}
                 if serializer.initial_data["confirm_invited_org"] == "True":
                     contact_kwargs = {
