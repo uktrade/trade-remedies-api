@@ -57,13 +57,14 @@ class V2RegistrationAPIView(APIView):
 
 
 class EmailVerifyAPIView(APIView):
-    """Multipurpose API endpoint dealing with sending and verifiying email verification links."""
+    """Multipurpose API endpoint dealing with sending and verifying email verification links."""
 
     def post(self, request, user_pk, email_verify_code=None, *args, **kwargs):
         try:
             user_object = User.objects.get(pk=user_pk)
         except User.DoesNotExist:
             logging.error(f"User with pk {user_pk} does not exist.")
+            return ResponseSuccess()
         else:
             if email_verify_code:
                 # We want to verify the code, not send a new one
@@ -72,10 +73,9 @@ class EmailVerifyAPIView(APIView):
                 )
                 if serializer.is_valid():
                     serializer.save()
-                    return ResponseSuccess(data={"result": user_object.to_dict()})
                 else:
                     raise ValidationAPIException(serializer_errors=serializer.errors)
             else:
                 # We want to send a new email verification link
                 user_object.userprofile.verify_email()
-        return ResponseSuccess()
+            return ResponseSuccess(data={"result": user_object.to_dict()})

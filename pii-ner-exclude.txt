@@ -1,3 +1,5 @@
+Email Verified"
+New User Created
 EORI
 VAT
 NO_USER_AGENT
