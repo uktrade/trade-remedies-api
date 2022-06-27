@@ -184,4 +184,19 @@ validation_errors = {
         "error_text": "Enter the correct web address",
         "error_summary": "We cannot find this website",
     },
+    "incorrect_client_eori_format": {
+        "field": "company_eori_number",
+        "error_text": "Enter the correct EORI number",
+        "error_summary": "You have entered an incorrect EORI number",
+    },
+    "incorrect_client_duns_format": {
+        "field": "company_duns_number",
+        "error_text": "Enter your client's 9-digit DUNS number",
+        "error_summary": "You have entered an incorrect DUNS number",
+    },
+    "incorrect_client_url": {
+        "field": "company_website",
+        "error_text": "Enter the correct web address",
+        "error_summary": "We cannot find this website",
+    },
 }
