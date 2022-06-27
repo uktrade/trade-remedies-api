@@ -124,7 +124,7 @@ validation_errors = {
     "companies_house_not_selected": {
         "field": "input-autocomplete",
         "error_text": "Select your company",
-        "error_summary": "Select your company",
+        "error_summary": "You need to select your company",
     },
     "no_company_name_entered": {
         "field": "organisation_name",
