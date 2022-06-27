@@ -72,7 +72,7 @@ validation_errors = {
         "error_summary": "You need to enter your name",
     },
     "no_org_type_chosen": {
-        "field": "org_type",
+        "field": "org",
         "error_text": "Select who is registering interest",
         "error_summary": "You need to select who is registering interest in this case",
     },
