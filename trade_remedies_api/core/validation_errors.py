@@ -146,6 +146,26 @@ validation_errors = {
         "error_text": "Select your country",
         "error_summary": "Select the country for your organisation",
     },
+    "no_client_name_entered": {
+        "field": "organisation_name",
+        "error_text": "Enter the name of your client",
+        "error_summary": "We need your client's name",
+    },
+    "no_client_post_code_or_number_entered": {
+        "field": "post_code",
+        "error_text": "Enter a registered company number or your client's postcode",
+        "error_summary": "We need a registered company number or your client's postcode",
+    },
+    "no_client_address_entered": {
+        "field": "address",
+        "error_text": "Enter your client's address",
+        "error_summary": "We need your client's address",
+    },
+    "no_client_country_selected": {
+        "field": "country",
+        "error_text": "Select your client's country",
+        "error_summary": "Select your client's country",
+    },
     "incorrect_vat_format": {
         "field": "company_vat_number",
         "error_summary": "You have entered an incorrect VAT number",
