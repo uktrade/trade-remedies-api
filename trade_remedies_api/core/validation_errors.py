@@ -133,8 +133,8 @@ validation_errors = {
     },
     "no_company_post_code_or_number_entered": {
         "field": ["address", "post_code"],
-        "error_text": "Enter a registered company number or the postcode for your company address",
-        "error_summary": "We need a registered company number or the postcode for your company address",
+        "error_text": "Enter a registered company number or the postcode for your organisation's address",
+        "error_summary": "We need a registered company number or the postcode for your organisation's address",
     },
     "no_company_address_entered": {
         "field": "address",
@@ -184,7 +184,7 @@ validation_errors = {
     "incorrect_url": {
         "field": "company_website",
         "error_text": "Enter the correct web address",
-        "error_summary": "We cannot find this website",
+        "error_summary": "The website address you have entered does not look valid",
     },
     "incorrect_client_eori_format": {
         "field": "company_eori_number",

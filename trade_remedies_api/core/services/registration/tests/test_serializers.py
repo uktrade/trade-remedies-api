@@ -77,7 +77,6 @@ class TestV2RegistrationSerializer(TestCase):
             new_user_object.contact.organisation,
             organisation_query.get()
         )
-        self.assertTrue(new_user_object.userprofile.email_verify_code_last_sent)
 
 
 class TestVerifyEmailSerializer(UserSetupTestBase):
