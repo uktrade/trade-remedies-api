@@ -128,8 +128,8 @@ validation_errors = {
     },
     "no_company_post_code_or_number_entered": {
         "field": ["address", "post_code"],
-        "error_text": "Enter a registered company number or the postcode for your organisation's address",
-        "error_summary": "We need a registered company number or the postcode for your organisation's address",
+        "error_text": "Enter either your organisation's registration number or the postcode for your organisation's address",
+        "error_summary": "We need either your organisation's registration number or the postcode for your organisation's address",
     },
     "no_company_address_entered": {
         "field": "address",
