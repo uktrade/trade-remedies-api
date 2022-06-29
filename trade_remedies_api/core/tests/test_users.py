@@ -29,7 +29,7 @@ class UserTest(TestCase):
             groups=["Administrator"],
             country="GB",
             timezone="Europe/London",
-            phone="077931231234",
+            contact_phone="077931231234",
         )
         user = User.objects.get(id=user.id)
         group = Group.objects.get(name="Administrator")

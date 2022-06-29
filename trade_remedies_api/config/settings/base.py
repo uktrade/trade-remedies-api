@@ -57,6 +57,8 @@ DEBUG = env("DEBUG", default=False)
 DJANGO_ADMIN = env("DJANGO_ADMIN", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
 
+PASSWORD_RESET_TIMEOUT = 86400
+
 # Application definition
 DJANGO_APPS = [
     "django_extensions",
@@ -78,7 +80,6 @@ DRF_APPS = [
 
 LOCAL_APPS = [
     "audit",
-    "authentication",
     "cases",
     "contacts",
     "content",
@@ -139,7 +140,7 @@ TEMPLATES = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    "axes.backends.AxesBackend",
+    "config.backends.CustomAxesBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
 
@@ -451,6 +452,8 @@ TWO_FACTOR_CODE_SMS_VALID_MINUTES = 10
 TWO_FACTOR_CODE_EMAIL_VALID_MINUTES = 20
 # Number of two factor authentication attempts allowed before locking
 TWO_FACTOR_MAX_ATTEMPTS = 3
+# How long do users have to wait before users can request another 2fa code (SECONDS)
+TWO_FACTOR_RESEND_TIMEOUT_SECONDS = env("TWO_FACTOR_RESEND_TIMEOUT_SECONDS", default=20)
 
 # Time to cache method
 METHOD_CACHE_DURATION_MINUTES = 2
@@ -496,3 +499,6 @@ CASE_REGISTRATION_DURATION = 15
 # is not). Bin it.
 GECKOBOARD_API_KEY = env("GECKOBOARD_API_KEY", default=None)
 GECKOBOARD_ENV = env("GECKOBOARD_ENV", default="dev")
+
+# Variable so we know if we're running in testing mode or not, this is True in the test.py settings
+TESTING = False

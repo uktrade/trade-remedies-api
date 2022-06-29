@@ -1,23 +1,20 @@
-import datetime
 import logging
 
-from axes.decorators import axes_dispatch
 from axes.utils import reset
-from django.conf import settings
 from django.contrib.auth import login
 from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from notifications_python_client.errors import HTTPError
 from rest_framework import status
 from rest_framework.views import APIView
-from django.utils.translation import gettext_lazy as _
-from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, UserProfile
+
+from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
+from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, UserProfile, User
 from core.notifier import send_mail
 from core.services.base import ResponseError, ResponseSuccess, TradeRemediesApiView
-from core.services.exceptions import AccessDenied, InvalidRequestParams
+from core.services.exceptions import InvalidRequestParams
 from invitations.models import Invitation
 from security.constants import (
     SECURITY_GROUP_ORGANISATION_OWNER,
@@ -25,16 +22,22 @@ from security.constants import (
     SECURITY_GROUP_THIRD_PARTY_USER,
 )
 
+from audit import AUDIT_TYPE_PASSWORD_RESET, AUDIT_TYPE_PASSWORD_RESET_FAILED
+from audit.utils import audit_log
 from .serializers import (
     AuthenticationSerializer,
-    EmailAvailabilitySerializer,
+    UserDoesNotExistSerializer,
     PasswordResetRequestSerializer,
     PasswordSerializer,
     RegistrationSerializer,
     TwoFactorAuthRequestSerializer,
     TwoFactorAuthVerifySerializer,
     VerifyEmailSerializer,
+    PasswordRequestIdSerializer,
+    EmailSerializer,
+    PasswordResetRequestSerializerV2,
 )
+from ...exceptions import ValidationAPIException
 
 logger = logging.getLogger(__name__)
 
@@ -59,11 +62,11 @@ class EmailAvailabilityAPI(APIView):
 
     @staticmethod
     def post(request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        serializer = EmailAvailabilitySerializer(data=request.data)
+        serializer = UserDoesNotExistSerializer(data=request.data)
         return ResponseSuccess({"result": {"available": serializer.is_valid()}})
 
 
-@method_decorator(axes_dispatch, name="dispatch")
+# @method_decorator(axes_dispatch, name="dispatch")
 @method_decorator(csrf_exempt, name="dispatch")
 class AuthenticationView(APIView):
     authentication_classes = ()
@@ -88,32 +91,17 @@ class AuthenticationView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data["user"]
             email = serializer.validated_data["email"]
-
-            code = request.data.get("code")
-            case_id = request.data.get("case_id")
-            user_agent = request.META.get("HTTP_X_USER_AGENT")
+            invitation_code = request.data.get("invitation_code")
 
             login(request, user)  # Logging the user in
             reset(username=email)  # Reset any remaining access attempts
-            invites = Invitation.objects.validate_all_pending(
-                user, code, case_id
+            Invitation.objects.validate_all_pending(
+                user, invitation_code
             )  # validate all pending invitations
-            if invites:
-                user.refresh_from_db()
-
-            # Do we need to redirect the user after this? i.e. to 2fa (public users are always prompted)
-            if not user.is_tra() or user.should_two_factor(user_agent=user_agent):
-                user.twofactorauth.two_factor_auth(user_agent=user_agent)
 
             return ResponseSuccess(serializer.data, http_status=status.HTTP_200_OK)
         else:
-            raise AccessDenied(
-                _(
-                    "You have entered an incorrect email address or password. "
-                    "Please try again or click on the Forgotten password link below."
-                ),
-                code="authorization",
-            )
+            raise ValidationAPIException(serializer_errors=serializer.errors)
 
     def perform_authentication(self, request):
         """Perform Authentication.
@@ -145,7 +133,7 @@ class RegistrationAPIView(APIView):
             case_id = serializer.initial_data["case_id"]
 
             if code and case_id:
-                invitation = Invitation.objects.get_invite_by_code(code, case_id)
+                invitation = Invitation.objects.get_invite_by_code(code)
             if invitation:
                 invited_organisation = invitation.organisation
                 if group := invitation.organisation_security_group:
@@ -156,6 +144,9 @@ class RegistrationAPIView(APIView):
                     invited_organisation = invitation.organisation
                 # register interest if this is the first user of this organisation
                 register_interest = not invited_organisation.has_users
+                # If it's a third party invite, we don't want to create a registration of interest
+                if invitation.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY:
+                    register_interest = False
                 contact_kwargs = {}
                 if serializer.initial_data["confirm_invited_org"] == "True":
                     contact_kwargs = {
@@ -175,7 +166,7 @@ class RegistrationAPIView(APIView):
                     groups.append(SECURITY_GROUP_ORGANISATION_OWNER)
                 user = serializer.save(groups=groups, **contact_kwargs)
                 invitation.process_invitation(
-                    user, accept=accept, register_interest=register_interest, newly_registered=True
+                    user, accept=accept, register_interest=register_interest
                 )
             else:
                 user = serializer.save()
@@ -205,7 +196,7 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
     """Request or verify two-factor authentication"""
 
     @staticmethod
-    def get(request, delivery_type: str = None, *args, **kwargs):
+    def get(request, delivery_type: str = TwoFactorAuth.SMS, *args, **kwargs):
         """
         Sends a 2fa code to a user.
 
@@ -218,45 +209,20 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
             InvalidRequestParams if the code could not be sent
         """
         twofactorauth_object = request.user.twofactorauth
+        if delivery_type == TwoFactorAuth.SMS and not request.user.phone:
+            # We want to use email if we don't have their mobile number
+            delivery_type = TwoFactorAuth.EMAIL
+
         serializer = TwoFactorAuthRequestSerializer(
-            data={"delivery_type": delivery_type or TwoFactorAuth.SMS},
             instance=twofactorauth_object,
+            data={"delivery_type": delivery_type},
+            context={"request": request},
         )
         if serializer.is_valid():
             serializer.save()
-
-            if twofactorauth_object.is_locked():
-                locked_until = twofactorauth_object.locked_until + datetime.timedelta(seconds=15)
-                locked_for_seconds = (locked_until - timezone.now()).seconds
-                return ResponseSuccess(
-                    {
-                        "result": {
-                            "error": "You have entered an incorrect code too many times "
-                            "and we have temporarily locked your account.",
-                            "locked_until": locked_until.strftime(settings.API_DATETIME_FORMAT),
-                            "locked_for_seconds": locked_for_seconds,
-                        }
-                    }
-                )
-            try:
-                send_report = twofactorauth_object.two_factor_auth(
-                    user_agent=request.META["HTTP_X_USER_AGENT"], delivery_type=delivery_type
-                )
-            except HTTPError:
-                raise InvalidRequestParams("Could not send code to phone")
-            except Exception as exc:
-                raise InvalidRequestParams(f"Error occurred when sending code: {exc}")
-            if send_report:
-                send_report["delivery_type"] = serializer.validated_data["delivery_type"]
-            return ResponseSuccess(
-                {
-                    "result": send_report,
-                }
-            )
+            return ResponseSuccess(serializer.data, http_status=status.HTTP_200_OK)
         else:
-            raise InvalidRequestParams(
-                f"Error occurred when sending 2fa code to {twofactorauth_object.user}"
-            )
+            raise ValidationAPIException(serializer_errors=serializer.errors)
 
     @staticmethod
     def post(request, *args, **kwargs):
@@ -272,15 +238,15 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
         """
         twofactorauth_object = request.user.twofactorauth
         serializer = TwoFactorAuthVerifySerializer(
-            data=request.data, instance=twofactorauth_object, context={"request": request}
+            instance=twofactorauth_object,
+            data={"code": request.data.get("2fa_code", None)},
+            context={"request": request},
         )
         if serializer.is_valid():
-            request.user.refresh_from_db()
-            twofactorauth_object.success(user_agent=request.META["HTTP_X_USER_AGENT"])
-            return ResponseSuccess({"result": request.user.to_dict()})
+            serializer.save()
+            return ResponseSuccess(serializer.data, http_status=status.HTTP_200_OK)
         else:
-            twofactorauth_object.fail()
-            raise InvalidRequestParams("Invalid code")
+            raise ValidationAPIException(serializer_errors=serializer.errors)
 
 
 class RequestPasswordReset(APIView):
@@ -297,10 +263,101 @@ class RequestPasswordReset(APIView):
             ResponseSuccess response.
         """
         email = request.GET.get("email")
+        serializer = EmailSerializer(data={"email": email})
         logger.info(f"Password reset request for: {email}")
-        # Invalidate all previous PasswordResetRequest objects for this user
-        PasswordResetRequest.objects.reset_request(email=email)
-        return ResponseSuccess({"result": True})
+        if serializer.is_valid():
+            # Invalidate all previous PasswordResetRequest objects for this user
+            PasswordResetRequest.objects.reset_request(email=email)
+            return ResponseSuccess({"result": True})
+        else:
+            raise ValidationAPIException(serializer_errors=serializer.errors)
+
+
+class RequestPasswordResetV2(APIView):
+    """Request and send a password reset email."""
+
+    @staticmethod
+    def get(request, *args, **kwargs):
+        """
+        Sends a password reset email.
+
+        Arguments:
+            request: a Django Request object
+        Returns:
+            ResponseSuccess response.
+        """
+        request_id = request.GET.get("request_id")
+        serializer = PasswordRequestIdSerializer(data={"request_id": request_id})
+        logger.info(f"Password reset request {request_id}")
+        if serializer.is_valid():
+            # Invalidate all previous PasswordResetRequest objects for this user
+            PasswordResetRequest.objects.reset_request_using_request_id(request_id=request_id)
+            return ResponseSuccess({"result": True})
+        else:
+            raise ValidationAPIException(serializer_errors=serializer.errors)
+
+
+class PasswordResetFormV2(APIView):
+    """Verify a password reset link and allow user to use it."""
+
+    @staticmethod
+    def get(request, *args, **kwargs):
+        """
+        Verifies that a password reset link is valid.
+
+        Arguments:
+            request: a Django Request object
+        Returns:
+            ResponseSuccess response with a boolean response in the dictionary, True if valid, False if not.
+        """
+        serializer = PasswordResetRequestSerializerV2(data=request.GET)
+        request_id = request.GET["request_id"]
+        logger.info(f"Password reset link clicked for: request {request_id}")
+        if valid := serializer.is_valid():
+            logger.info(f"Password reset link valid for: request {request_id}")
+        else:
+            logger.info(f"Password reset link invalid for: request {request_id}")
+
+        return ResponseSuccess({"result": valid})
+
+    @staticmethod
+    def post(request, *args, **kwargs):
+        """
+        Changes a user's password.
+
+        Arguments:
+            request: a Django Request object
+        Returns:
+            ResponseSuccess response if the password was successfully changed.
+        Raises:
+            InvalidRequestParams if link is invalid or password is not complex enough.
+        """
+        token_serializer = PasswordResetRequestSerializerV2(data=request.data)
+        password_serializer = PasswordSerializer(data=request.data)
+        request_id = request.data.get("request_id")
+
+        if token_serializer.is_valid() and password_serializer.is_valid():
+            if PasswordResetRequest.objects.password_reset_v2(
+                token_serializer.initial_data["token"],
+                token_serializer.initial_data["request_id"],
+                token_serializer.initial_data["password"],
+            ):
+                logger.info(f"Password reset completed for: request {request_id}")
+                user_pk = PasswordResetRequest.objects.get(request_id=request_id).user.pk
+                user = User.objects.get(pk=user_pk)
+                audit_log(audit_type=AUDIT_TYPE_PASSWORD_RESET, user=user)
+                return ResponseSuccess({"result": {"reset": True}}, http_status=status.HTTP_200_OK)
+        elif not password_serializer.is_valid():
+            user_pk = PasswordResetRequest.objects.get(request_id=request_id).user.pk
+            user = User.objects.get(pk=user_pk)
+            audit_log(audit_type=AUDIT_TYPE_PASSWORD_RESET_FAILED, user=user)
+            raise ValidationAPIException(serializer_errors=password_serializer.errors)
+        else:
+            logger.warning(f"Could not reset password for request {request_id}")
+            user_pk = PasswordResetRequest.objects.get(request_id=request_id).user.pk
+            user = User.objects.get(pk=user_pk)
+            audit_log(audit_type=AUDIT_TYPE_PASSWORD_RESET_FAILED, user=user)
+            raise InvalidRequestParams("Invalid or expired link")
 
 
 class PasswordResetForm(APIView):
@@ -350,6 +407,8 @@ class PasswordResetForm(APIView):
             ):
                 logger.info(f"Password reset completed for: {user_pk}")
                 return ResponseSuccess({"result": {"reset": True}}, http_status=status.HTTP_200_OK)
+        elif not password_serializer.is_valid():
+            raise ValidationAPIException(serializer_errors=password_serializer.errors)
         else:
             logger.warning(f"Could not reset password for user {user_pk}")
             raise InvalidRequestParams("Invalid or expired link")

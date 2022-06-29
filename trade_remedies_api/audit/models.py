@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres import fields
 from django.conf import settings
 from . import (
+    AUDIT_TYPE_LOGIN_FAILED,
     AUDIT_TYPE_UPDATE,
     AUDIT_TYPE_CREATE,
     AUDIT_TYPE_DELETE,
@@ -20,6 +21,11 @@ from . import (
     AUDIT_TYPE_ATTACH,
     AUDIT_TYPE_NOTIFY,
     AUDIT_TYPE_DELIVERED,
+    AUDIT_TYPE_LOGIN_FAILED,
+    AUDIT_TYPE_PASSWORD_RESET,
+    AUDIT_TYPE_PASSWORD_RESET_FAILED,
+    AUDIT_TYPE_USER_CREATED,
+    AUDIT_TYPE_EMAIL_VERIFIED,
 )
 
 
@@ -60,11 +66,16 @@ class Audit(models.Model):
         (AUDIT_TYPE_RESTORE, "Restore"),
         (AUDIT_TYPE_READ, "Read"),
         (AUDIT_TYPE_LOGIN, "Log In"),
+        (AUDIT_TYPE_LOGIN_FAILED, "Log In Failed"),
         (AUDIT_TYPE_LOGOUT, "Log Out"),
         (AUDIT_TYPE_EVENT, "Event"),
         (AUDIT_TYPE_ATTACH, "Attach"),
         (AUDIT_TYPE_NOTIFY, "Notify"),
         (AUDIT_TYPE_DELIVERED, "Delivery"),
+        (AUDIT_TYPE_PASSWORD_RESET, "Password Reset"),
+        (AUDIT_TYPE_PASSWORD_RESET_FAILED, "Password Reset Failed"),
+        (AUDIT_TYPE_USER_CREATED, "New User Created"),
+        (AUDIT_TYPE_EMAIL_VERIFIED, "Email Verified"),
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

@@ -1,3 +1,37 @@
+Email Verified"
+New User Created
+EORI
+VAT
+NO_USER_AGENT
+f"Order
+Health Check
+Super-Secret-Password1
+the GOV.UK Test Number
+mobile_country_code
+uk_employer
+new_case_role
+Custom Axes Authentication
+DELETE
+Log Out
+'Log Out'
+Log Out'
+TwoFactor
+CustomValidationError
+r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$
+Log In Failed
+SECONDS
+ValidationExceptions
+ValidationErrors
+Raises CustomValidationErrors
+DELETE
+Log Out
+Log In Failed
+Password Reset
+Password Reset Failed
+ValidationExceptions
+ValidationErrors
+r"(^+@+\.+$
+CustomValidationError
 assert app.label
 "Trade Remedies Authentication
 Authentication V2
@@ -1462,8 +1496,8 @@ Raises
 user_does_not_exist
 Authentication Serializer
 Tests the PasswordSerializer
-EmailSerializer
-EmailAvailabilitySerializer
+UserExistsSerializer
+UserDoesNotExistSerializer
 Tests the AuthenticationSerializer
 AuthenticationSerializer
 GB
