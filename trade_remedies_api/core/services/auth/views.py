@@ -7,6 +7,7 @@ from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from flags.state import flag_enabled
 from rest_framework import status
 from rest_framework.views import APIView
 
@@ -86,6 +87,10 @@ class AuthenticationView(APIView):
         Raises:
             AccessDenied if request fails.
         """
+        """if not flag_enabled('ROI_USERS', group_name="V2_AUTH_GROUP", user_object=request.user):
+            print("My feature flag is enabled")"""
+
+
         serializer = AuthenticationSerializer(data=request.data, context={"request": request})
 
         if serializer.is_valid():
