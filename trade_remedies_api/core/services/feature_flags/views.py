@@ -3,8 +3,8 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 from config.renderers import APIResponseRenderer
-from core.services.base import ResponseSuccess
 from core.services.feature_flags.serializers import FlagSerializer
+from rest_framework import exceptions
 
 
 class FlagViewSet(viewsets.ViewSet):
@@ -12,11 +12,21 @@ class FlagViewSet(viewsets.ViewSet):
     authentication_classes = ()
     renderer_classes = (APIResponseRenderer,)
 
+    def dispatch(self, request, *args, **kwargs):
+        self.flags = get_flags()
+        return super().dispatch(request, *args, **kwargs)
+
     def list(self, request):
-        feature_flags = [value for key, value in get_flags().items()]
+        feature_flags = [value for key, value in self.flags.items()]
         serializer = FlagSerializer(feature_flags, many=True)
         return Response(serializer.data)
 
-    def retrieve(self, request, name):
+    def retrieve(self, request, pk):
+        if pk in self.flags:
+            flag_serializer = FlagSerializer(self.flags[pk])
+            return Response(flag_serializer.data)
+        else:
+            raise exceptions.NotFound()
 
-        serializer = FlagSerializer()
+    def perform_authentication(self, request):
+        pass

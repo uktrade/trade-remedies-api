@@ -11,11 +11,12 @@ from .api import (
 )
 from .ch_proxy import CompaniesHouseApiSearch
 from core.services.feature_flags.views import FlagViewSet
+from core.services.users.views import UserViewSet
 
 urlpatterns = [
     path("systemparam/", SystemParameterApiView.as_view()),
-    path("feature-flags/<str:key>/", FeatureFlagApiView.as_view()),
     path("notification/template/<str:template_key>/", NotificationTemplateAPI.as_view()),
+    path("feature-flags/<str:key>/", FeatureFlagApiView.as_view()),
     path("jobtitles/", JobTitlesView.as_view()),
     path("search/", CompaniesHouseApiSearch.as_view()),
     path("feedback/export/<uuid:form_id>/", FeedbackExport.as_view()),
@@ -23,6 +24,7 @@ urlpatterns = [
 ]
 
 router = routers.SimpleRouter()
-router.register('feature-flags', FlagViewSet, basename="feature-flags")
+router.register('django-feature-flags', FlagViewSet, basename="django-feature-flags")
+router.register('users', UserViewSet)
 
 urlpatterns += router.urls
