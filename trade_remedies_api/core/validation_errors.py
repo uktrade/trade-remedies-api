@@ -46,6 +46,11 @@ validation_errors = {
         "error_text": "Enter your email address in the correct format. Eg. name@example.com",  # /PS-IGNORE
         "error_summary": "Your email address needs to be in the correct format. Eg. name@example.com",  # /PS-IGNORE
     },
+    "contact_email_not_valid": {
+        "field": "email",
+        "error_text": "Enter the contact's email address in the correct format. Eg. name@example.com",  # /PS-IGNORE
+        "error_summary": "The contact's email address needs to be in the correct format. Eg. name@example.com",  # /PS-IGNORE
+    },
     "email_required": {
         "field": "email",
         "error_text": "Enter your email address. Eg. name@example.com",  # /PS-IGNORE
@@ -71,6 +76,11 @@ validation_errors = {
         "error_text": "Enter your name",
         "error_summary": "You need to enter your name",
     },
+    "no_contact_name_entered": {
+        "field": "name",
+        "error_text": "Enter your contact’s name",
+        "error_summary": "You need to enter your contact’s name",
+    },
     "no_org_chosen": {
         "field": "org",
         "error_text": "Select who is registering interest",
@@ -80,6 +90,11 @@ validation_errors = {
         "field": "email",
         "error_text": "Enter your email address",
         "error_summary": "You need to enter your email address",
+    },
+    "no_contact_email_entered": {
+        "field": "email",
+        "error_text": "Enter your contact’s email address",
+        "error_summary": "You need to enter your contact’s email address",
     },
     "terms_and_conditions_not_accepted": {
         "field": "terms_and_conditions_accept",
@@ -199,6 +214,6 @@ validation_errors = {
     "incorrect_client_url": {
         "field": "company_website",
         "error_text": "Enter the correct web address",
-        "error_summary": "We cannot find this website",
+        "error_summary": "The website address you have entered does not look valid",
     },
 }
