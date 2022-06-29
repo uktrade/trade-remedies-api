@@ -1,13 +1,22 @@
-from flags.sources import Flag
+from flags.sources import get_flags
 from rest_framework import viewsets
+from rest_framework.response import Response
 
-class FlagViewSet(viewsets.ModelViewSet):
-    renderer_classes = [APIResponseRenderer]
-    queryset = Case.objects.all()
-    serializer_class = CaseSerializer
+from config.renderers import APIResponseRenderer
+from core.services.base import ResponseSuccess
+from core.services.feature_flags.serializers import FlagSerializer
 
-    def get_queryset(self):
-        if self.request.query_params.get("open_to_roi"):
-            # We only want the cases which are open to registration of interest applications
-            return Case.objects.available_for_regisration_of_intestest(self.request.user)
-        return super().get_queryset()
+
+class FlagViewSet(viewsets.ViewSet):
+    permission_classes = ()
+    authentication_classes = ()
+    renderer_classes = (APIResponseRenderer,)
+
+    def list(self, request):
+        feature_flags = [value for key, value in get_flags().items()]
+        serializer = FlagSerializer(feature_flags, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, name):
+
+        serializer = FlagSerializer()

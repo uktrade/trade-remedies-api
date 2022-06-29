@@ -119,8 +119,8 @@ MIDDLEWARE = [
 
 if DJANGO_ADMIN:
     MIDDLEWARE = [
-        "whitenoise.middleware.WhiteNoiseMiddleware",
-    ] + MIDDLEWARE
+                     "whitenoise.middleware.WhiteNoiseMiddleware",
+                 ] + MIDDLEWARE
 
 ROOT_URLCONF = "config.urls"
 
@@ -508,8 +508,9 @@ TESTING = False
 
 # ------------------- DJANGO-FLAG -------------------
 conditions.register('PART_OF_GROUP', fn=part_of_group_condition)
+FEATURE_FLAG_PREFIX = "FEATURE_FLAG"
 FLAGS = {
-  'ROI_USERS': [
-    {'condition': 'PART_OF_GROUP', 'value': True, "required": True},
-  ],
+    f'{FEATURE_FLAG_PREFIX}_V2_ROI': [
+        {'condition': 'PART_OF_GROUP', 'value': True, "required": True},
+    ],
 }

@@ -1,4 +1,6 @@
 from django.urls import path
+from rest_framework import routers
+
 from .api import (
     FeatureFlagApiView,
     SystemParameterApiView,
@@ -8,7 +10,7 @@ from .api import (
     ValidationErrorAPIView,
 )
 from .ch_proxy import CompaniesHouseApiSearch
-
+from core.services.feature_flags.views import FlagViewSet
 
 urlpatterns = [
     path("systemparam/", SystemParameterApiView.as_view()),
@@ -19,3 +21,8 @@ urlpatterns = [
     path("feedback/export/<uuid:form_id>/", FeedbackExport.as_view()),
     path("validation_error/<str:key>/", ValidationErrorAPIView.as_view()),
 ]
+
+router = routers.SimpleRouter()
+router.register('feature-flags', FlagViewSet, basename="feature-flags")
+
+urlpatterns += router.urls
