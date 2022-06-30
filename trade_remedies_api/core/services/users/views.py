@@ -13,5 +13,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['put'])
     def add_group(self, request, *args, **kwargs):
         group_object = Group.objects.get(name=request.POST["group"])
-        group_object.user_set.add(self.get_object())
+        user_object = User.objects.get(pk=kwargs["pk"])
+        user_object.groups.add(group_object)
+        user_object.save()
         return self.retrieve(request, *args, **kwargs)

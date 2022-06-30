@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import GroupAdmin, UserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.contrib.auth.models import Group
+
 from core.models import (
     UserProfile,
     User,
@@ -120,7 +122,18 @@ class JobTitleAdmin(admin.ModelAdmin):
     pass
 
 
+class UserInLine(admin.TabularInline):
+    model = Group.user_set.through
+    extra = 0
+
+
+class GenericGroupAdmin(GroupAdmin):
+    inlines = [UserInLine]
+
+
 # Re-register UserAdmin
+admin.site.unregister(Group)
+admin.site.register(Group, GenericGroupAdmin)
 admin.site.register(User, UserAdmin)
 admin.site.register(SystemParameter, SystemParameterAdmin)
 admin.site.register(TwoFactorAuth, TwoFactorAuthAdmin)
