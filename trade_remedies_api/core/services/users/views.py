@@ -12,8 +12,14 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['put'])
     def add_group(self, request, *args, **kwargs):
-        group_object = Group.objects.get(name=request.POST["group"])
+        group_object = Group.objects.get(name=request.POST["group_name"])
         user_object = User.objects.get(pk=kwargs["pk"])
         user_object.groups.add(group_object)
-        user_object.save()
+        return self.retrieve(request, *args, **kwargs)
+
+    @add_group.mapping.delete
+    def delete_group(self, request, *args, **kwargs):
+        group_object = Group.objects.get(name=request.POST["group_name"])
+        user_object = User.objects.get(pk=kwargs["pk"])
+        user_object.groups.remove(group_object)
         return self.retrieve(request, *args, **kwargs)
