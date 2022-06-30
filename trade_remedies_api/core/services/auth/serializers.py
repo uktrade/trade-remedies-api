@@ -23,6 +23,27 @@ from security.constants import ENVIRONMENT_GROUPS
 logger = logging.getLogger(__name__)
 
 
+class EmailSerializer(CustomValidationSerializer):
+    """Checks if an email address is valid"""
+
+    email = serializers.CharField(
+        label=_("Email"),
+        write_only=True,
+        trim_whitespace=True,
+        error_messages={"blank": validation_errors["email_required"]},
+    )
+
+    def user_queryset(self, email: str) -> QuerySet:
+        return User.objects.filter(email=email.lower())
+
+    def validate_email(self, value: str) -> str:
+        """Email field validator."""
+        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"  # /PS-IGNORE
+        if not re.search(email_regex, value) or not value:
+            raise CustomValidationError(error_key="email_not_valid")
+        return value
+
+
 class PasswordSerializer(CustomValidationSerializer):
     """Checks if a password is valid, i.e. meets the minimum complexity requirements."""
 
@@ -51,36 +72,8 @@ class PasswordSerializer(CustomValidationSerializer):
         return value
 
 
-class PasswordResetEmailSerializer(CustomValidationSerializer):
+class UserExistsSerializer(EmailSerializer):
     """Checks that an email address belongs to a user who exists in the database."""
-
-    email = serializers.CharField(
-        label=_("Email"),
-        write_only=True,
-        trim_whitespace=True,
-        error_messages={"blank": validation_errors["email_required"]},
-    )
-
-    def validate_email(self, value: str) -> str:
-        """Email field validator."""
-        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"  # /PS-IGNORE
-        if not re.search(email_regex, value) or not value:
-            raise CustomValidationError(error_key="email_not_valid")
-        return value
-
-
-class EmailSerializer(CustomValidationSerializer):
-    """Checks that an email address belongs to a user who exists in the database."""
-
-    email = serializers.CharField(
-        label=_("Email"),
-        write_only=True,
-        trim_whitespace=True,
-        error_messages={"blank": validation_errors["email_required"]},
-    )
-
-    def user_queryset(self, email: str) -> QuerySet:
-        return User.objects.filter(email=email.lower())
 
     def get_user(self, email: str) -> User:
         """Get User model helper."""
@@ -92,10 +85,18 @@ class EmailSerializer(CustomValidationSerializer):
 
     def validate_email(self, value: str) -> str:
         """Email field validator."""
-        email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
-        if not re.search(email_regex, value) or not value:
-            raise CustomValidationError(error_key="email_not_valid")
+        value = super().validate_email(value)
         self.user = self.get_user(value)
+        return value
+
+
+class UserDoesNotExistSerializer(EmailSerializer):
+    """Similar to UserExistsSerializer, but checks if the email address is available and free to use."""
+
+    def validate_email(self, value):
+        value = super().validate(value)
+        if self.user_queryset(value).exists():
+            raise ValidationError(_("User already exists."), code="user_already_exists")
         return value
 
 
@@ -108,16 +109,7 @@ class PasswordRequestIdSerializer(CustomValidationSerializer):
         return value
 
 
-class EmailAvailabilitySerializer(EmailSerializer):
-    """Similar to EmailSerializer, but checks if the email address is available and free to use."""
-
-    def validate_email(self, value):
-        if self.user_queryset(value).exists():
-            raise ValidationError(_("User already exists."), code="user_already_exists")
-        return value
-
-
-class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
+class AuthenticationSerializer(UserExistsSerializer, PasswordSerializer):  # noqa
     """Authentication Serializer used to log users in.
 
     Validates the username/password combination exists, the account is not deleted, and the request is coming from
@@ -185,7 +177,7 @@ class AuthenticationSerializer(EmailSerializer, PasswordSerializer):  # noqa
 
 
 class RegistrationSerializer(
-    EmailAvailabilitySerializer, PasswordSerializer, serializers.ModelSerializer
+    UserDoesNotExistSerializer, PasswordSerializer, serializers.ModelSerializer
 ):
     """Registration serializer used to register new users on the platform.
 
@@ -223,18 +215,12 @@ class RegistrationSerializer(
 
     def save(self, **kwargs):
         if not self.instance:  # This is a new user
-            # We need the initial_data as it contains the POST data used to create the User, e.g. organisation_name
-            # It gets overridden by the validated_data
-
-            # Very very strange, unpacking the initial_data dictionary turns strings into lists, need to revert
-            new_initial_data = dict(self.initial_data)
-            nid = {}
-            for key, value in new_initial_data.items():
-                if isinstance(value, list):
-                    nid[key] = value[0]
-                else:
-                    nid[key] = value[0]
-            validated_data = {**nid, **self.validated_data, **kwargs}
+            # We need to convert self.initial_data it to a normal dictionary as Django's
+            # internal representation of QueryDicts store individual values as lists, regardless
+            # of how many elements are in that list:
+            # https://www.ianlewis.org/en/querydict-and-update
+            initial_data = self.initial_data.dict()
+            validated_data = {**initial_data, **self.validated_data, **kwargs}
             new_user = User.objects.create_user(**validated_data)
             new_user.userprofile.verify_email()
             return new_user
@@ -251,7 +237,7 @@ class TwoFactorAuthRequestSerializer(CustomValidationModelSerializer):
     def validate(self, attrs):
         try:
             self.send_report = self.instance.two_factor_auth(
-                user_agent=self.context["request"].META["HTTP_X_USER_AGENT"],
+                user_agent=self.context["request"].META.get("HTTP_X_USER_AGENT", "NO_USER_AGENT"),
                 delivery_type=attrs["delivery_type"],
             )
             return attrs
@@ -310,7 +296,9 @@ class TwoFactorAuthVerifySerializer(CustomValidationModelSerializer):
 
         if self.instance.validate(code):
             # The code is valid!
-            self.instance.success(user_agent=self.context["request"].META["HTTP_X_USER_AGENT"])
+            self.instance.success(
+                user_agent=self.context["request"].META.get("HTTP_X_USER_AGENT", "NO_USER_AGENT")
+            )
             return code
         else:
             # The code is invalid!

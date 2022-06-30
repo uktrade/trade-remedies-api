@@ -124,19 +124,12 @@ class PasswordResetTest(APITransactionTestCase):
             {"request_id": request_id, "token": reset_token, "password": ""},
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data == {
-            "error_summaries": [("password", "You need to enter your password")],
-            "password": ["Enter your password"],
-        }
+        assert "password" in response.data
+        assert response.data["password"] == ["Enter your password"]
         response = self.client.post(
             "/api/v2/accounts/password/reset_form/",
             {"request_id": request_id, "token": reset_token, "password": "Sa1!"},
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data == {
-            "error_summaries": [("password", "The password is not using the correct format")],
-            "password": [
-                "Enter a password that contains 8 or more characters, at least one lowercase letter, at least one"
-                " capital letter, at least one number and at least one special character for example  !@#$%^&"
-            ],
-        }
+        assert "password" in response.data
+        assert "password that contains 8 or more characters," in response.data["password"][0]

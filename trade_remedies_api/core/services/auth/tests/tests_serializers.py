@@ -6,8 +6,8 @@ from audit import AUDIT_TYPE_LOGIN, AUDIT_TYPE_LOGIN_FAILED
 from audit.models import Audit
 from config.test_bases import MockRequest, UserSetupTestBase, email, password
 from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User
-from core.services.auth.serializers import (AuthenticationSerializer, EmailAvailabilitySerializer,
-                                            EmailSerializer,
+from core.services.auth.serializers import (AuthenticationSerializer, UserDoesNotExistSerializer,
+                                            UserExistsSerializer,
                                             PasswordResetRequestSerializer, PasswordSerializer,
                                             RegistrationSerializer,
                                             TwoFactorAuthRequestSerializer,
@@ -44,33 +44,33 @@ class TestAuthSerializers(TestCase):
         self.assertTrue(serializer.is_valid())
 
     def test_email_serializer_invalid(self):
-        """Tests that the EmailSerializer raises a validation error when using an email that doesn't belong to a user"""
-        serializer = EmailSerializer(data={"email": email})
+        """Tests that the UserExistsSerializer raises a validation error when using an email that doesn't belong to a user"""
+        serializer = UserExistsSerializer(data={"email": email})
         self.assertFalse(serializer.is_valid())
         self.assertIn("email", serializer.errors.error_list)
         self.assertFalse(serializer.user_queryset(email).exists())
 
     def test_email_serializer_valid(self):
-        """Tests that the EmailSerializer is valid when using an email that does exist"""
+        """Tests that the UserExistsSerializer is valid when using an email that does exist"""
         user = User.objects.create_user(email=email, password=password)
-        serializer = EmailSerializer(data={"email": email})
+        serializer = UserExistsSerializer(data={"email": email})
         self.assertTrue(serializer.is_valid())
         self.assertEqual(serializer.validated_data["email"], email)
 
     def test_email_availability_serializer_invalid(self):
-        """Tests that the EmailAvailabilitySerializer is invalid when passed an email that does exist in the DB"""
+        """Tests that the UserDoesNotExistSerializer is invalid when passed an email that does exist in the DB"""
         user = User.objects.create_user(email=email, password=password)
-        serializer = EmailAvailabilitySerializer(data={"email": email})
+        serializer = UserDoesNotExistSerializer(data={"email": email})
         self.assertFalse(serializer.is_valid())
         self.assertIn("email", serializer.errors.error_list)
 
     def test_email_availability_serializer_valid(self):
-        """Tests that the EmailAvailabilitySerializer is valid when passed an email that doesn't exist in the DB"""
-        serializer = EmailAvailabilitySerializer(data={"email": email})
+        """Tests that the UserDoesNotExistSerializer is valid when passed an email that doesn't exist in the DB"""
+        serializer = UserDoesNotExistSerializer(data={"email": email})
         self.assertTrue(serializer.is_valid())
 
     def test_email_serializer_regex(self):
-        """Tests that the EmailSerializer fails when passed an invalid email.
+        """Tests that the UserExistsSerializer fails when passed an invalid email.
 
         Given that I am on the the TRS sign in page
 
@@ -82,13 +82,13 @@ class TestAuthSerializers(TestCase):
 
         Then I am shown an error message
         """
-        serializer = EmailSerializer(data={"email": "asd@@@@gmail.com"})
+        serializer = UserExistsSerializer(data={"email": "asd@@@@gmail.com"})
         self.assertFalse(serializer.is_valid())
         self.assertIn("email", serializer.errors.error_list)
         self.assertEqual(serializer.errors.error_list["email"], "email_not_valid")
 
     def test_email_serializer_blank(self):
-        """EmailSerializer fails when blank email passed.
+        """UserExistsSerializer fails when blank email passed.
 
         Given that I am on the  TRS sign in page
 
@@ -100,7 +100,7 @@ class TestAuthSerializers(TestCase):
 
         Then I am shown an error message
         """
-        serializer = EmailSerializer(data={"email": ""})
+        serializer = UserExistsSerializer(data={"email": ""})
         self.assertFalse(serializer.is_valid())
         self.assertIn("email", serializer.errors.error_list)
         self.assertEqual(serializer.errors.error_list["email"], "email_required")

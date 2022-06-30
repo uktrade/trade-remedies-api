@@ -130,7 +130,10 @@ class CustomValidationSerializer(serializers.Serializer):
 
     @property
     def data(self):
-        return {"result": super().data}
+        return {"result": self.return_data()}
+
+    def return_data(self):
+        return super().data()
 
 
 class CustomValidationModelSerializer(CustomValidationSerializer, serializers.ModelSerializer):
