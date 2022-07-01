@@ -215,7 +215,7 @@ class ValidateInvitationAPIView(TradeRemediesApiView):
                 {"result": {"invitation": invitiation.to_dict(), "deviation": None, "diff": None}}
             )
         else:
-            invitation = Invitation.objects.get_invite_by_code(code, case_id)
+            invitation = Invitation.objects.get_invite_by_code(code)
             if invitation:
                 invitation.process_invitation(request.user, accept=True)
                 deviation, diff = invitation.compare_user_contact()

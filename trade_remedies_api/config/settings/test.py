@@ -12,3 +12,5 @@ if os.getenv("CIRCLECI"):
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         }
     }
+
+TESTING = True

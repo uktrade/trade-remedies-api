@@ -9,6 +9,7 @@ from functools import singledispatch
 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.db import models, transaction
+from django.urls import reverse
 from django.utils import timezone, crypto, http, encoding
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -34,6 +35,7 @@ from core.notifier import send_sms
 from timezone_field import TimeZoneField
 from phonenumbers.phonenumberutil import NumberParseException
 from .exceptions import UserExists
+from .services.auth.exceptions import TwoFactorRequestedTooMany
 from .tasks import send_mail
 from .decorators import method_cache
 from .constants import SAFE_COLOURS, DEFAULT_USER_COLOUR, TRUTHFUL_INPUT_VALUES
@@ -89,67 +91,28 @@ class UserManager(BaseUserManager):
 
     @transaction.atomic
     def create_user(
-        self, email, password=None, assign_default_groups=True, groups=None, admin=False, **kwargs
+        self, email, password=None, assign_default_groups=True, groups=(), admin=False, **kwargs
     ):
         """
         Creates and saves a User with the given email and password.
         Along with the user, a profile and contact is also created.
         If an organisation name is provided, it is created and associated with the
-        user. Optionally a ready made organisation record can be passed along as well.
+        user. Optionally a ready-made organisation record can be passed along as well.
         """
         from contacts.models import Contact
-        from organisations.models import Organisation
 
         user = self.create_base_user_model(email, **kwargs)
-        # Will raise validation error if password validation fails
-        validate_password(password)
+        validate_password(password)  # Will raise validation error if password validation fails
         user.set_password(password)
         user.twofactorauth = TwoFactorAuth(user=user)
-        user.save()
-        if groups is None:
-            groups = []
-
-        user_timezone = kwargs.get("timezone")
-
         UserProfile.objects.create(
             user=user,
             contact=None,
-            timezone=pytz.timezone(user_timezone) if user_timezone else None,
+            timezone=pytz.timezone(kwargs.get("timezone")) if kwargs.get("timezone") else None,
             colour=str(user.get_user_colour() or "black"),
             job_title_id=kwargs.get("job_title_id"),
         )
-
         user.save()
-
-        # Determine Organisation
-        organisation_name = kwargs.get("organisation_name")
-        organisation_address = kwargs.get("organisation_address")
-        post_code = kwargs.get("organisation_postcode")
-        organisation = None
-        if organisation_name:
-            organisation = Organisation.objects.create_or_update_organisation(
-                organisation_id=kwargs.get("organisation_id"),
-                user=user,
-                name=organisation_name,
-                address=organisation_address,
-                country=kwargs.get("organisation_country"),
-                post_code=post_code,
-                assign_user=True,
-                **filter_dict(
-                    kwargs,
-                    [
-                        "vat_number",
-                        "eori_number",
-                        "duns_number",
-                        "organisation_website",
-                        "companies_house_id",
-                    ],
-                ),
-            )
-            if organisation.users.count() > 1:
-                groups.append(SECURITY_GROUP_ORGANISATION_USER)
-            else:
-                groups.append(SECURITY_GROUP_ORGANISATION_OWNER)
 
         if assign_default_groups and not groups:
             permissions = DEFAULT_ADMIN_PERMISSIONS if admin is True else DEFAULT_USER_PERMISSIONS
@@ -160,38 +123,18 @@ class UserManager(BaseUserManager):
         self.evaluate_sos_membership(user, groups)
 
         # Contact and profile details
-        phone = kwargs.get("phone")
-        country = kwargs.get("country", "GB")
-
-        if phone:
-            try:
-                phone = convert_to_e164(phone, country=country)
-            except NumberParseException:
-                pass
-
-        if country in ["code", "name"]:
-            country = "GB"
-
-        contact = kwargs.get("contact")
-
-        if not contact:
-            contact = Contact.objects.create_contact(
+        contact = kwargs.get(
+            "contact",
+            Contact.objects.create_contact(
                 name=user.name,
                 email=user.email,
-                organisation=organisation,
-                phone=phone,
-                address=kwargs.get("contact_address") or organisation_address,
-                post_code=kwargs.get("contact_postcode") or post_code,
-                country=country,
+                phone=kwargs.get("contact_phone"),
+                address=kwargs.get("contact_address"),
+                post_code=kwargs.get("contact_post_code"),
+                country=kwargs.get("contact_country"),
                 created_by=user,
-            )
-        else:
-            contact.phone = phone
-            contact.address = kwargs.get("contact_address") or contact.address
-            contact.post_code = kwargs.get("contact_postcode") or contact.post_code
-            contact.country = country
-            contact.save()
-
+            ),
+        )
         UserProfile.objects.filter(user=user).update(contact=contact)
 
         user.save()
@@ -827,6 +770,9 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
             twofactor, _ = TwoFactorAuth.objects.get_or_create(user=self)
             self.twofactorauth = twofactor
             self.save()
+        if not self.is_tra():
+            # This is a public user, force 2FA
+            return True
         user_agent = user_agent or self.twofactorauth.last_user_agent
         return (
             not self.twofactorauth.last_validated
@@ -1019,8 +965,7 @@ class UserProfile(models.Model):
         template_id = SystemParameter.get("NOTIFY_VERIFY_EMAIL")
         context = {
             "name": self.user.name,
-            "verification_link": f"{settings.PUBLIC_ROOT_URL}/email/verify/?code={self.email_verify_code}",
-            # noqa: E501
+            "verification_link": f"{settings.PUBLIC_ROOT_URL}/register/verify_email/{self.user.pk}/{self.email_verify_code}",
         }
         send_report = send_mail(self.user.email, context, template_id)
         return send_report
@@ -1107,8 +1052,23 @@ class TwoFactorAuth(models.Model):
         :param (str) code: 2FA code.
         :returns (bool): True if code is valid, False otherwise.
         """
+        return code == self.code and self.code_within_valid_timeframe()
+
+    def code_within_valid_timeframe(self) -> bool:
+        """Checks that the code is still within the relevant timeframe for validation.
+
+        It does not matter if the code is correct, if this is False then the code is ultimately
+        deemed invalid.
+
+        Returns:
+            True if the code is within the valid duration, False if not
+        """
         valid_minutes = self.validity_period_for(self.delivery_type)
-        return code == self.code and self.code_duration < (valid_minutes * 60)
+        # self.code_duration is in seconds, so we need to compare it against seconds
+        if self.code_duration < (valid_minutes * 60):
+            return True
+        else:
+            return False
 
     @property
     def code_duration(self):
@@ -1132,6 +1092,14 @@ class TwoFactorAuth(models.Model):
         :param (int) valid_minutes: 2FA validity period in minutes.
         :returns (str): New or existing 2FA code.
         """
+        now = timezone.now()
+        if (
+            self.generated_at
+            and (now - self.generated_at).seconds <= settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS
+        ):
+            # They have requested a new code in the last TWO_FACTOR_RESEND_TIMEOUT_SECONDS seconds
+            raise TwoFactorRequestedTooMany()
+
         if self.attempts == 0 or self.code_duration >= (valid_minutes * 60):
             self.code = str(randint(10000, 99999))
             self.last_user_agent = user_agent
@@ -1169,6 +1137,7 @@ class TwoFactorAuth(models.Model):
             return send_report
         except Exception as two_fa_exception:
             logger.error(f"Could not 2fa for {self.user} / {self.user.id}: {two_fa_exception}")
+            raise
 
 
 class PasswordResetManager(models.Manager):
@@ -1189,12 +1158,24 @@ class PasswordResetManager(models.Manager):
                 password_reset_object.save()
         return is_valid
 
-    def reset_request(self, email):
-        try:
-            user = User.objects.get(email__iexact=email)
-        except User.DoesNotExist:
-            logger.warning(f"Password reset request failed, user {email} does not exist")
-            return None, None
+    def validate_token_using_request_id(self, token, request_id, validate_only=False):
+        """
+        Validate a reset request code.
+        The code is made of a user's uuid and a unique 64 char code separated with an exclamation.
+        Once acknowledged, the code becomes useless, even if the user did not complete the password
+        reset process.
+        Returns the reset model if it validates ok
+        """
+        user_object = PasswordResetRequest.objects.get(request_id=request_id).user
+        is_valid = PasswordResetTokenGenerator().check_token(user=user_object, token=token)
+        if not validate_only:
+            if password_reset_object := self.filter(token=token).first():
+                password_reset_object.ack_at = timezone.now()
+                password_reset_object.invalidated_at = timezone.now()
+                password_reset_object.save()
+        return is_valid
+
+    def send_reset(self, user):
         self.filter(user=user, ack_at__isnull=True, invalidated_at__isnull=True).update(
             invalidated_at=timezone.now()
         )
@@ -1203,6 +1184,27 @@ class PasswordResetManager(models.Manager):
         reset.invalidated_at = None
         reset.generate_token()
         send_report = reset.send_reset_link()
+        return reset, send_report
+
+    def reset_request(self, email):
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            logger.warning(f"Password reset request failed, user {email} does not exist")
+            return None, None
+        reset, send_report = self.send_reset(user)
+        return reset, send_report
+
+    def reset_request_using_request_id(self, request_id):
+        try:
+            user_pk = PasswordResetRequest.objects.get(request_id=request_id).user.pk
+            user = User.objects.get(id=user_pk)
+        except User.DoesNotExist:
+            logger.warning(
+                f"Password reset request failed, no user associated with request {request_id}"
+            )
+            return None, None
+        reset, send_report = self.send_reset(user)
         return reset, send_report
 
     def password_reset(self, token, user_pk, new_password):
@@ -1224,6 +1226,25 @@ class PasswordResetManager(models.Manager):
                     f"Password reset failed for user {user_pk} as the user could not be found in the database"
                 )
 
+    def password_reset_v2(self, token, request_id, new_password):
+        """
+        Performs a password reset if the code validates ok
+        Raises ValidationError if the password does not pass the min requirements
+        """
+        reset = self.validate_token_using_request_id(token, request_id)
+        if reset:
+            validate_password(new_password)
+            try:
+                user_pk = PasswordResetRequest.objects.get(request_id=request_id).user.pk
+                user = User.objects.get(pk=user_pk)
+                user.set_password(new_password)
+                user.save()
+                return user
+            except User.DoesNotExist:
+                logger.warning(
+                    f"Password reset failed for request {request_id} as the user could not be found in the database"
+                )
+
 
 class PasswordResetRequest(models.Model):
     """
@@ -1240,6 +1261,7 @@ class PasswordResetRequest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     ack_at = models.DateTimeField(null=True, blank=True)
     invalidated_at = models.DateTimeField(null=True, blank=True)
+    request_id = models.UUIDField(default=uuid.uuid4, editable=False)
 
     objects = PasswordResetManager()
 
@@ -1259,16 +1281,13 @@ class PasswordResetRequest(models.Model):
         if self.user.is_tra():
             return f"{settings.CASEWORKER_ROOT_URL}/accounts/password/reset/{self.user.pk}/{self.token}/"  # noqa: E501
         else:
-            return (
-                f"{settings.PUBLIC_ROOT_URL}/accounts/password/reset/{self.user.pk}/{self.token}/"
-            )
+            return f"{settings.PUBLIC_ROOT_URL}/accounts/password/reset/{self.request_id}/{self.token}/"
 
     def send_reset_link(self):
-        template_id = SystemParameter.get("NOTIFY_RESET_PASSWORD")
+        template_id = SystemParameter.get("NOTIFY_RESET_PASSWORD_V2")
         context = {
-            "code": self.token,
-            "name": self.user.name,
             "password_reset_link": self.get_link(),
+            "footer": "The Investigations Team,\r\nTrade Remedies Authority\r\n",  # /PS-IGNORE
         }
         send_mail(self.user.email, context, template_id)
         return True
