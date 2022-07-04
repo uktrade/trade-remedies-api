@@ -149,7 +149,10 @@ class RegistrationAPIView(APIView):
                 # register interest if this is the first user of this organisation
                 register_interest = not invited_organisation.has_users
                 # If it's a third party invite, we don't want to create a registration of interest
-                if invitation.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY:
+                if (
+                    invitation.submission
+                    and invitation.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY
+                ):
                     register_interest = False
                 contact_kwargs = {}
                 if serializer.initial_data["confirm_invited_org"] == "True":

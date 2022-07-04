@@ -1,8 +1,4 @@
-FEATURE_FLAG_PREFIX}_TEST_GROUP
-Flag Group
-FLAGS
-CoreConfig
-FEATURE_FLAG_PREFIX}_TEST_GROUP
+DUNS
 Email Verified"
 New User Created
 EORI

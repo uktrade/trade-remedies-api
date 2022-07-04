@@ -46,6 +46,11 @@ validation_errors = {
         "error_text": "Enter your email address in the correct format. Eg. name@example.com",  # /PS-IGNORE
         "error_summary": "Your email address needs to be in the correct format. Eg. name@example.com",  # /PS-IGNORE
     },
+    "contact_email_not_valid": {
+        "field": "email",
+        "error_text": "Enter the contact's email address in the correct format. Eg. name@example.com",  # /PS-IGNORE
+        "error_summary": "The contact's email address needs to be in the correct format. Eg. name@example.com",  # /PS-IGNORE
+    },
     "email_required": {
         "field": "email",
         "error_text": "Enter your email address. Eg. name@example.com",  # /PS-IGNORE
@@ -71,10 +76,25 @@ validation_errors = {
         "error_text": "Enter your name",
         "error_summary": "You need to enter your name",
     },
+    "no_contact_name_entered": {
+        "field": "name",
+        "error_text": "Enter your contact’s name",
+        "error_summary": "You need to enter your contact’s name",
+    },
+    "no_org_chosen": {
+        "field": "org",
+        "error_text": "Select who is registering interest",
+        "error_summary": "You need to select who is registering interest in this case",
+    },
     "no_email_entered": {
         "field": "email",
         "error_text": "Enter your email address",
         "error_summary": "You need to enter your email address",
+    },
+    "no_contact_email_entered": {
+        "field": "email",
+        "error_text": "Enter your contact’s email address",
+        "error_summary": "You need to enter your contact’s email address",
     },
     "terms_and_conditions_not_accepted": {
         "field": "terms_and_conditions_accept",
@@ -119,7 +139,7 @@ validation_errors = {
     "companies_house_not_selected": {
         "field": "input-autocomplete",
         "error_text": "Select your company",
-        "error_summary": "Select your company",
+        "error_summary": "You need to select your company",
     },
     "no_company_name_entered": {
         "field": "organisation_name",
@@ -128,8 +148,8 @@ validation_errors = {
     },
     "no_company_post_code_or_number_entered": {
         "field": ["address", "post_code"],
-        "error_text": "Enter a registered company number or the postcode for your organisation's address",
-        "error_summary": "We need a registered company number or the postcode for your organisation's address",
+        "error_text": "Enter either your organisation's registration number or the postcode for your organisation's address",
+        "error_summary": "We need either your organisation's registration number or the postcode for your organisation's address",
     },
     "no_company_address_entered": {
         "field": "address",
@@ -140,6 +160,28 @@ validation_errors = {
         "field": "country",
         "error_text": "Select your country",
         "error_summary": "Select the country for your organisation",
+    },
+    "no_client_name_entered": {
+        "field": "organisation_name",
+        "error_text": "Enter the name of your client",
+        "error_summary": "We need your client's name",
+    },
+    "no_client_post_code_or_number_entered": {
+        "field": "post_code",
+        "error_text": "Enter either your organisation's registration number "
+        "or the postcode for your organisation's address",
+        "error_summary": "We need either your organisation's registration number or "
+        "the postcode for your organisation's address",
+    },
+    "no_client_address_entered": {
+        "field": "address",
+        "error_text": "Enter your client's address",
+        "error_summary": "We need your client's address",
+    },
+    "no_client_country_selected": {
+        "field": "country",
+        "error_text": "Select your client's country",
+        "error_summary": "Select your client's country",
     },
     "incorrect_vat_format": {
         "field": "company_vat_number",
@@ -155,6 +197,21 @@ validation_errors = {
         "error_summary": "You have entered an incorrect D‑U‑N‑S Number",
     },
     "incorrect_url": {
+        "field": "company_website",
+        "error_text": "Enter the correct web address",
+        "error_summary": "The website address you have entered does not look valid",
+    },
+    "incorrect_client_eori_format": {
+        "field": "company_eori_number",
+        "error_text": "Enter the correct EORI number",
+        "error_summary": "You have entered an incorrect EORI number",
+    },
+    "incorrect_client_duns_format": {
+        "field": "company_duns_number",
+        "error_text": "Enter your client's 9-digit DUNS number",
+        "error_summary": "You have entered an incorrect DUNS number",
+    },
+    "incorrect_client_url": {
         "field": "company_website",
         "error_text": "Enter the correct web address",
         "error_summary": "The website address you have entered does not look valid",
