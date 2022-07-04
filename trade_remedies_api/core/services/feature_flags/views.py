@@ -8,8 +8,6 @@ from rest_framework import exceptions
 
 
 class FlagViewSet(viewsets.ViewSet):
-    permission_classes = ()
-    authentication_classes = ()
     renderer_classes = (APIResponseRenderer,)
 
     def dispatch(self, request, *args, **kwargs):
@@ -27,6 +25,3 @@ class FlagViewSet(viewsets.ViewSet):
             return Response(flag_serializer.data)
         else:
             raise exceptions.NotFound()
-
-    def perform_authentication(self, request):
-        pass

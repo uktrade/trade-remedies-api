@@ -1,39 +1,23 @@
 import json
-import uuid
 
 from django.contrib.auth.models import Group
 from django.core.management import call_command
 from django.urls import reverse
 from django.utils import crypto
-from rest_framework.authtoken.models import Token
-from rest_framework.test import APITransactionTestCase
 from rest_framework import status
 
-from core.models import SystemParameter, User, PasswordResetRequest, UserProfile
+from core.models import User, UserProfile
+from test_functional import FunctionalTestBase
 from organisations.models import Organisation
 from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
 from security.models import OrganisationUser
 
 
-class HealthCheckTestBase(APITransactionTestCase):
-    """Base class that creates a Health Check user with a token to access the API."""
-
-    def setUp(self) -> None:
-        Group.objects.create(name=SECURITY_GROUP_ORGANISATION_OWNER)
-        Group.objects.create(name=SECURITY_GROUP_ORGANISATION_USER)
-        self.user = User.objects.create_user(
-            name="Health Check",
-            email="standard@gov.uk",  # /PS-IGNORE
-            password="Super-Secret-Password1!",
-            contact_phone="+447700900000",  # This is the GOV.UK Test Number, do not change.
-        )
-        self.client.force_authenticate(user=self.user, token=self.user.auth_token.key)
-
-
-class TestRegistration(HealthCheckTestBase):
+class TestRegistration(FunctionalTestBase):
     def setUp(self):
         super().setUp()
-
+        Group.objects.create(name=SECURITY_GROUP_ORGANISATION_OWNER)
+        Group.objects.create(name=SECURITY_GROUP_ORGANISATION_USER)
         self.mock_registration_data = {
             "name": "Test",
             "email": "test@example.com",  # /PS-IGNORE
@@ -92,7 +76,7 @@ class TestRegistration(HealthCheckTestBase):
         assert str(response.data["response"]["result"]["pk"]) != str(new_user_object.pk)
 
 
-class TestEmailVerify(HealthCheckTestBase):
+class TestEmailVerify(FunctionalTestBase):
     def test_success_request(self):
         assert not self.user.userprofile.email_verify_code_last_sent
         response = self.client.post(

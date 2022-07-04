@@ -1,19 +1,10 @@
-from rest_framework.authtoken.models import Token
-from rest_framework.test import APITransactionTestCase
 from rest_framework import status
 
-from core.models import User, PasswordResetRequest
+from core.models import PasswordResetRequest, User
+from test_functional import FunctionalTestBase
 
 
-class PasswordResetTest(APITransactionTestCase):
-    def setUp(self):
-        self.user = User.objects.create(
-            name="Health Check",
-            email="standard@gov.uk",  # /PS-IGNORE
-            password="super-secret-password1!",
-        )
-        token = Token.objects.create(user=self.user, key="super-secret-token1!")
-        self.client.force_authenticate(user=self.user, token=token)
+class PasswordResetTest(FunctionalTestBase):
 
     def test_requests_password_reset(self):
         response = self.client.get(
@@ -32,7 +23,8 @@ class PasswordResetTest(APITransactionTestCase):
             "error_summaries": [
                 (
                     "email",
-                    "Your email address needs to be in the correct format. Eg. name@example.com",  # /PS-IGNORE
+                    "Your email address needs to be in the correct format. Eg. name@example.com",
+                # /PS-IGNORE
                 )
             ],
             "email": [
@@ -65,8 +57,8 @@ class PasswordResetTest(APITransactionTestCase):
         assert response.data["response"] == {"success": True, "result": True}
         assert (
             PasswordResetRequest.objects.filter(user=self.user)
-            .exclude(request_id=first_request_id)
-            .exists()
+                .exclude(request_id=first_request_id)
+                .exists()
         )
 
     def test_request_password_reset_fails_if_no_request_for_request_id(self):

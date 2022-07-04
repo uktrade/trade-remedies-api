@@ -4,15 +4,8 @@ from core.models import User
 from core.services.users.serializers import UserSerializer
 
 
-class ConditionSerializer(serializers.Serializer):
-    condition = serializers.CharField()
-    value = serializers.BooleanField()
-    required = serializers.BooleanField()
-
-
 class FlagSerializer(serializers.Serializer):
     name = serializers.EmailField()
-    conditions = ConditionSerializer(many=True)
     users_in_group = serializers.SerializerMethodField()
     users_not_in_group = serializers.SerializerMethodField()
 
