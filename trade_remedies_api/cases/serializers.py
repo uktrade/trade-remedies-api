@@ -19,4 +19,4 @@ class CaseSerializer(CustomValidationModelSerializer):
 
     class Meta:
         model = Case
-        fields = '__all__'
+        fields = "__all__"
