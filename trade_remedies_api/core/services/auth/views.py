@@ -7,12 +7,13 @@ from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from flags.state import flag_enabled
 from rest_framework import status
 from rest_framework.views import APIView
 
+from audit import AUDIT_TYPE_PASSWORD_RESET, AUDIT_TYPE_PASSWORD_RESET_FAILED
+from audit.utils import audit_log
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
-from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, UserProfile, User
+from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User, UserProfile
 from core.notifier import send_mail
 from core.services.base import ResponseError, ResponseSuccess, TradeRemediesApiView
 from core.services.exceptions import InvalidRequestParams
@@ -22,22 +23,11 @@ from security.constants import (
     SECURITY_GROUP_ORGANISATION_USER,
     SECURITY_GROUP_THIRD_PARTY_USER,
 )
-
-from audit import AUDIT_TYPE_PASSWORD_RESET, AUDIT_TYPE_PASSWORD_RESET_FAILED
-from audit.utils import audit_log
-from .serializers import (
-    AuthenticationSerializer,
-    UserDoesNotExistSerializer,
-    PasswordResetRequestSerializer,
-    PasswordSerializer,
-    RegistrationSerializer,
-    TwoFactorAuthRequestSerializer,
-    TwoFactorAuthVerifySerializer,
-    VerifyEmailSerializer,
-    PasswordRequestIdSerializer,
-    EmailSerializer,
-    PasswordResetRequestSerializerV2,
-)
+from .serializers import (AuthenticationSerializer, EmailSerializer, PasswordRequestIdSerializer,
+                          PasswordResetRequestSerializer, PasswordResetRequestSerializerV2,
+                          PasswordSerializer, RegistrationSerializer,
+                          TwoFactorAuthRequestSerializer, TwoFactorAuthVerifySerializer,
+                          UserDoesNotExistSerializer, VerifyEmailSerializer)
 from ...exceptions import ValidationAPIException
 
 logger = logging.getLogger(__name__)
@@ -87,8 +77,6 @@ class AuthenticationView(APIView):
         Raises:
             AccessDenied if request fails.
         """
-        """if not flag_enabled('ROI_USERS', group_name="V2_AUTH_GROUP", user_object=request.user):
-            print("My feature flag is enabled")"""
 
         serializer = AuthenticationSerializer(data=request.data, context={"request": request})
 
@@ -150,8 +138,8 @@ class RegistrationAPIView(APIView):
                 register_interest = not invited_organisation.has_users
                 # If it's a third party invite, we don't want to create a registration of interest
                 if (
-                    invitation.submission
-                    and invitation.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY
+                        invitation.submission
+                        and invitation.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY
                 ):
                     register_interest = False
                 contact_kwargs = {}
@@ -345,9 +333,9 @@ class PasswordResetFormV2(APIView):
 
         if token_serializer.is_valid() and password_serializer.is_valid():
             if PasswordResetRequest.objects.password_reset_v2(
-                token_serializer.initial_data["token"],
-                token_serializer.initial_data["request_id"],
-                token_serializer.initial_data["password"],
+                    token_serializer.initial_data["token"],
+                    token_serializer.initial_data["request_id"],
+                    token_serializer.initial_data["password"],
             ):
                 logger.info(f"Password reset completed for: request {request_id}")
                 user_pk = PasswordResetRequest.objects.get(request_id=request_id).user.pk
@@ -408,9 +396,9 @@ class PasswordResetForm(APIView):
 
         if token_serializer.is_valid() and password_serializer.is_valid():
             if PasswordResetRequest.objects.password_reset(
-                token_serializer.initial_data["token"],
-                token_serializer.initial_data["user_pk"],
-                token_serializer.initial_data["password"],
+                    token_serializer.initial_data["token"],
+                    token_serializer.initial_data["user_pk"],
+                    token_serializer.initial_data["password"],
             ):
                 logger.info(f"Password reset completed for: {user_pk}")
                 return ResponseSuccess({"result": {"reset": True}}, http_status=status.HTTP_200_OK)
