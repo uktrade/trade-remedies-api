@@ -5,7 +5,6 @@ from test_functional import FunctionalTestBase
 
 
 class PasswordResetTest(FunctionalTestBase):
-
     def test_requests_password_reset(self):
         response = self.client.get(
             f"/api/v1/accounts/password/request_reset/?email={self.user.email}"
@@ -23,8 +22,8 @@ class PasswordResetTest(FunctionalTestBase):
             "error_summaries": [
                 (
                     "email",
-                    "Your email address needs to be in the correct format. Eg. name@example.com",
-                # /PS-IGNORE
+                    "Your email address needs to be in the correct format. "
+                    "Eg. name@example.com",  # /PS-IGNORE
                 )
             ],
             "email": [
@@ -57,8 +56,8 @@ class PasswordResetTest(FunctionalTestBase):
         assert response.data["response"] == {"success": True, "result": True}
         assert (
             PasswordResetRequest.objects.filter(user=self.user)
-                .exclude(request_id=first_request_id)
-                .exists()
+            .exclude(request_id=first_request_id)
+            .exists()
         )
 
     def test_request_password_reset_fails_if_no_request_for_request_id(self):

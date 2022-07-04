@@ -10,6 +10,6 @@ class FunctionalTestBase(APITransactionTestCase):
         self.user = User.objects.create_user(
             name="Health Check",
             email="standard@gov.uk",  # /PS-IGNORE
-            password="super-secret-password1D!"
+            password="super-secret-password1D!",
         )
         self.client.force_authenticate(user=self.user, token=self.user.get_access_token())

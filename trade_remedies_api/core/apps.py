@@ -17,7 +17,6 @@ class CoreConfig(AppConfig):
             if created:
                 logger.debug(f"Feature Flag Group {flag} has been created")
         # Now we want to delete all old feature flags which we may have deleted from the FLAGS var
-        Group.objects \
-            .filter(name__startswith=settings.FEATURE_FLAG_PREFIX) \
-            .exclude(name__in=settings.FLAGS) \
-            .delete()
+        Group.objects.filter(name__startswith=settings.FEATURE_FLAG_PREFIX).exclude(
+            name__in=settings.FLAGS
+        ).delete()

@@ -15,7 +15,7 @@ class TestUserViewSet(FunctionalTestBase):
         assert self.test_group_object not in self.user.groups.all()
         self.client.put(
             reverse("user-change_group", kwargs={"pk": self.user.pk}),
-            data={"group_name": test_group_name}
+            data={"group_name": test_group_name},
         )
         assert self.test_group_object in self.user.groups.all()
 
@@ -24,6 +24,6 @@ class TestUserViewSet(FunctionalTestBase):
         assert self.test_group_object in self.user.groups.all()
         self.client.delete(
             reverse("user-change_group", kwargs={"pk": self.user.pk}),
-            data={"group_name": test_group_name}
+            data={"group_name": test_group_name},
         )
         assert self.test_group_object not in self.user.groups.all()

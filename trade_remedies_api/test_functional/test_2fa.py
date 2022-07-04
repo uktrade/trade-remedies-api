@@ -20,8 +20,7 @@ class TestTwoFactorRequest(FunctionalTestBase):
         )
         assert response.status_code == 200
         assert (
-                self.user.twofactorauth.code == response.data["response"]["result"]["context"][
-            "code"]
+            self.user.twofactorauth.code == response.data["response"]["result"]["context"]["code"]
         )
 
     def test_success_validate(self):

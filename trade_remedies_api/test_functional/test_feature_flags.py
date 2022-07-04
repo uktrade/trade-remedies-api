@@ -6,27 +6,24 @@ from core.models import Group, User
 from test_functional import FunctionalTestBase
 from security.tests.test_security import PASSWORD
 
-test_group_name = f'{settings.FEATURE_FLAG_PREFIX}_TEST_GROUP'
+test_group_name = f"{settings.FEATURE_FLAG_PREFIX}_TEST_GROUP"
 
 
 @override_settings(
     FLAGS={
         test_group_name: [
-            {'condition': 'PART_OF_GROUP', 'value': True, "required": True},
+            {"condition": "PART_OF_GROUP", "value": True, "required": True},
         ],
     }
 )
 class TestFeatureFlagSerializer(FunctionalTestBase):
-
     def setUp(self) -> None:
         super().setUp()
         self.user_one = User.objects.create_user(
-            email="user_one@example.com",
-            password=PASSWORD
+            email="user_one@example.com", password=PASSWORD  # /PS-IGNORE
         )
         self.user_two = User.objects.create_user(
-            email="user_two@example.com",
-            password=PASSWORD
+            email="user_two@example.com", password=PASSWORD  # /PS-IGNORE
         )
         self.test_group_object = Group.objects.create(name=test_group_name)
 

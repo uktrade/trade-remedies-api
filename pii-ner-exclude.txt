@@ -1,3 +1,8 @@
+FEATURE_FLAG_PREFIX}_TEST_GROUP
+Flag Group
+FLAGS
+CoreConfig
+FEATURE_FLAG_PREFIX}_TEST_GROUP
 Email Verified"
 New User Created
 EORI

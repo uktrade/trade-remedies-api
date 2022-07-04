@@ -90,7 +90,6 @@ class AuthenticationView(APIView):
         """if not flag_enabled('ROI_USERS', group_name="V2_AUTH_GROUP", user_object=request.user):
             print("My feature flag is enabled")"""
 
-
         serializer = AuthenticationSerializer(data=request.data, context={"request": request})
 
         if serializer.is_valid():
