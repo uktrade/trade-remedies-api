@@ -1,13 +1,12 @@
 from rest_framework import viewsets
+from rest_framework.renderers import JSONRenderer
 
 from cases.models import Case
 from cases.serializers import CaseSerializer
-from core.renderers import APIResponseRenderer
-from core.services.base import ResponseSuccess
 
 
 class CaseViewSet(viewsets.ModelViewSet):
-    renderer_classes = [APIResponseRenderer]
+    renderer_classes = [JSONRenderer]
     queryset = Case.objects.all()
     serializer_class = CaseSerializer
 

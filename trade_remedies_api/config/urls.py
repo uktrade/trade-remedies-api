@@ -162,7 +162,7 @@ urlpatterns = [
 ]
 
 router = routers.SimpleRouter()
-router.register(f'{settings.API_PREFIX}/v2_cases', CaseViewSet, basename="v2_case")
+router.register(f'{settings.API_V2_PREFIX}/cases', CaseViewSet, basename="cases")
 urlpatterns += router.urls
 
 if settings.DJANGO_ADMIN:
