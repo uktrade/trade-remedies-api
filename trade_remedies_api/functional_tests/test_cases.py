@@ -49,7 +49,7 @@ class CaseTest(APITransactionTestCase):
             contact_name="dumb king",
             organisation_name="dummy",
             case_name="dummies for a dummy",
-            submission_type_id=self.submission_type.id
+            submission_type_id=self.submission_type.id,
         )
         organisation, my_case, submission = Case.objects.create_new_case(
             self.user,
@@ -58,7 +58,7 @@ class CaseTest(APITransactionTestCase):
             contact_name="dumb king",
             organisation_name="dummy",
             case_name="dummies for another dummy",
-            submission_type_id=self.submission_type.id
+            submission_type_id=self.submission_type.id,
         )
         response = self.client.get("/api/v2/cases/")
         assert response.status_code == status.HTTP_200_OK
@@ -74,7 +74,7 @@ class CaseTest(APITransactionTestCase):
             contact_name="dumb king",
             organisation_name="dummy",
             case_name="dummies for a dummy",
-            submission_type_id=self.submission_type.id
+            submission_type_id=self.submission_type.id,
         )
         organisation, roi_case, submission = Case.objects.create_new_case(
             self.user,
@@ -83,7 +83,7 @@ class CaseTest(APITransactionTestCase):
             contact_name="dumb king",
             organisation_name="dummy",
             case_name="dummies for another dummy",
-            submission_type_id=self.submission_type.id
+            submission_type_id=self.submission_type.id,
         )
         roi_case.initiated_at = datetime.datetime.utcnow()
         roi_case.save()
