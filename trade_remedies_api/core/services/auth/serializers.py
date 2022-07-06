@@ -12,13 +12,12 @@ from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from audit import AUDIT_TYPE_LOGIN, AUDIT_TYPE_LOGIN_FAILED
 from audit.utils import audit_log
 from config.serializers import CustomValidationModelSerializer, CustomValidationSerializer
-from .exceptions import TwoFactorRequestedTooMany, AxesLockedOutException
-from config.serializers import CustomValidationSerializer
 from core.exceptions import CustomValidationError
 from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User
 from core.services.auth.exceptions import AxesLockedOutException
 from core.validation_errors import validation_errors
 from security.constants import ENVIRONMENT_GROUPS
+from .exceptions import TwoFactorRequestedTooMany
 
 logger = logging.getLogger(__name__)
 
