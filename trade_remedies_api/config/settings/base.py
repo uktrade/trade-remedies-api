@@ -510,7 +510,7 @@ TESTING = False
 conditions.register("PART_OF_GROUP", fn=part_of_group_condition)
 FEATURE_FLAG_PREFIX = "FEATURE_FLAG"
 FLAGS = {
-    f"{FEATURE_FLAG_PREFIX}_V2_ROI": [
+    f"{FEATURE_FLAG_PREFIX}_UAT_TEST": [
         {"condition": "PART_OF_GROUP", "value": True, "required": True},
     ],
 }

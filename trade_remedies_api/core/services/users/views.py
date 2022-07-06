@@ -10,6 +10,14 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @action(
+        detail=True,
+        methods=["get"],
+        url_name="user_in_group",
+    )
+    def is_user_in_group(self, request, *args, **kwargs):
+        pass
+
     @action(detail=True, methods=["put"], url_name="change_group")
     def add_group(self, request, *args, **kwargs):
         group_object = Group.objects.get(name=request.data["group_name"])
