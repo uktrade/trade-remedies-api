@@ -23,11 +23,19 @@ from security.constants import (
     SECURITY_GROUP_ORGANISATION_USER,
     SECURITY_GROUP_THIRD_PARTY_USER,
 )
-from .serializers import (AuthenticationSerializer, EmailSerializer, PasswordRequestIdSerializer,
-                          PasswordResetRequestSerializer, PasswordResetRequestSerializerV2,
-                          PasswordSerializer, RegistrationSerializer,
-                          TwoFactorAuthRequestSerializer, TwoFactorAuthVerifySerializer,
-                          UserDoesNotExistSerializer, VerifyEmailSerializer)
+from .serializers import (
+    AuthenticationSerializer,
+    EmailSerializer,
+    PasswordRequestIdSerializer,
+    PasswordResetRequestSerializer,
+    PasswordResetRequestSerializerV2,
+    PasswordSerializer,
+    RegistrationSerializer,
+    TwoFactorAuthRequestSerializer,
+    TwoFactorAuthVerifySerializer,
+    UserDoesNotExistSerializer,
+    VerifyEmailSerializer,
+)
 from ...exceptions import ValidationAPIException
 
 logger = logging.getLogger(__name__)
@@ -138,8 +146,8 @@ class RegistrationAPIView(APIView):
                 register_interest = not invited_organisation.has_users
                 # If it's a third party invite, we don't want to create a registration of interest
                 if (
-                        invitation.submission
-                        and invitation.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY
+                    invitation.submission
+                    and invitation.submission.type.id == SUBMISSION_TYPE_INVITE_3RD_PARTY
                 ):
                     register_interest = False
                 contact_kwargs = {}
@@ -333,9 +341,9 @@ class PasswordResetFormV2(APIView):
 
         if token_serializer.is_valid() and password_serializer.is_valid():
             if PasswordResetRequest.objects.password_reset_v2(
-                    token_serializer.initial_data["token"],
-                    token_serializer.initial_data["request_id"],
-                    token_serializer.initial_data["password"],
+                token_serializer.initial_data["token"],
+                token_serializer.initial_data["request_id"],
+                token_serializer.initial_data["password"],
             ):
                 logger.info(f"Password reset completed for: request {request_id}")
                 user_pk = PasswordResetRequest.objects.get(request_id=request_id).user.pk
@@ -396,9 +404,9 @@ class PasswordResetForm(APIView):
 
         if token_serializer.is_valid() and password_serializer.is_valid():
             if PasswordResetRequest.objects.password_reset(
-                    token_serializer.initial_data["token"],
-                    token_serializer.initial_data["user_pk"],
-                    token_serializer.initial_data["password"],
+                token_serializer.initial_data["token"],
+                token_serializer.initial_data["user_pk"],
+                token_serializer.initial_data["password"],
             ):
                 logger.info(f"Password reset completed for: {user_pk}")
                 return ResponseSuccess({"result": {"reset": True}}, http_status=status.HTTP_200_OK)
