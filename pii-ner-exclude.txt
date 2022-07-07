@@ -1,3 +1,6 @@
+Jack
+EmailSerializer
+EmailAvailabilitySerializer
 " Normal (not model
 CoreConfig
 Custom ResponseRenderer
