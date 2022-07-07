@@ -6,7 +6,7 @@ from core.models import Group, User
 from test_functional import FunctionalTestBase
 from security.tests.test_security import PASSWORD
 
-test_group_name = f"{settings.FEATURE_FLAG_PREFIX}_TEST_GROUP"
+test_group_name = f"{settings.FEATURE_FLAG_PREFIX}_TEST_GROUP"  # /PS-IGNORE
 
 
 @override_settings(
