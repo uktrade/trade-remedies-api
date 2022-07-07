@@ -46,7 +46,7 @@ class TestFeatureFlagSerializer(FunctionalTestBase):
         assert len(response_data[0]["users_not_in_group"]) == 2
 
         assert response_data[0]["users_in_group"][0]["id"] == str(self.user_one.pk)
-        assert response_data[0]["users_not_in_group"][1]["id"] == str(self.user_two.pk)
+        assert response_data[0]["users_not_in_group"][0]["id"] == str(self.user_two.pk)
 
     def test_retrieve(self):
         response = self.client.get(
