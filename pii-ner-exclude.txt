@@ -1,3 +1,7 @@
+Jack
+EmailSerializer
+EmailAvailabilitySerializer
+DUNS
 Email Verified"
 New User Created
 EORI
