@@ -6,6 +6,7 @@ class APIResponseRenderer(JSONRenderer):
     """
     Custom ResponseRenderer which formats API responses to make them compatible with the client.
     """
+
     def render(self, data, accepted_media_type=None, renderer_context=None):
         response_dict = {"success": True, "response": {}}
         if hasattr(data, "serializer"):

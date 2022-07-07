@@ -10,6 +10,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     ModelViewSet for interacting with user objects via the API.
     """
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
 

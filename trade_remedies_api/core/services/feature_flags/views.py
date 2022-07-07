@@ -11,6 +11,7 @@ class FlagViewSet(viewsets.ViewSet):
     """
     GenericViewSet to retrieve feature flags in the codebase.
     """
+
     renderer_classes = (APIResponseRenderer,)
 
     def dispatch(self, request, *args, **kwargs):

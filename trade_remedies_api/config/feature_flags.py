@@ -15,7 +15,4 @@ def is_user_part_of_group(request, user_object: User, group_name: str) -> bool:
     -------
     True if the user is part of that group, False otherwise.
     """
-    return (
-        user_object.is_authenticated
-        and user_object.groups.filter(name=group_name).exists()
-    )
+    return user_object.is_authenticated and user_object.groups.filter(name=group_name).exists()
