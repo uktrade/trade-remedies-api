@@ -7,6 +7,9 @@ from core.services.users.serializers import UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    """
+    ModelViewSet for interacting with user objects via the API.
+    """
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -20,6 +23,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["put"], url_name="change_group")
     def add_group(self, request, *args, **kwargs):
+        """
+        Adds the user defined by the user_pk url argument to the group_name in request data
+        """
         group_object = Group.objects.get(name=request.data["group_name"])
         user_object = User.objects.get(pk=kwargs["pk"])
         user_object.groups.add(group_object)
@@ -27,6 +33,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @add_group.mapping.delete
     def delete_group(self, request, *args, **kwargs):
+        """
+        Deletes the user defined by the user_pk url argument from the group_name in request data
+        """
         group_object = Group.objects.get(name=request.data["group_name"])
         user_object = User.objects.get(pk=kwargs["pk"])
         user_object.groups.remove(group_object)

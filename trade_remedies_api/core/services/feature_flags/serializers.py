@@ -5,6 +5,12 @@ from core.services.users.serializers import UserSerializer
 
 
 class FlagSerializer(serializers.Serializer):
+    """
+    Normal (not model) serializer for feature flags.
+
+    Returns the name of the serializer, a list of users currently in the named group, and a list of
+    all the users not currently in the named group.
+    """
     name = serializers.EmailField()
     users_in_group = serializers.SerializerMethodField()
     users_not_in_group = serializers.SerializerMethodField()
@@ -15,4 +21,7 @@ class FlagSerializer(serializers.Serializer):
 
     @staticmethod
     def get_users_not_in_group(value):
-        return UserSerializer(User.objects.exclude(groups__name=value.name), many=True).data
+        return UserSerializer(
+            User.objects.exclude(groups__name=value.name).order_by("name"),
+            many=True
+        ).data
