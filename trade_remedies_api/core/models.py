@@ -1,45 +1,45 @@
-import os
-import logging
 import datetime
-import pytz
-import uuid
 import json
-from random import randint
+import logging
+import os
+import uuid
 from functools import singledispatch
+from random import randint
 
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.db import models, transaction
-from django.urls import reverse
-from django.utils import timezone, crypto, http, encoding
+import pytz
+import sentry_sdk
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import PermissionsMixin, Group, Permission
-from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import Group, Permission, PermissionsMixin
 from django.contrib.auth.password_validation import validate_password
-from django.contrib.postgres import fields
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.contrib.contenttypes.models import ContentType
+from django.db import models, transaction
+from django.utils import crypto, timezone
+from phonenumbers.phonenumberutil import NumberParseException
 from rest_framework.authtoken.models import Token
+from timezone_field import TimeZoneField
+
 from audit.models import Audit
+from core.notifier import send_sms
 from security.constants import (
-    SECURITY_GROUP_TRA_HEAD_OF_INVESTIGATION,
-    SECURITY_GROUPS_TRA,
-    SECURITY_GROUPS_TRA_ADMINS,
-    SECURITY_GROUPS_PUBLIC,
-    SECURITY_GROUP_ORGANISATION_OWNER,
-    SECURITY_GROUP_ORGANISATION_USER,
     DEFAULT_ADMIN_PERMISSIONS,
     DEFAULT_USER_PERMISSIONS,
+    SECURITY_GROUPS_PUBLIC,
+    SECURITY_GROUPS_TRA,
+    SECURITY_GROUPS_TRA_ADMINS,
+    SECURITY_GROUP_ORGANISATION_OWNER,
+    SECURITY_GROUP_ORGANISATION_USER,
+    SECURITY_GROUP_TRA_HEAD_OF_INVESTIGATION,
     SOS_SECURITY_GROUPS,
 )
-from security.models import CaseSecurityMixin, UserCase, OrganisationUser
-from core.notifier import send_sms
-from timezone_field import TimeZoneField
-from phonenumbers.phonenumberutil import NumberParseException
+from security.models import CaseSecurityMixin, OrganisationUser, UserCase
+from .constants import DEFAULT_USER_COLOUR, SAFE_COLOURS, TRUTHFUL_INPUT_VALUES
+from .decorators import method_cache
 from .exceptions import UserExists
 from .services.auth.exceptions import TwoFactorRequestedTooMany
 from .tasks import send_mail
-from .decorators import method_cache
-from .constants import SAFE_COLOURS, DEFAULT_USER_COLOUR, TRUTHFUL_INPUT_VALUES
-from .utils import convert_to_e164, filter_dict
+from .utils import convert_to_e164
 
 logger = logging.getLogger(__name__)
 
@@ -1135,9 +1135,10 @@ class TwoFactorAuth(models.Model):
             self.delivery_type = delivery_type
             self.save()
             return send_report
+        except TwoFactorRequestedTooMany as exc:
+            raise exc
         except Exception as two_fa_exception:
-            logger.error(f"Could not 2fa for {self.user} / {self.user.id}: {two_fa_exception}")
-            raise
+            sentry_sdk.capture_exception(two_fa_exception)
 
 
 class PasswordResetManager(models.Manager):

@@ -47,28 +47,30 @@ class TestAuthSerializers(TestCase):
         self.assertTrue(serializer.is_valid())
 
     def test_email_serializer_invalid(self):
-        """Tests that the EmailSerializer raises a validation error when using an email that doesn't belong to a user"""
+        """Tests that the EmailSerializer raises a validation error when using an email # /PS-IGNORE
+        that doesn't belong to a user.
+        """
         serializer = EmailSerializer(data={"email": email})
         self.assertFalse(serializer.is_valid())
         self.assertIn("email", serializer.errors)
         self.assertFalse(serializer.user_queryset(email).exists())
 
     def test_email_serializer_valid(self):
-        """Tests that the EmailSerializer is valid when using an email that does exist"""
+        """Tests that the EmailSerializer is valid when using an email that does exist # /PS-IGNORE"""
         user = User.objects.create_user(email=email, password=password)
         serializer = EmailSerializer(data={"email": email})
         self.assertTrue(serializer.is_valid())
         self.assertEqual(serializer.validated_data["email"], email)
 
     def test_email_availability_serializer_invalid(self):
-        """Tests that the EmailAvailabilitySerializer is invalid when passed an email that does exist in the DB"""
+        """Tests that the EmailAvailabilitySerializer is invalid when passed an email that does exist in the DB # /PS-IGNORE"""
         user = User.objects.create_user(email=email, password=password)
         serializer = EmailAvailabilitySerializer(data={"email": email})
         self.assertFalse(serializer.is_valid())
         self.assertIn("email", serializer.errors)
 
     def test_email_availability_serializer_valid(self):
-        """Tests that the EmailAvailabilitySerializer is valid when passed an email that doesn't exist in the DB"""
+        """Tests that the EmailAvailabilitySerializer is valid when passed an email that doesn't exist in the DB # /PS-IGNORE"""
         serializer = EmailAvailabilitySerializer(data={"email": email})
         self.assertTrue(serializer.is_valid())
 
