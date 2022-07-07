@@ -18,7 +18,7 @@ from sentry_sdk.integrations.django import DjangoIntegration
 # NB: Some settings acquired using `env()` deliberately *do not* have defaults
 # as we want to get an `ImproperlyConfigured` exception to avoid a badly
 # configured deployment.
-from config.feature_flags import part_of_group_condition
+from config.feature_flags import is_user_part_of_group
 
 root = environ.Path(__file__) - 4
 env = environ.Env(
@@ -507,7 +507,7 @@ GECKOBOARD_ENV = env("GECKOBOARD_ENV", default="dev")
 TESTING = False
 
 # ------------------- DJANGO-FLAG -------------------
-conditions.register("PART_OF_GROUP", fn=part_of_group_condition)
+conditions.register("PART_OF_GROUP", fn=is_user_part_of_group)
 FEATURE_FLAG_PREFIX = "FEATURE_FLAG"
 FLAGS = {
     f"{FEATURE_FLAG_PREFIX}_UAT_TEST": [
