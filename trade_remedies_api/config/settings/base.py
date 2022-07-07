@@ -64,8 +64,8 @@ PASSWORD_RESET_TIMEOUT = 86400
 # Application definition
 DJANGO_APPS = [
     "django_extensions",
-    "django.contrib.admin",
     "django.contrib.auth",
+    "django.contrib.admin",
     "django.contrib.contenttypes",
     "django.contrib.messages",
     "django.contrib.sessions",
@@ -119,8 +119,8 @@ MIDDLEWARE = [
 
 if DJANGO_ADMIN:
     MIDDLEWARE = [
-                     "whitenoise.middleware.WhiteNoiseMiddleware",
-                 ] + MIDDLEWARE
+        "whitenoise.middleware.WhiteNoiseMiddleware",
+    ] + MIDDLEWARE
 
 ROOT_URLCONF = "config.urls"
 
