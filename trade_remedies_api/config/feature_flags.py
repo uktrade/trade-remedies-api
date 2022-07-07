@@ -1,7 +1,4 @@
-from core.models import User
-
-
-def is_user_part_of_group(request, user_object: User, group_name: str) -> bool:
+def is_user_part_of_group(request, user_object, group_name: str) -> bool:
     """
     Checks that a user object is part of a group.
 

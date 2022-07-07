@@ -14,4 +14,3 @@ if os.getenv("CIRCLECI"):
     }
 
 TESTING = True
-SECRET_KEY = "TEST"
