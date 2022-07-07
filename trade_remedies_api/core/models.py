@@ -1135,6 +1135,8 @@ class TwoFactorAuth(models.Model):
             self.delivery_type = delivery_type
             self.save()
             return send_report
+        except TwoFactorRequestedTooMany as exc:
+            raise exc
         except Exception as two_fa_exception:
             sentry_sdk.capture_exception(two_fa_exception)
 
