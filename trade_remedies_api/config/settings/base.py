@@ -1,15 +1,15 @@
 """Django settings for trade_remedies_api project."""
-import logging
-import sys
-import os
 import datetime
+import os
+import sys
+
+import dj_database_url
 import environ
 import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-from sentry_sdk.integrations.celery import CeleryIntegration
-import dj_database_url
-
 from django_log_formatter_ecs import ECSFormatter
+from flags import conditions
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # We use django-environ but do not read a `.env` file. Locally we feed
 # docker-compose an environment from a local.env file in the project root.
@@ -18,6 +18,8 @@ from django_log_formatter_ecs import ECSFormatter
 # NB: Some settings acquired using `env()` deliberately *do not* have defaults
 # as we want to get an `ImproperlyConfigured` exception to avoid a badly
 # configured deployment.
+from config.feature_flags import is_user_part_of_group
+
 root = environ.Path(__file__) - 4
 env = environ.Env(
     DEBUG=(bool, False),
@@ -62,8 +64,8 @@ PASSWORD_RESET_TIMEOUT = 86400
 # Application definition
 DJANGO_APPS = [
     "django_extensions",
-    "django.contrib.admin",
     "django.contrib.auth",
+    "django.contrib.admin",
     "django.contrib.contenttypes",
     "django.contrib.messages",
     "django.contrib.sessions",
@@ -97,6 +99,7 @@ LOCAL_APPS = [
 THIRD_PARTY_APPS = [
     "axes",
     "feedback",
+    "flags",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + DRF_APPS + LOCAL_APPS + THIRD_PARTY_APPS
@@ -502,3 +505,12 @@ GECKOBOARD_ENV = env("GECKOBOARD_ENV", default="dev")
 
 # Variable so we know if we're running in testing mode or not, this is True in the test.py settings
 TESTING = False
+
+# ------------------- DJANGO-FLAG -------------------
+conditions.register("PART_OF_GROUP", fn=is_user_part_of_group)
+FEATURE_FLAG_PREFIX = "FEATURE_FLAG"
+FLAGS = {
+    f"{FEATURE_FLAG_PREFIX}_UAT_TEST": [
+        {"condition": "PART_OF_GROUP", "value": True, "required": True},
+    ],
+}

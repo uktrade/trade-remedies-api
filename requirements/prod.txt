@@ -75,6 +75,7 @@ django==3.2.14
     #   django-axes
     #   django-db-geventpool
     #   django-dirtyfields
+    #   django-flags
     #   django-phonenumber-field
     #   django-redis
     #   django-storages
@@ -98,6 +99,8 @@ django-dirtyfields==1.7.0
 django-environ==0.4.5
     # via -r requirements.in/../requirements/base.txt
 django-extensions==2.2.3
+    # via -r requirements.in/../requirements/base.txt
+django-flags==5.0.11
     # via -r requirements.in/../requirements/base.txt
 django-ipware==3.0.7
     # via

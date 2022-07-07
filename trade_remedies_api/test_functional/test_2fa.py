@@ -2,10 +2,10 @@ from django.core.management import call_command
 from django.urls import reverse
 
 from core.models import TwoFactorAuth
-from functional_tests.test_registration import HealthCheckTestBase
+from test_functional import FunctionalTestBase
 
 
-class TestTwoFactorRequest(HealthCheckTestBase):
+class TestTwoFactorRequest(FunctionalTestBase):
     def setUp(self) -> None:
         super().setUp()
         self.user.twofactorauth = TwoFactorAuth(user=self.user)
@@ -20,7 +20,7 @@ class TestTwoFactorRequest(HealthCheckTestBase):
         )
         assert response.status_code == 200
         assert (
-            self.user.twofactorauth.code in response.data["response"]["result"]["content"]["body"]
+            self.user.twofactorauth.code == response.data["response"]["result"]["context"]["code"]
         )
 
     def test_success_validate(self):
