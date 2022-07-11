@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 
 from core.models import User
 from core.services.users.serializers import UserSerializer
+from rest_framework.response import Response
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -20,7 +21,9 @@ class UserViewSet(viewsets.ModelViewSet):
         url_name="user_in_group",
     )
     def is_user_in_group(self, request, *args, **kwargs):
-        pass
+        user = User.objects.get(pk=kwargs["pk"])
+        is_in_group = user.groups.filter(name=request.query_params.get("group_name")).exists()
+        return Response({"user_is_in_group": is_in_group})
 
     @action(detail=True, methods=["put"], url_name="change_group")
     def add_group(self, request, *args, **kwargs):
