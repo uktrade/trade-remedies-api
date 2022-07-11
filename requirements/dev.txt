@@ -227,7 +227,7 @@ kubi-ecs-logger==0.1.0
     # via
     #   -r requirements.in/../requirements/base.txt
     #   django-log-formatter-ecs
-lxml==4.7.1
+lxml==4.9.1
     # via
     #   -r requirements.in/../requirements/base.txt
     #   python-docx
