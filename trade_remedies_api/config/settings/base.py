@@ -115,6 +115,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.gzip.GZipMiddleware",
     "axes.middleware.AxesMiddleware",
+    "config.middleware.SentryContextMiddleware",
 ]
 
 if DJANGO_ADMIN:
