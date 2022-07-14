@@ -1,42 +1,19 @@
+from django.conf import settings
 from django.urls import path
 from django.views.decorators.cache import cache_page
-from django.conf import settings
-from .api import (
-    CasesAPIView,
-    CaseInitiationAPIView,
-    SubmissionsAPIView,
-    ProductsAPIView,
-    ProductHSCodeAPI,
-    ExportSourceAPIView,
-    ApplicationStateAPIView,
-    RequestReviewAPIView,
-    DocumentDownloadAPIView,
-    SubmissionStatusAPIView,
-    SubmissionCloneAPIView,
-    SubmissionNotifyAPI,
-    CaseStatusAPI,
-    CaseWorkflowAPI,
-    CaseEnumsAPI,
-    CaseUserAssignAPI,
-    CaseInterestAPI,
-    CaseOrganisationsAPIView,
-    CaseUsersAPI,
-    SubmissionTypeAPI,
-    SubmissionDocumentStatusAPI,
-    ThirdPartyInvitesAPI,
-    SubmissionDocumentsAPI,
-    SubmissionOrganisationAPI,
-    PublicCaseView,
-    PublicNoticeView,
-    CaseStateAPI,
-    CasesCountAPIView,
-    CaseParticipantsAPI,
-    SubmissionExistsAPI,
-    CaseMilestoneDatesAPI,
-    CaseReviewTypesAPI,
-    ReviewTypeAPIView,
-    NoticesAPI,
-)
+from rest_framework import routers
+
+from .api import (ApplicationStateAPIView, CaseEnumsAPI, CaseInitiationAPIView, CaseInterestAPI,
+                  CaseMilestoneDatesAPI, CaseOrganisationsAPIView, CaseParticipantsAPI,
+                  CaseReviewTypesAPI, CaseStateAPI, CaseStatusAPI, CaseUserAssignAPI, CaseUsersAPI,
+                  CaseWorkflowAPI, CasesAPIView, CasesCountAPIView, DocumentDownloadAPIView,
+                  ExportSourceAPIView, NoticesAPI, ProductHSCodeAPI, ProductsAPIView,
+                  PublicCaseView, PublicNoticeView, RequestReviewAPIView, ReviewTypeAPIView,
+                  SubmissionCloneAPIView, SubmissionDocumentStatusAPI, SubmissionDocumentsAPI,
+                  SubmissionExistsAPI, SubmissionNotifyAPI, SubmissionOrganisationAPI,
+                  SubmissionStatusAPIView, SubmissionTypeAPI, SubmissionsAPIView,
+                  ThirdPartyInvitesAPI)
+from .v2.api import CaseViewSet, SubmissionViewSet
 
 urlpatterns = [
     path("", CasesAPIView.as_view()),
@@ -93,11 +70,13 @@ urlpatterns = [
         SubmissionsAPIView.as_view(),
     ),
     path(
-        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/notify/<str:notice_type>/",  # noqa: E501
+        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/notify/<str:notice_type>/",
+        # noqa: E501
         SubmissionNotifyAPI.as_view(),
     ),
     path(
-        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/status/",  # noqa: E501
+        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/status/",
+        # noqa: E501
         SubmissionStatusAPIView.as_view(),
     ),
     path(
@@ -118,7 +97,8 @@ urlpatterns = [
     path("submission/status/", SubmissionStatusAPIView.as_view()),
     # Submission exists
     path(
-        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/type/<int:submission_type_id>/",  # noqa: E501
+        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/type/<int:submission_type_id>/",
+        # noqa: E501
         SubmissionExistsAPI.as_view(),
     ),
     # Submission Document Status
@@ -137,7 +117,8 @@ urlpatterns = [
         ProductsAPIView.as_view(),
     ),
     path(
-        "<uuid:case_id>/organisation/<uuid:organisation_id>/product/<uuid:product_id>/hscode/<uuid:code_id>/",  # noqa: E501
+        "<uuid:case_id>/organisation/<uuid:organisation_id>/product/<uuid:product_id>/hscode/<uuid:code_id>/",
+        # noqa: E501
         ProductHSCodeAPI.as_view(),
     ),
     # Export Source
@@ -152,7 +133,8 @@ urlpatterns = [
     path("<uuid:case_id>/submission/<uuid:submission_id>/reviewtype/", ReviewTypeAPIView.as_view()),
     # Set Review
     path(
-        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/review/",  # noqa: E501
+        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/review/",
+        # noqa: E501
         RequestReviewAPIView.as_view(),
     ),
     # Application state
@@ -162,7 +144,8 @@ urlpatterns = [
         ApplicationStateAPIView.as_view(),
     ),
     path(
-        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/state/",  # noqa: E501
+        "<uuid:case_id>/organisation/<uuid:organisation_id>/submission/<uuid:submission_id>/state/",
+        # noqa: E501
         ApplicationStateAPIView.as_view(),
     ),
     # case workflow

@@ -1,7 +1,9 @@
 from rest_framework import serializers
 
-from cases.models import Case, CaseType
+from cases.models import Case, CaseType, Submission
 from config.serializers import CustomValidationModelSerializer
+from documents.seriaizers import DocumentSerializer
+from organisations.serializers import OrganisationSerializer
 
 
 class CaseTypeSerializer(CustomValidationModelSerializer):
@@ -19,4 +21,14 @@ class CaseSerializer(CustomValidationModelSerializer):
 
     class Meta:
         model = Case
+        fields = "__all__"
+
+
+class SubmissionSerializer(serializers.ModelSerializer):
+    case = CaseSerializer()
+    organisation = OrganisationSerializer()
+    documents = DocumentSerializer(many=True)
+
+    class Meta:
+        model = Submission
         fields = "__all__"

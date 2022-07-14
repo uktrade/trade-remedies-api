@@ -18,7 +18,7 @@ from django.urls import include, path
 from django.conf import settings
 from rest_framework import routers
 
-from cases.services.v2.api import CaseViewSet
+from cases.services.v2.api import CaseViewSet, SubmissionViewSet
 from rest_framework import routers
 
 from core.services import api as core_api
@@ -165,6 +165,7 @@ urlpatterns = [
 
 router = routers.SimpleRouter()
 router.register(f"{settings.API_V2_PREFIX}/cases", CaseViewSet, basename="cases")
+router.register(f"{settings.API_V2_PREFIX}/submissions", SubmissionViewSet, basename="submissions")
 urlpatterns += router.urls
 
 if settings.DJANGO_ADMIN:

@@ -1,12 +1,10 @@
 from rest_framework import viewsets
-from rest_framework.renderers import JSONRenderer
 
-from cases.models import Case
-from cases.serializers import CaseSerializer
+from cases.models import Case, Submission
+from cases.serializers import CaseSerializer, SubmissionSerializer
 
 
 class CaseViewSet(viewsets.ModelViewSet):
-    renderer_classes = [JSONRenderer]
     queryset = Case.objects.all()
     serializer_class = CaseSerializer
 
@@ -15,3 +13,8 @@ class CaseViewSet(viewsets.ModelViewSet):
             # We only want the cases which are open to registration of interest applications
             return Case.objects.available_for_regisration_of_intestest(self.request.user)
         return super().get_queryset()
+
+
+class SubmissionViewSet(viewsets.ModelViewSet):
+    queryset = Submission.objects.all()
+    serializer_class = SubmissionSerializer
