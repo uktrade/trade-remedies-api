@@ -13,7 +13,7 @@ from .api import (ApplicationStateAPIView, CaseEnumsAPI, CaseInitiationAPIView, 
                   SubmissionExistsAPI, SubmissionNotifyAPI, SubmissionOrganisationAPI,
                   SubmissionStatusAPIView, SubmissionTypeAPI, SubmissionsAPIView,
                   ThirdPartyInvitesAPI)
-from .v2.api import CaseViewSet, SubmissionViewSet
+from .v2.views import CaseViewSet, SubmissionViewSet
 
 urlpatterns = [
     path("", CasesAPIView.as_view()),

@@ -665,7 +665,7 @@ class CaseInterestAPI(TradeRemediesApiView):
         if existing.exists():
             link = None
             for roi in existing:
-                if roi.created_by.id == request.user.id:
+                if roi.created_by.id and roi.created_by.id == request.user.id:
                     link = (
                         f"/case/{roi.case.id}/organisation/"
                         f"{roi.organisation.id}/submission/{roi.id}/"

@@ -1,19 +1,13 @@
+from django.conf import settings
 from django.urls import path
-from .api import (
-    OrganisationsAPIView,
-    OrganisationCaseSampleToggleAPI,
-    OrganisationApprovalNotifyAPI,
-    OrganisationNonResponsiveToggleAPI,
-    OrganisationCaseRoleAPI,
-    DuplicateOrganisationsAPI,
-    OrganisationLookupAPI,
-    OrganisationUsersAPI,
-    OrganisationContactsAPI,
-    OrganisationMatchingAPI,
-    OrganisationUserCaseAPI,
-    SubmissionApprovalNotifyAPI,
-    OrganisationRejectAPI,
-)
+from rest_framework import routers
+
+from .api import (DuplicateOrganisationsAPI, OrganisationApprovalNotifyAPI, OrganisationCaseRoleAPI,
+                  OrganisationCaseSampleToggleAPI, OrganisationContactsAPI, OrganisationLookupAPI,
+                  OrganisationMatchingAPI, OrganisationNonResponsiveToggleAPI,
+                  OrganisationRejectAPI, OrganisationUserCaseAPI, OrganisationUsersAPI,
+                  OrganisationsAPIView, SubmissionApprovalNotifyAPI)
+from .v2.views import OrganisationViewSet
 
 urlpatterns = [
     path("", OrganisationsAPIView.as_view()),

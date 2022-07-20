@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from core.models import User
-from core.services.users.serializers import UserSerializer
+from core.services.v2.users.serializers import UserSerializer
 
 
 class FlagSerializer(serializers.Serializer):

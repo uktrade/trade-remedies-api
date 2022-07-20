@@ -1,10 +1,11 @@
 from django.contrib.auth.models import Group
 from rest_framework import viewsets
 from rest_framework.decorators import action
-
-from core.models import User
-from core.services.users.serializers import UserSerializer
 from rest_framework.response import Response
+
+from contacts.models import Contact
+from core.models import User
+from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -44,3 +45,12 @@ class UserViewSet(viewsets.ModelViewSet):
         user_object = User.objects.get(pk=kwargs["pk"])
         user_object.groups.remove(group_object)
         return self.retrieve(request, *args, **kwargs)
+
+
+class ContactViewSet(viewsets.ModelViewSet):
+    """
+    ModelViewSet for interacting with user objects via the API.
+    """
+
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
