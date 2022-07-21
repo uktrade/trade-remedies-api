@@ -216,4 +216,9 @@ validation_errors = {
         "error_text": "Enter the correct web address",
         "error_summary": "The website address you have entered does not look valid",
     },
+    "not_authorised_roi": {
+        "field": "authorised",
+        "error_text": "Select to confirm you're authorised ",
+        "error_summary": "You need to confirm you are authorised to send this application",
+    }
 }
