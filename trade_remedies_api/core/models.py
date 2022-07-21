@@ -1139,6 +1139,7 @@ class TwoFactorAuth(models.Model):
             raise exc
         except Exception as two_fa_exception:
             sentry_sdk.capture_exception(two_fa_exception)
+            raise two_fa_exception
 
 
 class PasswordResetManager(models.Manager):

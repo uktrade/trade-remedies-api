@@ -252,7 +252,13 @@ class TwoFactorAuthRequestSerializer(CustomValidationModelSerializer):
                 error_summary=validation_errors["2fa_requested_too_many_times"]["error_summary"]
                 % last_requested_seconds_ago,
             )
-        except Exception as e:
+        except Exception:
+            if attrs["delivery_type"] == "sms":
+                # Often times the SMS can fail if it's the first option, retry with email
+                # We first need to reset the last generated_at attribute, so it doesn't throw an exc
+                self.instance.generated_at = None
+                self.instance.save()
+                return self.validate(attrs={"delivery_type": "email"})
             raise CustomValidationError(error_key="2fa_code_failed_delivery")
 
     def validate_delivery_type(self, value):
