@@ -18,6 +18,9 @@ from django.urls import include, path
 from django.conf import settings
 from rest_framework import routers
 
+from cases.services.v2.api import CaseViewSet
+from rest_framework import routers
+
 from core.services import api as core_api
 from core.services.auth import views as auth_api
 from core.services.registration import views as registration_api
@@ -159,6 +162,10 @@ urlpatterns = [
         name="email_verify",
     ),
 ]
+
+router = routers.SimpleRouter()
+router.register(f"{settings.API_V2_PREFIX}/cases", CaseViewSet, basename="cases")
+urlpatterns += router.urls
 
 if settings.DJANGO_ADMIN:
     urlpatterns.append(path("admin/", admin.site.urls))

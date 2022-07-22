@@ -9,9 +9,12 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.views import APIView
+from sentry_sdk import set_user
 
+from audit import AUDIT_TYPE_PASSWORD_RESET, AUDIT_TYPE_PASSWORD_RESET_FAILED
+from audit.utils import audit_log
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
-from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, UserProfile, User
+from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User, UserProfile
 from core.notifier import send_mail
 from core.services.base import ResponseError, ResponseSuccess, TradeRemediesApiView
 from core.services.exceptions import InvalidRequestParams
@@ -21,21 +24,18 @@ from security.constants import (
     SECURITY_GROUP_ORGANISATION_USER,
     SECURITY_GROUP_THIRD_PARTY_USER,
 )
-
-from audit import AUDIT_TYPE_PASSWORD_RESET, AUDIT_TYPE_PASSWORD_RESET_FAILED
-from audit.utils import audit_log
 from .serializers import (
     AuthenticationSerializer,
-    UserDoesNotExistSerializer,
+    EmailSerializer,
+    PasswordRequestIdSerializer,
     PasswordResetRequestSerializer,
+    PasswordResetRequestSerializerV2,
     PasswordSerializer,
     RegistrationSerializer,
     TwoFactorAuthRequestSerializer,
     TwoFactorAuthVerifySerializer,
+    UserDoesNotExistSerializer,
     VerifyEmailSerializer,
-    PasswordRequestIdSerializer,
-    EmailSerializer,
-    PasswordResetRequestSerializerV2,
 )
 from ...exceptions import ValidationAPIException
 
@@ -86,6 +86,7 @@ class AuthenticationView(APIView):
         Raises:
             AccessDenied if request fails.
         """
+
         serializer = AuthenticationSerializer(data=request.data, context={"request": request})
 
         if serializer.is_valid():
@@ -94,6 +95,7 @@ class AuthenticationView(APIView):
             invitation_code = request.data.get("invitation_code")
 
             login(request, user)  # Logging the user in
+            set_user({"id": user.id})  # Setting sentry context in case any errors are raised after
             reset(username=email)  # Reset any remaining access attempts
             Invitation.objects.validate_all_pending(
                 user, invitation_code
