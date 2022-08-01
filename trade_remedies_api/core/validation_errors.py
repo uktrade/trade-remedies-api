@@ -220,5 +220,20 @@ validation_errors = {
         "field": "authorised",
         "error_text": "Select to confirm you're authorised ",
         "error_summary": "You need to confirm you are authorised to send this application",
+    },
+    "file_too_large": {
+        "field": "file",
+        "error_text": "The selected file must be smaller than <30MB>:",
+        "error_summary": "You need to upload a smaller file size as the maximum size is <30mb>",
+    },
+    "file_wrong_format": {
+        "field": "file",
+        "error_text": "The selected file must be a <DOCX, Excel, or PDF>",
+        "error_summary": "You need to upload a file in the right file format: <DOCX, Excel, or PDF>",
+    },
+    "file_has_virus": {
+        "field": "file",
+        "error_text": "This file contains a virus",
+        "error_summary": "You need to upload a new file as this one has a virus",
     }
 }

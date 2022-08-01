@@ -24,6 +24,7 @@ from core.services import api as core_api
 from core.services.auth import views as auth_api
 from core.services.v2.registration import views as registration_api
 from cases.services import api as cases_api
+from documents.services.v2.views import DocumentViewSet
 from organisations.services.v2.views import OrganisationCaseRoleViewSet, OrganisationViewSet
 
 urlpatterns = [
@@ -175,6 +176,11 @@ router.register(
     f"{settings.API_V2_PREFIX}/organisation_case_roles",
     OrganisationCaseRoleViewSet,
     basename="organisation_case_roles"
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/documents",
+    DocumentViewSet,
+    basename="documents"
 )
 urlpatterns += router.urls
 

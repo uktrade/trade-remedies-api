@@ -1,10 +1,12 @@
 from rest_framework import serializers
+from rest_framework.fields import SerializerMethodField
 
-from cases.models import Case, CaseType, Submission
+from cases.models import Case, CaseType, Submission, SubmissionDocument, SubmissionDocumentType, \
+    SubmissionStatus
 from config.serializers import CustomValidationModelSerializer, NestedKeyField
 from core.models import User
 from core.services.v2.users.serializers import UserSerializer
-from documents.seriaizers import DocumentSerializer
+from documents.services.v2.serializers import DocumentSerializer
 from organisations.models import Organisation
 from organisations.services.v2.serializers import OrganisationSerializer
 
@@ -27,6 +29,27 @@ class CaseSerializer(CustomValidationModelSerializer):
         fields = "__all__"
 
 
+class SubmissionStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubmissionStatus
+        fields = "__all__"
+
+
+class SubmissionDocumentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubmissionDocumentType
+        fields = "__all__"
+
+
+class SubmissionDocumentSerializer(serializers.ModelSerializer):
+    type = SubmissionDocumentTypeSerializer()
+    document = DocumentSerializer()
+
+    class Meta:
+        model = SubmissionDocument
+        fields = "__all__"
+
+
 class SubmissionSerializer(serializers.ModelSerializer):
     case = NestedKeyField(queryset=Case.objects.all(), serializer=CaseSerializer)
     organisation = NestedKeyField(
@@ -39,6 +62,14 @@ class SubmissionSerializer(serializers.ModelSerializer):
         queryset=User.objects.all(),
         serializer=UserSerializer
     )
+    status = NestedKeyField(
+        queryset=SubmissionStatus.objects.all(),
+        serializer=SubmissionStatusSerializer,
+        required=False
+    )
+    paired_documents = SerializerMethodField(read_only=True)
+    orphaned_documents = SerializerMethodField(read_only=True)
+    submission_documents = SubmissionDocumentSerializer(many=True)
 
     class Meta:
         model = Submission
@@ -50,3 +81,32 @@ class SubmissionSerializer(serializers.ModelSerializer):
             name=validated_data["type"].name,
             **validated_data
         )
+
+    def get_paired_documents(self, instance):
+        # We need to order the documents, so they come in pairs (confidential, non_confidential)
+        paired_documents = []
+        for document in instance.documents.filter(system=False):
+            if document.parent:
+                self_key = "confidential" if document.confidential else "non_confidential"
+                other_key = "non_confidential" if document.confidential else "confidential"
+                paired_documents.append({
+                    self_key: DocumentSerializer(document).data,
+                    other_key: DocumentSerializer(document.parent).data
+                })
+
+        return paired_documents
+
+    def get_orphaned_documents(self, instance):
+        # Get all the documents that do not have a corresponding public/private pair
+        orphaned_documents = []
+        for document in instance.documents.filter(system=False):
+            if not document.parent and not document.document_set.exists():
+                # The document is both not a parent and doesn't have any children - an orphan
+                self_key = "confidential" if document.confidential else "non_confidential"
+                other_key = "non_confidential" if document.confidential else "confidential"
+                orphaned_documents.append({
+                    self_key: DocumentSerializer(document).data,
+                    other_key: None
+                })
+
+        return orphaned_documents
