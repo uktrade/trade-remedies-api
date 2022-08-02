@@ -43,7 +43,7 @@ class TestRegistration(HealthCheckTestBase):
             "mobile_country_code": "",
             "mobile": "",
             "uk_employer": "no",
-            "organisation_name": "test",
+            "company_name": "test",
             "address_snippet": "test street",
             "post_code": "12345",
             "company_number": "000000",

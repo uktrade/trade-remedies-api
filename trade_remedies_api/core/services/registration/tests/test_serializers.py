@@ -22,7 +22,7 @@ class TestV2RegistrationSerializer(TestCase):
             'mobile_country_code': 'GB',
             'mobile': '07712345678',
             'uk_employer': 'no',
-            'organisation_name': 'test org',
+            'company_name': 'test org',
             'address_snippet': 'test org street',
             'post_code': '1234',
             'company_number': '000000',
