@@ -22,14 +22,7 @@ repos:
         name: Checking local hooks against latest release
         verbose: true
         require_serial: true
--   repo: https://github.com/psf/black
-    rev: 22.6.0
+-   repo: https://github.com/wieczorek1990/pyproject-flake8
+    rev: 33037343b498c4770f4f4a2de3675dbc1da74598
     hooks:
-    - id: black
-      name: black
-      description: "Black: The uncompromising Python code formatter"
-      entry: black
-      language: python
-      minimum_pre_commit_version: 2.9.2
-      require_serial: true
-      types_or: [ python, pyi ]
+    - id: pyproject-flake8
