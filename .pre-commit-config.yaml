@@ -22,7 +22,12 @@ repos:
         name: Checking local hooks against latest release
         verbose: true
         require_serial: true
+-   repo: https://github.com/psf/black
+    rev: 22.6.0
+    hooks:
+    - id: black
 -   repo: https://github.com/wieczorek1990/pyproject-flake8
     rev: 33037343b498c4770f4f4a2de3675dbc1da74598
     hooks:
     - id: pyproject-flake8
+      args: [--config=pyproject.toml]
