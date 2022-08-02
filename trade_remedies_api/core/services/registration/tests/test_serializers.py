@@ -22,7 +22,7 @@ class TestV2RegistrationSerializer(TestCase):
             'mobile_country_code': 'GB',
             'mobile': '07712345678',
             'uk_employer': 'no',
-            'organisation_name': 'test org',
+            'company_name': 'test org',
             'address_snippet': 'test org street',
             'post_code': '1234',
             'company_number': '000000',
@@ -36,7 +36,7 @@ class TestV2RegistrationSerializer(TestCase):
     def test_valid_serializer(self):
         user_query = User.objects.filter(email="test@example.com")  # /PS-IGNORE
         organisation_query = Organisation.objects.filter(
-            name="Test",
+            name="test org",
             companies_house_id='000000'
         )
 
