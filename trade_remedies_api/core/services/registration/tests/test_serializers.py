@@ -36,7 +36,7 @@ class TestV2RegistrationSerializer(TestCase):
     def test_valid_serializer(self):
         user_query = User.objects.filter(email="test@example.com")  # /PS-IGNORE
         organisation_query = Organisation.objects.filter(
-            name="Test",
+            name="test org",
             companies_house_id='000000'
         )
 
