@@ -32,7 +32,7 @@ repos:
       - id: pyproject-flake8
         args: [ --config=pyproject.toml ]
   - repo: https://github.com/uktrade/fitness-functions
-    rev: 31ab8d54c0e626714164c441f541cc2e0967eb2d
+    rev: 1.1.0
     hooks:
       - id: fitness-functions-run
         pass_filenames: false
