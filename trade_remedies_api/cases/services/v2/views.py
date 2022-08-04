@@ -129,6 +129,10 @@ class SubmissionViewSet(BaseModelViewSet):
                 "created_by": request.user,
             }
         )
+
+        # Deleting all the user SubmissionDocument objects as they no longer apply to the submission
+        submission_object.submissiondocument_set.filter(type__key="respondent").delete()
+
         submission_object.organisation = organisation_object
         submission_object.contact = contact_object
         submission_object.modified_by = request.user

@@ -85,7 +85,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
     def get_paired_documents(self, instance):
         # We need to order the documents, so they come in pairs (confidential, non_confidential)
         paired_documents = []
-        for submission_document in self.instance.submissiondocument_set.filter(type__key="respondent"):
+        for submission_document in instance.submissiondocument_set.filter(type__key="respondent"):
             document = submission_document.document
             if document.parent:
                 self_key = "confidential" if document.confidential else "non_confidential"
@@ -101,7 +101,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
     def get_orphaned_documents(self, instance):
         # Get all the documents that do not have a corresponding public/private pair
         orphaned_documents = []
-        for submission_document in self.instance.submissiondocument_set.filter(type__key="respondent"):
+        for submission_document in instance.submissiondocument_set.filter(type__key="respondent"):
             document = submission_document.document
             if not document.parent and not document.document_set.exists():
                 # The document is both not a parent and doesn't have any children - an orphan
