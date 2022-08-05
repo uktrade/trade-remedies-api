@@ -11,6 +11,9 @@ class DocumentViewSet(viewsets.ModelViewSet):
     serializer_class = DocumentSerializer
 
     def create(self, request, *args, **kwargs):
+        """Endpoint for creating a new document object. Will also associate it with a submission
+        if a submission_id is passed in the request.POST.
+        """
         submission_object = Submission.objects.get(id=request.POST["submission_id"])
         parent_document_object = None
         if parent_document_id := request.POST.get("parent"):
@@ -48,6 +51,9 @@ class DocumentViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def destroy(self, request, *args, **kwargs):
+        """Endpoint for deleting a Document object when given a PK, will also delete all child
+        document objects and related SubmissionDocument objects.
+        """
         document_object = self.get_object()
         for submission_object in document_object.submission_set.all():
             document_object.set_case_context(submission_object.case)

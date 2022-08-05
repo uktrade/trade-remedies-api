@@ -36,6 +36,11 @@ class SubmissionViewSet(BaseModelViewSet):
 
     @action(detail=True, methods=["put"], url_name="update_submission_status")
     def update_submission_status(self, request, *args, **kwargs):
+        """Updates the status of a submission object.
+
+        Deals with sending any notifications that need to happen if a status is changed, and also
+        updating any timestamp fields on the submission where necessary.
+        """
         submission_object = self.get_object()
         new_status = request.data["new_status"]
         status_object = getattr(submission_object.type, f"{new_status}_status")
@@ -86,8 +91,13 @@ class SubmissionViewSet(BaseModelViewSet):
     @transaction.atomic
     @action(detail=True, methods=["put"], url_name="add_organisation_to_registration_of_interest")
     def add_organisation_to_registration_of_interest(self, request, *args, **kwargs):
+        """Adds an Organisation object to a ROI submission.
+
+        Requires an organisation_id in the request.POST and an optional contact_id to specify
+        which contact should be made primary contact between the organisation and case."""
         organisation_object = get_object_or_404(Organisation, pk=request.data["organisation_id"])
         submission_object = self.get_object()
+        previous_organisation_object = submission_object.organisation
 
         # Checking if a ROI already exists for this organisation and case
         existing_roi = Submission.objects.filter(
@@ -97,6 +107,7 @@ class SubmissionViewSet(BaseModelViewSet):
             status__locking=True,
         ).exclude(id=submission_object.id)
         if existing_roi:
+            # If it does, we return a 409 with the serialized ROI that already exists
             return Response(status=409, data=self.serializer_class(existing_roi, many=True).data)
 
         # If a contact ID has been passed, then use that contact object, if not, use the requesting
@@ -110,6 +121,13 @@ class SubmissionViewSet(BaseModelViewSet):
             organisation=organisation_object,
             request_by=self.request.user,
         )
+
+        # Removing the previous organisation from the case if they are not properly enrolled
+        OrganisationCaseRole.objects.filter(
+            organisation=previous_organisation_object,
+            case=submission_object.case,
+            role=CaseRole.objects.get(id=ROLE_PREPARING),
+        ).delete()
 
         # Associating the organisation with the case
         OrganisationCaseRole.objects.get_or_create(
@@ -130,13 +148,17 @@ class SubmissionViewSet(BaseModelViewSet):
         submission_object.modified_by = request.user
         submission_object.save()
 
+        audit_message = f"Submission {submission_object.id} given to org {organisation_object.id}"
+        if previous_organisation_object:
+            audit_message += f" from {previous_organisation_object.pk}"
+
         audit_log(
             audit_type=AUDIT_TYPE_UPDATE,
             user=request.user,
             model=submission_object,
             case=submission_object.case,
             data={
-                "message": f"Submission {submission_object.id} given to org {organisation_object.id}",
+                "message": audit_message,
                 "contact": contact_object.pk,
             },
         )

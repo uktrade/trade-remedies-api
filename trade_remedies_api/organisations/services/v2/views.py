@@ -23,6 +23,9 @@ class OrganisationCaseRoleViewSet(viewsets.ModelViewSet):
     serializer_class = OrganisationCaseRoleSerializer
 
     def list(self, request, *args, **kwargs):
+        """We can retrieve a single object if we pass a case_id and organisation_id query
+        parameter in the request.
+        """
         if case_id := self.request.query_params.get("case_id"):
             if organisation_id := self.request.query_params.get("organisation_id"):
                 try:
