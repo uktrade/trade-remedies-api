@@ -3,16 +3,42 @@ from django.urls import path
 from django.views.decorators.cache import cache_page
 from rest_framework import routers
 
-from .api import (ApplicationStateAPIView, CaseEnumsAPI, CaseInitiationAPIView, CaseInterestAPI,
-                  CaseMilestoneDatesAPI, CaseOrganisationsAPIView, CaseParticipantsAPI,
-                  CaseReviewTypesAPI, CaseStateAPI, CaseStatusAPI, CaseUserAssignAPI, CaseUsersAPI,
-                  CaseWorkflowAPI, CasesAPIView, CasesCountAPIView, DocumentDownloadAPIView,
-                  ExportSourceAPIView, NoticesAPI, ProductHSCodeAPI, ProductsAPIView,
-                  PublicCaseView, PublicNoticeView, RequestReviewAPIView, ReviewTypeAPIView,
-                  SubmissionCloneAPIView, SubmissionDocumentStatusAPI, SubmissionDocumentsAPI,
-                  SubmissionExistsAPI, SubmissionNotifyAPI, SubmissionOrganisationAPI,
-                  SubmissionStatusAPIView, SubmissionTypeAPI, SubmissionsAPIView,
-                  ThirdPartyInvitesAPI)
+from .api import (
+    ApplicationStateAPIView,
+    CaseEnumsAPI,
+    CaseInitiationAPIView,
+    CaseInterestAPI,
+    CaseMilestoneDatesAPI,
+    CaseOrganisationsAPIView,
+    CaseParticipantsAPI,
+    CaseReviewTypesAPI,
+    CaseStateAPI,
+    CaseStatusAPI,
+    CaseUserAssignAPI,
+    CaseUsersAPI,
+    CaseWorkflowAPI,
+    CasesAPIView,
+    CasesCountAPIView,
+    DocumentDownloadAPIView,
+    ExportSourceAPIView,
+    NoticesAPI,
+    ProductHSCodeAPI,
+    ProductsAPIView,
+    PublicCaseView,
+    PublicNoticeView,
+    RequestReviewAPIView,
+    ReviewTypeAPIView,
+    SubmissionCloneAPIView,
+    SubmissionDocumentStatusAPI,
+    SubmissionDocumentsAPI,
+    SubmissionExistsAPI,
+    SubmissionNotifyAPI,
+    SubmissionOrganisationAPI,
+    SubmissionStatusAPIView,
+    SubmissionTypeAPI,
+    SubmissionsAPIView,
+    ThirdPartyInvitesAPI,
+)
 from .v2.views import CaseViewSet, SubmissionViewSet
 
 urlpatterns = [

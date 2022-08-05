@@ -64,9 +64,7 @@ class SubmissionViewSet(BaseModelViewSet):
                 if submission_object.contact and submission_object.contact.has_user
                 else None
             )
-            submission_object.notify_received(
-                user=submission_user or request.user
-            )
+            submission_object.notify_received(user=submission_user or request.user)
 
         audit_log(
             audit_type=AUDIT_TYPE_UPDATE,
@@ -88,10 +86,7 @@ class SubmissionViewSet(BaseModelViewSet):
     @transaction.atomic
     @action(detail=True, methods=["put"], url_name="add_organisation_to_registration_of_interest")
     def add_organisation_to_registration_of_interest(self, request, *args, **kwargs):
-        organisation_object = get_object_or_404(
-            Organisation,
-            pk=request.data["organisation_id"]
-        )
+        organisation_object = get_object_or_404(Organisation, pk=request.data["organisation_id"])
         submission_object = self.get_object()
 
         # Checking if a ROI already exists for this organisation and case
@@ -99,7 +94,7 @@ class SubmissionViewSet(BaseModelViewSet):
             type_id=SUBMISSION_TYPE_REGISTER_INTEREST,
             case=submission_object.case,
             organisation=organisation_object,
-            status__locking=True
+            status__locking=True,
         ).exclude(id=submission_object.id)
         if existing_roi:
             return Response(status=409, data=self.serializer_class(existing_roi, many=True).data)
@@ -107,16 +102,13 @@ class SubmissionViewSet(BaseModelViewSet):
         # If a contact ID has been passed, then use that contact object, if not, use the requesting
         # user's
         if contact_id := request.data.get("contact_id", None):
-            contact_object = get_object_or_404(
-                Contact,
-                pk=contact_id
-            )
+            contact_object = get_object_or_404(Contact, pk=contact_id)
         else:
             contact_object = request.user.contact
         contact_object.set_primary(
             case=submission_object.case,
             organisation=organisation_object,
-            request_by=self.request.user
+            request_by=self.request.user,
         )
 
         # Associating the organisation with the case
@@ -127,7 +119,7 @@ class SubmissionViewSet(BaseModelViewSet):
                 "role": CaseRole.objects.get(id=ROLE_PREPARING),
                 "sampled": True,
                 "created_by": request.user,
-            }
+            },
         )
 
         # Deleting all the user SubmissionDocument objects as they no longer apply to the submission

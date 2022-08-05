@@ -168,20 +168,14 @@ router = routers.SimpleRouter()
 router.register(f"{settings.API_V2_PREFIX}/cases", CaseViewSet, basename="cases")
 router.register(f"{settings.API_V2_PREFIX}/submissions", SubmissionViewSet, basename="submissions")
 router.register(
-    f"{settings.API_V2_PREFIX}/organisations",
-    OrganisationViewSet,
-    basename="organisations"
+    f"{settings.API_V2_PREFIX}/organisations", OrganisationViewSet, basename="organisations"
 )
 router.register(
     f"{settings.API_V2_PREFIX}/organisation_case_roles",
     OrganisationCaseRoleViewSet,
-    basename="organisation_case_roles"
+    basename="organisation_case_roles",
 )
-router.register(
-    f"{settings.API_V2_PREFIX}/documents",
-    DocumentViewSet,
-    basename="documents"
-)
+router.register(f"{settings.API_V2_PREFIX}/documents", DocumentViewSet, basename="documents")
 urlpatterns += router.urls
 
 if settings.DJANGO_ADMIN:

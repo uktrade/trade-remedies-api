@@ -1,8 +1,14 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
-from cases.models import Case, CaseType, Submission, SubmissionDocument, SubmissionDocumentType, \
-    SubmissionStatus
+from cases.models import (
+    Case,
+    CaseType,
+    Submission,
+    SubmissionDocument,
+    SubmissionDocumentType,
+    SubmissionStatus,
+)
 from config.serializers import CustomValidationModelSerializer, NestedKeyField
 from core.models import User
 from core.services.v2.users.serializers import UserSerializer
@@ -53,19 +59,14 @@ class SubmissionDocumentSerializer(serializers.ModelSerializer):
 class SubmissionSerializer(serializers.ModelSerializer):
     case = NestedKeyField(queryset=Case.objects.all(), serializer=CaseSerializer)
     organisation = NestedKeyField(
-        queryset=Organisation.objects.all(),
-        serializer=OrganisationSerializer,
-        required=False
+        queryset=Organisation.objects.all(), serializer=OrganisationSerializer, required=False
     )
     documents = DocumentSerializer(many=True, required=False)
-    created_by = NestedKeyField(
-        queryset=User.objects.all(),
-        serializer=UserSerializer
-    )
+    created_by = NestedKeyField(queryset=User.objects.all(), serializer=UserSerializer)
     status = NestedKeyField(
         queryset=SubmissionStatus.objects.all(),
         serializer=SubmissionStatusSerializer,
-        required=False
+        required=False,
     )
     paired_documents = SerializerMethodField(read_only=True)
     orphaned_documents = SerializerMethodField(read_only=True)
@@ -90,11 +91,13 @@ class SubmissionSerializer(serializers.ModelSerializer):
             if document.parent:
                 self_key = "confidential" if document.confidential else "non_confidential"
                 other_key = "non_confidential" if document.confidential else "confidential"
-                paired_documents.append({
-                    self_key: DocumentSerializer(document).data,
-                    other_key: DocumentSerializer(document.parent).data,
-                    "orphan": False
-                })
+                paired_documents.append(
+                    {
+                        self_key: DocumentSerializer(document).data,
+                        other_key: DocumentSerializer(document.parent).data,
+                        "orphan": False,
+                    }
+                )
 
         return paired_documents
 
@@ -107,10 +110,8 @@ class SubmissionSerializer(serializers.ModelSerializer):
                 # The document is both not a parent and doesn't have any children - an orphan
                 self_key = "confidential" if document.confidential else "non_confidential"
                 other_key = "non_confidential" if document.confidential else "confidential"
-                orphaned_documents.append({
-                    self_key: DocumentSerializer(document).data,
-                    other_key: None,
-                    "orphan": True
-                })
+                orphaned_documents.append(
+                    {self_key: DocumentSerializer(document).data, other_key: None, "orphan": True}
+                )
 
         return orphaned_documents

@@ -20,10 +20,7 @@ class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
     class Meta:
         model = OrganisationCaseRole
         fields = "__all__"
-        extra_kwargs = {
-            'case': {'read_only': True},
-            'organisation': {'read_only': True}
-        }
+        extra_kwargs = {"case": {"read_only": True}, "organisation": {"read_only": True}}
 
     def to_internal_value(self, data):
         data = data.copy()  # Making the QueryDict mutable

@@ -163,12 +163,14 @@ class NestedKeyField(serializers.PrimaryKeyRelatedField):
     Allows the return value of a serializer's fields to also be serializers, but the input value
     to be a primary key.
     """
+
     def __init__(self, **kwargs):
-        self.serializer = kwargs.pop('serializer', None)
-        self.serializer_kwargs = kwargs.pop('serializer_kwargs', {})
+        self.serializer = kwargs.pop("serializer", None)
+        self.serializer_kwargs = kwargs.pop("serializer_kwargs", {})
         if self.serializer is not None and not issubclass(self.serializer, serializers.Serializer):
             raise TypeError(
-                'You need to pass a instance of serialzers.Serializer or atleast something that inherits from it.')
+                "You need to pass a instance of serialzers.Serializer or atleast something that inherits from it."
+            )
         super().__init__(**kwargs)
 
     def use_pk_only_optimization(self):

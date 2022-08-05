@@ -235,5 +235,5 @@ validation_errors = {
         "field": "file",
         "error_text": "This file contains a virus",
         "error_summary": "You need to upload a new file as this one has a virus",
-    }
+    },
 }

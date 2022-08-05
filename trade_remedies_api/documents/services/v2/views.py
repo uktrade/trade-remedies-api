@@ -21,7 +21,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
             file={
                 "name": request.POST["stored_name"],
                 "size": request.POST["file_size"],
-                "document_name": request.POST["original_name"]
+                "document_name": request.POST["original_name"],
             },
             user=request.user,
             confidential=True if request.POST["type"] == "confidential" else False,
