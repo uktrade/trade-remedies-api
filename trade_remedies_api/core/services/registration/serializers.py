@@ -54,7 +54,7 @@ class V2RegistrationSerializer(
             organisation = Organisation.objects.create_or_update_organisation(
                 user=new_user,
                 assign_user=True,
-                name=self.initial_data["name"],
+                name=self.initial_data["company_name"],
                 address=self.initial_data["address_snippet"],
                 country=self.initial_data["country"],
                 post_code=self.initial_data["post_code"],

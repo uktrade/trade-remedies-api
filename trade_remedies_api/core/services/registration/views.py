@@ -39,7 +39,7 @@ class V2RegistrationAPIView(APIView):
             if "User already exists." in serializer.errors.get("email", []).detail:
                 # If the email already exists,
                 # notify the original user and pretend registration completed ok.
-                user = User.objects.get(email=serializer.initial_data["email"])
+                user = User.objects.get(email__iexact=serializer.initial_data["email"])
                 template_id = SystemParameter.get("NOTIFY_EMAIL_EXISTS")
                 send_mail(user.email, {"full_name": user.name}, template_id)
 
