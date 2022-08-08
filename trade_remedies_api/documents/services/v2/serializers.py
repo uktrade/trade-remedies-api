@@ -12,7 +12,7 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     is_uploaded_document = serializers.SerializerMethodField()
     extension = serializers.SerializerMethodField()
-    is_public_document = serializers.SerializerMethodField()
+    truncated_name = serializers.SerializerMethodField()
 
     @staticmethod
     def get_is_uploaded_document(instance: Document) -> bool:
@@ -37,5 +37,11 @@ class DocumentSerializer(serializers.ModelSerializer):
         filename, file_extension = os.path.splitext(instance.name)
         return file_extension[1:]
 
-    def get_is_public_document(self, instance):
-        print("asd")
+    def get_truncated_name(self, instance):
+        """Returns the truncated document name.
+
+        e.g. super_long_document_name_this_is_ridiculous.pdf ---> super_long_doc...iculous.pdf"""
+
+        if len(instance.name) > 25:
+            return f'{instance.name[0:10]}...{instance.name[-10:]}'
+        return instance.name
