@@ -111,7 +111,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
                 self_key = "confidential" if document.confidential else "non_confidential"
                 other_key = "non_confidential" if document.confidential else "confidential"
                 orphaned_documents.append(
-                    {self_key: DocumentSerializer(document).data, other_key: None, "orphan": True}
+                    {self_key: DocumentSerializer(document).data, other_key: {}, "orphan": True}
                 )
 
         return orphaned_documents
