@@ -55,6 +55,16 @@ class DocumentViewSet(viewsets.ModelViewSet):
         document objects and related SubmissionDocument objects.
         """
         document_object = self.get_object()
+
+        # First dissociating this object from its parent
+        document_object.parent = None
+        document_object.save()
+
+        # Marking all child documents as orphans
+        for child_document in document_object.document_set.all():
+            child_document.parent = None
+            child_document.save()
+
         for submission_object in document_object.submission_set.all():
             document_object.set_case_context(submission_object.case)
             '''submission_object.remove_document(child_document, requested_by=request.user)
@@ -63,10 +73,6 @@ class DocumentViewSet(viewsets.ModelViewSet):
             # Removing the document in question from the submission
             submission_object.remove_document(document_object, requested_by=request.user)
 
-        # Marking all child documents as orphans
-        for child_document in document_object.document_set.all():
-            child_document.parent = None
-            child_document.save()
         # Finally, deleting the document object itself
         document_object.delete()
 
