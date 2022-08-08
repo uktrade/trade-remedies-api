@@ -141,7 +141,9 @@ class SubmissionViewSet(BaseModelViewSet):
         )
 
         # Deleting all the user SubmissionDocument objects as they no longer apply to the submission
-        submission_object.submissiondocument_set.filter(type__key="respondent").delete()
+        submission_object.submissiondocument_set.filter(
+            type__key__in=["respondent", "loa"]
+        ).delete()
 
         submission_object.organisation = organisation_object
         submission_object.contact = contact_object

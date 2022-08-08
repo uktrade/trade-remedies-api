@@ -57,15 +57,16 @@ class DocumentViewSet(viewsets.ModelViewSet):
         document_object = self.get_object()
         for submission_object in document_object.submission_set.all():
             document_object.set_case_context(submission_object.case)
-
-            # Deleting all child documents
-            for child_document in document_object.document_set.all():
-                submission_object.remove_document(child_document, requested_by=request.user)
-                child_document.delete()
+            '''submission_object.remove_document(child_document, requested_by=request.user)
+            child_document.delete()'''
 
             # Removing the document in question from the submission
             submission_object.remove_document(document_object, requested_by=request.user)
 
+        # Marking all child documents as orphans
+        for child_document in document_object.document_set.all():
+            child_document.parent = None
+            child_document.save()
         # Finally, deleting the document object itself
         document_object.delete()
 
