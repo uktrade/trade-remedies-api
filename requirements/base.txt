@@ -230,8 +230,6 @@ whitenoise==5.3.0
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated
-xlrd==1.2.0
-    # via -r requirements.in/base.in
 xlsxwriter==3.0.1
     # via python-pptx
 zope-event==4.5.0

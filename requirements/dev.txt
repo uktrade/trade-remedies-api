@@ -239,7 +239,9 @@ marshmallow==3.6.1
     #   -r requirements.in/../requirements/base.txt
     #   kubi-ecs-logger
 matplotlib==3.5.1
-    # via -r requirements.in/dev.in
+    # via
+    #   -r requirements.in/dev.in
+    #   fitness-functions
 matplotlib-inline==0.1.3
     # via ipython
 mccabe==0.6.1
@@ -471,8 +473,6 @@ wrapt==1.13.3
     # via
     #   -r requirements.in/../requirements/base.txt
     #   deprecated
-xlrd==1.2.0
-    # via -r requirements.in/../requirements/base.txt
 xlsxwriter==3.0.1
     # via
     #   -r requirements.in/../requirements/base.txt
