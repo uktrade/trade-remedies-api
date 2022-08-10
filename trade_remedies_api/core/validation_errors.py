@@ -236,4 +236,9 @@ validation_errors = {
         "error_text": "This file contains a virus",
         "error_summary": "You need to upload a new file as this one has a virus",
     },
+    "no_representative_org": {
+        "field": "org",
+        "error_text": "Select who you want to represent",
+        "error_summary": "You need to select who you want to represent in this case",
+    },
 }
