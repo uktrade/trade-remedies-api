@@ -3,6 +3,7 @@ import uuid
 import json
 from functools import singledispatch
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres import fields
@@ -102,7 +103,7 @@ class Audit(models.Model):
     content_type = models.ForeignKey(ContentType, null=True, blank=True, on_delete=models.PROTECT)
     milestone = models.BooleanField(default=False)
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.PROTECT)
-    data: dict = models.JSONField(null=True, blank=True)
+    data: dict = models.JSONField(null=True, blank=True, encoder=DjangoJSONEncoder)
 
     def _case_title(self):
         if not self.data:
