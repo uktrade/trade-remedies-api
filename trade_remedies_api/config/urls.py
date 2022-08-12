@@ -25,6 +25,7 @@ from core.services.auth import views as auth_api
 from core.services.v2.registration import views as registration_api
 from cases.services import api as cases_api
 from documents.services.v2.views import DocumentViewSet
+from invitations.services.v2.views import InvitationViewSet
 from organisations.services.v2.views import OrganisationCaseRoleViewSet, OrganisationViewSet
 
 urlpatterns = [
@@ -167,6 +168,7 @@ urlpatterns = [
 router = routers.SimpleRouter()
 router.register(f"{settings.API_V2_PREFIX}/cases", CaseViewSet, basename="cases")
 router.register(f"{settings.API_V2_PREFIX}/submissions", SubmissionViewSet, basename="submissions")
+router.register(f"{settings.API_V2_PREFIX}/invitations", InvitationViewSet, basename="invitations")
 router.register(
     f"{settings.API_V2_PREFIX}/organisations", OrganisationViewSet, basename="organisations"
 )

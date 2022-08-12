@@ -1,12 +1,24 @@
+from django.contrib.auth.models import Group
 from rest_framework import serializers
 
 from config.serializers import CustomValidationModelSerializer
+from core.services.v2.users.serializers import UserSerializer
 from organisations.models import Organisation
-from security.models import CaseRole, OrganisationCaseRole
+from security.models import CaseRole, OrganisationCaseRole, OrganisationUser
+
+
+class OrganisationUserSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = OrganisationUser
+        fields = "__all__"
+
+    user = UserSerializer()
+    security_group = serializers.SlugRelatedField(slug_field="name", queryset=Group.objects.all())
 
 
 class OrganisationSerializer(CustomValidationModelSerializer):
     country = serializers.SerializerMethodField()
+    organisationuser_set = OrganisationUserSerializer(many=True)
 
     class Meta:
         model = Organisation

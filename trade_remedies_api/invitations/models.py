@@ -262,7 +262,7 @@ class Invitation(BaseModel):
         settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT
     )
     name = models.CharField(max_length=250, null=True, blank=True)
-    email = models.EmailField(null=False, blank=False)
+    email = models.EmailField(null=False, blank=True)
     invalid = models.BooleanField(default=False)
     code = models.CharField(max_length=50, null=True, blank=True, unique=True)
     short_code = models.CharField(max_length=16, null=True, blank=True, unique=True)
