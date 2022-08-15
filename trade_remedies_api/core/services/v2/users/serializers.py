@@ -1,6 +1,7 @@
 from django.contrib.auth.models import Group
 from rest_framework import serializers
 
+from cases.models import Case
 from contacts.models import Contact
 from core.models import User
 
@@ -9,6 +10,25 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ("password",)
+
+    cases = serializers.SerializerMethodField()
+    organisation = serializers.SerializerMethodField()
+
+    def get_cases(self, instance):
+        from cases.services.v2.serializers import CaseSerializer
+        return [CaseSerializer(each).data for each in Case.objects.user_cases(user=instance)]
+
+    def get_organisation(self, instance):
+        """Gets the organisation that this user belongs to.
+
+        Provides an exclude argument to the OrganisationSerializer to avoid recursive infinite
+        serialization.
+        """
+        from organisations.services.v2.serializers import OrganisationSerializer
+        return OrganisationSerializer(
+            instance=instance.organisation.organisation,
+            exclude=["organisationuser_set"]
+        ).data
 
 
 class ContactSerializer(serializers.ModelSerializer):

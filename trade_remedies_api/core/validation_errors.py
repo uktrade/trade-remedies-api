@@ -241,4 +241,29 @@ validation_errors = {
         "error_text": "Select who you want to represent",
         "error_summary": "You need to select who you want to represent in this case",
     },
+    "who_are_you_inviting_empty": {
+        "field": "who_are_you_inviting",
+        "error_text": "Select who you want to invite",
+        "error_summary": "You need to select who you want to invite",
+    },
+    "who_are_you_inviting_name_missing": {
+        "field": "team_member_name",
+        "error_text": "Enter the user's name",
+        "error_summary": "You need to provide the name of the person you are inviting",
+    },
+    "who_are_you_inviting_email_missing": {
+        "field": "team_member_email",
+        "error_text": "Enter the user's email address",
+        "error_summary": "You need to provide the user's email address",
+    },
+    "who_are_you_inviting_email_invalid_format": {
+        "field": "team_member_email",
+        "error_text": "Enter the user's email address in a correct format",
+        "error_summary": "The user's email address needs to be in the correct format. Eg. name@example.com",
+    },
+    "invite_permissions_missing": {
+        "field": "type_of_user",
+        "error_text": "Select permissions",
+        "error_summary": "Select the permissions you would like this user to have",
+    }
 }

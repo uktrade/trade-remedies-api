@@ -1,8 +1,8 @@
 from django.contrib.auth.models import Group
-from rest_framework import viewsets
+from django.http.response import Http404
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
 from contacts.models import Contact
 from core.models import User
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
@@ -45,6 +45,22 @@ class UserViewSet(viewsets.ModelViewSet):
         user_object = User.objects.get(pk=kwargs["pk"])
         user_object.groups.remove(group_object)
         return self.retrieve(request, *args, **kwargs)
+
+    @action(
+        detail=False,
+        methods=["get"],
+        url_name="get_user_by_email",
+        url_path='get_user_by_email/(?P<user_email>\S+)'
+    )
+    def get_user_by_email(self, request, user_email, *args, **kwargs):
+        try:
+            user_object = User.objects.get(email__iexact=user_email)
+            return Response(UserSerializer(user_object).data)
+        except User.DoesNotExist:
+            return Response(
+                data=f"User with email {user_email} does not exist",
+                status=status.HTTP_404_NOT_FOUND
+            )
 
 
 class ContactViewSet(viewsets.ModelViewSet):

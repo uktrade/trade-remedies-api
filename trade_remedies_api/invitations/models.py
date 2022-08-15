@@ -277,6 +277,7 @@ class Invitation(BaseModel):
         related_name="approved",
     )
     meta = models.JSONField(default=dict)
+    draft = models.BooleanField(default=False)
 
     objects = InvitationManager()
 

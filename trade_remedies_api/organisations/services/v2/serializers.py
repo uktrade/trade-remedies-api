@@ -4,7 +4,7 @@ from rest_framework import serializers
 from config.serializers import CustomValidationModelSerializer
 from core.services.v2.users.serializers import UserSerializer
 from organisations.models import Organisation
-from security.models import CaseRole, OrganisationCaseRole, OrganisationUser
+from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
 
 
 class OrganisationUserSerializer(CustomValidationModelSerializer):
@@ -19,6 +19,7 @@ class OrganisationUserSerializer(CustomValidationModelSerializer):
 class OrganisationSerializer(CustomValidationModelSerializer):
     country = serializers.SerializerMethodField()
     organisationuser_set = OrganisationUserSerializer(many=True)
+    cases = serializers.SerializerMethodField()
 
     class Meta:
         model = Organisation
@@ -26,6 +27,17 @@ class OrganisationSerializer(CustomValidationModelSerializer):
 
     def get_country(self, obj):
         return obj.country.alpha3
+
+    def get_cases(self, instance):
+        from cases.services.v2.serializers import CaseSerializer
+        cases = UserCase.objects.filter(
+            user__organisationuser__organisation=instance,
+            case__deleted_at__isnull=True,
+            case__archived_at__isnull=True,
+        )
+        if request := self.context.get("request", None):
+            cases = cases.filter(user=request.user)
+        return [CaseSerializer(each.case).data for each in cases]
 
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):

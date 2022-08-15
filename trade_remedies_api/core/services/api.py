@@ -664,7 +664,8 @@ class CreatePendingUserAPI(TradeRemediesApiView):
             invite = Invitation.objects.get(id=invitation_id, organisation=organisation_id)
             invite.set_user_context(request.user)
             if not invite.accepted_at:
-                invite.contact.delete()
+                if invite.contact:
+                    invite.contact.delete()
                 invite.delete()
             else:
                 raise Invitation.DoesNotExist()

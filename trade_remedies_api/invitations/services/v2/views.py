@@ -36,6 +36,12 @@ class InvitationViewSet(viewsets.ModelViewSet):
                     email=serializer.validated_data["email"],
                     user_context=self.request.user
                 )
+
+                # Updating the meta dictionary to reflect the changes
+                serializer.instance.meta = {
+                    "name": serializer.validated_data["name"],
+                    "email": serializer.validated_data["email"]
+                }
                 serializer.instance.contact = contact_object
                 serializer.save()
         return super().perform_update(serializer)
@@ -46,6 +52,8 @@ class InvitationViewSet(viewsets.ModelViewSet):
         Adds the user defined by the user_pk url argument to the group_name in request data
         """
         invitation_object = self.get_object()
+        invitation_object.draft = False
+        invitation_object.save()
         invitation_object.send(
             sent_by=request.user,
             direct=False,
