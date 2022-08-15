@@ -71,7 +71,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
     paired_documents = SerializerMethodField(read_only=True)
     orphaned_documents = SerializerMethodField(read_only=True)
     submission_documents = SubmissionDocumentSerializer(many=True, read_only=True)
-    contact = ContactSerializer()
+    contact = ContactSerializer(required=False)
 
     class Meta:
         model = Submission
