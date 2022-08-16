@@ -7,7 +7,8 @@ from cases.models import (
     Submission,
     SubmissionDocument,
     SubmissionDocumentType,
-    SubmissionStatus, SubmissionType,
+    SubmissionStatus,
+    SubmissionType,
 )
 from config.serializers import CustomValidationModelSerializer, NestedKeyField
 from core.models import User

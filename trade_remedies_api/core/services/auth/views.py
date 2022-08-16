@@ -9,6 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.views import APIView
+from sentry_sdk import set_user
 
 from audit import AUDIT_TYPE_PASSWORD_RESET, AUDIT_TYPE_PASSWORD_RESET_FAILED
 from audit.utils import audit_log
@@ -94,6 +95,7 @@ class AuthenticationView(APIView):
             invitation_code = request.data.get("invitation_code")
 
             login(request, user)  # Logging the user in
+            set_user({"id": user.id})  # Setting sentry context in case any errors are raised after
             reset(username=email)  # Reset any remaining access attempts
             Invitation.objects.validate_all_pending(
                 user, invitation_code

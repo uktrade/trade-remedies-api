@@ -115,12 +115,13 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.gzip.GZipMiddleware",
     "axes.middleware.AxesMiddleware",
+    "config.middleware.SentryContextMiddleware",
 ]
 
 if DJANGO_ADMIN:
     MIDDLEWARE = [
-                     "whitenoise.middleware.WhiteNoiseMiddleware",
-                 ] + MIDDLEWARE
+        "whitenoise.middleware.WhiteNoiseMiddleware",
+    ] + MIDDLEWARE
 
 ROOT_URLCONF = "config.urls"
 
@@ -219,10 +220,10 @@ REST_FRAMEWORK = {
     ],
     "DATETIME_FORMAT": API_DATETIME_FORMAT,
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
-    'DEFAULT_RENDERER_CLASSES': [
-        'config.renderers.DefaultAPIRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ]
+    "DEFAULT_RENDERER_CLASSES": [
+        "config.renderers.DefaultAPIRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ],
 }
 
 # Redis - Trade remedies uses different redis database numbers for the Django Cache

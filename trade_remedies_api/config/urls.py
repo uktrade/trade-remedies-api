@@ -177,14 +177,10 @@ router.register(
 )
 router.register(f"{settings.API_V2_PREFIX}/documents", DocumentViewSet, basename="documents")
 router.register(
-    f"{settings.API_V2_PREFIX}/submission_types",
-    SubmissionTypeViewSet,
-    basename="submission_types"
+    f"{settings.API_V2_PREFIX}/submission_types", SubmissionTypeViewSet, basename="submission_types"
 )
 router.register(
-    f"{settings.API_V2_PREFIX}/document_bundles",
-    DocumentBundleViewSet,
-    basename="document_bundles"
+    f"{settings.API_V2_PREFIX}/document_bundles", DocumentBundleViewSet, basename="document_bundles"
 )
 urlpatterns += router.urls
 

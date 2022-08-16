@@ -14,6 +14,7 @@ class CoreConfig(AppConfig):
         from django.contrib.auth.models import Group
 
         try:
+
             for flag in settings.FLAGS:
                 group_object, created = Group.objects.update_or_create(name=flag)
                 if created:

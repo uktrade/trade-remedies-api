@@ -11,8 +11,11 @@ from audit import AUDIT_TYPE_CREATE, AUDIT_TYPE_UPDATE
 from audit.utils import audit_log
 from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
 from cases.models import Case, Submission, SubmissionType
-from cases.services.v2.serializers import CaseSerializer, SubmissionSerializer, \
-    SubmissionTypeSerializer
+from cases.services.v2.serializers import (
+    CaseSerializer,
+    SubmissionSerializer,
+    SubmissionTypeSerializer,
+)
 from config.viewsets import BaseModelViewSet
 from contacts.models import Contact
 from organisations.models import Organisation

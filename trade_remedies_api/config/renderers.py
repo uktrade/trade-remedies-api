@@ -7,6 +7,7 @@ class DefaultAPIRenderer(JSONRenderer):
     """
     Custom Response Renderer which changes the JSON encoder class
     """
+
     encoder_class = JsonEncoder
 
 

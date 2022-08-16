@@ -39,8 +39,7 @@ class UserSetupTestBase(TestCase):
         self.user.groups.add(g3)
         self.user.save()
 
+
 class OrganisationSetupTestMixin(UserSetupTestBase):
     def setUp(self) -> None:
-        self.organisation = Organisation.objects.create(
-            name="test company"
-        )
+        self.organisation = Organisation.objects.create(name="test company")
