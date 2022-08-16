@@ -11,7 +11,7 @@ from core.exceptions import ValidationAPIException
 from core.models import SystemParameter, User
 from core.notifier import send_mail
 from core.services.base import ResponseSuccess
-from core.services.registration.serializers import (
+from core.services.v2.registration.serializers import (
     V2RegistrationSerializer,
     VerifyEmailSerializer,
 )

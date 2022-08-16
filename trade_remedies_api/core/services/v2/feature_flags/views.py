@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 from config.renderers import APIResponseRenderer
-from core.services.feature_flags.serializers import FlagSerializer
+from core.services.v2.feature_flags.serializers import FlagSerializer
 from rest_framework import exceptions
 
 

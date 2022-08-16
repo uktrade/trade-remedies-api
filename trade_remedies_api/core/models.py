@@ -375,18 +375,26 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
 
     @property
     def country(self):
-        return self.userprofile.get_contact().country
+        return self.get_user_profile().get_contact().country
 
     @property
     def timezone(self):
-        return self.userprofile.timezone
+        return self.get_user_profile().timezone
 
     @property
     def contact(self):
+        return self.get_user_profile().get_contact()
+
+    def get_user_profile(self):
         try:
-            return self.userprofile.get_contact()
-        except Exception:
-            pass
+            return self.userprofile
+        except UserProfile.DoesNotExist:
+            new_user_profile_object = UserProfile.objects.create(
+                user=self,
+                contact=None,
+                colour=str(self.get_user_colour() or "black"),
+            )
+            return new_user_profile_object
 
     @property
     def address(self):

@@ -1,5 +1,14 @@
 from rest_framework.renderers import JSONRenderer
-from rest_framework import serializers
+
+from config.encoders import JsonEncoder
+
+
+class DefaultAPIRenderer(JSONRenderer):
+    """
+    Custom Response Renderer which changes the JSON encoder class
+    """
+
+    encoder_class = JsonEncoder
 
 
 class APIResponseRenderer(JSONRenderer):

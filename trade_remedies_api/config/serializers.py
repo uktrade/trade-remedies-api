@@ -11,10 +11,9 @@ from rest_framework.fields import (
     get_error_detail,
     set_value,
 )
-
 from rest_framework.settings import api_settings
 
-from core.exceptions import CustomValidationErrors, CustomValidationError
+from core.exceptions import CustomValidationError, CustomValidationErrors
 
 
 class CustomValidationSerializer(serializers.Serializer):
@@ -128,13 +127,6 @@ class CustomValidationSerializer(serializers.Serializer):
             raise AssertionError(msg)
         return self._errors
 
-    @property
-    def data(self):
-        return {"result": self.return_data()}
-
-    def return_data(self):
-        return super().data()
-
 
 class CustomValidationModelSerializer(CustomValidationSerializer, serializers.ModelSerializer):
     """Raises CustomValidationErrors for use in V2 error handling using a DRF ModelSerializer"""
@@ -163,3 +155,29 @@ def custom_fail(self, key, **kwargs):
 
 
 serializers.Field.fail = custom_fail
+
+
+class NestedKeyField(serializers.PrimaryKeyRelatedField):
+    """A serializer field used as both a PrimaryKeyRelatedField and a nested serializer.
+
+    Allows the return value of a serializer's fields to also be serializers, but the input value
+    to be a primary key.
+    """
+
+    def __init__(self, **kwargs):
+        self.serializer = kwargs.pop("serializer", None)
+        self.serializer_kwargs = kwargs.pop("serializer_kwargs", {})
+        if self.serializer is not None and not issubclass(self.serializer, serializers.Serializer):
+            raise TypeError(
+                "You need to pass a instance of serialzers.Serializer or atleast something that inherits from it."
+            )
+        super().__init__(**kwargs)
+
+    def use_pk_only_optimization(self):
+        return not self.serializer
+
+    def to_representation(self, value):
+        if self.serializer:
+            return dict(self.serializer(value, context=self.context, **self.serializer_kwargs).data)
+        else:
+            return super().to_representation(value)

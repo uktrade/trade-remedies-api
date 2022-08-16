@@ -16,15 +16,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
-from rest_framework import routers
 
-from cases.services.v2.api import CaseViewSet
+from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, SubmissionViewSet
 from rest_framework import routers
 
 from core.services import api as core_api
 from core.services.auth import views as auth_api
-from core.services.registration import views as registration_api
+from core.services.v2.registration import views as registration_api
 from cases.services import api as cases_api
+from documents.services.v2.views import DocumentBundleViewSet, DocumentViewSet
+from organisations.services.v2.views import OrganisationCaseRoleViewSet, OrganisationViewSet
 
 urlpatterns = [
     path(f"{settings.API_PREFIX}/health/", core_api.ApiHealthView.as_view()),
@@ -165,6 +166,22 @@ urlpatterns = [
 
 router = routers.SimpleRouter()
 router.register(f"{settings.API_V2_PREFIX}/cases", CaseViewSet, basename="cases")
+router.register(f"{settings.API_V2_PREFIX}/submissions", SubmissionViewSet, basename="submissions")
+router.register(
+    f"{settings.API_V2_PREFIX}/organisations", OrganisationViewSet, basename="organisations"
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/organisation_case_roles",
+    OrganisationCaseRoleViewSet,
+    basename="organisation_case_roles",
+)
+router.register(f"{settings.API_V2_PREFIX}/documents", DocumentViewSet, basename="documents")
+router.register(
+    f"{settings.API_V2_PREFIX}/submission_types", SubmissionTypeViewSet, basename="submission_types"
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/document_bundles", DocumentBundleViewSet, basename="document_bundles"
+)
 urlpatterns += router.urls
 
 if settings.DJANGO_ADMIN:
