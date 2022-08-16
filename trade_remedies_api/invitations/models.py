@@ -407,6 +407,8 @@ class Invitation(BaseModel):
             "model": self.contact,
         }
         send_mail(self.contact.email, _context, notify_template_id, audit_kwargs=audit_kwargs)
+        self.sent_at = timezone.now()
+        self.save()
 
     def accepted(self):
         """

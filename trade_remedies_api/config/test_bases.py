@@ -27,6 +27,7 @@ class UserSetupTestBase(TestCase):
     """Test base class that creates a User and the necessary public groups"""
 
     def setUp(self) -> None:
+        super().setUp()
         self.user = User.objects.create_user(
             email=email,
             password=password,
@@ -39,8 +40,10 @@ class UserSetupTestBase(TestCase):
         self.user.groups.add(g3)
         self.user.save()
 
+
 class OrganisationSetupTestMixin(UserSetupTestBase):
     def setUp(self) -> None:
+        super().setUp()
         self.organisation = Organisation.objects.create(
             name="test company"
         )
