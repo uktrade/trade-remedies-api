@@ -43,13 +43,17 @@ validation_errors = {
     },
     "email_not_valid": {
         "field": "email",
-        "error_text": "Enter your email address in the correct format. Eg. name@example.com",  # /PS-IGNORE
-        "error_summary": "Your email address needs to be in the correct format. Eg. name@example.com",  # /PS-IGNORE
+        "error_text": "Enter your email address in the correct format. Eg. name@example.com",
+        # /PS-IGNORE
+        "error_summary": "Your email address needs to be in the correct format. Eg. name@example.com",
+        # /PS-IGNORE
     },
     "contact_email_not_valid": {
         "field": "email",
-        "error_text": "Enter the contact's email address in the correct format. Eg. name@example.com",  # /PS-IGNORE
-        "error_summary": "The contact's email address needs to be in the correct format. Eg. name@example.com",  # /PS-IGNORE
+        "error_text": "Enter the contact's email address in the correct format. Eg. name@example.com",
+        # /PS-IGNORE
+        "error_summary": "The contact's email address needs to be in the correct format. Eg. name@example.com",
+        # /PS-IGNORE
     },
     "email_required": {
         "field": "email",
@@ -169,9 +173,9 @@ validation_errors = {
     "no_client_post_code_or_number_entered": {
         "field": "post_code",
         "error_text": "Enter either your organisation's registration number "
-        "or the postcode for your organisation's address",
+                      "or the postcode for your organisation's address",
         "error_summary": "We need either your organisation's registration number or "
-        "the postcode for your organisation's address",
+                         "the postcode for your organisation's address",
     },
     "no_client_address_entered": {
         "field": "address",
@@ -270,5 +274,45 @@ validation_errors = {
         "field": "cases",
         "error_text": "Select an option",
         "error_summary": "You need to select a case",
+    },
+    "invite_new_representative_no_organisation_name": {
+        "field": "organisation_name",
+        "error_text": "Enter the name of the representative organisation",
+        "error_summary": "Need to enter the name of the representative organisation",
+    },
+    "invite_new_representative_no_contact_name": {
+        "field": "contact_name",
+        "error_text": "Enter the user's name",
+        "error_summary": "You need to provide the name of the person you are inviting",
+    },
+    "invite_new_representative_no_contact_email": {
+        "field": "contact_email",
+        "error_text": "Enter the contact's email address",
+        "error_summary": "You need to enter the contact's email address",
+    },
+    "invite_new_representative_invalid_email": {
+        "field": "contact_email",
+        "error_text": "Enter the email address in the correct format. Eg. name@example.com",
+        "error_summary": "The contact's email address needs to be in the correct format. Eg. name@example.com",
+    },
+    "invite_existing_representative_no_contact_name": {
+        "field": "contact_name",
+        "error_text": "Enter the contact's name",
+        "error_summary": "You need to enter the contact's name",
+    },
+    "invite_existing_representative_no_contact_email": {
+        "field": "contact_email",
+        "error_text": "Enter the contact's email address",
+        "error_summary": "You need to enter the contact's email address",
+    },
+    "invite_existing_representative_invalid_email": {
+        "field": "contact_name",
+        "error_text": "Enter the email address in the correct format. Eg. name@example.com",
+        "error_summary": "The contact's email address needs to be in the correct format. Eg. name@example.com",
+    },
+    "invite_who_does_your_representative_work_for_missing": {
+        "field": "organisation",
+        "error_text": "Select an option",
+        "error_summary": "You need to select an option",
     }
 }

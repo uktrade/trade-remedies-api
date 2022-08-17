@@ -24,7 +24,7 @@ from core.services import api as core_api
 from core.services.auth import views as auth_api
 from core.services.v2.registration import views as registration_api
 from cases.services import api as cases_api
-from core.services.v2.users.views import UserViewSet
+from core.services.v2.users.views import ContactViewSet, UserViewSet
 from documents.services.v2.views import DocumentViewSet
 from invitations.services.v2.views import InvitationViewSet
 from organisations.services.v2.views import OrganisationCaseRoleViewSet, OrganisationViewSet
@@ -180,6 +180,7 @@ router.register(
     basename="organisation_case_roles",
 )
 router.register(f"{settings.API_V2_PREFIX}/documents", DocumentViewSet, basename="documents")
+router.register(f"{settings.API_V2_PREFIX}/contacts", ContactViewSet, basename="contacts")
 urlpatterns += router.urls
 
 if settings.DJANGO_ADMIN:

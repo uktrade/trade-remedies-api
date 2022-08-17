@@ -36,6 +36,9 @@ class ContactSerializer(serializers.ModelSerializer):
         model = Contact
         fields = "__all__"
 
+    country = serializers.ReadOnlyField(source="country.alpha3")
+    organisation_name = serializers.ReadOnlyField(source="organisation.name")
+
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:

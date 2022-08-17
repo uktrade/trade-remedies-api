@@ -18,7 +18,7 @@ class OrganisationUserSerializer(CustomValidationModelSerializer):
 
 class OrganisationSerializer(CustomValidationModelSerializer):
     country = serializers.SerializerMethodField()
-    organisationuser_set = OrganisationUserSerializer(many=True)
+    organisationuser_set = OrganisationUserSerializer(many=True, required=False)
     cases = serializers.SerializerMethodField()
     invitations = serializers.SerializerMethodField()
 
