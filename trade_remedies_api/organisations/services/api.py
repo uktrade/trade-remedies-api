@@ -147,7 +147,7 @@ class OrganisationsAPIView(TradeRemediesApiView):
         organisation = Organisation.objects.get(id=organisation_id)
         ocr = OrganisationCaseRole.objects.filter(organisation=organisation)
         casecontacts = organisation.casecontact_set.all()
-        invitations = organisation.invitations.all()
+        invitations = organisation.invitation_set.all()
         # real-delete any case roles and case contact references
         ocr.delete()
         casecontacts.delete()

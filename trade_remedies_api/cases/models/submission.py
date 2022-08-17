@@ -530,8 +530,8 @@ class Submission(BaseModel):
                 else None,
                 "created_at": self.created_at.strftime(settings.API_DATETIME_FORMAT),
                 "created_by": {
-                    "id": str(self.created_by.id),
-                    "name": self.created_by.name,
+                    "id": str(self.created_by.id) if self.created_by else "",
+                    "name": self.created_by.name if self.created_by else "",
                 },
                 "issued_by": self.issued_by.to_embedded_dict() if self.issued_by else None,
                 "received_from": self.received_from.to_embedded_dict()
