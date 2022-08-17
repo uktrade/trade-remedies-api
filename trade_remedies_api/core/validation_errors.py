@@ -265,5 +265,10 @@ validation_errors = {
         "field": "type_of_user",
         "error_text": "Select permissions",
         "error_summary": "Select the permissions you would like this user to have",
+    },
+    "invite_no_case_selected": {
+        "field": "cases",
+        "error_text": "Select an option",
+        "error_summary": "You need to select a case",
     }
 }
