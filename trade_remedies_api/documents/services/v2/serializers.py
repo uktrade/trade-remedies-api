@@ -3,6 +3,8 @@ import os
 from rest_framework import serializers
 
 from documents.models import Document
+from cases.models import SubmissionType
+from documents.models import Document, DocumentBundle
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -43,5 +45,16 @@ class DocumentSerializer(serializers.ModelSerializer):
         e.g. super_long_document_name_this_is_ridiculous.pdf ---> super_long_doc...iculous.pdf"""
 
         if len(instance.name) > 35:
-            return f'{instance.name[0:18]}...{instance.name[-18:]}'
+            return f"{instance.name[0:18]}...{instance.name[-18:]}"
         return instance.name
+
+
+class DocumentBundleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DocumentBundle
+        fields = "__all__"
+
+    documents = DocumentSerializer(many=True)
+    submission_type = serializers.SlugRelatedField(
+        slug_field="name", queryset=SubmissionType.objects.all()
+    )

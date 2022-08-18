@@ -8,10 +8,11 @@ from cases.models import (
     SubmissionDocument,
     SubmissionDocumentType,
     SubmissionStatus,
+    SubmissionType,
 )
 from config.serializers import CustomValidationModelSerializer, NestedKeyField
 from core.models import User
-from core.services.v2.users.serializers import UserSerializer
+from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from documents.services.v2.serializers import DocumentSerializer
 from organisations.models import Organisation
 from organisations.services.v2.serializers import OrganisationSerializer
@@ -71,6 +72,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
     paired_documents = SerializerMethodField(read_only=True)
     orphaned_documents = SerializerMethodField(read_only=True)
     submission_documents = SubmissionDocumentSerializer(many=True, read_only=True)
+    contact = ContactSerializer(required=False)
 
     class Meta:
         model = Submission
@@ -115,3 +117,9 @@ class SubmissionSerializer(serializers.ModelSerializer):
                 )
 
         return orphaned_documents
+
+
+class SubmissionTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubmissionType
+        fields = "__all__"

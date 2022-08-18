@@ -7,6 +7,10 @@ from contacts.models import Contact
 from core.models import User
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 
+from contacts.models import Contact
+from core.models import User
+from core.services.v2.users.serializers import ContactSerializer, UserSerializer
+
 
 class UserViewSet(viewsets.ModelViewSet):
     """

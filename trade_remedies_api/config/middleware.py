@@ -1,4 +1,6 @@
 from django.conf import settings
+from sentry_sdk import set_user
+
 from core.services.exceptions import AccessDenied
 
 
@@ -35,3 +37,23 @@ class OriginValidator:
             return self.get_response(request)
         else:
             raise AccessDenied("Access denied. Required headers missing.")
+
+
+class SentryContextMiddleware:
+    """
+    Sets sentry context during each request/response so we can identify unique users
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        return response
+
+    def process_exception(self, request, exception):
+        if request.user.is_authenticated:
+            set_user({"id": str(request.user.id)})
+        else:
+            set_user(None)
+        return None

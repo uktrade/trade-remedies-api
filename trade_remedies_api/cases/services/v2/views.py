@@ -12,6 +12,12 @@ from audit.utils import audit_log
 from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
 from cases.models import Case, Submission
 from cases.services.v2.serializers import CaseSerializer, SubmissionSerializer
+from cases.models import Case, Submission, SubmissionType
+from cases.services.v2.serializers import (
+    CaseSerializer,
+    SubmissionSerializer,
+    SubmissionTypeSerializer,
+)
 from config.viewsets import BaseModelViewSet
 from contacts.models import Contact
 from organisations.models import Organisation
@@ -123,27 +129,30 @@ class SubmissionViewSet(BaseModelViewSet):
         )
 
         # Removing the previous organisation from the case if they are not properly enrolled
-        OrganisationCaseRole.objects.filter(
-            organisation=previous_organisation_object,
-            case=submission_object.case,
-            role=CaseRole.objects.get(id=ROLE_PREPARING),
-        ).delete()
+        if organisation_object != previous_organisation_object:
+            OrganisationCaseRole.objects.filter(
+                organisation=previous_organisation_object,
+                case=submission_object.case,
+                role=CaseRole.objects.get(id=ROLE_PREPARING),
+            ).delete()
 
-        # Associating the organisation with the case
-        OrganisationCaseRole.objects.get_or_create(
-            organisation=organisation_object,
-            case=submission_object.case,
-            defaults={
-                "role": CaseRole.objects.get(id=ROLE_PREPARING),
-                "sampled": True,
-                "created_by": request.user,
-            },
-        )
+            # Associating the organisation with the case
+            OrganisationCaseRole.objects.get_or_create(
+                organisation=organisation_object,
+                case=submission_object.case,
+                defaults={
+                    "role": CaseRole.objects.get(id=ROLE_PREPARING),
+                    "sampled": True,
+                    "created_by": request.user,
+                },
+            )
 
         # Deleting all the user SubmissionDocument objects as they no longer apply to the submission
-        submission_object.submissiondocument_set.filter(
-            type__key__in=["respondent", "loa"]
-        ).delete()
+        # only if the new organisation is different from the previous
+        if organisation_object != previous_organisation_object:
+            submission_object.submissiondocument_set.filter(
+                type__key__in=["respondent", "loa"]
+            ).delete()
 
         submission_object.organisation = organisation_object
         submission_object.contact = contact_object
@@ -176,3 +185,8 @@ class SubmissionViewSet(BaseModelViewSet):
             case=created_submission.case,
         )
         return created_submission
+
+
+class SubmissionTypeViewSet(BaseModelViewSet):
+    queryset = SubmissionType.objects.all()
+    serializer_class = SubmissionTypeSerializer

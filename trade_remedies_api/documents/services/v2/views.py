@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from cases.models import Submission, SubmissionDocumentType
 from documents.models import Document
 from documents.services.v2.serializers import DocumentSerializer
+from documents.models import Document, DocumentBundle
+from documents.services.v2.serializers import DocumentBundleSerializer, DocumentSerializer
 
 
 class DocumentViewSet(viewsets.ModelViewSet):
@@ -67,13 +69,23 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
         for submission_object in document_object.submission_set.all():
             document_object.set_case_context(submission_object.case)
-            '''submission_object.remove_document(child_document, requested_by=request.user)
-            child_document.delete()'''
+            """submission_object.remove_document(child_document, requested_by=request.user)
+            child_document.delete()"""
 
             # Removing the document in question from the submission
             submission_object.remove_document(document_object, requested_by=request.user)
 
         # Finally, deleting the document object itself
-        document_object.delete()
+        if s3_file := document_object.file.file:
+            s3_file.obj.delete()  # deleting from S3
+        document_object.delete()  # deleting reference from the DB
 
         return Response(status=204)
+
+
+class DocumentBundleViewSet(viewsets.ModelViewSet):
+    queryset = DocumentBundle.objects.all()
+    serializer_class = DocumentBundleSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        print("ads")
