@@ -191,15 +191,6 @@ router.register(
 router.register(f"{settings.API_V2_PREFIX}/submissions", SubmissionViewSet, basename="submissions")
 router.register(f"{settings.API_V2_PREFIX}/invitations", InvitationViewSet, basename="invitations")
 router.register(f"{settings.API_V2_PREFIX}/users", UserViewSet, basename="users")
-router.register(
-    f"{settings.API_V2_PREFIX}/organisations", OrganisationViewSet, basename="organisations"
-)
-router.register(
-    f"{settings.API_V2_PREFIX}/organisation_case_roles",
-    OrganisationCaseRoleViewSet,
-    basename="organisation_case_roles",
-)
-router.register(f"{settings.API_V2_PREFIX}/documents", DocumentViewSet, basename="documents")
 router.register(f"{settings.API_V2_PREFIX}/contacts", ContactViewSet, basename="contacts")
 urlpatterns += router.urls
 

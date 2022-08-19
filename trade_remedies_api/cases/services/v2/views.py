@@ -10,8 +10,6 @@ from rest_framework.response import Response
 from audit import AUDIT_TYPE_CREATE, AUDIT_TYPE_UPDATE
 from audit.utils import audit_log
 from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
-from cases.models import Case, Submission
-from cases.services.v2.serializers import CaseSerializer, SubmissionSerializer
 from cases.models import Case, Submission, SubmissionType
 from cases.services.v2.serializers import (
     CaseSerializer,
@@ -49,33 +47,7 @@ class SubmissionViewSet(BaseModelViewSet):
         """
         submission_object = self.get_object()
         new_status = request.data["new_status"]
-        status_object = getattr(submission_object.type, f"{new_status}_status")
-        submission_object.transition_status(status_object)
-
-        # We want to update the status_at and status_by fields if applicable.
-        # e.g. received_at and received_from
-        if new_status == "received":
-            submission_object.received_at = timezone.now()
-            submission_object.received_from = request.user
-            submission_object.save()
-
-        if new_status == "sent":
-            submission_object.sent_at = timezone.now()
-            submission_object.sent_by = request.user
-            if submission_object.time_window:
-                submission_object.due_at = timezone.now() + datetime.timedelta(
-                    days=submission_object.time_window
-                )
-            submission_object.save()
-
-        # Now we want to send the relevant confirmation notification message if applicable.
-        if status_object.send_confirmation_notification:
-            submission_user = (
-                submission_object.contact.userprofile.user
-                if submission_object.contact and submission_object.contact.has_user
-                else None
-            )
-            submission_object.notify_received(user=submission_user or request.user)
+        submission_object.update_status(new_status, request.user)
 
         audit_log(
             audit_type=AUDIT_TYPE_UPDATE,

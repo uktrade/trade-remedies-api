@@ -1,7 +1,10 @@
+from django.conf import settings
 from django.db import transaction
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from django.conf import settings
+
+from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
+from cases.models import Submission, get_submission_type
 from contacts.models import Contact
 from invitations.models import Invitation
 from invitations.services.v2.serializers import InvitationSerializer
@@ -16,9 +19,26 @@ class InvitationViewSet(viewsets.ModelViewSet):
         invitation_object = serializer.save(
             user_context=self.request.user,
             created_by=self.request.user,
+            user=self.request.user,
         )
         invitation_object.create_codes()
+
+        # If this is a representative invite (a third party invite), we also want to create a
+        # submission object associated with this invitation
+        if invitation_object.invitation_type == 2:
+            submission_type = get_submission_type(SUBMISSION_TYPE_INVITE_3RD_PARTY)
+            submission_status = submission_type.default_status
+            submission_object = Submission.objects.create(
+                name="Invite 3rd party",
+                type=submission_type,
+                status=submission_status,
+                case=invitation_object.case,
+                created_by=self.request.user,
+                contact=self.request.user.contact,
+            )
+            invitation_object.submission = submission_object
         invitation_object.save()
+
         return invitation_object
 
     def perform_update(self, serializer):
@@ -54,13 +74,34 @@ class InvitationViewSet(viewsets.ModelViewSet):
         invitation_object = self.get_object()
         invitation_object.draft = False
         invitation_object.save()
-        invitation_object.send(
-            sent_by=request.user,
-            direct=False,
-            template_key="NOTIFY_INVITE_ORGANISATION_USER",
-            context={
-                "login_url": f"{settings.PUBLIC_ROOT_URL}/invitation/{invitation_object.code}/"
-                             f"for/{invitation_object.organisation.id}/"
-            },
-        )
+
+        if invitation_object.invitation_type == 1:
+            # This is an invitation from within the organisation
+            invitation_object.send(
+                sent_by=request.user,
+                direct=False,
+                template_key="NOTIFY_INVITE_ORGANISATION_USER",
+                context={
+                    "login_url": f"{settings.PUBLIC_ROOT_URL}/invitation/{invitation_object.code}/"
+                                 f"for/{invitation_object.organisation.id}/"
+                },
+            )
+        elif invitation_object.invitation_type == 2:
+            # This is a representative invite, send the appropriate email
+            send_report = invitation_object.send(
+                sent_by=request.user,
+                context={
+                    "full_name": invitation_object.contact.name,
+                    "case_name": invitation_object.submission.case.name,
+                    "invited_by_organisation": invitation_object.organisation.name,
+                    "invited_by_name": invitation_object.user.name,
+                    "login_url": "test"
+                },
+                direct=True,
+                template_key="NOTIFY_THIRD_PARTY_INVITE",
+            )
+
+            # We also need to update the submission status to sent
+            invitation_object.submission.update_status("sufficient", request.user)
+
         return self.retrieve(request)

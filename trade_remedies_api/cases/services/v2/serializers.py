@@ -57,13 +57,25 @@ class SubmissionDocumentSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class SubmissionSerializer(serializers.ModelSerializer):
-    case = NestedKeyField(queryset=Case.objects.all(), serializer=CaseSerializer)
+class SubmissionTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubmissionType
+        fields = "__all__"
+
+
+class SubmissionSerializer(CustomValidationModelSerializer):
+    case = NestedKeyField(queryset=Case.objects.all(), serializer=CaseSerializer, required=False)
     organisation = NestedKeyField(
-        queryset=Organisation.objects.all(), serializer=OrganisationSerializer, required=False
+        queryset=Organisation.objects.all(),
+        serializer=OrganisationSerializer,
+        required=False,
     )
     documents = DocumentSerializer(many=True, required=False)
-    created_by = NestedKeyField(queryset=User.objects.all(), serializer=UserSerializer)
+    created_by = NestedKeyField(
+        queryset=User.objects.all(),
+        serializer=UserSerializer,
+        required=False
+    )
     status = NestedKeyField(
         queryset=SubmissionStatus.objects.all(),
         serializer=SubmissionStatusSerializer,
@@ -73,6 +85,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
     orphaned_documents = SerializerMethodField(read_only=True)
     submission_documents = SubmissionDocumentSerializer(many=True, read_only=True)
     contact = ContactSerializer(required=False)
+    type = SubmissionTypeSerializer(required=False)
 
     class Meta:
         model = Submission
@@ -117,9 +130,3 @@ class SubmissionSerializer(serializers.ModelSerializer):
                 )
 
         return orphaned_documents
-
-
-class SubmissionTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SubmissionType
-        fields = "__all__"

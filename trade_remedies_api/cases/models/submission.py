@@ -1,31 +1,25 @@
 import datetime
+
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.db.models import Q
-from django.contrib.postgres import fields
-from django.conf import settings
 from django.utils import timezone
 from titlecase import titlecase
-from core.utils import public_login_url
-from core.base import BaseModel
-from core.models import SystemParameter
-from core.tasks import send_mail
+
 from audit import AUDIT_TYPE_NOTIFY
+from cases.constants import (CASE_TYPE_SAFEGUARDING, SUBMISSION_DOCUMENT_TYPE_TRA,
+                             SUBMISSION_TYPE_APPLICATION, TRA_ORGANISATION_ID)
+from core.base import BaseModel
+from core.models import SystemParameter, User
+from core.tasks import send_mail
+from core.utils import public_login_url
 from notes.models import Note
-from django.contrib.contenttypes.models import ContentType
-from security.constants import (
-    SECURITY_GROUPS_TRA,
-    SECURITY_GROUPS_PUBLIC,
-)
+from security.constants import (SECURITY_GROUPS_PUBLIC, SECURITY_GROUPS_TRA)
 from security.models import OrganisationCaseRole
-from cases.constants import (
-    SUBMISSION_DOCUMENT_TYPE_TRA,
-    CASE_TYPE_SAFEGUARDING,
-    SUBMISSION_TYPE_APPLICATION,
-    TRA_ORGANISATION_ID,
-)
+from .submissiondocument import SubmissionDocument, SubmissionDocumentType
 from .submissiontype import SubmissionType
 from .workflow import CaseWorkflowState
-from .submissiondocument import SubmissionDocument, SubmissionDocumentType
 
 
 class SubmissionManager(models.Manager):
@@ -46,16 +40,16 @@ class SubmissionManager(models.Manager):
         ).get(**query_kwargs)
 
     def get_submissions(
-        self,
-        case,
-        requested_by,
-        requested_for=None,
-        private=True,
-        submission_id=None,
-        show_global=False,
-        show_archived=False,
-        sampled_only=False,
-        submission_type_id=None,
+            self,
+            case,
+            requested_by,
+            requested_for=None,
+            private=True,
+            submission_id=None,
+            show_global=False,
+            show_archived=False,
+            sampled_only=False,
+            submission_type_id=None,
     ):
         """
         Get all case submissions as requested by a user, for a specific organisation.
@@ -361,9 +355,9 @@ class Submission(BaseModel):
             latest = clone
 
         if (
-            self.case.type.id == CASE_TYPE_SAFEGUARDING
-            and self.type.id == SUBMISSION_TYPE_APPLICATION
-            and self.status == self.type.received_status
+                self.case.type.id == CASE_TYPE_SAFEGUARDING
+                and self.type.id == SUBMISSION_TYPE_APPLICATION
+                and self.status == self.type.received_status
         ):
             self.case.set_user_context(self.user_context)
             self.case.set_next_action("INIT_ASSESS")
@@ -480,7 +474,7 @@ class Submission(BaseModel):
         ]
         _previous_version = _previous_versions[-1] if _previous_versions else None
         _is_latest_version = (
-            _previous_version is None or str(self.id) == _previous_versions[-1]["id"]
+                _previous_version is None or str(self.id) == _previous_versions[-1]["id"]
         )
         out = self.to_embedded_dict(**kwargs)
         # if this is not the latest version lock the submission regardless.
@@ -517,7 +511,7 @@ class Submission(BaseModel):
         downloaded_count = self.submissiondocument_set.filter(downloads__gt=0).count()
         out = self.to_minimal_dict()
         invitations = [
-            {"id": invite.id, "name": invite.contact.name} for invite in self.invitations.all()
+            {"id": invite.id, "name": str(invite)} for invite in self.invitations.all()
         ]
         out.update(
             {
@@ -915,3 +909,49 @@ class Submission(BaseModel):
         )
         note.save()
         return note
+
+    def update_status(self, new_status: str, requesting_user: User) -> bool:
+        """
+        Updates the status of a submission object.
+
+        Deals with sending any notifications that need to happen if a status is changed, and also
+        updating any timestamp fields on the submission where necessary.
+
+        Parameters
+        ----------
+        new_status : str - the new status, e.g. sent, received...etc.
+        requesting_user : User - the user who is changing the status
+
+        Returns
+        -------
+        bool
+        """
+        status_object = getattr(self.type, f"{new_status}_status")
+        self.transition_status(status_object)
+
+        # We want to update the status_at and status_by fields if applicable.
+        # e.g. received_at and received_from
+        if new_status == "received":
+            self.received_at = timezone.now()
+            self.received_from = requesting_user
+            self.save()
+
+        if new_status == "sent":
+            self.sent_at = timezone.now()
+            self.sent_by = requesting_user
+            if self.time_window:
+                self.due_at = timezone.now() + datetime.timedelta(
+                    days=self.time_window
+                )
+            self.save()
+
+        # Now we want to send the relevant confirmation notification message if applicable.
+        if status_object.send_confirmation_notification:
+            submission_user = (
+                self.contact.userprofile.user
+                if self.contact and self.contact.has_user
+                else None
+            )
+            self.notify_received(user=submission_user or requesting_user)
+
+        return True

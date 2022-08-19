@@ -240,6 +240,11 @@ class Invitation(BaseModel):
     related to the invite can be saved in the meta dict.
     """
 
+    invitation_type_choices = (
+        (1, "Own Organisation"),
+        (2, "Representative"),
+    )
+
     organisation = models.ForeignKey(
         "organisations.Organisation", null=True, blank=True, on_delete=models.PROTECT
     )
@@ -278,6 +283,11 @@ class Invitation(BaseModel):
     )
     meta = models.JSONField(default=dict)
     draft = models.BooleanField(default=False)
+    invitation_type = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        choices=invitation_type_choices
+    )
 
     objects = InvitationManager()
 
@@ -408,6 +418,7 @@ class Invitation(BaseModel):
         }
         send_mail(self.contact.email, _context, notify_template_id, audit_kwargs=audit_kwargs)
         self.sent_at = timezone.now()
+        self.email_sent = True
         self.save()
 
     def accepted(self):

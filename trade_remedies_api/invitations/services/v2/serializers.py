@@ -1,6 +1,7 @@
 from django.contrib.auth.models import Group
 from rest_framework import serializers
 
+from cases.services.v2.serializers import SubmissionSerializer
 from config.serializers import CustomValidationModelSerializer, NestedKeyField
 from contacts.models import Contact
 from core.services.v2.users.serializers import ContactSerializer
@@ -27,3 +28,4 @@ class InvitationSerializer(CustomValidationModelSerializer):
         queryset=Group.objects.all(),
         required=False
     )
+    submission = SubmissionSerializer(exclude=["organisation", "created_by"], required=False)
