@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
 from cases.models import Submission, get_submission_type
 from contacts.models import Contact
+from core.models import User
 from invitations.models import Invitation
 from invitations.services.v2.serializers import InvitationSerializer
 
@@ -88,17 +89,28 @@ class InvitationViewSet(viewsets.ModelViewSet):
             )
         elif invitation_object.invitation_type == 2:
             # This is a representative invite, send the appropriate email
+
+            # we need to determine if the user being invited already has an account
+            if User.objects.filter(email__iexact=invitation_object.contact.email).exists():
+                # The user exists
+                template_name = "NOTIFY_EXISTING_THIRD_PARTY_INVITE"
+                link = f"{settings.PUBLIC_ROOT_URL}/accounts/login/"
+            else:
+                # The user does not exist
+                template_name = "NOTIFY_NEW_THIRD_PARTY_INVITE"
+                link = f"{settings.PUBLIC_ROOT_URL}/register/start"  # no trailing dash
+
             send_report = invitation_object.send(
                 sent_by=request.user,
                 context={
-                    "full_name": invitation_object.contact.name,
-                    "case_name": invitation_object.submission.case.name,
-                    "invited_by_organisation": invitation_object.organisation.name,
-                    "invited_by_name": invitation_object.user.name,
-                    "login_url": "test"
+                    "organisation_you_are_representing": invitation_object.organisation.name,
+                    "case_name": invitation_object.case.name,
+                    "case_reference": invitation_object.case.reference,
+                    "person_who_invited_you": invitation_object.user.name,
+                    "link": link
                 },
                 direct=True,
-                template_key="NOTIFY_THIRD_PARTY_INVITE",
+                template_key=template_name,
             )
 
             # We also need to update the submission status to sent

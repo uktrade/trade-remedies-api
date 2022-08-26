@@ -518,4 +518,7 @@ FLAGS = {
     f"{FEATURE_FLAG_PREFIX}_UAT_TEST": [
         {"condition": "PART_OF_GROUP", "value": True, "required": True},
     ],
+    f"{FEATURE_FLAG_PREFIX}_INVITE_JOURNEY": [
+        {"condition": "PART_OF_GROUP", "value": True, "required": True},
+    ],
 }

@@ -262,7 +262,7 @@ validation_errors = {
     },
     "who_are_you_inviting_email_invalid_format": {
         "field": "team_member_email",
-        "error_text": "Enter the user's email address in a correct format",
+        "error_text": "Enter the email address in the correct format. Eg. name@example.com",
         "error_summary": "Enter the email address in the correct format. Eg. name@example.com",
     },
     "invite_permissions_missing": {
@@ -282,8 +282,8 @@ validation_errors = {
     },
     "invite_new_representative_no_contact_name": {
         "field": "contact_name",
-        "error_text": "Enter the user's name",
-        "error_summary": "You need to provide the name of the person you are inviting",
+        "error_text": "Enter the contact's name",
+        "error_summary": "You need to enter the contact's name",
     },
     "invite_new_representative_no_contact_email": {
         "field": "contact_email",
