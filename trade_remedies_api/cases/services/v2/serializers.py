@@ -72,9 +72,7 @@ class SubmissionSerializer(CustomValidationModelSerializer):
     )
     documents = DocumentSerializer(many=True, required=False)
     created_by = NestedKeyField(
-        queryset=User.objects.all(),
-        serializer=UserSerializer,
-        required=False
+        queryset=User.objects.all(), serializer=UserSerializer, required=False
     )
     status = NestedKeyField(
         queryset=SubmissionStatus.objects.all(),

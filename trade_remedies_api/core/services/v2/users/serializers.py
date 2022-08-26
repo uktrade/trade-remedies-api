@@ -16,6 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_cases(self, instance):
         from cases.services.v2.serializers import CaseSerializer
+
         return [CaseSerializer(each).data for each in Case.objects.user_cases(user=instance)]
 
     def get_organisation(self, instance):
@@ -25,9 +26,9 @@ class UserSerializer(serializers.ModelSerializer):
         serialization.
         """
         from organisations.services.v2.serializers import OrganisationSerializer
+
         return OrganisationSerializer(
-            instance=instance.organisation.organisation,
-            exclude=["organisationuser_set"]
+            instance=instance.organisation.organisation, exclude=["organisationuser_set"]
         ).data
 
 

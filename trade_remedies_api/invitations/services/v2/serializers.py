@@ -24,8 +24,6 @@ class InvitationSerializer(CustomValidationModelSerializer):
     organisation_id = serializers.ReadOnlyField(source="organisation.id")
     organisation_name = serializers.ReadOnlyField(source="organisation.name")
     organisation_security_group = serializers.SlugRelatedField(
-        slug_field='name',
-        queryset=Group.objects.all(),
-        required=False
+        slug_field="name", queryset=Group.objects.all(), required=False
     )
     submission = SubmissionSerializer(exclude=["organisation", "created_by"], required=False)

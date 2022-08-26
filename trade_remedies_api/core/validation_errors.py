@@ -178,9 +178,9 @@ validation_errors = {
     "no_client_post_code_or_number_entered": {
         "field": "post_code",
         "error_text": "Enter either your organisation's registration number "
-                      "or the postcode for your organisation's address",
+        "or the postcode for your organisation's address",
         "error_summary": "We need either your organisation's registration number or "
-                         "the postcode for your organisation's address",
+        "the postcode for your organisation's address",
     },
     "no_client_address_entered": {
         "field": "address",
@@ -314,5 +314,5 @@ validation_errors = {
         "field": "organisation",
         "error_text": "Select an option",
         "error_summary": "You need to select an option",
-    }
+    },
 }

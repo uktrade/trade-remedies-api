@@ -44,6 +44,4 @@ class UserSetupTestBase(TestCase):
 class OrganisationSetupTestMixin(UserSetupTestBase):
     def setUp(self) -> None:
         super().setUp()
-        self.organisation = Organisation.objects.create(
-            name="test company"
-        )
+        self.organisation = Organisation.objects.create(name="test company")

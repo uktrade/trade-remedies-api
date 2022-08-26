@@ -24,8 +24,8 @@ class DynamicFieldsModelSerializer(serializers.Serializer):
 
     def __init__(self, *args, **kwargs):
         # Don't pass the 'fields' arg up to the superclass
-        fields = kwargs.pop('fields', None)
-        exclude = kwargs.pop('exclude', None)
+        fields = kwargs.pop("fields", None)
+        exclude = kwargs.pop("exclude", None)
 
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)

@@ -284,9 +284,7 @@ class Invitation(BaseModel):
     meta = models.JSONField(default=dict)
     draft = models.BooleanField(default=False)
     invitation_type = models.PositiveIntegerField(
-        null=True,
-        blank=True,
-        choices=invitation_type_choices
+        null=True, blank=True, choices=invitation_type_choices
     )
 
     objects = InvitationManager()

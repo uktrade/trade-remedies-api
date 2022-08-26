@@ -25,6 +25,6 @@ urlpatterns = [
 
 router = routers.SimpleRouter()
 router.register("django-feature-flags", FlagViewSet, basename="django-feature-flags")
-#router.register("users", UserViewSet)
+# router.register("users", UserViewSet)
 
 urlpatterns += router.urls

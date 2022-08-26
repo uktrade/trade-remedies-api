@@ -47,21 +47,25 @@ class InvitationViewSet(viewsets.ModelViewSet):
             # We want to create a new Contact object to associate with this Invitation, only if the
             # invitation object doesn't already have a contact or the contact associated with the
             # invitation has different name/email to the submitted
-            if (serializer.instance.contact and (
-                    serializer.instance.contact.name != serializer.validated_data["name"] or
-                    serializer.instance.contact.email != serializer.validated_data["email"]
-            ) or not serializer.instance.contact):
+            if (
+                serializer.instance.contact
+                and (
+                    serializer.instance.contact.name != serializer.validated_data["name"]
+                    or serializer.instance.contact.email != serializer.validated_data["email"]
+                )
+                or not serializer.instance.contact
+            ):
                 contact_object = Contact.objects.create(
                     created_by=self.request.user,
                     name=serializer.validated_data["name"],
                     email=serializer.validated_data["email"],
-                    user_context=self.request.user
+                    user_context=self.request.user,
                 )
 
                 # Updating the meta dictionary to reflect the changes
                 serializer.instance.meta = {
                     "name": serializer.validated_data["name"],
-                    "email": serializer.validated_data["email"]
+                    "email": serializer.validated_data["email"],
                 }
                 serializer.instance.contact = contact_object
                 serializer.save()
@@ -84,7 +88,7 @@ class InvitationViewSet(viewsets.ModelViewSet):
                 template_key="NOTIFY_INVITE_ORGANISATION_USER",
                 context={
                     "login_url": f"{settings.PUBLIC_ROOT_URL}/invitation/{invitation_object.code}/"
-                                 f"for/{invitation_object.organisation.id}/"
+                    f"for/{invitation_object.organisation.id}/"
                 },
             )
         elif invitation_object.invitation_type == 2:
@@ -107,7 +111,7 @@ class InvitationViewSet(viewsets.ModelViewSet):
                     "case_name": invitation_object.case.name,
                     "case_reference": invitation_object.case.reference,
                     "person_who_invited_you": invitation_object.user.name,
-                    "link": link
+                    "link": link,
                 },
                 direct=True,
                 template_key=template_name,

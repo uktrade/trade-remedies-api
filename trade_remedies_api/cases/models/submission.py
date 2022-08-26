@@ -8,14 +8,18 @@ from django.utils import timezone
 from titlecase import titlecase
 
 from audit import AUDIT_TYPE_NOTIFY
-from cases.constants import (CASE_TYPE_SAFEGUARDING, SUBMISSION_DOCUMENT_TYPE_TRA,
-                             SUBMISSION_TYPE_APPLICATION, TRA_ORGANISATION_ID)
+from cases.constants import (
+    CASE_TYPE_SAFEGUARDING,
+    SUBMISSION_DOCUMENT_TYPE_TRA,
+    SUBMISSION_TYPE_APPLICATION,
+    TRA_ORGANISATION_ID,
+)
 from core.base import BaseModel
 from core.models import SystemParameter, User
 from core.tasks import send_mail
 from core.utils import public_login_url
 from notes.models import Note
-from security.constants import (SECURITY_GROUPS_PUBLIC, SECURITY_GROUPS_TRA)
+from security.constants import SECURITY_GROUPS_PUBLIC, SECURITY_GROUPS_TRA
 from security.models import OrganisationCaseRole
 from .submissiondocument import SubmissionDocument, SubmissionDocumentType
 from .submissiontype import SubmissionType
@@ -40,16 +44,16 @@ class SubmissionManager(models.Manager):
         ).get(**query_kwargs)
 
     def get_submissions(
-            self,
-            case,
-            requested_by,
-            requested_for=None,
-            private=True,
-            submission_id=None,
-            show_global=False,
-            show_archived=False,
-            sampled_only=False,
-            submission_type_id=None,
+        self,
+        case,
+        requested_by,
+        requested_for=None,
+        private=True,
+        submission_id=None,
+        show_global=False,
+        show_archived=False,
+        sampled_only=False,
+        submission_type_id=None,
     ):
         """
         Get all case submissions as requested by a user, for a specific organisation.
@@ -355,9 +359,9 @@ class Submission(BaseModel):
             latest = clone
 
         if (
-                self.case.type.id == CASE_TYPE_SAFEGUARDING
-                and self.type.id == SUBMISSION_TYPE_APPLICATION
-                and self.status == self.type.received_status
+            self.case.type.id == CASE_TYPE_SAFEGUARDING
+            and self.type.id == SUBMISSION_TYPE_APPLICATION
+            and self.status == self.type.received_status
         ):
             self.case.set_user_context(self.user_context)
             self.case.set_next_action("INIT_ASSESS")
@@ -474,7 +478,7 @@ class Submission(BaseModel):
         ]
         _previous_version = _previous_versions[-1] if _previous_versions else None
         _is_latest_version = (
-                _previous_version is None or str(self.id) == _previous_versions[-1]["id"]
+            _previous_version is None or str(self.id) == _previous_versions[-1]["id"]
         )
         out = self.to_embedded_dict(**kwargs)
         # if this is not the latest version lock the submission regardless.
@@ -510,9 +514,7 @@ class Submission(BaseModel):
     def _to_embedded_dict(self, **kwargs):  # noqa
         downloaded_count = self.submissiondocument_set.filter(downloads__gt=0).count()
         out = self.to_minimal_dict()
-        invitations = [
-            {"id": invite.id, "name": str(invite)} for invite in self.invitations.all()
-        ]
+        invitations = [{"id": invite.id, "name": str(invite)} for invite in self.invitations.all()]
         out.update(
             {
                 # how many documents were downloaded at least once
@@ -940,17 +942,13 @@ class Submission(BaseModel):
             self.sent_at = timezone.now()
             self.sent_by = requesting_user
             if self.time_window:
-                self.due_at = timezone.now() + datetime.timedelta(
-                    days=self.time_window
-                )
+                self.due_at = timezone.now() + datetime.timedelta(days=self.time_window)
             self.save()
 
         # Now we want to send the relevant confirmation notification message if applicable.
         if status_object.send_confirmation_notification:
             submission_user = (
-                self.contact.userprofile.user
-                if self.contact and self.contact.has_user
-                else None
+                self.contact.userprofile.user if self.contact and self.contact.has_user else None
             )
             self.notify_received(user=submission_user or requesting_user)
 

@@ -54,7 +54,7 @@ class UserViewSet(viewsets.ModelViewSet):
         detail=False,
         methods=["get"],
         url_name="get_user_by_email",
-        url_path='get_user_by_email/(?P<user_email>\S+)'
+        url_path="get_user_by_email/(?P<user_email>\S+)",
     )
     def get_user_by_email(self, request, user_email, *args, **kwargs):
         try:
@@ -63,7 +63,7 @@ class UserViewSet(viewsets.ModelViewSet):
         except User.DoesNotExist:
             return Response(
                 data=f"User with email {user_email} does not exist",
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_404_NOT_FOUND,
             )
 
 
