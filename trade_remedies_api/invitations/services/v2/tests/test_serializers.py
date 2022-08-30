@@ -11,7 +11,7 @@ class TestInvitationSerializer(OrganisationSetupTestMixin):
     def setUp(self) -> None:
         super().setUp()
         self.invitation_object = Invitation.objects.create(
-            organisation_security_group=Group.objects.create(name=SECURITY_GROUP_ORGANISATION_USER),
+            organisation_security_group=self.user_group,
             name="test name",
             email="test@example.com",
         )

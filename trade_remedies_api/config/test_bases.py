@@ -32,12 +32,12 @@ class UserSetupTestBase(TestCase):
             email=email,
             password=password,
         )
-        g1 = Group.objects.create(name=SECURITY_GROUP_ORGANISATION_USER)
-        g2 = Group.objects.create(name=SECURITY_GROUP_ORGANISATION_OWNER)
-        g3 = Group.objects.create(name=SECURITY_GROUP_THIRD_PARTY_USER)
-        self.user.groups.add(g1)
-        self.user.groups.add(g2)
-        self.user.groups.add(g3)
+        self.user_group = Group.objects.create(name=SECURITY_GROUP_ORGANISATION_USER)
+        self.owner_group = Group.objects.create(name=SECURITY_GROUP_ORGANISATION_OWNER)
+        self.third_party_group = Group.objects.create(name=SECURITY_GROUP_THIRD_PARTY_USER)
+        self.user.groups.add(self.user_group)
+        self.user.groups.add(self.owner_group)
+        self.user.groups.add(self.third_party_group)
         self.user.save()
 
 
