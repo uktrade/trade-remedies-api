@@ -13,23 +13,18 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
-from django.conf import settings
-
-from cases.services.v2.views import CaseViewSet, SubmissionViewSet
-
-from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, SubmissionViewSet
 from rest_framework import routers
 
+from cases.services import api as cases_api
+from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, SubmissionViewSet
 from core.services import api as core_api
 from core.services.auth import views as auth_api
 from core.services.v2.registration import views as registration_api
-from cases.services import api as cases_api
-from documents.services.v2.views import DocumentBundleViewSet, DocumentViewSet
-from organisations.services.v2.views import OrganisationCaseRoleViewSet, OrganisationViewSet
 from core.services.v2.users.views import ContactViewSet, UserViewSet
-from documents.services.v2.views import DocumentViewSet
+from documents.services.v2.views import DocumentBundleViewSet, DocumentViewSet
 from invitations.services.v2.views import InvitationViewSet
 from organisations.services.v2.views import OrganisationCaseRoleViewSet, OrganisationViewSet
 
