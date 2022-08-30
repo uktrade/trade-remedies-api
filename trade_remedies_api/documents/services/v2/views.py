@@ -2,8 +2,6 @@ from rest_framework import status, viewsets
 from rest_framework.response import Response
 
 from cases.models import Submission, SubmissionDocumentType
-from documents.models import Document
-from documents.services.v2.serializers import DocumentSerializer
 from documents.models import Document, DocumentBundle
 from documents.services.v2.serializers import DocumentBundleSerializer, DocumentSerializer
 

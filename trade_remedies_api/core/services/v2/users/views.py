@@ -1,11 +1,7 @@
 from django.contrib.auth.models import Group
-from django.http.response import Http404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from contacts.models import Contact
-from core.models import User
-from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 
 from contacts.models import Contact
 from core.models import User
