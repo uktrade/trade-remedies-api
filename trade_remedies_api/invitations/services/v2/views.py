@@ -69,6 +69,12 @@ class InvitationViewSet(viewsets.ModelViewSet):
                 }
                 serializer.instance.contact = contact_object
                 serializer.save()
+
+        if security_group := serializer.validated_data.get("organisation_security_group", None):
+            # we need to update the meta dictionary of the invitation to reflect the group
+            serializer.instance.meta["group"] = security_group.name
+            serializer.save()
+
         return super().perform_update(serializer)
 
     @action(detail=True, methods=["post"], url_name="send_invitation")
