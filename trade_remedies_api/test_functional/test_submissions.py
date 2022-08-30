@@ -23,10 +23,3 @@ class TestSubmissionAPI(FunctionalTestBase):
             created_by=self.user,
             status=roi_submission_type.default_status,
         )
-
-    def test_update_submission_status(self):
-        response = self.client.put(
-            f"/api/v2/submissions/{self.submission_object.pk}/update_submission_status/",
-            data={"new_status": "received"},
-        )
-        print("asd")

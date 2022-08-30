@@ -27,9 +27,10 @@ class UserSerializer(serializers.ModelSerializer):
         """
         from organisations.services.v2.serializers import OrganisationSerializer
 
-        return OrganisationSerializer(
-            instance=instance.organisation.organisation, exclude=["organisationuser_set"]
-        ).data
+        if organisation_user_object := instance.organisation:
+            return OrganisationSerializer(
+                instance=organisation_user_object.organisation, exclude=["organisationuser_set"]
+            ).data
 
 
 class ContactSerializer(serializers.ModelSerializer):

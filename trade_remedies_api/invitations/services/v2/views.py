@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import transaction
+from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
@@ -84,7 +85,6 @@ class InvitationViewSet(viewsets.ModelViewSet):
         """
         invitation_object = self.get_object()
         invitation_object.draft = False
-        invitation_object.save()
 
         if invitation_object.invitation_type == 1:
             # This is an invitation from within the organisation
@@ -126,4 +126,6 @@ class InvitationViewSet(viewsets.ModelViewSet):
             # We also need to update the submission status to sent
             invitation_object.submission.update_status("sufficient", request.user)
 
+        invitation_object.sent_at = timezone.now()
+        invitation_object.save()
         return self.retrieve(request)

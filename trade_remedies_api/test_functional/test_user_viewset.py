@@ -12,7 +12,7 @@ class TestUserViewSet(FunctionalTestBase):
 
     def test_add_group(self):
         assert self.test_group_object not in self.user.groups.all()
-        self.client.put(
+        response = self.client.put(
             f"/api/v2/users/{self.user.pk}/add_group/",
             data={"group_name": test_group_name},
         )
