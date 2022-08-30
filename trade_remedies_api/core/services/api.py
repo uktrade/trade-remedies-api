@@ -363,9 +363,9 @@ class PublicUserApiView(TradeRemediesApiView):
                 raise NotFoundApiExceptions("Invalid parameters of access denied")
         request_data = request.data.dict()
         if invitation:
-            request_data["group"] = invitation.meta["group"]
-            request_data["active"] = invitation.meta["is_active"]
-            request_data["case_spec"] = invitation.meta["case_spec"]
+            request_data["group"] = invitation.meta.get("group")
+            request_data["active"] = invitation.meta.get("is_active")
+            request_data["case_spec"] = invitation.meta.get("case_spec")
             request_data["email"] = invitation.email
             request_data["contact"] = invitation.contact
             organisation = invitation.organisation
