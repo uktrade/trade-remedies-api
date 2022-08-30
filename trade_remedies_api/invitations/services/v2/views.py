@@ -49,12 +49,12 @@ class InvitationViewSet(viewsets.ModelViewSet):
             # invitation object doesn't already have a contact or the contact associated with the
             # invitation has different name/email to the submitted
             if (
-                    serializer.instance.contact
-                    and (
+                serializer.instance.contact
+                and (
                     serializer.instance.contact.name != serializer.validated_data["name"]
                     or serializer.instance.contact.email != serializer.validated_data["email"]
-            )
-                    or not serializer.instance.contact
+                )
+                or not serializer.instance.contact
             ):
                 contact_object = Contact.objects.create(
                     created_by=self.request.user,
@@ -94,7 +94,7 @@ class InvitationViewSet(viewsets.ModelViewSet):
                 template_key="NOTIFY_INVITE_ORGANISATION_USER",
                 context={
                     "login_url": f"{settings.PUBLIC_ROOT_URL}/invitation/{invitation_object.code}/"
-                                 f"for/{invitation_object.organisation.id}/"
+                    f"for/{invitation_object.organisation.id}/"
                 },
             )
         elif invitation_object.invitation_type == 2:
