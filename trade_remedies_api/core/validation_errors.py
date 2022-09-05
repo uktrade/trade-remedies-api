@@ -315,4 +315,9 @@ validation_errors = {
         "error_text": "Select an option",
         "error_summary": "You need to select an option",
     },
+    "invite_which_cases_not_selected": {
+        "field": "which_case",
+        "error_text": "Select an option",
+        "error_summary": "Select 'No cases' or one or more cases",
+    }
 }

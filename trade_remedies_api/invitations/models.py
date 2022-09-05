@@ -53,9 +53,16 @@ class InvitationManager(models.Manager):
     def validate_all_pending(self, user, invitation_code=None):
         """
         validate all pending invitations for a user.
-        If code and case are provided, prepare that invitation beforehand.
+        If invitation code is provided, prepare (process) that invitation beforehand.
         """
         accepted = []
+        pending_invites_for_user = self.filter(
+            invited_user=user,
+            accepted_at__isnull=True,
+            deleted_at__isnull=True
+        )
+        for invitation in pending_invites_for_user:
+            invitation.accept_invitation()
         if invitation_code:
             invitation = self.get_invite_by_code(invitation_code)
             if invitation and invitation.email == user.email:
@@ -649,6 +656,29 @@ class Invitation(BaseModel):
         else:
             self.save()
         return assigned
+
+    @transaction.atomic()
+    def accept_invitation(self):
+        """Accepting and processing the invitation when the invited user logs in"""
+
+        # First let's add the user to the cases associated with this invitation
+        for case_object in self.cases_to_link.all():
+            case_object.assign_user(
+                user=self.invited_user,
+                created_by=self.user,
+                organisation=self.contact.organisation,
+                relax_security=True
+            )
+
+            # todo - check this is necessary
+            case_object.confirm_user_case(
+                user=self.invited_user,
+                created_by=self.user,
+                organisation=self.contact.organisation
+            )
+
+        # Now we mark the invitation as accepted
+        self.accepted()
 
     def compare_user_contact(self):
         """

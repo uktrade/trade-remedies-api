@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
-from cases.models import Submission, get_submission_type
+from cases.models import Case, Submission, get_submission_type
 from contacts.models import Contact
 from core.models import TwoFactorAuth, User, UserProfile
 from core.services.v2.users.serializers import UserSerializer
@@ -64,6 +64,12 @@ class InvitationViewSet(viewsets.ModelViewSet):
                     email=serializer.validated_data["email"],
                     user_context=self.request.user,
                 )
+                if serializer.instance.invitation_type == 1:
+                    # This is an invitation from your own org, we can set the organisation of
+                    # the contact object now. Representative invites get changed later on when
+                    # the rep organisation is selected
+                    contact_object.organisation = serializer.instance.organisation
+                    contact_object.save()
 
                 # Updating the meta dictionary to reflect the changes
                 serializer.instance.meta = {
@@ -77,6 +83,16 @@ class InvitationViewSet(viewsets.ModelViewSet):
             # we need to update the meta dictionary of the invitation to reflect the group
             serializer.instance.meta["group"] = security_group.name
             serializer.save()
+
+        if cases_to_link := self.request.POST.getlist("cases_to_link"):
+            # First we need to remove already-linked cases
+            serializer.instance.cases_to_link.through.objects.filter(invitation=serializer.instance).delete()
+
+            if "clear" not in cases_to_link:
+                # We want to link cases to this invitation
+                case_objects = Case.objects.filter(id__in=cases_to_link)
+                serializer.instance.cases_to_link.add(*case_objects)
+                serializer.save()
 
         return super().perform_update(serializer)
 
