@@ -1,18 +1,28 @@
 from django.contrib.auth.models import Group
+from django_restql.mixins import DynamicFieldsMixin
 from rest_framework import serializers
 
 from cases.models import Case
+from config.serializers import CustomValidationModelSerializer
 from contacts.models import Contact
-from core.models import User
+from core.models import TwoFactorAuth, User
 
 
-class UserSerializer(serializers.ModelSerializer):
+class TwoFactorAuthSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TwoFactorAuth
+        exclude = ["user"]
+
+
+class UserSerializer(CustomValidationModelSerializer):
     class Meta:
         model = User
         exclude = ("password",)
 
+    email = serializers.ReadOnlyField()
     cases = serializers.SerializerMethodField()
     organisation = serializers.SerializerMethodField()
+    twofactorauth = TwoFactorAuthSerializer(required=False)
 
     def get_cases(self, instance):
         from cases.services.v2.serializers import CaseSerializer

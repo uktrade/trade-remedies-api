@@ -4,8 +4,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from contacts.models import Contact
-from core.models import User
-from core.services.v2.users.serializers import ContactSerializer, UserSerializer
+from core.models import TwoFactorAuth, User
+from core.services.v2.users.serializers import ContactSerializer, TwoFactorAuthSerializer, \
+    UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -53,6 +54,10 @@ class UserViewSet(viewsets.ModelViewSet):
         url_path="get_user_by_email/(?P<user_email>\S+)",
     )
     def get_user_by_email(self, request, user_email, *args, **kwargs):
+        """Returns a serialized User object queried using a case-insensitive email address.
+
+        Raises a 404 if a user with that email is not found.
+        """
         try:
             user_object = User.objects.get(email__iexact=user_email)
             return Response(UserSerializer(user_object).data)
@@ -62,6 +67,12 @@ class UserViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+    @action(detail=True, methods=["get"], url_name="send_verification_email")
+    def send_verification_email(self, request, *args, **kwargs):
+        """Sends a verification email to the user."""
+        self.get_object().userprofile.verify_email()
+        return self.retrieve(request)
+
 
 class ContactViewSet(viewsets.ModelViewSet):
     """
@@ -70,3 +81,9 @@ class ContactViewSet(viewsets.ModelViewSet):
 
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
+
+
+class TwoFactorAuthViewSet(viewsets.ModelViewSet):
+    """ModelViewSet for interacting with TwoFactorAuth objects."""
+    queryset = TwoFactorAuth.objects.all()
+    serializer_class = TwoFactorAuthSerializer

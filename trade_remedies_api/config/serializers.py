@@ -2,6 +2,7 @@ from collections import OrderedDict
 from collections.abc import Mapping
 
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django_restql.mixins import DynamicFieldsMixin
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import (
@@ -43,7 +44,7 @@ class DynamicFieldsModelSerializer(serializers.Serializer):
                 self.fields.pop(exclude_name)
 
 
-class CustomValidationSerializer(DynamicFieldsModelSerializer):
+class CustomValidationSerializer(DynamicFieldsMixin, DynamicFieldsModelSerializer):
     """Custom default base serializer used to handle validation errors intelligently (hopefully).
 
     The default DRF implementation cycles through all the validate_{field} methods, collects all

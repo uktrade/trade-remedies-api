@@ -23,7 +23,7 @@ from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, Submissi
 from core.services import api as core_api
 from core.services.auth import views as auth_api
 from core.services.v2.registration import views as registration_api
-from core.services.v2.users.views import ContactViewSet, UserViewSet
+from core.services.v2.users.views import ContactViewSet, TwoFactorAuthViewSet, UserViewSet
 from documents.services.v2.views import DocumentBundleViewSet, DocumentViewSet
 from invitations.services.v2.views import InvitationViewSet
 from organisations.services.v2.views import OrganisationCaseRoleViewSet, OrganisationViewSet
@@ -187,7 +187,17 @@ router.register(f"{settings.API_V2_PREFIX}/submissions", SubmissionViewSet, base
 router.register(f"{settings.API_V2_PREFIX}/invitations", InvitationViewSet, basename="invitations")
 router.register(f"{settings.API_V2_PREFIX}/users", UserViewSet, basename="users")
 router.register(f"{settings.API_V2_PREFIX}/contacts", ContactViewSet, basename="contacts")
+router.register(
+    f"{settings.API_V2_PREFIX}/two_factor_auths",
+    TwoFactorAuthViewSet,
+    basename="two_factor_auths"
+)
 urlpatterns += router.urls
 
 if settings.DJANGO_ADMIN:
     urlpatterns.append(path("admin/", admin.site.urls))
+
+if settings.DEBUG:
+    urlpatterns += [
+        path('__debug__/', include('debug_toolbar.urls')),
+    ]

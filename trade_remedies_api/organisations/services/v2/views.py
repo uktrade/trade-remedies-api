@@ -1,6 +1,10 @@
+from django.contrib.auth.models import Group
 from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+from core.models import User
 from organisations.models import Organisation
 from organisations.services.v2.serializers import (
     OrganisationCaseRoleSerializer,
@@ -16,6 +20,26 @@ class OrganisationViewSet(viewsets.ModelViewSet):
 
     queryset = Organisation.objects.all()
     serializer_class = OrganisationSerializer
+
+    @action(
+        detail=True,
+        methods=["put"],
+        url_name="add_user",
+    )
+    def add_user(self, request, *args, **kwargs):
+        organisation_object = self.get_object()
+        user_object = get_object_or_404(User, pk=request.data["user_id"])
+        group_object = get_object_or_404(Group, name=request.data["organisation_security_group"])
+
+        organisation_object.assign_user(
+            user=user_object,
+            security_group=group_object,
+            confirmed=True
+        )
+
+        user_object.groups.add(group_object)
+
+        return self.retrieve(request)
 
 
 class OrganisationCaseRoleViewSet(viewsets.ModelViewSet):

@@ -3,11 +3,13 @@ from django.db import transaction
 from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
 from cases.models import Submission, get_submission_type
 from contacts.models import Contact
-from core.models import User
+from core.models import TwoFactorAuth, User, UserProfile
+from core.services.v2.users.serializers import UserSerializer
 from invitations.models import Invitation
 from invitations.services.v2.serializers import InvitationSerializer
 
@@ -49,12 +51,12 @@ class InvitationViewSet(viewsets.ModelViewSet):
             # invitation object doesn't already have a contact or the contact associated with the
             # invitation has different name/email to the submitted
             if (
-                serializer.instance.contact
-                and (
+                    serializer.instance.contact
+                    and (
                     serializer.instance.contact.name != serializer.validated_data["name"]
                     or serializer.instance.contact.email != serializer.validated_data["email"]
-                )
-                or not serializer.instance.contact
+            )
+                    or not serializer.instance.contact
             ):
                 contact_object = Contact.objects.create(
                     created_by=self.request.user,
@@ -93,8 +95,8 @@ class InvitationViewSet(viewsets.ModelViewSet):
                 direct=False,
                 template_key="NOTIFY_INVITE_ORGANISATION_USER",
                 context={
-                    "login_url": f"{settings.PUBLIC_ROOT_URL}/invitation/{invitation_object.code}/"
-                    f"for/{invitation_object.organisation.id}/"
+                    "login_url": f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/"
+                                 f"{invitation_object.id}/start/"
                 },
             )
         elif invitation_object.invitation_type == 2:
@@ -129,3 +131,35 @@ class InvitationViewSet(viewsets.ModelViewSet):
         invitation_object.sent_at = timezone.now()
         invitation_object.save()
         return self.retrieve(request)
+
+    @transaction.atomic
+    @action(detail=True, methods=["post"], url_name="create_user_from_invitation")
+    def create_user_from_invitation(self, request, *args, **kwargs):
+        invitation_object = self.get_object()
+        contact_object = invitation_object.contact
+
+        # First we create the basic user object
+        new_user, _ = User.objects.get_or_create(
+            email=contact_object.email,
+            defaults={
+                "name": contact_object.name,
+                "is_active": False
+            }
+        )
+
+        # Then we set a password
+        new_user.set_password(request.data["password"])
+
+        # Then we create a UserProfile and TwoFactorAuth object
+        TwoFactorAuth.objects.get_or_create(user=new_user)
+        UserProfile.objects.get_or_create(
+            user=new_user,
+            defaults={
+                "contact": None,
+                "colour": "black"
+            }
+        )
+        new_user.save()
+        invitation_object.invited_user = new_user
+        invitation_object.save()
+        return Response(UserSerializer(new_user).data)

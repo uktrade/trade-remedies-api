@@ -37,7 +37,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             user__organisationuser__organisation=instance,
             case__deleted_at__isnull=True,
             case__archived_at__isnull=True,
-        )
+        ).select_related("case")
         if request := self.context.get("request", None):
             cases = cases.filter(user=request.user)
         return [CaseSerializer(each.case).data for each in cases]
@@ -50,7 +50,11 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             InvitationSerializer(
                 instance=each, exclude=["organisation"]  # Avoid infinite self-referencing
             ).data
-            for each in instance.invitation_set.all()
+            for each in instance.invitation_set.all().select_related(
+                "organisation",
+                "contact",
+                "submission"
+            )
         ]
 
 

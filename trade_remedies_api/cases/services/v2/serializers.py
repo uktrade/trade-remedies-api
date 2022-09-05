@@ -25,11 +25,11 @@ class CaseTypeSerializer(CustomValidationModelSerializer):
 
 
 class CaseSerializer(CustomValidationModelSerializer):
-    reference = serializers.CharField()
-    type = CaseTypeSerializer()
-    case_status = serializers.JSONField()
-    initiated_at = serializers.DateTimeField()
-    registration_deadline = serializers.DateTimeField()
+    reference = serializers.CharField(required=False)
+    type = CaseTypeSerializer(required=False)
+    case_status = serializers.JSONField(required=False)
+    initiated_at = serializers.DateTimeField(required=False)
+    registration_deadline = serializers.DateTimeField(required=False)
 
     class Meta:
         model = Case

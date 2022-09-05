@@ -102,6 +102,11 @@ THIRD_PARTY_APPS = [
     "flags",
 ]
 
+if DEBUG:
+    THIRD_PARTY_APPS += [
+        "debug_toolbar"
+    ]
+
 INSTALLED_APPS = DJANGO_APPS + DRF_APPS + LOCAL_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
@@ -113,15 +118,18 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.gzip.GZipMiddleware",
+    #"django.middleware.gzip.GZipMiddleware",
     "axes.middleware.AxesMiddleware",
     "config.middleware.SentryContextMiddleware",
 ]
 
+if DEBUG:
+    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+
 if DJANGO_ADMIN:
     MIDDLEWARE = [
-        "whitenoise.middleware.WhiteNoiseMiddleware",
-    ] + MIDDLEWARE
+                     "whitenoise.middleware.WhiteNoiseMiddleware",
+                 ] + MIDDLEWARE
 
 ROOT_URLCONF = "config.urls"
 
