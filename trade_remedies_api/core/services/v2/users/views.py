@@ -26,7 +26,7 @@ class UserViewSet(viewsets.ModelViewSet):
         is_in_group = user.groups.filter(name=request.query_params.get("group_name")).exists()
         return Response({"user_is_in_group": is_in_group})
 
-    @action(detail=True, methods=["put"], url_name="change_group")
+    @action(detail=True, methods=["put"], url_name="change_group", url_path="change_group")
     def add_group(self, request, *args, **kwargs):
         """
         Adds the user defined by the user_pk url argument to the group_name in request data
