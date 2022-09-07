@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
-from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -87,7 +86,8 @@ class InvitationViewSet(BaseModelViewSet):
 
         if cases_to_link := self.request.POST.getlist("cases_to_link"):
             # First we need to remove already-linked cases
-            serializer.instance.cases_to_link.through.objects.filter(invitation=serializer.instance).delete()
+            serializer.instance.cases_to_link.through.objects.filter(
+                invitation=serializer.instance).delete()
 
             if "clear" not in cases_to_link:
                 # We want to link cases to this invitation

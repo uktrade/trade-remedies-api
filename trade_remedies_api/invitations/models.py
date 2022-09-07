@@ -303,7 +303,7 @@ class Invitation(BaseModel):
     invitation_type = models.PositiveIntegerField(
         null=True, blank=True, choices=invitation_type_choices
     )
-    cases_to_link = models.ManyToManyField(Case, related_name="cases_to_link")
+    cases_to_link = models.ManyToManyField(Case, related_name="cases_to_link", blank=True)
 
     objects = InvitationManager()
 

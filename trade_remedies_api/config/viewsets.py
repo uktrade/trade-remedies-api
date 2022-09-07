@@ -21,3 +21,19 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+    def get_serializer(self, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        kwargs.setdefault('context', self.get_serializer_context())
+        if fields := kwargs.get("data", {}).get("fields"):
+            # We only want the serializer to have the fields mentioned here, this is to increase
+            # speed primarily
+            if fields == "__none__":
+                # we don't want a return value from the serializer, fine with us
+                fields = []
+            else:
+                # the fields value should be a string, with commas separating the names of fields
+                fields = fields.split(",")
+            kwargs.setdefault("fields", fields)
+        return serializer_class(*args, **kwargs)
+
