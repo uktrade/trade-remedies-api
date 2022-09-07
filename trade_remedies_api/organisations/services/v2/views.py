@@ -34,12 +34,11 @@ class OrganisationViewSet(viewsets.ModelViewSet):
         organisation_object.assign_user(
             user=user_object,
             security_group=group_object,
-            confirmed=True
+            confirmed=request.data.get("confirmed", False)
         )
 
         user_object.groups.add(group_object)
-
-        return self.retrieve(request)
+        return Response(OrganisationSerializer(fields=["organisationuser_set"]).data)
 
 
 class OrganisationCaseRoleViewSet(viewsets.ModelViewSet):

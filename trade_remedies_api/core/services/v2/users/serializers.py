@@ -54,6 +54,10 @@ class ContactSerializer(serializers.ModelSerializer):
     organisation_name = serializers.ReadOnlyField(source="organisation.name")
 
     def save(self, **kwargs):
+        # If the 'country' is present in changed data, we need to fetch the true value from the dic
+        if country := self.validated_data.get("country"):
+            self.validated_data["country"] = country["alpha3"]
+
         # Let's internationalise the phone number and convert it to e164 format
         if phone := self.validated_data.get("phone"):
             # Checking the number hasn't already been internationalised
@@ -64,8 +68,8 @@ class ContactSerializer(serializers.ModelSerializer):
                 if self.instance.country and self.instance.country.alpha3:
                     country = self.instance.country.alpha3
                 # Even better, we can use the validated data which has just been passed in
-                if validated_country := self.validated_data.get("country", {}).get("alpha3", None):
-                    country = validated_country
+                if self.validated_data.get("country"):
+                    country = self.validated_data["country"]
 
                 e164_phone = convert_to_e164(phone, country)
                 self.validated_data["phone"] = e164_phone

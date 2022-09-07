@@ -7,6 +7,7 @@ from rest_framework.response import Response
 
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
 from cases.models import Case, Submission, get_submission_type
+from config.viewsets import BaseModelViewSet
 from contacts.models import Contact
 from core.models import TwoFactorAuth, User, UserProfile
 from core.services.v2.users.serializers import UserSerializer
@@ -14,7 +15,7 @@ from invitations.models import Invitation
 from invitations.services.v2.serializers import InvitationSerializer
 
 
-class InvitationViewSet(viewsets.ModelViewSet):
+class InvitationViewSet(BaseModelViewSet):
     queryset = Invitation.objects.all()
     serializer_class = InvitationSerializer
 
