@@ -6,6 +6,7 @@ from cases.models import Case
 from config.serializers import CustomValidationModelSerializer
 from contacts.models import Contact
 from core.models import TwoFactorAuth, User
+from core.utils import convert_to_e164
 
 
 class TwoFactorAuthSerializer(serializers.ModelSerializer):
@@ -55,8 +56,23 @@ class ContactSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         # Let's internationalise the phone number and convert it to e164 format
         if phone := self.validated_data.get("phone"):
-            phone
-            convert_to_e164
+            # Checking the number hasn't already been internationalised
+            if not phone.startswith("+"):
+                # We need to figure out what country we are internationalising for, default to GB
+                country = 'GB'
+                # If the instance has a country, let's use that
+                if self.instance.country and self.instance.country.alpha3:
+                    country = self.instance.country.alpha3
+                # Even better, we can use the validated data which has just been passed in
+                if validated_country := self.validated_data.get("country", {}).get("alpha3", None):
+                    country = validated_country
+
+                e164_phone = convert_to_e164(phone, country)
+                self.validated_data["phone"] = e164_phone
+
+        return super().save(**kwargs)
+
+
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
