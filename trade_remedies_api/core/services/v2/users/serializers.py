@@ -48,9 +48,15 @@ class ContactSerializer(serializers.ModelSerializer):
         model = Contact
         fields = "__all__"
 
-    country = serializers.ReadOnlyField(source="country.alpha3")
+    name = serializers.CharField(required=False)
+    country = serializers.CharField(source="country.alpha3", required=False)
     organisation_name = serializers.ReadOnlyField(source="organisation.name")
 
+    def save(self, **kwargs):
+        # Let's internationalise the phone number and convert it to e164 format
+        if phone := self.validated_data.get("phone"):
+            phone
+            convert_to_e164
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:

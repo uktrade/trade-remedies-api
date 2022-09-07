@@ -76,7 +76,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class ContactViewSet(viewsets.ModelViewSet):
     """
-    ModelViewSet for interacting with user objects via the API.
+    ModelViewSet for interacting with contact objects via the API.
     """
 
     queryset = Contact.objects.all()

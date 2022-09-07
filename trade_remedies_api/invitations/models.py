@@ -661,7 +661,14 @@ class Invitation(BaseModel):
     def accept_invitation(self):
         """Accepting and processing the invitation when the invited user logs in"""
 
-        # First let's add the user to the cases associated with this invitation
+        # First let's add the user to the organisation
+        self.contact.organisation.assign_user(
+            user=self.invited_user,
+            security_group=self.organisation_security_group,
+            confirmed=True
+        )
+
+        # Let's add the user to the cases associated with this invitation
         for case_object in self.cases_to_link.all():
             case_object.assign_user(
                 user=self.invited_user,
