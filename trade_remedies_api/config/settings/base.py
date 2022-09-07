@@ -102,11 +102,6 @@ THIRD_PARTY_APPS = [
     "flags",
 ]
 
-if DEBUG:
-    THIRD_PARTY_APPS += [
-        "debug_toolbar"
-    ]
-
 INSTALLED_APPS = DJANGO_APPS + DRF_APPS + LOCAL_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
@@ -123,8 +118,6 @@ MIDDLEWARE = [
     "config.middleware.SentryContextMiddleware",
 ]
 
-if DEBUG:
-    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
 
 if DJANGO_ADMIN:
     MIDDLEWARE = [

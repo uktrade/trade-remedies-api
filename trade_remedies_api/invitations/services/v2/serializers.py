@@ -1,6 +1,4 @@
 from django.contrib.auth.models import Group
-from django_restql.fields import NestedField
-from django_restql.serializers import NestedModelSerializer
 from rest_framework import serializers
 
 from cases.services.v2.serializers import CaseSerializer, SubmissionSerializer
