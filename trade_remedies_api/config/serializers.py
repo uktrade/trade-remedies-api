@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from collections.abc import Mapping
+from functools import cached_property
 
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django_restql.mixins import DynamicFieldsMixin
@@ -15,6 +16,20 @@ from rest_framework.fields import (
 from rest_framework.settings import api_settings
 
 from core.exceptions import CustomValidationError, CustomValidationErrors
+
+
+class DynamicFieldsMixinIDAlways(DynamicFieldsMixin):
+    """Overrides the django-restql DynamicFieldsMixin to ALWAYS return the ID of the object in
+    the JSON response of the API, regardless of what fields are specified in the query={}
+    query parameter.
+    """
+
+    @cached_property
+    def dynamic_fields(self):
+        dynamic_fields = super().dynamic_fields
+        if "id" not in dynamic_fields:
+            dynamic_fields["id"] = serializers.ReadOnlyField()
+        return dynamic_fields
 
 
 class DynamicFieldsModelSerializer(serializers.Serializer):
@@ -44,7 +59,7 @@ class DynamicFieldsModelSerializer(serializers.Serializer):
                 self.fields.pop(exclude_name)
 
 
-class CustomValidationSerializer(DynamicFieldsMixin, DynamicFieldsModelSerializer):
+class CustomValidationSerializer(DynamicFieldsMixinIDAlways, DynamicFieldsModelSerializer):
     """Custom default base serializer used to handle validation errors intelligently (hopefully).
 
     The default DRF implementation cycles through all the validate_{field} methods, collects all
