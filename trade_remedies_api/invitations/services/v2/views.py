@@ -63,6 +63,8 @@ class InvitationViewSet(BaseModelViewSet):
                     name=serializer.validated_data["name"],
                     email=serializer.validated_data["email"],
                     user_context=self.request.user,
+                    country=serializer.instance.organisation.country,
+                    post_code=serializer.instance.organisation.post_code,
                 )
                 if serializer.instance.invitation_type == 1:
                     # This is an invitation from your own org, we can set the organisation of
@@ -172,10 +174,11 @@ class InvitationViewSet(BaseModelViewSet):
         UserProfile.objects.get_or_create(
             user=new_user,
             defaults={
-                "contact": None,
-                "colour": "black"
+                "contact": contact_object,
+                "colour": "black",
             }
         )
+
         new_user.save()
         invitation_object.invited_user = new_user
         invitation_object.save()
