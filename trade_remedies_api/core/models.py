@@ -1104,6 +1104,9 @@ class TwoFactorAuth(models.Model):
         if (
             self.generated_at
             and (now - self.generated_at).seconds <= settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS
+            # Newly registered users need to receive codes as well, if there is no code yet,
+            # this 2fa object has just been created
+            and self.code
         ):
             # They have requested a new code in the last TWO_FACTOR_RESEND_TIMEOUT_SECONDS seconds
             raise TwoFactorRequestedTooMany()
