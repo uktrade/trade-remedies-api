@@ -18,6 +18,17 @@ from rest_framework.settings import api_settings
 from core.exceptions import CustomValidationError, CustomValidationErrors
 
 
+def get_value(self, dictionary):
+    # Strange regex bugs were preventing serializer fields from finding their right key in the
+    # QueryDict post dictionary, so we don't bother with nested request bodies and treat everything
+    # like a dict as Django intended
+    return dictionary.get(self.field_name, empty)
+
+
+# Now overriding the global method of serializers.Serializer to point to our new method
+serializers.Serializer.get_value = get_value
+
+
 class DynamicFieldsMixinIDAlways(DynamicFieldsMixin):
     """Overrides the django-restql DynamicFieldsMixin to ALWAYS return the ID of the object in
     the JSON response of the API, regardless of what fields are specified in the query={}

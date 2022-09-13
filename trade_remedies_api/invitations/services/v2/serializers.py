@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Group
+from django_restql.fields import NestedField
 from rest_framework import serializers
 
 from cases.services.v2.serializers import CaseSerializer, SubmissionSerializer
@@ -15,15 +16,16 @@ class InvitationSerializer(CustomValidationModelSerializer):
         model = Invitation
         fields = "__all__"
 
-    organisation = NestedKeyField(
-        queryset=Organisation.objects.all(),
-        serializer=OrganisationSerializer,
+    organisation = NestedField(
+        serializer_class=OrganisationSerializer,
         required=False,
-        serializer_kwargs={"exclude": ["cases", "invitations", "organisationuser_set"]}
+        accept_pk=True,
+        exclude=["cases", "invitations", "organisationuser_set"]
     )
-
-    contact = NestedKeyField(
-        queryset=Contact.objects.all(), serializer=ContactSerializer, required=False
+    contact = NestedField(
+        serializer_class=ContactSerializer,
+        required=False,
+        accept_pk=True
     )
 
     organisation_id = serializers.ReadOnlyField(source="organisation.id")
@@ -31,6 +33,19 @@ class InvitationSerializer(CustomValidationModelSerializer):
     organisation_security_group = serializers.SlugRelatedField(
         slug_field="name", queryset=Group.objects.all(), required=False
     )
-    submission = SubmissionSerializer(exclude=["organisation", "created_by"], required=False)
-    invited_user = UserSerializer(read_only=True, required=False, exclude=["organisation"])
-    cases_to_link = CaseSerializer(many=True, required=False)
+    submission = NestedField(
+        serializer_class=SubmissionSerializer,
+        exclude=["organisation", "created_by"],
+        required=False
+    )
+    invited_user = NestedField(
+        serializer_class=UserSerializer,
+        read_only=True,
+        required=False,
+        exclude=["organisation"]
+    )
+    cases_to_link = NestedField(
+        serializer_class=CaseSerializer,
+        many=True,
+        required=False
+    )

@@ -1,3 +1,4 @@
+from django_restql.fields import NestedField
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
@@ -26,7 +27,7 @@ class CaseTypeSerializer(CustomValidationModelSerializer):
 
 class CaseSerializer(CustomValidationModelSerializer):
     reference = serializers.CharField(required=False)
-    type = CaseTypeSerializer(required=False)
+    type = NestedField(serializer_class=CaseTypeSerializer, required=False, accept_pk=True)
     case_status = serializers.JSONField(required=False)
     initiated_at = serializers.DateTimeField(required=False)
     registration_deadline = serializers.DateTimeField(required=False)
@@ -64,11 +65,15 @@ class SubmissionTypeSerializer(serializers.ModelSerializer):
 
 
 class SubmissionSerializer(CustomValidationModelSerializer):
-    case = NestedKeyField(queryset=Case.objects.all(), serializer=CaseSerializer, required=False)
-    organisation = NestedKeyField(
-        queryset=Organisation.objects.all(),
-        serializer=OrganisationSerializer,
+    case = NestedField(
+        serializer_class=CaseSerializer,
         required=False,
+        accept_pk=True
+    )
+    organisation = NestedField(
+        serializer_class=OrganisationSerializer,
+        required=False,
+        accept_pk=True
     )
     documents = DocumentSerializer(many=True, required=False)
     created_by = NestedKeyField(
@@ -83,7 +88,7 @@ class SubmissionSerializer(CustomValidationModelSerializer):
     orphaned_documents = SerializerMethodField(read_only=True)
     submission_documents = SubmissionDocumentSerializer(many=True, read_only=True)
     contact = ContactSerializer(required=False)
-    type = SubmissionTypeSerializer(required=False)
+    type = NestedField(serializer_class=SubmissionTypeSerializer, required=False, accept_pk=True)
 
     class Meta:
         model = Submission

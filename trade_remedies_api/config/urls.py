@@ -17,6 +17,8 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework import routers
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from cases.services import api as cases_api
 from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, SubmissionViewSet
@@ -193,6 +195,19 @@ router.register(
     basename="two_factor_auths"
 )
 urlpatterns += router.urls
+
+if settings.DEBUG:
+    urlpatterns.append(path("server_error", lambda x: 1 / 0))
+
+
+    class ClientError(APIView):
+        authentication_classes = ()
+
+        def get(self, request, *args, **kwargs):
+            return Response(status=402, data="client error")
+
+
+    urlpatterns.append(path("client_error", ClientError.as_view()))
 
 if settings.DJANGO_ADMIN:
     urlpatterns.append(path("admin/", admin.site.urls))
