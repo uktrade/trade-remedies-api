@@ -3,9 +3,12 @@ from django.contrib.auth.models import Group
 from django.test import RequestFactory, TestCase
 
 from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User
-from core.services.auth.serializers import (AuthenticationSerializer, EmailAvailabilitySerializer, EmailSerializer,
-                                            PasswordResetRequestSerializer, PasswordSerializer, RegistrationSerializer,
-                                            TwoFactorAuthRequestSerializer, TwoFactorAuthVerifySerializer,
+from core.services.auth.serializers import (AuthenticationSerializer, EmailAvailabilitySerializer,
+                                            EmailSerializer,
+                                            PasswordResetRequestSerializer, PasswordSerializer,
+                                            RegistrationSerializer,
+                                            TwoFactorAuthRequestSerializer,
+                                            TwoFactorAuthVerifySerializer,
                                             VerifyEmailSerializer)
 from organisations.models import Organisation
 from security.constants import (SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER,
@@ -262,13 +265,15 @@ class TestTwoFactorAuthSerializers(UserSetupTestBase):
     def test_two_factor_auth_verify_valid(self):
         """Tests that the TwoFactorAuthVerifySerializer is valid when passed a correct code"""
         code = self.user.twofactorauth.generate_code()
-        serializer = TwoFactorAuthVerifySerializer(instance=self.user.twofactorauth, data={"code": code})
+        serializer = TwoFactorAuthVerifySerializer(instance=self.user.twofactorauth,
+                                                   data={"code": code})
         self.assertTrue(serializer.is_valid())
 
     def test_two_factor_auth_verify_invalid_wrong_code(self):
         """Tests that the TwoFactorAuthVerifySerializer is invalid when passed an incorrect code"""
         self.user.twofactorauth.generate_code()
-        serializer = TwoFactorAuthVerifySerializer(instance=self.user.twofactorauth, data={"code": "wrong_code"})
+        serializer = TwoFactorAuthVerifySerializer(instance=self.user.twofactorauth,
+                                                   data={"code": "wrong_code"})
         self.assertFalse(serializer.is_valid())
         self.assertIn("code", serializer.errors)
 
@@ -276,8 +281,19 @@ class TestTwoFactorAuthSerializers(UserSetupTestBase):
         """Tests that the TwoFactorAuthVerifySerializer is valid when the TwoFactorAuth object is locked."""
         code = self.user.twofactorauth.generate_code()
         self.user.twofactorauth.lock()
-        serializer = TwoFactorAuthVerifySerializer(instance=self.user.twofactorauth, data={"code": code})
+        serializer = TwoFactorAuthVerifySerializer(instance=self.user.twofactorauth,
+                                                   data={"code": code})
         self.assertFalse(serializer.is_valid())
+
+    def test_two_factor_auth_request_no_code(self):
+        """Tests that the serializer doesn't throw an error if the user has just been created"""
+        self.user.twofactorauth.code = None
+        self.user.twofactorauth.save()
+        serializer = TwoFactorAuthRequestSerializer(
+            instance=self.user.twofactorauth,
+            data={"delivery_type": "email"}
+        )
+        self.assertTrue(serializer.is_valid())
 
 
 class TestVerifyEmailSerializer(UserSetupTestBase):
@@ -287,12 +303,14 @@ class TestVerifyEmailSerializer(UserSetupTestBase):
         """Tests that the VerifyEmailSerializer is valid when passed a correct code"""
         self.user.userprofile.verify_email()
         code = self.user.userprofile.email_verify_code
-        serializer = VerifyEmailSerializer(data={"code": code}, context={"profile": self.user.userprofile})
+        serializer = VerifyEmailSerializer(data={"code": code},
+                                           context={"profile": self.user.userprofile})
         self.assertTrue(serializer.is_valid())
 
     def test_verify_email_serializer_invalid_wrong_code(self):
         """Tests that the VerifyEmailSerializer is valid when passed an incorrect code"""
-        serializer = VerifyEmailSerializer(data={"code": "wrong_code"}, context={"profile": self.user.userprofile})
+        serializer = VerifyEmailSerializer(data={"code": "wrong_code"},
+                                           context={"profile": self.user.userprofile})
         self.assertFalse(serializer.is_valid())
         self.assertIn("code", serializer.errors)
 
@@ -304,7 +322,8 @@ class TestPasswordResetRequestSerializer(UserSetupTestBase):
         super().setUp()
 
         # Creating a PasswordResetRequest object for our mock user
-        self.password_reset_object, self.send_report = PasswordResetRequest.objects.reset_request(self.user.email)
+        self.password_reset_object, self.send_report = PasswordResetRequest.objects.reset_request(
+            self.user.email)
 
     def test_verify_email_serializer_valid(self):
         """Tests that the PasswordResetRequestSerializer is valid when passed a correct token"""
