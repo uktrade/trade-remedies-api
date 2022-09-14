@@ -75,20 +75,15 @@ class SubmissionSerializer(CustomValidationModelSerializer):
         required=False,
         accept_pk=True
     )
-    documents = DocumentSerializer(many=True, required=False)
-    created_by = NestedKeyField(
-        queryset=User.objects.all(), serializer=UserSerializer, required=False
-    )
-    status = NestedKeyField(
-        queryset=SubmissionStatus.objects.all(),
-        serializer=SubmissionStatusSerializer,
-        required=False,
-    )
+    documents = NestedField(serializer_class=DocumentSerializer, many=True, required=False)
+    created_by = NestedField(serializer_class=UserSerializer, required=False, accept_pk=True)
+    status = NestedField(serializer_class=SubmissionStatusSerializer, required=False, accept_pk=True)
     paired_documents = SerializerMethodField(read_only=True)
     orphaned_documents = SerializerMethodField(read_only=True)
-    submission_documents = SubmissionDocumentSerializer(many=True, read_only=True)
-    contact = ContactSerializer(required=False)
+    submission_documents = NestedField(serializer_class=SubmissionDocumentSerializer, many=True, read_only=True)
+    contact = NestedField(serializer_class=ContactSerializer, required=False, accept_pk=True)
     type = NestedField(serializer_class=SubmissionTypeSerializer, required=False, accept_pk=True)
+    primary_contact = NestedField(serializer_class=ContactSerializer, required=False, accept_pk=True)
 
     class Meta:
         model = Submission

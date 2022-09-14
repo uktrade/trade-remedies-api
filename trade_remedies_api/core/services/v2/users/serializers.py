@@ -44,7 +44,7 @@ class UserSerializer(CustomValidationModelSerializer):
             ).data
 
 
-class ContactSerializer(serializers.ModelSerializer):
+class ContactSerializer(CustomValidationModelSerializer):
     class Meta:
         model = Contact
         fields = "__all__"

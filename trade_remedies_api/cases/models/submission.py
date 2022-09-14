@@ -14,6 +14,7 @@ from cases.constants import (
     SUBMISSION_TYPE_APPLICATION,
     TRA_ORGANISATION_ID,
 )
+from contacts.models import Contact
 from core.base import BaseModel
 from core.models import SystemParameter, User
 from core.tasks import send_mail
@@ -180,6 +181,13 @@ class Submission(BaseModel):
     )
     issued_at = models.DateTimeField(null=True, blank=True)
     deficiency_notice_params = models.JSONField(null=True, blank=True)
+    primary_contact = models.ForeignKey(
+        Contact,
+        null=True,
+        blank=True,
+        related_name="submission_primary_contacts",
+        on_delete=models.PROTECT
+    )
 
     objects = SubmissionManager()
 

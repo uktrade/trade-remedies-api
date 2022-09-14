@@ -1,4 +1,5 @@
 from django.db import transaction
+from django_restql.mixins import RequestQueryParserMixin
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -72,7 +73,11 @@ class SubmissionViewSet(BaseModelViewSet):
         which contact should be made primary contact between the organisation and case."""
         organisation_object = get_object_or_404(Organisation, pk=request.data["organisation_id"])
         submission_object = self.get_object()
-        previous_organisation_object = submission_object.organisation
+        try:
+            previous_organisation_object = submission_object.contact.organisation
+        except AttributeError:
+            previous_organisation_object = None
+        parsed_query = RequestQueryParserMixin.get_parsed_restql_query_from_req(request)
 
         # Checking if a ROI already exists for this organisation and case
         existing_roi = Submission.objects.filter(
@@ -83,14 +88,17 @@ class SubmissionViewSet(BaseModelViewSet):
         ).exclude(id=submission_object.id)
         if existing_roi:
             # If it does, we return a 409 with the serialized ROI that already exists
-            return Response(status=409, data=self.serializer_class(existing_roi, many=True).data)
+            return Response(status=409, data=self.serializer_class(
+                existing_roi,
+                many=True,
+                parsed_query=parsed_query
+            ).data)
 
-        # If a contact ID has been passed, then use that contact object, if not, use the requesting
-        # user's
-        if contact_id := request.data.get("contact_id", None):
-            contact_object = get_object_or_404(Contact, pk=contact_id)
-        else:
-            contact_object = request.user.contact
+        # Always use the requesting user's contact object, as that is the person actually
+        # registering interest, we need to associate them with the submission. The other contact
+        # that is created as part of the ROI journey is just associated with the organisation and
+        # can be invited at a future date
+        contact_object = request.user.contact
         contact_object.set_primary(
             case=submission_object.case,
             organisation=organisation_object,
@@ -143,7 +151,10 @@ class SubmissionViewSet(BaseModelViewSet):
             },
         )
 
-        return Response(self.serializer_class(instance=submission_object).data)
+        return Response(self.serializer_class(
+            instance=submission_object,
+            parsed_query=parsed_query
+        ).data)
 
     def perform_create(self, serializer):
         created_submission = super().perform_create(serializer)
@@ -154,6 +165,17 @@ class SubmissionViewSet(BaseModelViewSet):
             case=created_submission.case,
         )
         return created_submission
+
+    def retrieve(self, request, *args, **kwargs):
+
+        instance = self.get_object()
+
+        # If the object in question has been deleted, raise a 404
+        if hasattr(instance, "deleted_at") and instance.deleted_at:
+            raise Http404
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
 
 class SubmissionTypeViewSet(BaseModelViewSet):

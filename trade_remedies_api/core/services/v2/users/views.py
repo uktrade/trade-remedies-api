@@ -68,7 +68,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-    @action(detail=True, methods=["get"], url_name="send_verification_email")
+    @action(detail=True, methods=["get"], url_name="send_verification_email", url_path="send_verification_email")
     def send_verification_email(self, request, *args, **kwargs):
         """Sends a verification email to the user."""
         self.get_object().userprofile.verify_email()
