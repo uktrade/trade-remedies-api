@@ -1,5 +1,4 @@
 from django.db import transaction
-from django_restql.mixins import RequestQueryParserMixin
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -71,6 +70,8 @@ class SubmissionViewSet(BaseModelViewSet):
 
         Requires an organisation_id in the request.POST and an optional contact_id to specify
         which contact should be made primary contact between the organisation and case."""
+        from django_restql.mixins import RequestQueryParserMixin
+
         organisation_object = get_object_or_404(Organisation, pk=request.data["organisation_id"])
         submission_object = self.get_object()
         try:
