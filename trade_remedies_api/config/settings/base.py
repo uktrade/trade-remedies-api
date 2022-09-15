@@ -113,7 +113,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    #"django.middleware.gzip.GZipMiddleware",
+    # "django.middleware.gzip.GZipMiddleware",
     "axes.middleware.AxesMiddleware",
     "config.middleware.SentryContextMiddleware",
 ]
@@ -121,8 +121,8 @@ MIDDLEWARE = [
 
 if DJANGO_ADMIN:
     MIDDLEWARE = [
-                     "whitenoise.middleware.WhiteNoiseMiddleware",
-                 ] + MIDDLEWARE
+        "whitenoise.middleware.WhiteNoiseMiddleware",
+    ] + MIDDLEWARE
 
 ROOT_URLCONF = "config.urls"
 

@@ -5,8 +5,11 @@ from rest_framework.response import Response
 
 from contacts.models import Contact
 from core.models import TwoFactorAuth, User
-from core.services.v2.users.serializers import ContactSerializer, TwoFactorAuthSerializer, \
-    UserSerializer
+from core.services.v2.users.serializers import (
+    ContactSerializer,
+    TwoFactorAuthSerializer,
+    UserSerializer,
+)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -68,7 +71,12 @@ class UserViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-    @action(detail=True, methods=["get"], url_name="send_verification_email", url_path="send_verification_email")
+    @action(
+        detail=True,
+        methods=["get"],
+        url_name="send_verification_email",
+        url_path="send_verification_email",
+    )
     def send_verification_email(self, request, *args, **kwargs):
         """Sends a verification email to the user."""
         self.get_object().userprofile.verify_email()
@@ -86,5 +94,6 @@ class ContactViewSet(viewsets.ModelViewSet):
 
 class TwoFactorAuthViewSet(viewsets.ModelViewSet):
     """ModelViewSet for interacting with TwoFactorAuth objects."""
+
     queryset = TwoFactorAuth.objects.all()
     serializer_class = TwoFactorAuthSerializer

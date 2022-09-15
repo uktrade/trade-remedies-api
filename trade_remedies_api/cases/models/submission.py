@@ -186,7 +186,7 @@ class Submission(BaseModel):
         null=True,
         blank=True,
         related_name="submission_primary_contacts",
-        on_delete=models.PROTECT
+        on_delete=models.PROTECT,
     )
 
     objects = SubmissionManager()

@@ -190,22 +190,18 @@ router.register(f"{settings.API_V2_PREFIX}/invitations", InvitationViewSet, base
 router.register(f"{settings.API_V2_PREFIX}/users", UserViewSet, basename="users")
 router.register(f"{settings.API_V2_PREFIX}/contacts", ContactViewSet, basename="contacts")
 router.register(
-    f"{settings.API_V2_PREFIX}/two_factor_auths",
-    TwoFactorAuthViewSet,
-    basename="two_factor_auths"
+    f"{settings.API_V2_PREFIX}/two_factor_auths", TwoFactorAuthViewSet, basename="two_factor_auths"
 )
 urlpatterns += router.urls
 
 if settings.DEBUG:
     urlpatterns.append(path("server_error", lambda x: 1 / 0))
 
-
     class ClientError(APIView):
         authentication_classes = ()
 
         def get(self, request, *args, **kwargs):
             return Response(status=402, data="client error")
-
 
     urlpatterns.append(path("client_error", ClientError.as_view()))
 

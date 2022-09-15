@@ -51,12 +51,12 @@ class InvitationViewSet(BaseModelViewSet):
             # invitation object doesn't already have a contact or the contact associated with the
             # invitation has different name/email to the submitted
             if (
-                    serializer.instance.contact
-                    and (
+                serializer.instance.contact
+                and (
                     serializer.instance.contact.name != serializer.validated_data["name"]
                     or serializer.instance.contact.email != serializer.validated_data["email"]
-            )
-                    or not serializer.instance.contact
+                )
+                or not serializer.instance.contact
             ):
                 contact_object = Contact.objects.create(
                     created_by=self.request.user,
@@ -69,7 +69,7 @@ class InvitationViewSet(BaseModelViewSet):
                 if serializer.instance.invitation_type == 1:
                     # This is an invitation from your own org, we can set the organisation of
                     # the contact object now. Representative invites get changed later on when
-                    # the rep organisation is selected
+                    # the rep organisation is selected  /PS-IGNORE
                     contact_object.organisation = serializer.instance.organisation
                     contact_object.save()
 
@@ -89,7 +89,8 @@ class InvitationViewSet(BaseModelViewSet):
         if cases_to_link := self.request.POST.getlist("cases_to_link"):
             # First we need to remove already-linked cases
             serializer.instance.cases_to_link.through.objects.filter(
-                invitation=serializer.instance).delete()
+                invitation=serializer.instance
+            ).delete()
 
             if "clear" not in cases_to_link:
                 # We want to link cases to this invitation
@@ -115,7 +116,7 @@ class InvitationViewSet(BaseModelViewSet):
                 template_key="NOTIFY_INVITE_ORGANISATION_USER",
                 context={
                     "login_url": f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/"
-                                 f"{invitation_object.id}/start/"
+                    f"{invitation_object.id}/start/"
                 },
             )
         elif invitation_object.invitation_type == 2:
@@ -159,11 +160,7 @@ class InvitationViewSet(BaseModelViewSet):
 
         # First we create the basic user object
         new_user, _ = User.objects.get_or_create(
-            email=contact_object.email,
-            defaults={
-                "name": contact_object.name,
-                "is_active": False
-            }
+            email=contact_object.email, defaults={"name": contact_object.name, "is_active": False}
         )
 
         # Then we set a password
@@ -176,7 +173,7 @@ class InvitationViewSet(BaseModelViewSet):
             defaults={
                 "contact": contact_object,
                 "colour": "black",
-            }
+            },
         )
 
         new_user.save()

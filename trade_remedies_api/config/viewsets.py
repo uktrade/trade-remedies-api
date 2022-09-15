@@ -24,7 +24,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
     def get_serializer(self, *args, **kwargs):
         serializer_class = self.get_serializer_class()
-        kwargs.setdefault('context', self.get_serializer_context())
+        kwargs.setdefault("context", self.get_serializer_context())
         if fields := kwargs.get("data", {}).get("fields"):
             # We only want the serializer to have the fields mentioned here, this is to increase
             # speed primarily
@@ -36,4 +36,3 @@ class BaseModelViewSet(viewsets.ModelViewSet):
                 fields = fields.split(",")
             kwargs.setdefault("fields", fields)
         return serializer_class(*args, **kwargs)
-

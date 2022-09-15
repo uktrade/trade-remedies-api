@@ -64,7 +64,7 @@ class ContactSerializer(CustomValidationModelSerializer):
             # Checking the number hasn't already been internationalised
             if not phone.startswith("+"):
                 # We need to figure out what country we are internationalising for, default to GB
-                country = 'GB'
+                country = "GB"
                 # If the instance has a country, let's use that
                 if self.instance.country and self.instance.country.alpha3:
                     country = self.instance.country.alpha3

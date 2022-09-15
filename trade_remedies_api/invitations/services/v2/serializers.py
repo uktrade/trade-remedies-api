@@ -20,13 +20,9 @@ class InvitationSerializer(CustomValidationModelSerializer):
         serializer_class=OrganisationSerializer,
         required=False,
         accept_pk=True,
-        exclude=["cases", "invitations", "organisationuser_set"]
+        exclude=["cases", "invitations", "organisationuser_set"],
     )
-    contact = NestedField(
-        serializer_class=ContactSerializer,
-        required=False,
-        accept_pk=True
-    )
+    contact = NestedField(serializer_class=ContactSerializer, required=False, accept_pk=True)
 
     organisation_id = serializers.ReadOnlyField(source="organisation.id")
     organisation_name = serializers.ReadOnlyField(source="organisation.name")
@@ -36,16 +32,9 @@ class InvitationSerializer(CustomValidationModelSerializer):
     submission = NestedField(
         serializer_class=SubmissionSerializer,
         exclude=["organisation", "created_by"],
-        required=False
+        required=False,
     )
     invited_user = NestedField(
-        serializer_class=UserSerializer,
-        read_only=True,
-        required=False,
-        exclude=["organisation"]
+        serializer_class=UserSerializer, read_only=True, required=False, exclude=["organisation"]
     )
-    cases_to_link = NestedField(
-        serializer_class=CaseSerializer,
-        many=True,
-        required=False
-    )
+    cases_to_link = NestedField(serializer_class=CaseSerializer, many=True, required=False)

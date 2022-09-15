@@ -52,9 +52,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 instance=each, exclude=["organisation"]  # Avoid infinite self-referencing
             ).data
             for each in instance.invitation_set.all().select_related(
-                "organisation",
-                "contact",
-                "submission"
+                "organisation", "contact", "submission"
             )
         ]
 

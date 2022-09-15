@@ -24,7 +24,7 @@ class OrganisationViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=["put"],
-        url_name="add_user",
+        url_name="add_user",  # /PS-IGNORE
     )
     def add_user(self, request, *args, **kwargs):
         organisation_object = self.get_object()
@@ -34,7 +34,7 @@ class OrganisationViewSet(viewsets.ModelViewSet):
         organisation_object.assign_user(
             user=user_object,
             security_group=group_object,
-            confirmed=request.data.get("confirmed", False)
+            confirmed=request.data.get("confirmed", False),
         )
 
         user_object.groups.add(group_object)

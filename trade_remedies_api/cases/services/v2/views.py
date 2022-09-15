@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.http import Http404
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -89,11 +90,10 @@ class SubmissionViewSet(BaseModelViewSet):
         ).exclude(id=submission_object.id)
         if existing_roi:
             # If it does, we return a 409 with the serialized ROI that already exists
-            return Response(status=409, data=self.serializer_class(
-                existing_roi,
-                many=True,
-                parsed_query=parsed_query
-            ).data)
+            return Response(
+                status=409,
+                data=self.serializer_class(existing_roi, many=True, parsed_query=parsed_query).data,
+            )
 
         # Always use the requesting user's contact object, as that is the person actually
         # registering interest, we need to associate them with the submission. The other contact
@@ -152,10 +152,9 @@ class SubmissionViewSet(BaseModelViewSet):
             },
         )
 
-        return Response(self.serializer_class(
-            instance=submission_object,
-            parsed_query=parsed_query
-        ).data)
+        return Response(
+            self.serializer_class(instance=submission_object, parsed_query=parsed_query).data
+        )
 
     def perform_create(self, serializer):
         created_submission = super().perform_create(serializer)

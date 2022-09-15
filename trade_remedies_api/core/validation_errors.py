@@ -319,5 +319,5 @@ validation_errors = {
         "field": "which_case",
         "error_text": "Select an option",
         "error_summary": "Select 'No cases' or one or more cases",
-    }
+    },
 }
