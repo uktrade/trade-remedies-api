@@ -21,6 +21,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     organisationuser_set = OrganisationUserSerializer(many=True, required=False)
     cases = serializers.SerializerMethodField()
     invitations = serializers.SerializerMethodField()
+    validated = serializers.SerializerMethodField()
 
     class Meta:
         model = Organisation
@@ -56,6 +57,10 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 "submission"
             )
         ]
+
+    def get_validated(self, instance):
+        """Returns true if the organisation has been validated on the TRS at some point"""
+        return instance.organisationcaserole_set.filter(validated_at__isnull=False).exists()
 
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):

@@ -1,5 +1,4 @@
 from django.contrib.auth.models import Group
-from django_restql.mixins import DynamicFieldsMixin
 from rest_framework import serializers
 
 from cases.models import Case
@@ -13,6 +12,8 @@ class TwoFactorAuthSerializer(serializers.ModelSerializer):
     class Meta:
         model = TwoFactorAuth
         exclude = ["user"]
+
+    id = serializers.ReadOnlyField(source="user.id")  # One-to-One field which is also PK
 
 
 class UserSerializer(CustomValidationModelSerializer):
@@ -75,7 +76,6 @@ class ContactSerializer(CustomValidationModelSerializer):
                 self.validated_data["phone"] = e164_phone
 
         return super().save(**kwargs)
-
 
 
 class GroupSerializer(serializers.ModelSerializer):
