@@ -188,9 +188,12 @@ class CustomValidationModelSerializer(CustomValidationSerializer, serializers.Mo
 
     def save(self, **kwargs):
         if self.errors:
-            sentry_sdk.capture_message(f"Someone tried to save a serializer with invalid data,"
-                                       f"the errors were: {self.errors}")
+            sentry_sdk.capture_message(
+                f"Someone tried to save a serializer with invalid data,"
+                f"the errors were: {self.errors}"
+            )
         return super().save(**kwargs)
+
 
 def custom_fail(self, key, **kwargs):
     """
