@@ -2,6 +2,7 @@ from collections import OrderedDict
 from collections.abc import Mapping
 from functools import cached_property
 
+import sentry_sdk
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django_restql.mixins import DynamicFieldsMixin
 from rest_framework import serializers
@@ -185,6 +186,11 @@ class CustomValidationSerializer(DynamicFieldsMixinIDAlways, DynamicFieldsModelS
 class CustomValidationModelSerializer(CustomValidationSerializer, serializers.ModelSerializer):
     """Raises CustomValidationErrors for use in V2 error handling using a DRF ModelSerializer"""
 
+    def save(self, **kwargs):
+        if self.errors:
+            sentry_sdk.capture_message(f"Someone tried to save a serializer with invalid data,"
+                                       f"the errors were: {self.errors}")
+        return super().save(**kwargs)
 
 def custom_fail(self, key, **kwargs):
     """

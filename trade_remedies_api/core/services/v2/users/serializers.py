@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Group
+from django_restql.fields import NestedField
 from rest_framework import serializers
 
 from cases.models import Case
@@ -14,35 +15,6 @@ class TwoFactorAuthSerializer(serializers.ModelSerializer):
         exclude = ["user"]
 
     id = serializers.ReadOnlyField(source="user.id")  # One-to-One field which is also PK
-
-
-class UserSerializer(CustomValidationModelSerializer):
-    class Meta:
-        model = User
-        exclude = ("password",)
-
-    email = serializers.ReadOnlyField()
-    cases = serializers.SerializerMethodField()
-    organisation = serializers.SerializerMethodField()
-    twofactorauth = TwoFactorAuthSerializer(required=False)
-
-    def get_cases(self, instance):
-        from cases.services.v2.serializers import CaseSerializer
-
-        return [CaseSerializer(each).data for each in Case.objects.user_cases(user=instance)]
-
-    def get_organisation(self, instance):
-        """Gets the organisation that this user belongs to.
-
-        Provides an exclude argument to the OrganisationSerializer to avoid recursive infinite
-        serialization.
-        """
-        from organisations.services.v2.serializers import OrganisationSerializer
-
-        if organisation_user_object := instance.organisation:
-            return OrganisationSerializer(
-                instance=organisation_user_object.organisation, exclude=["organisationuser_set"]
-            ).data
 
 
 class ContactSerializer(CustomValidationModelSerializer):
@@ -76,6 +48,36 @@ class ContactSerializer(CustomValidationModelSerializer):
                 self.validated_data["phone"] = e164_phone
 
         return super().save(**kwargs)
+
+
+class UserSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = User
+        exclude = ("password",)
+
+    email = serializers.ReadOnlyField()
+    cases = serializers.SerializerMethodField()
+    organisation = serializers.SerializerMethodField()
+    twofactorauth = TwoFactorAuthSerializer(required=False)
+    contact = NestedField(serializer_class=ContactSerializer, required=False)
+
+    def get_cases(self, instance):
+        from cases.services.v2.serializers import CaseSerializer
+
+        return [CaseSerializer(each).data for each in Case.objects.user_cases(user=instance)]
+
+    def get_organisation(self, instance):
+        """Gets the organisation that this user belongs to.
+
+        Provides an exclude argument to the OrganisationSerializer to avoid recursive infinite
+        serialization.
+        """
+        from organisations.services.v2.serializers import OrganisationSerializer
+
+        if organisation_user_object := instance.organisation:
+            return OrganisationSerializer(
+                instance=organisation_user_object.organisation, exclude=["organisationuser_set"]
+            ).data
 
 
 class GroupSerializer(serializers.ModelSerializer):
