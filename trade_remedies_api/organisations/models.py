@@ -291,7 +291,7 @@ class OrganisationManager(models.Manager):
 
 
 class Organisation(BaseModel):
-    name = models.CharField(max_length=500, null=False, blank=False)
+    name = models.CharField(max_length=500, null=False, blank=True)
     datahub_id = models.CharField(max_length=150, null=True, blank=True)
     companies_house_id = models.CharField(max_length=50, null=True, blank=True)
     trade_association = models.BooleanField(default=False)

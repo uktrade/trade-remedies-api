@@ -6,6 +6,8 @@ from core.services.v2.registration.serializers import (
     V2RegistrationSerializer,
     VerifyEmailSerializer,
 )
+from core.models import User, UserProfile
+from core.services.v2.registration.serializers import V2RegistrationSerializer, VerifyEmailSerializer
 from organisations.models import Organisation
 from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
 from core.models import Group

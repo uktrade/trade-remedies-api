@@ -890,7 +890,7 @@ class UserProfile(models.Model):
     email_verify_code_last_sent = models.DateTimeField(null=True, blank=True)
     email_verified_at = models.DateTimeField(null=True, blank=True)
     last_modified = models.DateTimeField(auto_now=True)
-    settings = models.JSONField(default=dict)
+    settings = models.JSONField(default=dict, null=True, blank=True)
 
     def __str__(self):
         return "{0}".format(self.user.get_full_name())

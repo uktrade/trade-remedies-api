@@ -21,6 +21,7 @@ pytest-pythonpath
 pytest-mock
 traitlets==4.3.3
 trufflehog
+django-debug-toolbar
 
 # ipython dep - for CVE-2021-27291
 pygments==2.8.1

@@ -1,31 +1,30 @@
 import datetime
+
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.db.models import Q
-from django.contrib.postgres import fields
-from django.conf import settings
 from django.utils import timezone
 from titlecase import titlecase
-from core.utils import public_login_url
-from core.base import BaseModel
-from core.models import SystemParameter
-from core.tasks import send_mail
+
 from audit import AUDIT_TYPE_NOTIFY
-from notes.models import Note
-from django.contrib.contenttypes.models import ContentType
-from security.constants import (
-    SECURITY_GROUPS_TRA,
-    SECURITY_GROUPS_PUBLIC,
-)
-from security.models import OrganisationCaseRole
 from cases.constants import (
-    SUBMISSION_DOCUMENT_TYPE_TRA,
     CASE_TYPE_SAFEGUARDING,
+    SUBMISSION_DOCUMENT_TYPE_TRA,
     SUBMISSION_TYPE_APPLICATION,
     TRA_ORGANISATION_ID,
 )
+from contacts.models import Contact
+from core.base import BaseModel
+from core.models import SystemParameter, User
+from core.tasks import send_mail
+from core.utils import public_login_url
+from notes.models import Note
+from security.constants import SECURITY_GROUPS_PUBLIC, SECURITY_GROUPS_TRA
+from security.models import OrganisationCaseRole
+from .submissiondocument import SubmissionDocument, SubmissionDocumentType
 from .submissiontype import SubmissionType
 from .workflow import CaseWorkflowState
-from .submissiondocument import SubmissionDocument, SubmissionDocumentType
 
 
 class SubmissionManager(models.Manager):
@@ -182,6 +181,13 @@ class Submission(BaseModel):
     )
     issued_at = models.DateTimeField(null=True, blank=True)
     deficiency_notice_params = models.JSONField(null=True, blank=True)
+    primary_contact = models.ForeignKey(
+        Contact,
+        null=True,
+        blank=True,
+        related_name="submission_primary_contacts",
+        on_delete=models.PROTECT,
+    )
 
     objects = SubmissionManager()
 
@@ -516,9 +522,7 @@ class Submission(BaseModel):
     def _to_embedded_dict(self, **kwargs):  # noqa
         downloaded_count = self.submissiondocument_set.filter(downloads__gt=0).count()
         out = self.to_minimal_dict()
-        invitations = [
-            {"id": invite.id, "name": invite.contact.name} for invite in self.invitations.all()
-        ]
+        invitations = [{"id": invite.id, "name": str(invite)} for invite in self.invitations.all()]
         out.update(
             {
                 # how many documents were downloaded at least once
@@ -915,3 +919,45 @@ class Submission(BaseModel):
         )
         note.save()
         return note
+
+    def update_status(self, new_status: str, requesting_user: User) -> bool:
+        """
+        Updates the status of a submission object.
+
+        Deals with sending any notifications that need to happen if a status is changed, and also
+        updating any timestamp fields on the submission where necessary.
+
+        Parameters
+        ----------
+        new_status : str - the new status, e.g. sent, received...etc.
+        requesting_user : User - the user who is changing the status
+
+        Returns
+        -------
+        bool
+        """
+        status_object = getattr(self.type, f"{new_status}_status")
+        self.transition_status(status_object)
+
+        # We want to update the status_at and status_by fields if applicable.
+        # e.g. received_at and received_from
+        if new_status == "received":
+            self.received_at = timezone.now()
+            self.received_from = requesting_user
+            self.save()
+
+        if new_status == "sent":
+            self.sent_at = timezone.now()
+            self.sent_by = requesting_user
+            if self.time_window:
+                self.due_at = timezone.now() + datetime.timedelta(days=self.time_window)
+            self.save()
+
+        # Now we want to send the relevant confirmation notification message if applicable.
+        if status_object.send_confirmation_notification:
+            submission_user = (
+                self.contact.userprofile.user if self.contact and self.contact.has_user else None
+            )
+            self.notify_received(user=submission_user or requesting_user)
+
+        return True

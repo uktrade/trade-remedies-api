@@ -13,18 +13,21 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
-from django.conf import settings
-
-from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, SubmissionViewSet
 from rest_framework import routers
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from cases.services import api as cases_api
+from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, SubmissionViewSet
 from core.services import api as core_api
 from core.services.auth import views as auth_api
 from core.services.v2.registration import views as registration_api
-from cases.services import api as cases_api
+from core.services.v2.users.views import ContactViewSet, TwoFactorAuthViewSet, UserViewSet
 from documents.services.v2.views import DocumentBundleViewSet, DocumentViewSet
+from invitations.services.v2.views import InvitationViewSet
 from organisations.services.v2.views import OrganisationCaseRoleViewSet, OrganisationViewSet
 
 urlpatterns = [
@@ -182,7 +185,25 @@ router.register(
 router.register(
     f"{settings.API_V2_PREFIX}/document_bundles", DocumentBundleViewSet, basename="document_bundles"
 )
+router.register(f"{settings.API_V2_PREFIX}/submissions", SubmissionViewSet, basename="submissions")
+router.register(f"{settings.API_V2_PREFIX}/invitations", InvitationViewSet, basename="invitations")
+router.register(f"{settings.API_V2_PREFIX}/users", UserViewSet, basename="users")
+router.register(f"{settings.API_V2_PREFIX}/contacts", ContactViewSet, basename="contacts")
+router.register(
+    f"{settings.API_V2_PREFIX}/two_factor_auths", TwoFactorAuthViewSet, basename="two_factor_auths"
+)
 urlpatterns += router.urls
+
+if settings.DEBUG:
+    urlpatterns.append(path("server_error", lambda x: 1 / 0))
+
+    class ClientError(APIView):
+        authentication_classes = ()
+
+        def get(self, request, *args, **kwargs):
+            return Response(status=402, data="client error")
+
+    urlpatterns.append(path("client_error", ClientError.as_view()))
 
 if settings.DJANGO_ADMIN:
     urlpatterns.append(path("admin/", admin.site.urls))

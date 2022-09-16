@@ -363,9 +363,9 @@ class PublicUserApiView(TradeRemediesApiView):
                 raise NotFoundApiExceptions("Invalid parameters of access denied")
         request_data = request.data.dict()
         if invitation:
-            request_data["group"] = invitation.meta["group"]
-            request_data["active"] = invitation.meta["is_active"]
-            request_data["case_spec"] = invitation.meta["case_spec"]
+            request_data["group"] = invitation.meta.get("group")
+            request_data["active"] = invitation.meta.get("is_active")
+            request_data["case_spec"] = invitation.meta.get("case_spec")
             request_data["email"] = invitation.email
             request_data["contact"] = invitation.contact
             organisation = invitation.organisation
@@ -664,7 +664,8 @@ class CreatePendingUserAPI(TradeRemediesApiView):
             invite = Invitation.objects.get(id=invitation_id, organisation=organisation_id)
             invite.set_user_context(request.user)
             if not invite.accepted_at:
-                invite.contact.delete()
+                if invite.contact:
+                    invite.contact.delete()
                 invite.delete()
             else:
                 raise Invitation.DoesNotExist()

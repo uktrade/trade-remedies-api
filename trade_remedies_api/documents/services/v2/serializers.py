@@ -2,6 +2,7 @@ import os
 
 from rest_framework import serializers
 
+from documents.models import Document
 from cases.models import SubmissionType
 from documents.models import Document, DocumentBundle
 

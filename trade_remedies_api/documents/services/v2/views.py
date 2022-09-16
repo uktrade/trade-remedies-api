@@ -84,6 +84,3 @@ class DocumentViewSet(viewsets.ModelViewSet):
 class DocumentBundleViewSet(viewsets.ModelViewSet):
     queryset = DocumentBundle.objects.all()
     serializer_class = DocumentBundleSerializer
-
-    def retrieve(self, request, *args, **kwargs):
-        print("ads")

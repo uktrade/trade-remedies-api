@@ -1,6 +1,7 @@
 from django.contrib.auth.models import Group
 from django.test import TestCase
 
+from cases.models import Case
 from core.models import User
 from organisations.models import Organisation
 from security.constants import (
@@ -27,19 +28,27 @@ class UserSetupTestBase(TestCase):
     """Test base class that creates a User and the necessary public groups"""
 
     def setUp(self) -> None:
+        super().setUp()
         self.user = User.objects.create_user(
             email=email,
             password=password,
         )
-        g1 = Group.objects.create(name=SECURITY_GROUP_ORGANISATION_USER)
-        g2 = Group.objects.create(name=SECURITY_GROUP_ORGANISATION_OWNER)
-        g3 = Group.objects.create(name=SECURITY_GROUP_THIRD_PARTY_USER)
-        self.user.groups.add(g1)
-        self.user.groups.add(g2)
-        self.user.groups.add(g3)
+        self.user_group = Group.objects.create(name=SECURITY_GROUP_ORGANISATION_USER)
+        self.owner_group = Group.objects.create(name=SECURITY_GROUP_ORGANISATION_OWNER)
+        self.third_party_group = Group.objects.create(name=SECURITY_GROUP_THIRD_PARTY_USER)
+        self.user.groups.add(self.user_group)
+        self.user.groups.add(self.owner_group)
+        self.user.groups.add(self.third_party_group)
         self.user.save()
 
 
 class OrganisationSetupTestMixin(UserSetupTestBase):
     def setUp(self) -> None:
+        super().setUp()
         self.organisation = Organisation.objects.create(name="test company")
+
+
+class CaseSetupTestMixin(OrganisationSetupTestMixin):
+    def setUp(self) -> None:
+        super().setUp()
+        self.case_object = Case.objects.create(name="test case")

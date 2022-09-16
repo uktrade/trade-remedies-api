@@ -113,10 +113,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.gzip.GZipMiddleware",
+    # "django.middleware.gzip.GZipMiddleware",
     "axes.middleware.AxesMiddleware",
     "config.middleware.SentryContextMiddleware",
 ]
+
 
 if DJANGO_ADMIN:
     MIDDLEWARE = [
@@ -516,6 +517,9 @@ conditions.register("PART_OF_GROUP", fn=is_user_part_of_group)
 FEATURE_FLAG_PREFIX = "FEATURE_FLAG"
 FLAGS = {
     f"{FEATURE_FLAG_PREFIX}_UAT_TEST": [
+        {"condition": "PART_OF_GROUP", "value": True, "required": True},
+    ],
+    f"{FEATURE_FLAG_PREFIX}_INVITE_JOURNEY": [
         {"condition": "PART_OF_GROUP", "value": True, "required": True},
     ],
 }
