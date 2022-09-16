@@ -1,7 +1,10 @@
 from collections import OrderedDict
 from collections.abc import Mapping
+from functools import cached_property
 
+import sentry_sdk
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django_restql.mixins import DynamicFieldsMixin
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import (
@@ -14,6 +17,31 @@ from rest_framework.fields import (
 from rest_framework.settings import api_settings
 
 from core.exceptions import CustomValidationError, CustomValidationErrors
+
+
+def get_value(self, dictionary):
+    # Strange regex bugs were preventing serializer fields from finding their right key in the
+    # QueryDict post dictionary, so we don't bother with nested request bodies and treat everything
+    # like a dict as Django intended
+    return dictionary.get(self.field_name, empty)
+
+
+# Now overriding the global method of serializers.Serializer to point to our new method
+serializers.Serializer.get_value = get_value
+
+
+class DynamicFieldsMixinIDAlways(DynamicFieldsMixin):
+    """Overrides the django-restql DynamicFieldsMixin to ALWAYS return the ID of the object in
+    the JSON response of the API, regardless of what fields are specified in the query={}
+    query parameter.
+    """
+
+    @cached_property
+    def dynamic_fields(self):
+        dynamic_fields = super().dynamic_fields
+        if "id" not in dynamic_fields:
+            dynamic_fields["id"] = serializers.ReadOnlyField()
+        return dynamic_fields
 
 
 class DynamicFieldsModelSerializer(serializers.Serializer):
@@ -43,7 +71,7 @@ class DynamicFieldsModelSerializer(serializers.Serializer):
                 self.fields.pop(exclude_name)
 
 
-class CustomValidationSerializer(DynamicFieldsModelSerializer):
+class CustomValidationSerializer(DynamicFieldsMixinIDAlways, DynamicFieldsModelSerializer):
     """Custom default base serializer used to handle validation errors intelligently (hopefully).
 
     The default DRF implementation cycles through all the validate_{field} methods, collects all
@@ -157,6 +185,14 @@ class CustomValidationSerializer(DynamicFieldsModelSerializer):
 
 class CustomValidationModelSerializer(CustomValidationSerializer, serializers.ModelSerializer):
     """Raises CustomValidationErrors for use in V2 error handling using a DRF ModelSerializer"""
+
+    def save(self, **kwargs):
+        if self.errors:
+            sentry_sdk.capture_message(
+                f"Someone tried to save a serializer with invalid data,"
+                f"the errors were: {self.errors}"
+            )
+        return super().save(**kwargs)
 
 
 def custom_fail(self, key, **kwargs):

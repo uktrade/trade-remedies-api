@@ -21,6 +21,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     organisationuser_set = OrganisationUserSerializer(many=True, required=False)
     cases = serializers.SerializerMethodField()
     invitations = serializers.SerializerMethodField()
+    validated = serializers.SerializerMethodField()
 
     class Meta:
         model = Organisation
@@ -37,7 +38,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             user__organisationuser__organisation=instance,
             case__deleted_at__isnull=True,
             case__archived_at__isnull=True,
-        )
+        ).select_related("case")
         if request := self.context.get("request", None):
             cases = cases.filter(user=request.user)
         return [CaseSerializer(each.case).data for each in cases]
@@ -50,8 +51,14 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             InvitationSerializer(
                 instance=each, exclude=["organisation"]  # Avoid infinite self-referencing
             ).data
-            for each in instance.invitation_set.all()
+            for each in instance.invitation_set.all().select_related(
+                "organisation", "contact", "submission"
+            )
         ]
+
+    def get_validated(self, instance):
+        """Returns true if the organisation has been validated on the TRS at some point"""
+        return instance.organisationcaserole_set.filter(validated_at__isnull=False).exists()
 
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):

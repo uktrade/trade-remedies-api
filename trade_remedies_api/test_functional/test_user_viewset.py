@@ -13,7 +13,7 @@ class TestUserViewSet(FunctionalTestBase):
     def test_add_group(self):
         assert self.test_group_object not in self.user.groups.all()
         response = self.client.put(
-            f"/api/v2/users/{self.user.pk}/add_group/",
+            f"/api/v2/users/{self.user.pk}/change_group/",
             data={"group_name": test_group_name},
         )
         assert self.test_group_object in self.user.groups.all()
@@ -37,7 +37,7 @@ class TestUserViewSet(FunctionalTestBase):
         self.user.groups.add(self.test_group_object)
         assert self.test_group_object in self.user.groups.all()
         self.client.delete(
-            f"/api/v2/users/{self.user.pk}/add_group/",
+            f"/api/v2/users/{self.user.pk}/change_group/",
             data={"group_name": test_group_name},
         )
         assert self.test_group_object not in self.user.groups.all()

@@ -1,4 +1,6 @@
+from django.http import Http404
 from rest_framework import viewsets
+from rest_framework.response import Response
 
 
 class BaseModelViewSet(viewsets.ModelViewSet):
@@ -9,3 +11,28 @@ class BaseModelViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Overriding perform_create to return the instance, not just do it silently
         return serializer.save()
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        # If the object in question has been deleted, raise a 404
+        if hasattr(instance, "deleted_at") and instance.deleted_at:
+            raise Http404
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    def get_serializer(self, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        kwargs.setdefault("context", self.get_serializer_context())
+        if fields := kwargs.get("data", {}).get("fields"):
+            # We only want the serializer to have the fields mentioned here, this is to increase
+            # speed primarily
+            if fields == "__none__":
+                # we don't want a return value from the serializer, fine with us
+                fields = []
+            else:
+                # the fields value should be a string, with commas separating the names of fields
+                fields = fields.split(",")
+            kwargs.setdefault("fields", fields)
+        return serializer_class(*args, **kwargs)

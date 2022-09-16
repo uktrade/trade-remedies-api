@@ -1,18 +1,65 @@
 from django.contrib.auth.models import Group
+from django_restql.fields import NestedField
 from rest_framework import serializers
 
 from cases.models import Case
+from config.serializers import CustomValidationModelSerializer
 from contacts.models import Contact
-from core.models import User
+from core.models import TwoFactorAuth, User
+from core.utils import convert_to_e164
 
 
-class UserSerializer(serializers.ModelSerializer):
+class TwoFactorAuthSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TwoFactorAuth
+        exclude = ["user"]
+
+    id = serializers.ReadOnlyField(source="user.id")  # One-to-One field which is also PK
+
+
+class ContactSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = Contact
+        fields = "__all__"
+
+    name = serializers.CharField(required=False)
+    country = serializers.CharField(source="country.alpha3", required=False)
+    organisation_name = serializers.ReadOnlyField(source="organisation.name")
+
+    def save(self, **kwargs):
+        # If the 'country' is present in changed data, we need to fetch the true value from the dic
+        if country := self.validated_data.get("country"):
+            self.validated_data["country"] = country["alpha3"]
+
+        # Let's internationalise the phone number and convert it to e164 format
+        if phone := self.validated_data.get("phone"):
+            # Checking the number hasn't already been internationalised
+            if not phone.startswith("+"):
+                # We need to figure out what country we are internationalising for, default to GB
+                country = "GB"
+                # If the instance has a country, let's use that
+                if self.instance.country and self.instance.country.alpha3:
+                    country = self.instance.country.alpha3
+                # Even better, we can use the validated data which has just been passed in
+                if self.validated_data.get("country"):
+                    country = self.validated_data["country"]
+
+                e164_phone = convert_to_e164(phone, country)
+                self.validated_data["phone"] = e164_phone
+
+        return super().save(**kwargs)
+
+
+class UserSerializer(CustomValidationModelSerializer):
     class Meta:
         model = User
         exclude = ("password",)
 
+    email = serializers.ReadOnlyField()
     cases = serializers.SerializerMethodField()
     organisation = serializers.SerializerMethodField()
+    twofactorauth = TwoFactorAuthSerializer(required=False)
+    contact = NestedField(serializer_class=ContactSerializer, required=False)
 
     def get_cases(self, instance):
         from cases.services.v2.serializers import CaseSerializer
@@ -31,15 +78,6 @@ class UserSerializer(serializers.ModelSerializer):
             return OrganisationSerializer(
                 instance=organisation_user_object.organisation, exclude=["organisationuser_set"]
             ).data
-
-
-class ContactSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Contact
-        fields = "__all__"
-
-    country = serializers.ReadOnlyField(source="country.alpha3")
-    organisation_name = serializers.ReadOnlyField(source="organisation.name")
 
 
 class GroupSerializer(serializers.ModelSerializer):

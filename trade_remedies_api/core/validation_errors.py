@@ -278,7 +278,7 @@ validation_errors = {
     "invite_new_representative_no_organisation_name": {
         "field": "organisation_name",
         "error_text": "Enter the name of the representative organisation",
-        "error_summary": "Need to enter the name of the representative organisation",
+        "error_summary": "You need to enter the name of the representative organisation",
     },
     "invite_new_representative_no_contact_name": {
         "field": "contact_name",
@@ -314,5 +314,10 @@ validation_errors = {
         "field": "organisation",
         "error_text": "Select an option",
         "error_summary": "You need to select an option",
+    },
+    "invite_which_cases_not_selected": {
+        "field": "which_case",
+        "error_text": "Select an option",
+        "error_summary": "Select 'No cases' or one or more cases",
     },
 }

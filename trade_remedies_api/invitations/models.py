@@ -8,7 +8,7 @@ from django.utils import crypto, timezone
 from audit import AUDIT_TYPE_EVENT, AUDIT_TYPE_NOTIFY
 from audit.utils import audit_log
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY, SUBMISSION_TYPE_REGISTER_INTEREST
-from cases.models import Submission, SubmissionType, get_case
+from cases.models import Case, Submission, SubmissionType
 from contacts.models import CaseContact, Contact
 from core.base import BaseModel
 from core.models import SystemParameter, User
@@ -53,9 +53,14 @@ class InvitationManager(models.Manager):
     def validate_all_pending(self, user, invitation_code=None):
         """
         validate all pending invitations for a user.
-        If code and case are provided, prepare that invitation beforehand.
+        If invitation code is provided, prepare (process) that invitation beforehand.
         """
         accepted = []
+        pending_invites_for_user = self.filter(
+            invited_user=user, accepted_at__isnull=True, deleted_at__isnull=True
+        )
+        for invitation in pending_invites_for_user:
+            invitation.accept_invitation()
         if invitation_code:
             invitation = self.get_invite_by_code(invitation_code)
             if invitation and invitation.email == user.email:
@@ -155,7 +160,8 @@ class InvitationManager(models.Manager):
             direct=False,
             template_key="NOTIFY_INVITE_ORGANISATION_USER",
             context={
-                "login_url": f"{settings.PUBLIC_ROOT_URL}/invitation/{invite.code}/for/{organisation.id}/"  # noqa: E501
+                "login_url": f"{settings.PUBLIC_ROOT_URL}/invitation/{invite.code}/for/{organisation.id}/"
+                # noqa: E501
             },
         )
         return invite
@@ -266,6 +272,13 @@ class Invitation(BaseModel):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT
     )
+    invited_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="invited_user",
+    )
     name = models.CharField(max_length=250, null=True, blank=True)
     email = models.EmailField(null=False, blank=True)
     invalid = models.BooleanField(default=False)
@@ -282,10 +295,12 @@ class Invitation(BaseModel):
         related_name="approved",
     )
     meta = models.JSONField(default=dict)
+
     draft = models.BooleanField(default=False)
     invitation_type = models.PositiveIntegerField(
         null=True, blank=True, choices=invitation_type_choices
     )
+    cases_to_link = models.ManyToManyField(Case, related_name="cases_to_link", blank=True)
 
     objects = InvitationManager()
 
@@ -638,6 +653,32 @@ class Invitation(BaseModel):
         else:
             self.save()
         return assigned
+
+    @transaction.atomic()
+    def accept_invitation(self):
+        """Accepting and processing the invitation when the invited user logs in"""
+
+        # First let's add the user to the organisation
+        self.contact.organisation.assign_user(
+            user=self.invited_user, security_group=self.organisation_security_group, confirmed=True
+        )
+
+        # Let's add the user to the cases associated with this invitation
+        for case_object in self.cases_to_link.all():
+            case_object.assign_user(
+                user=self.invited_user,
+                created_by=self.user,
+                organisation=self.contact.organisation,
+                relax_security=True,
+            )
+
+            # todo - check this is necessary
+            case_object.confirm_user_case(
+                user=self.invited_user, created_by=self.user, organisation=self.contact.organisation
+            )
+
+        # Now we mark the invitation as accepted
+        self.accepted()
 
     def compare_user_contact(self):
         """

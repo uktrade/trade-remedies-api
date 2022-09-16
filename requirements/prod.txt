@@ -116,6 +116,8 @@ django-phonenumber-field==6.0.0
     # via -r requirements.in/../requirements/base.txt
 django-redis==5.2.0
     # via -r requirements.in/../requirements/base.txt
+django-restql==0.5.3
+    # via -r requirements.in/../requirements/base.txt
 django-storages==1.9.1
     # via -r requirements.in/../requirements/base.txt
 django-timezone-field==4.2.3
@@ -123,6 +125,7 @@ django-timezone-field==4.2.3
 djangorestframework==3.12.4
     # via
     #   -r requirements.in/../requirements/base.txt
+    #   django-restql
     #   feed-gov-back
 docopt==0.6.2
     # via
@@ -224,6 +227,10 @@ pyparsing==3.0.7
     #   packaging
 pypdf2==1.27.5
     # via -r requirements.in/../requirements/base.txt
+pypeg2==2.15.2
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   django-restql
 python-dateutil==2.8.2
     # via
     #   -r requirements.in/../requirements/base.txt
