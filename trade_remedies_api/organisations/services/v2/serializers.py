@@ -48,7 +48,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
 
         # query parameter no_representative_cases determines if we only want the cases where this
         # organisation is a direct contributor, and NOT a representative cases
-        if request.GET.get("no_representative_cases"):
+        if self.context.get("request", None) and request.GET.get("no_representative_cases"):
             for user_case in cases:
                 # Now let's work out if the organisation is an
                 # interested party or a representative for each case
