@@ -239,10 +239,10 @@ class Invitation(BaseModel):
     and will confirm the account details, set a password etc. via a special login link.
     These direct invites are not associated with a specific case.
 
-    An invite can be marked invalid which can happen
+    An invitation can be marked invalid which can happen
     if for example an existing public user is invited.
     A record of the invite still exists,
-    but the user exercise it. Any temporary/permanent meta data
+    but the user exercise it. Any temporary/permanent meta-data
     related to the invite can be saved in the meta dict.
     """
 
