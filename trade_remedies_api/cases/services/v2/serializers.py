@@ -11,11 +11,9 @@ from cases.models import (
     SubmissionStatus,
     SubmissionType,
 )
-from config.serializers import CustomValidationModelSerializer, NestedKeyField
-from core.models import User
+from config.serializers import CustomValidationModelSerializer
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from documents.services.v2.serializers import DocumentSerializer
-from organisations.models import Organisation
 from organisations.services.v2.serializers import OrganisationSerializer
 
 
@@ -79,9 +77,7 @@ class SubmissionSerializer(CustomValidationModelSerializer):
     submission_documents = NestedField(
         serializer_class=SubmissionDocumentSerializer, many=True, read_only=True
     )
-    contact = NestedField(
-        serializer_class=ContactSerializer, required=False, accept_pk=True
-    )
+    contact = NestedField(serializer_class=ContactSerializer, required=False, accept_pk=True)
     type = NestedField(serializer_class=SubmissionTypeSerializer, required=False, accept_pk=True)
     primary_contact = NestedField(
         serializer_class=ContactSerializer, required=False, accept_pk=True

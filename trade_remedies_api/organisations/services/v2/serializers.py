@@ -1,12 +1,8 @@
 from django.contrib.auth.models import Group
-from django.db.models import F, Q
 from rest_framework import serializers
 
-from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
-from cases.models import Submission
 from config.serializers import CustomValidationModelSerializer
 from core.services.v2.users.serializers import UserSerializer
-from invitations.models import Invitation
 from organisations.models import Organisation
 from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
 
