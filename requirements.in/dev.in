@@ -10,8 +10,7 @@ ipython==7.31.1
 matplotlib
 sklearn
 pip-tools>=6.5.0
-pre-commit
-pyproject-flake8
+pyproject-flake8==5.0.4.post1
 pytest
 pytest-cov
 pytest-django
@@ -26,4 +25,5 @@ django-debug-toolbar
 # ipython dep - for CVE-2021-27291
 pygments==2.8.1
 
+git+https://github.com/uktrade/modification-pre-commit
 git+https://github.com/uktrade/fitness-functions
