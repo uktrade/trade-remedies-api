@@ -37,6 +37,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     def get_cases(self, instance):
         """Return all cases that this organisation is a part of."""
         from cases.services.v2.serializers import CaseSerializer
+
         case_serializers = []
         cases = UserCase.objects.filter(
             user__organisationuser__organisation=instance,
@@ -53,7 +54,8 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 # Now let's work out if the organisation is an
                 # interested party or a representative for each case
                 invitation_query = Invitation.objects.filter(
-                    Q(case=user_case.case), Q(contact__organisation=instance)
+                    Q(case=user_case.case),
+                    Q(contact__organisation=instance)
                     # Exclude those Invitations where the contact org == org, as
                     # those are normal invite
                 ).exclude(contact__organisation=F("organisation"))
