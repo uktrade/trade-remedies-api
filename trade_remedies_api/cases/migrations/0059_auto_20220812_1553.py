@@ -14,21 +14,19 @@ def create_update_submission_types(apps, schema_editor):  # noqa
     `submission_type_values` defined in this module.
     """
     from cases import constants
+
     submission_type_class = apps.get_model("cases", "SubmissionType")
     submission_type_class.objects.update_or_create(
         id=constants.SUBMISSION_TYPE_LETTER_OF_AUTHORITY,
         name="Letter of Authority",
         key="public",
-        defaults={
-            "direction": 0,
-            "order": 20
-        }
+        defaults={"direction": 0, "order": 20},
     )
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('cases', '0058_auto_20220207_1201'),
+        ("cases", "0058_auto_20220207_1201"),
     ]
 
     operations = [

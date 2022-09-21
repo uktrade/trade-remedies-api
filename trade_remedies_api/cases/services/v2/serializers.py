@@ -67,24 +67,24 @@ class SubmissionTypeSerializer(serializers.ModelSerializer):
 class SubmissionSerializer(CustomValidationModelSerializer):
     case = NestedField(serializer_class=CaseSerializer, required=False, accept_pk=True)
     organisation = NestedField(
-        serializer_class=OrganisationSerializer, required=False, accept_pk=True, allow_null=True
+        serializer_class=OrganisationSerializer, required=False, accept_pk=True
     )
     documents = NestedField(serializer_class=DocumentSerializer, many=True, required=False)
     created_by = NestedField(serializer_class=UserSerializer, required=False, accept_pk=True)
     status = NestedField(
-        serializer_class=SubmissionStatusSerializer, required=False, accept_pk=True, allow_null=True
+        serializer_class=SubmissionStatusSerializer, required=False, accept_pk=True
     )
     paired_documents = SerializerMethodField(read_only=True)
     orphaned_documents = SerializerMethodField(read_only=True)
     submission_documents = NestedField(
-        serializer_class=SubmissionDocumentSerializer, many=True, read_only=True, allow_null=True
+        serializer_class=SubmissionDocumentSerializer, many=True, read_only=True
     )
     contact = NestedField(
-        serializer_class=ContactSerializer, required=False, accept_pk=True, allow_null=True
+        serializer_class=ContactSerializer, required=False, accept_pk=True
     )
     type = NestedField(serializer_class=SubmissionTypeSerializer, required=False, accept_pk=True)
     primary_contact = NestedField(
-        serializer_class=ContactSerializer, required=False, accept_pk=True, allow_null=True
+        serializer_class=ContactSerializer, required=False, accept_pk=True
     )
 
     class Meta:
