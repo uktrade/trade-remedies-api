@@ -11,11 +11,9 @@ from cases.models import (
     SubmissionStatus,
     SubmissionType,
 )
-from config.serializers import CustomValidationModelSerializer, NestedKeyField
-from core.models import User
+from config.serializers import CustomValidationModelSerializer
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from documents.services.v2.serializers import DocumentSerializer
-from organisations.models import Organisation
 from organisations.services.v2.serializers import OrganisationSerializer
 
 
