@@ -7,7 +7,8 @@ logger = logging.getLogger(__name__)
 
 
 def submission_organisation_name(apps, schema_editor):
-    subs = Submission.objects.all()
+    submission_model = apps.get_model("cases", "Submission")
+    subs = submission_model.objects.all()
     for sub in subs:
         if not sub.organisation_name and sub.organisation:
             sub._disable_audit = True

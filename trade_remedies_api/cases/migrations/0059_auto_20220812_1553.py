@@ -2,7 +2,6 @@
 
 from django.db import migrations
 
-from cases import constants
 
 PUBLIC_KEY = "public"
 
@@ -14,6 +13,7 @@ def create_update_submission_types(apps, schema_editor):  # noqa
     This migration takes a preferred approach to load those data using
     `submission_type_values` defined in this module.
     """
+    from cases import constants
     submission_type_class = apps.get_model("cases", "SubmissionType")
     submission_type_class.objects.update_or_create(
         id=constants.SUBMISSION_TYPE_LETTER_OF_AUTHORITY,
