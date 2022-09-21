@@ -31,6 +31,15 @@ class CaseViewSet(viewsets.ModelViewSet):
             return Case.objects.available_for_regisration_of_intestest(self.request.user)
         return super().get_queryset()
 
+    @action(detail=True, methods=["get"], url_path="get_invitations", url_name="get_invitations")
+    def get_invitations(self, request, pk):
+        """Returns all invitations associated with a case."""
+        from invitations.services.v2.serializers import InvitationSerializer
+        case_object = self.get_object()
+        return Response(data=[
+            InvitationSerializer(invitation).data for invitation in case_object.invitation_set.all()
+        ])
+
 
 class SubmissionViewSet(BaseModelViewSet):
     queryset = Submission.objects.all()

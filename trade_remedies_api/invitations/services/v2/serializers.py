@@ -3,11 +3,9 @@ from django_restql.fields import NestedField
 from rest_framework import serializers
 
 from cases.services.v2.serializers import CaseSerializer, SubmissionSerializer
-from config.serializers import CustomValidationModelSerializer, NestedKeyField
-from contacts.models import Contact
+from config.serializers import CustomValidationModelSerializer
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from invitations.models import Invitation
-from organisations.models import Organisation
 from organisations.services.v2.serializers import OrganisationSerializer
 
 
@@ -38,3 +36,11 @@ class InvitationSerializer(CustomValidationModelSerializer):
         serializer_class=UserSerializer, read_only=True, required=False, exclude=["organisation"]
     )
     cases_to_link = NestedField(serializer_class=CaseSerializer, many=True, required=False)
+    created_by_name = serializers.ReadOnlyField(source="created_by.name")
+    created_by_email = serializers.ReadOnlyField(source="created_by.email")
+    is_created_by_tra = serializers.SerializerMethodField()
+
+    def get_is_created_by_tra(self, instance):
+        if instance.created_by.is_tra():
+            return True
+        return False
