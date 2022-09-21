@@ -35,10 +35,14 @@ class CaseViewSet(viewsets.ModelViewSet):
     def get_invitations(self, request, pk):
         """Returns all invitations associated with a case."""
         from invitations.services.v2.serializers import InvitationSerializer
+
         case_object = self.get_object()
-        return Response(data=[
-            InvitationSerializer(invitation).data for invitation in case_object.invitation_set.all()
-        ])
+        return Response(
+            data=[
+                InvitationSerializer(invitation).data
+                for invitation in case_object.invitation_set.all()
+            ]
+        )
 
 
 class SubmissionViewSet(BaseModelViewSet):
