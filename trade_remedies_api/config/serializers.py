@@ -30,6 +30,7 @@ def get_value(self, dictionary):
 serializers.Serializer.get_value = get_value
 serializers.ListSerializer.get_value = get_value
 
+
 class DynamicFieldsMixinIDAlways(DynamicFieldsMixin):
     """Overrides the django-restql DynamicFieldsMixin to ALWAYS return the ID of the object in
     the JSON response of the API, regardless of what fields are specified in the query={}
