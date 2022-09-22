@@ -3,6 +3,7 @@ from rest_framework.exceptions import APIException
 
 class InvalidSerializerError(APIException):
     """Trying to save a serializer with invalid data, naughty!"""
+
     status_code = 400
     default_code = "save_serializer_invalid_error"
 
