@@ -375,18 +375,26 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
 
     @property
     def country(self):
-        return self.userprofile.get_contact().country
+        return self.get_user_profile().get_contact().country
 
     @property
     def timezone(self):
-        return self.userprofile.timezone
+        return self.get_user_profile().timezone
 
     @property
     def contact(self):
+        return self.get_user_profile().get_contact()
+
+    def get_user_profile(self):
         try:
-            return self.userprofile.get_contact()
-        except Exception:
-            pass
+            return self.userprofile
+        except UserProfile.DoesNotExist:
+            new_user_profile_object = UserProfile.objects.create(
+                user=self,
+                contact=None,
+                colour=str(self.get_user_colour() or "black"),
+            )
+            return new_user_profile_object
 
     @property
     def address(self):
@@ -882,7 +890,7 @@ class UserProfile(models.Model):
     email_verify_code_last_sent = models.DateTimeField(null=True, blank=True)
     email_verified_at = models.DateTimeField(null=True, blank=True)
     last_modified = models.DateTimeField(auto_now=True)
-    settings = models.JSONField(default=dict)
+    settings = models.JSONField(default=dict, null=True, blank=True)
 
     def __str__(self):
         return "{0}".format(self.user.get_full_name())
@@ -1096,6 +1104,9 @@ class TwoFactorAuth(models.Model):
         if (
             self.generated_at
             and (now - self.generated_at).seconds <= settings.TWO_FACTOR_RESEND_TIMEOUT_SECONDS
+            # Newly registered users need to receive codes as well, if there is no code yet,
+            # this 2fa object has just been created
+            and self.code
         ):
             # They have requested a new code in the last TWO_FACTOR_RESEND_TIMEOUT_SECONDS seconds
             raise TwoFactorRequestedTooMany()
@@ -1139,7 +1150,6 @@ class TwoFactorAuth(models.Model):
             raise exc
         except Exception as two_fa_exception:
             sentry_sdk.capture_exception(two_fa_exception)
-            raise two_fa_exception
 
 
 class PasswordResetManager(models.Manager):

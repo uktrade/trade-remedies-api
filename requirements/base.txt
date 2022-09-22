@@ -46,7 +46,7 @@ deprecated==1.2.13
     # via redis
 dj-database-url==0.5.0
     # via -r requirements.in/base.in
-django==3.2.13
+django==3.2.15
     # via
     #   -r requirements.in/base.in
     #   django-appconf
@@ -56,6 +56,7 @@ django==3.2.13
     #   django-flags
     #   django-phonenumber-field
     #   django-redis
+    #   django-restql
     #   django-storages
     #   django-timezone-field
     #   djangorestframework
@@ -89,6 +90,8 @@ django-phonenumber-field==6.0.0
     # via -r requirements.in/base.in
 django-redis==5.2.0
     # via -r requirements.in/base.in
+django-restql==0.15.2
+    # via -r requirements.in/base.in
 django-storages==1.9.1
     # via -r requirements.in/base.in
 django-timezone-field==4.2.3
@@ -96,6 +99,7 @@ django-timezone-field==4.2.3
 djangorestframework==3.12.4
     # via
     #   -r requirements.in/base.in
+    #   django-restql
     #   feed-gov-back
 docopt==0.6.2
     # via notifications-python-client
@@ -127,7 +131,7 @@ kombu==5.2.3
     # via celery
 kubi-ecs-logger==0.1.0
     # via django-log-formatter-ecs
-lxml==4.7.1
+lxml==4.9.1
     # via
     #   -r requirements.in/base.in
     #   python-docx
@@ -166,6 +170,8 @@ pyparsing==3.0.7
     # via packaging
 pypdf2==1.27.5
     # via -r requirements.in/base.in
+pypeg2==2.15.2
+    # via django-restql
 python-dateutil==2.8.2
     # via
     #   botocore
@@ -230,6 +236,8 @@ whitenoise==5.3.0
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated
+xlrd==1.2.0
+    # via -r requirements.in/base.in
 xlsxwriter==3.0.1
     # via python-pptx
 zope-event==4.5.0
