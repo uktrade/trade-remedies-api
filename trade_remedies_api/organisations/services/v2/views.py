@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Group
+from django.contrib.postgres.search import TrigramSimilarity
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -39,6 +40,20 @@ class OrganisationViewSet(viewsets.ModelViewSet):
 
         user_object.groups.add(group_object)
         return Response(OrganisationSerializer(fields=["organisationuser_set"]).data)
+
+    @action(
+        detail=False,
+        methods=["get"],
+        url_name="search_by_company_name",
+    )
+    def search_by_company_name(self, request, *args, **kwargs):
+        company_name = request.GET["company_name"]
+        matching_organisations = (Organisation.objects.annotate(
+            similarity=TrigramSimilarity('name', company_name),
+            ).filter(similarity__gt=0.3).order_by('-similarity')
+        )
+
+        return Response([OrganisationSerializer(organisation, fields=['name', 'address', 'companies_house_id', 'id']).data for organisation in matching_organisations])
 
 
 class OrganisationCaseRoleViewSet(viewsets.ModelViewSet):
