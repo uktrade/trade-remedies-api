@@ -393,5 +393,15 @@
         "key": "NOTIFY_HEARING_ARRANGEMENTS",
         "data_type": "str",
         "default": "d644a5a7-ab54-4a57-9f49-26e98bed19c1"
+    },
+    {
+        "key": "NOTIFY_EXISTING_THIRD_PARTY_INVITE",
+        "data_type": "str",
+        "default": "14dcdc54-afc0-4f9e-b148-127ced0c2953"
+    },
+    {
+        "key": "NOTIFY_NEW_THIRD_PARTY_INVITE",
+        "data_type": "str",
+        "default": "5632a5c9-eb1c-4e44-b387-afd9f95a9ff7"
     }
 ]

@@ -1,0 +1,128 @@
+from django_restql.fields import NestedField
+from rest_framework import serializers
+from rest_framework.fields import SerializerMethodField
+
+from cases.models import (
+    Case,
+    CaseType,
+    Submission,
+    SubmissionDocument,
+    SubmissionDocumentType,
+    SubmissionStatus,
+    SubmissionType,
+)
+from config.serializers import CustomValidationModelSerializer
+from core.services.v2.users.serializers import ContactSerializer, UserSerializer
+from documents.services.v2.serializers import DocumentSerializer
+from organisations.services.v2.serializers import OrganisationSerializer
+
+
+class CaseTypeSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = CaseType
+        fields = "__all__"
+
+
+class CaseSerializer(CustomValidationModelSerializer):
+    reference = serializers.CharField(required=False)
+    type = NestedField(serializer_class=CaseTypeSerializer, required=False, accept_pk=True)
+    case_status = serializers.JSONField(required=False)
+    initiated_at = serializers.DateTimeField(required=False)
+    registration_deadline = serializers.DateTimeField(required=False)
+
+    class Meta:
+        model = Case
+        fields = "__all__"
+
+
+class SubmissionStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubmissionStatus
+        fields = "__all__"
+
+
+class SubmissionDocumentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubmissionDocumentType
+        fields = "__all__"
+
+
+class SubmissionDocumentSerializer(serializers.ModelSerializer):
+    type = SubmissionDocumentTypeSerializer()
+    document = DocumentSerializer()
+
+    class Meta:
+        model = SubmissionDocument
+        fields = "__all__"
+
+
+class SubmissionTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubmissionType
+        fields = "__all__"
+
+
+class SubmissionSerializer(CustomValidationModelSerializer):
+    case = NestedField(serializer_class=CaseSerializer, required=False, accept_pk=True)
+    organisation = NestedField(
+        serializer_class=OrganisationSerializer, required=False, accept_pk=True
+    )
+    documents = NestedField(serializer_class=DocumentSerializer, many=True, required=False)
+    created_by = NestedField(serializer_class=UserSerializer, required=False, accept_pk=True)
+    status = NestedField(
+        serializer_class=SubmissionStatusSerializer, required=False, accept_pk=True
+    )
+    paired_documents = SerializerMethodField(read_only=True)
+    orphaned_documents = SerializerMethodField(read_only=True)
+    submission_documents = NestedField(
+        serializer_class=SubmissionDocumentSerializer, many=True, read_only=True
+    )
+    contact = NestedField(serializer_class=ContactSerializer, required=False, accept_pk=True)
+    type = NestedField(serializer_class=SubmissionTypeSerializer, required=False, accept_pk=True)
+    primary_contact = NestedField(
+        serializer_class=ContactSerializer, required=False, accept_pk=True
+    )
+
+    class Meta:
+        model = Submission
+        fields = "__all__"
+
+    def create(self, validated_data):
+        return Submission.objects.create(
+            status=validated_data["type"].default_status,
+            name=validated_data["type"].name,
+            **validated_data
+        )
+
+    def get_paired_documents(self, instance):
+        # We need to order the documents, so they come in pairs (confidential, non_confidential)
+        paired_documents = []
+        for submission_document in instance.submissiondocument_set.filter(type__key="respondent"):
+            document = submission_document.document
+            if document.parent:
+                self_key = "confidential" if document.confidential else "non_confidential"
+                other_key = "non_confidential" if document.confidential else "confidential"
+                paired_documents.append(
+                    {
+                        self_key: DocumentSerializer(document).data,
+                        other_key: DocumentSerializer(document.parent).data,
+                        "orphan": False,
+                    }
+                )
+
+        return paired_documents
+
+    def get_orphaned_documents(self, instance):
+        # Get all the documents that do not have a corresponding public/private pair
+        orphaned_documents = []
+        for submission_document in instance.submissiondocument_set.filter(type__key="respondent"):
+            document = submission_document.document
+            if not document.parent and not document.document_set.exists():
+                # The document is both not a parent and doesn't have any children - an orphan
+                self_key = "confidential" if document.confidential else "non_confidential"
+                other_key = "non_confidential" if document.confidential else "confidential"
+                orphaned_documents.append(
+                    {self_key: DocumentSerializer(document).data, other_key: {}, "orphan": True}
+                )
+
+        return orphaned_documents

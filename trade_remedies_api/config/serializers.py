@@ -1,7 +1,10 @@
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from collections.abc import Mapping
+from functools import cached_property
 
+import sentry_sdk
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django_restql.mixins import DynamicFieldsMixin
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import (
@@ -11,13 +14,66 @@ from rest_framework.fields import (
     get_error_detail,
     set_value,
 )
-
 from rest_framework.settings import api_settings
 
-from core.exceptions import CustomValidationErrors, CustomValidationError
+from config.exceptions import InvalidSerializerError
+from core.exceptions import CustomValidationError, CustomValidationErrors
 
 
-class CustomValidationSerializer(serializers.Serializer):
+def get_value(self, dictionary):
+    # Strange regex bugs were preventing serializer fields from finding their right key in the
+    # QueryDict post dictionary, so we don't bother with nested request bodies and treat everything
+    # like a dict as Django intended
+    return dictionary.get(self.field_name, empty)
+
+
+# Now overriding the global method of serializers.Serializer to point to our new method
+serializers.Serializer.get_value = get_value
+serializers.ListSerializer.get_value = get_value
+
+
+class DynamicFieldsMixinIDAlways(DynamicFieldsMixin):
+    """Overrides the django-restql DynamicFieldsMixin to ALWAYS return the ID of the object in
+    the JSON response of the API, regardless of what fields are specified in the query={}
+    query parameter.
+    """
+
+    @cached_property
+    def dynamic_fields(self):
+        dynamic_fields = super().dynamic_fields
+        if "id" not in dynamic_fields:
+            dynamic_fields["id"] = serializers.ReadOnlyField()
+        return dynamic_fields
+
+
+class DynamicFieldsModelSerializer(serializers.Serializer):
+    """
+    A Serializer that takes an additional `fields` argument that
+    controls which fields should be displayed.
+    """
+
+    def __init__(self, *args, **kwargs):
+        # Don't pass the 'fields' arg up to the superclass
+        fields = kwargs.pop("fields", None)
+        exclude = kwargs.pop("exclude", None)
+
+        # Instantiate the superclass normally
+        super().__init__(*args, **kwargs)
+
+        if fields is not None:
+            # Drop any fields that are not specified in the `fields` argument.
+            allowed = set(fields)
+            existing = set(self.fields.keys())
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
+
+        if exclude is not None:
+            not_allowed = set(exclude)
+            for exclude_name in not_allowed:
+                self.fields.pop(exclude_name)
+
+
+class CustomValidationSerializer(DynamicFieldsMixinIDAlways, DynamicFieldsModelSerializer):
     """Custom default base serializer used to handle validation errors intelligently (hopefully).
 
     The default DRF implementation cycles through all the validate_{field} methods, collects all
@@ -128,16 +184,27 @@ class CustomValidationSerializer(serializers.Serializer):
             raise AssertionError(msg)
         return self._errors
 
-    @property
-    def data(self):
-        return {"result": self.return_data()}
-
-    def return_data(self):
-        return super().data()
-
 
 class CustomValidationModelSerializer(CustomValidationSerializer, serializers.ModelSerializer):
     """Raises CustomValidationErrors for use in V2 error handling using a DRF ModelSerializer"""
+
+    def save(self, **kwargs):
+        if self.errors:
+            # Let's format the errors into something more enjoyable
+            formatted_errors = defaultdict(list)
+            for field, errors in self.error_list.items():
+                for error in errors.args:
+                    formatted_errors[field].append(error)
+
+            formatted_errors = dict(formatted_errors)
+
+            sentry_sdk.capture_message(
+                f"Someone tried to save a serializer with invalid data,"
+                f"the errors were: {formatted_errors}"
+            )
+
+            raise InvalidSerializerError(detail=formatted_errors, serializer=self)
+        return super().save(**kwargs)
 
 
 def custom_fail(self, key, **kwargs):
@@ -163,3 +230,29 @@ def custom_fail(self, key, **kwargs):
 
 
 serializers.Field.fail = custom_fail
+
+
+class NestedKeyField(serializers.PrimaryKeyRelatedField):
+    """A serializer field used as both a PrimaryKeyRelatedField and a nested serializer.
+
+    Allows the return value of a serializer's fields to also be serializers, but the input value
+    to be a primary key.
+    """
+
+    def __init__(self, **kwargs):
+        self.serializer = kwargs.pop("serializer", None)
+        self.serializer_kwargs = kwargs.pop("serializer_kwargs", {})
+        if self.serializer is not None and not issubclass(self.serializer, serializers.Serializer):
+            raise TypeError(
+                "You need to pass a instance of serialzers.Serializer or atleast something that inherits from it."
+            )
+        super().__init__(**kwargs)
+
+    def use_pk_only_optimization(self):
+        return not self.serializer
+
+    def to_representation(self, value):
+        if self.serializer:
+            return dict(self.serializer(value, context=self.context, **self.serializer_kwargs).data)
+        else:
+            return super().to_representation(value)
