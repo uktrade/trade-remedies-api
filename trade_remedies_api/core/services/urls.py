@@ -22,4 +22,3 @@ urlpatterns = [
     path("feedback/export/<uuid:form_id>/", FeedbackExport.as_view()),
     path("validation_error/<str:key>/", ValidationErrorAPIView.as_view()),
 ]
-

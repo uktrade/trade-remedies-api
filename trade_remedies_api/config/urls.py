@@ -194,9 +194,7 @@ router.register(
     f"{settings.API_V2_PREFIX}/two_factor_auths", TwoFactorAuthViewSet, basename="two_factor_auths"
 )
 router.register(
-    f"{settings.API_V2_PREFIX}/django-feature-flags",
-    FlagViewSet,
-    basename="django-feature-flags"
+    f"{settings.API_V2_PREFIX}/django-feature-flags", FlagViewSet, basename="django-feature-flags"
 )
 urlpatterns += router.urls
 
