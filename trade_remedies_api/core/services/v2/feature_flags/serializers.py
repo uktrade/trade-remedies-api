@@ -15,13 +15,20 @@ class FlagSerializer(serializers.Serializer):
     name = serializers.EmailField()
     users_in_group = serializers.SerializerMethodField()
     users_not_in_group = serializers.SerializerMethodField()
+    id = serializers.ReadOnlyField(source="name")
 
     @staticmethod
     def get_users_in_group(value):
-        return UserSerializer(User.objects.filter(groups__name=value.name), many=True).data
+        return UserSerializer(
+            User.objects.filter(groups__name=value.name),
+            many=True,
+            fields=["name", "email", "id"]
+        ).data
 
     @staticmethod
     def get_users_not_in_group(value):
         return UserSerializer(
-            User.objects.exclude(groups__name=value.name).order_by("name"), many=True
+            User.objects.exclude(groups__name=value.name).order_by("name"),
+            many=True,
+            fields=["name", "email", "id"]
         ).data
