@@ -8,8 +8,10 @@ from security.constants import (
     SECURITY_GROUP_ORGANISATION_OWNER,
     SECURITY_GROUP_ORGANISATION_USER,
     SECURITY_GROUP_THIRD_PARTY_USER,
+    SECURITY_GROUP_TRA_ADMINISTRATOR,
 )
 
+name = "test user"  # /PS-IGNORE
 email = "test@example.com"  # /PS-IGNORE
 password = "F734!2jcjfdka-"  # /PS-IGNORE
 
@@ -30,12 +32,14 @@ class UserSetupTestBase(TestCase):
     def setUp(self) -> None:
         super().setUp()
         self.user = User.objects.create_user(
+            name=name,
             email=email,
             password=password,
         )
         self.user_group = Group.objects.create(name=SECURITY_GROUP_ORGANISATION_USER)
         self.owner_group = Group.objects.create(name=SECURITY_GROUP_ORGANISATION_OWNER)
         self.third_party_group = Group.objects.create(name=SECURITY_GROUP_THIRD_PARTY_USER)
+        self.tra_administrator_group = Group.objects.create(name=SECURITY_GROUP_TRA_ADMINISTRATOR)
         self.user.groups.add(self.user_group)
         self.user.groups.add(self.owner_group)
         self.user.groups.add(self.third_party_group)

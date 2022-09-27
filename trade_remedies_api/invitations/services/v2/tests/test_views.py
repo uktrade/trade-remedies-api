@@ -7,7 +7,7 @@ from security.constants import SECURITY_GROUP_ORGANISATION_USER
 from test_functional import FunctionalTestBase
 
 new_name = "new name"
-new_email = "new_email@example.com"
+new_email = "new_email@example.com"  # /PS-IGNORE
 
 
 class TestInvitationViewSet(OrganisationSetupTestMixin, FunctionalTestBase):
@@ -16,17 +16,21 @@ class TestInvitationViewSet(OrganisationSetupTestMixin, FunctionalTestBase):
         self.invitation_object = Invitation.objects.create(
             organisation_security_group=Group.objects.get(name=SECURITY_GROUP_ORGANISATION_USER),
             name="test name",
-            email="test@example.com",
-            organisation=self.organisation
+            email="test@example.com",  # /PS-IGNORE
+            organisation=self.organisation,
+            created_by=self.user,
         )
 
     def test_update_contact_creation(self):
         self.assertFalse(Contact.objects.filter(email=new_email, name=new_name).exists())
 
-        invitation = self.client.put(f"/api/v2/invitations/{self.invitation_object.pk}/", data={
-            "name": new_name,
-            "email": new_email,
-        })
+        invitation = self.client.put(
+            f"/api/v2/invitations/{self.invitation_object.pk}/",
+            data={
+                "name": new_name,
+                "email": new_email,
+            },
+        )
 
         self.assertTrue(Contact.objects.filter(email=new_email, name=new_name).exists())
         self.invitation_object.refresh_from_db()
@@ -38,14 +42,19 @@ class TestInvitationViewSet(OrganisationSetupTestMixin, FunctionalTestBase):
         self.invitation_object.contact = new_contact
         self.invitation_object.save()
 
-        invitation = self.client.put(f"/api/v2/invitations/{self.invitation_object.pk}/", data={
-            "name": "new NEW name",
-            "email": "new_NEW_email@example.com",
-        })
+        invitation = self.client.put(
+            f"/api/v2/invitations/{self.invitation_object.pk}/",
+            data={
+                "name": "new NEW name",
+                "email": "new_NEW_email@example.com",  # /PS-IGNORE
+            },
+        )
         self.invitation_object.refresh_from_db()
         self.assertFalse(self.invitation_object.contact == new_contact)
         self.assertTrue(self.invitation_object.contact.name == "new NEW name")
-        self.assertTrue(self.invitation_object.contact.email == "new_NEW_email@example.com")
+        self.assertTrue(
+            self.invitation_object.contact.email == "new_NEW_email@example.com"  # /PS-IGNORE
+        )
 
     def test_send_invitation(self):
         self.assertFalse(self.invitation_object.sent_at)
