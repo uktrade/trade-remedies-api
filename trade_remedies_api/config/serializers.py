@@ -1,4 +1,4 @@
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from collections.abc import Mapping
 from functools import cached_property
 
@@ -16,6 +16,7 @@ from rest_framework.fields import (
 )
 from rest_framework.settings import api_settings
 
+from config.exceptions import InvalidSerializerError
 from core.exceptions import CustomValidationError, CustomValidationErrors
 
 
@@ -189,10 +190,20 @@ class CustomValidationModelSerializer(CustomValidationSerializer, serializers.Mo
 
     def save(self, **kwargs):
         if self.errors:
+            # Let's format the errors into something more enjoyable
+            formatted_errors = defaultdict(list)
+            for field, errors in self.error_list.items():
+                for error in errors.args:
+                    formatted_errors[field].append(error)
+
+            formatted_errors = dict(formatted_errors)
+
             sentry_sdk.capture_message(
                 f"Someone tried to save a serializer with invalid data,"
-                f"the errors were: {self.errors}"
+                f"the errors were: {formatted_errors}"
             )
+
+            raise InvalidSerializerError(detail=formatted_errors, serializer=self)
         return super().save(**kwargs)
 
 
