@@ -30,7 +30,7 @@ class TestFeatureFlagSerializer(FunctionalTestBase):
     def test_list(self):
         response = self.client.get(reverse("django-feature-flags-list"))
         assert response.status_code == 200
-        response_data = response.json()["response"]["results"]
+        response_data = response.json()
         assert len(response_data) == 1
         assert response_data[0]["name"] == test_group_name
         assert len(response_data[0]["users_in_group"]) == 0
@@ -40,7 +40,7 @@ class TestFeatureFlagSerializer(FunctionalTestBase):
         # First we add a user to the group and see if that membership is reflected in the response
         self.user_one.groups.add(self.test_group_object)
         response = self.client.get(reverse("django-feature-flags-list"))
-        response_data = response.json()["response"]["results"]
+        response_data = response.json()
         assert response_data[0]["name"] == test_group_name
         assert len(response_data[0]["users_in_group"]) == 1
         assert len(response_data[0]["users_not_in_group"]) == 2
@@ -53,7 +53,7 @@ class TestFeatureFlagSerializer(FunctionalTestBase):
             reverse("django-feature-flags-detail", kwargs={"pk": test_group_name})
         )
         assert response.status_code == 200
-        response_data = response.json()["response"]["result"]
+        response_data = response.json()
         assert response_data["name"] == test_group_name
         assert len(response_data["users_not_in_group"]) == 3
 
