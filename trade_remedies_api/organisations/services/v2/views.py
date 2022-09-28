@@ -24,7 +24,8 @@ class OrganisationViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=["put"],
-        url_name="add_user",  # /PS-IGNORE
+        url_name="add_user",
+        url_path="add_user",
     )
     def add_user(self, request, *args, **kwargs):
         organisation_object = self.get_object()
@@ -38,7 +39,10 @@ class OrganisationViewSet(viewsets.ModelViewSet):
         )
 
         user_object.groups.add(group_object)
-        return Response(OrganisationSerializer(fields=["organisationuser_set"]).data)
+        return Response(OrganisationSerializer(
+            instance=organisation_object,
+            fields=["organisationuser_set"]
+        ).data)
 
 
 class OrganisationCaseRoleViewSet(viewsets.ModelViewSet):
