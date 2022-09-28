@@ -24,6 +24,14 @@ from cases.services import api as cases_api
 from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, SubmissionViewSet
 from core.services import api as core_api
 from core.services.auth import views as auth_api
+from core.services.v2.registration import views as registration_api
+from core.services.v2.users.views import ContactViewSet, TwoFactorAuthViewSet, UserViewSet
+from documents.services.v2.views import DocumentBundleViewSet, DocumentViewSet
+from invitations.services.v2.views import InvitationViewSet
+from organisations.services.v2.views import OrganisationCaseRoleViewSet, OrganisationViewSet
+from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, SubmissionViewSet
+from core.services import api as core_api
+from core.services.auth import views as auth_api
 from core.services.v2.feature_flags.views import FlagViewSet
 from core.services.v2.registration import views as registration_api
 from core.services.v2.users.views import ContactViewSet, TwoFactorAuthViewSet, UserViewSet
