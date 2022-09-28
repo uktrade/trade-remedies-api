@@ -39,10 +39,11 @@ class OrganisationViewSet(viewsets.ModelViewSet):
         )
 
         user_object.groups.add(group_object)
-        return Response(OrganisationSerializer(
-            instance=organisation_object,
-            fields=["organisationuser_set"]
-        ).data)
+        return Response(
+            OrganisationSerializer(
+                instance=organisation_object, fields=["organisationuser_set"]
+            ).data
+        )
 
 
 class OrganisationCaseRoleViewSet(viewsets.ModelViewSet):
