@@ -24,9 +24,14 @@ from core.tasks import send_mail
 from core.utils import convert_to_e164, pluck, public_login_url
 from invitations.models import Invitation
 from organisations.models import Organisation
-from security.constants import (GROUPS, SECURITY_GROUPS_PUBLIC, SECURITY_GROUPS_TRA,
-                                SECURITY_GROUPS_TRA_ADMINS, SECURITY_GROUP_ORGANISATION_OWNER,
-                                SECURITY_GROUP_SUPER_USER)
+from security.constants import (
+    GROUPS,
+    SECURITY_GROUPS_PUBLIC,
+    SECURITY_GROUPS_TRA,
+    SECURITY_GROUPS_TRA_ADMINS,
+    SECURITY_GROUP_ORGANISATION_OWNER,
+    SECURITY_GROUP_SUPER_USER,
+)
 from security.exceptions import InvalidAccess
 from .auth.serializers import UserExistsSerializer
 from .base import ResponseError, ResponseSuccess, TradeRemediesApiView
@@ -314,8 +319,8 @@ class PublicUserApiView(TradeRemediesApiView):
         if not organisation:
             raise InvalidRequestParams("User is not an owner of any organisation")
         if user_id is not None and (
-                user_id == request.user.id
-                or request.user.groups.filter(name=SECURITY_GROUP_ORGANISATION_OWNER).exists()
+            user_id == request.user.id
+            or request.user.groups.filter(name=SECURITY_GROUP_ORGANISATION_OWNER).exists()
         ):
             user = User.objects.get(id=user_id)
             _user = user.to_dict(organisation=organisation)
@@ -471,14 +476,14 @@ class AssignUserToCaseView(TradeRemediesApiView):
 
     @transaction.atomic
     def post(
-            self,
-            request,
-            organisation_id,
-            user_id,
-            case_id,
-            representing_id=None,
-            submission_id=None,
-            invite_id=None,
+        self,
+        request,
+        organisation_id,
+        user_id,
+        case_id,
+        representing_id=None,
+        submission_id=None,
+        invite_id=None,
     ):
         from cases.models import get_case
 
