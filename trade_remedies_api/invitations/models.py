@@ -17,10 +17,12 @@ from core.tasks import send_mail
 from core.utils import convert_to_e164
 from organisations.models import Organisation, get_organisation
 from security.constants import (
+    ROLE_AWAITING_APPROVAL,
     ROLE_PREPARING,
     SECURITY_GROUP_ORGANISATION_OWNER,
     SECURITY_GROUP_ORGANISATION_USER,
 )
+from security.models import OrganisationCaseRole
 from .exceptions import InvitationFailure, InviteAlreadyAccepted
 
 
@@ -665,6 +667,8 @@ class Invitation(BaseModel):
 
         # Let's add the user to the cases associated with this invitation
         for case_object in self.cases_to_link.all():
+            # Creating the UserCase object
+            # todo - maybe we do this when the LOA is approved instead???
             case_object.assign_user(
                 user=self.invited_user,
                 created_by=self.user,
@@ -672,9 +676,13 @@ class Invitation(BaseModel):
                 relax_security=True,
             )
 
-            # todo - check this is necessary
-            case_object.confirm_user_case(
-                user=self.invited_user, created_by=self.user, organisation=self.contact.organisation
+            # Creating an OrganisationCaseRole object with status awaiting_approval
+            OrganisationCaseRole.objects.assign_organisation_case_role(
+                organisation=self.contact.organisation,
+                case=case_object,
+                role=ROLE_AWAITING_APPROVAL,
+                approved_at=None,  # approval done later
+                approved_by=None,  # approval done later
             )
 
         # Now we mark the invitation as accepted
