@@ -29,7 +29,6 @@ def get_value(self, dictionary):
 
 # Now overriding the global method of serializers.Serializer to point to our new method
 serializers.Serializer.get_value = get_value
-serializers.ListSerializer.get_value = get_value
 
 
 class DynamicFieldsMixinIDAlways(DynamicFieldsMixin):
