@@ -77,7 +77,9 @@ class SubmissionSerializer(CustomValidationModelSerializer):
     submission_documents = NestedField(
         serializer_class=SubmissionDocumentSerializer, many=True, read_only=True, allow_null=True
     )
-    contact = NestedField(serializer_class=ContactSerializer, required=False, accept_pk=True, allow_null=True)
+    contact = NestedField(
+        serializer_class=ContactSerializer, required=False, accept_pk=True, allow_null=True
+    )
     type = NestedField(serializer_class=SubmissionTypeSerializer, required=False, accept_pk=True)
     primary_contact = NestedField(
         serializer_class=ContactSerializer, required=False, accept_pk=True, allow_null=True
