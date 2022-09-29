@@ -1,3 +1,5 @@
+NEW
+new_NEW_email@example.com
 is_active Returns
 PUBLIC_ROOT_URL}/case/accept_representative_invite/
 django-restql==0.15.2

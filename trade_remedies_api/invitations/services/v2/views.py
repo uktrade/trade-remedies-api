@@ -128,10 +128,14 @@ class InvitationViewSet(BaseModelViewSet):
             # This is a representative invite, send the appropriate email
 
             # we need to determine if the user being invited already has an account
-            if User.objects.filter(email__iexact=invitation_object.contact.email).exists():
+            user_query = User.objects.filter(email__iexact=invitation_object.contact.email)
+            if user_query.exists():
                 # The user exists
                 template_name = "NOTIFY_EXISTING_THIRD_PARTY_INVITE"
                 link = f"{settings.PUBLIC_ROOT_URL}/accounts/login/"
+                # we want to associate the invitation with them so it is processed on next login
+                invitation_object.invited_user = user_query.get()
+                invitation_object.save()
             else:
                 # The user does not exist
                 template_name = "NOTIFY_NEW_THIRD_PARTY_INVITE"
