@@ -69,7 +69,7 @@ class UserManager(BaseUserManager):
         email: str,
         name: str,
         password: Union[str, None] = None,
-        contact = None,
+        contact=None,
         raise_exception: bool = True,
         **kwargs,
     ):
