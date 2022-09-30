@@ -92,14 +92,14 @@ class TestInvitationViewSet(OrganisationSetupTestMixin, FunctionalTestBase):
         self.invitation_object.created_by = self.user
         self.invitation_object.save()
 
-        self.assertFalse(User.objects.filter(email__iexact=new_email).exists)
+        self.assertFalse(User.objects.filter(email__iexact=new_email).exists())
 
         self.client.post(
             f"/api/v2/invitations/{self.invitation_object.pk}/create_user_from_invitation/"
         )
 
         user_query = User.objects.filter(email__iexact=new_email)
-        self.assertTrue(user_query.exists)
+        self.assertTrue(user_query.exists())
         user_object = user_query.get()
         self.assertEqual(user_object.name, new_name)
         self.assertTrue(self.invitation_object.invited_user)

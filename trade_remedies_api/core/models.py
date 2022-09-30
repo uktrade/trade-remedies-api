@@ -94,7 +94,9 @@ class UserManager(BaseUserManager):
         # Creating the User object
         email = self.normalize_email(email)
         new_user, created = self.get_or_create(email=email, defaults={"name": name, **kwargs})
-        if raise_exception and created:
+        if raise_exception and not created:
+            # If the user was not created (i.e. the email already exists in the DB) and we want to
+            # throw an exception, then do so, what are you waiting for!
             raise Exception(f"User with email {email} already exists")
 
         new_user.set_password(password)
