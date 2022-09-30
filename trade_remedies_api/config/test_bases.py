@@ -51,10 +51,5 @@ class OrganisationSetupTestMixin(UserSetupTestBase):
 class CaseSetupTestMixin(OrganisationSetupTestMixin):
     def setUp(self) -> None:
         super().setUp()
-        self.case_type_object = CaseType.objects.create(
-            name=""
-        )
-        self.case_object = Case.objects.create(
-            name="test case",
-            type=self.case_type_object
-        )
+        self.case_type_object = CaseType.objects.create(name="")
+        self.case_object = Case.objects.create(name="test case", type=self.case_type_object)

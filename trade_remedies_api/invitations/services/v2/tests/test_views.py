@@ -20,7 +20,7 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
             email="test@example.com",  # /PS-IGNORE
             organisation=self.organisation,
             case=self.case_object,
-            user=self.user
+            user=self.user,
         )
 
     def test_update_contact_creation(self):
