@@ -25,6 +25,7 @@ class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
 
     @staticmethod
     def get_case(instance):
+        # This needs to be a SerializerMethodField to avoid the circular import of CaseSerializer
         from cases.services.v2.serializers import CaseSerializer
 
         return CaseSerializer(instance=instance.case).data
