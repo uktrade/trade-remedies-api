@@ -173,7 +173,7 @@ class InvitationViewSet(BaseModelViewSet):
         new_user = User.objects.create_new_user(
             email=contact_object.email,
             name=contact_object.name,
-            password=request.data["password"],
+            password=request.data.get("password", None),
             contact=contact_object,
             is_active=False,
             raise_exception=False,

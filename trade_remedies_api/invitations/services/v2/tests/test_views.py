@@ -81,7 +81,6 @@ class TestInvitationViewSet(OrganisationSetupTestMixin, FunctionalTestBase):
         self.invitation_object.save()
         self.client.post(f"/api/v2/invitations/{self.invitation_object.pk}/send_invitation/")
         self.invitation_object.refresh_from_db()
-
         self.assertEqual(self.invitation_object.invited_user, user)
         self.assertTrue(self.invitation_object.sent_at)
 
