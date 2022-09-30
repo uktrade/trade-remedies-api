@@ -1,6 +1,6 @@
 from django.contrib.auth.models import Group
 
-from config.test_bases import OrganisationSetupTestMixin
+from config.test_bases import CaseSetupTestMixin, OrganisationSetupTestMixin
 from contacts.models import Contact
 from core.models import User
 from invitations.models import Invitation
@@ -11,7 +11,7 @@ new_name = "new name"
 new_email = "new_email@example.com"  # /PS-IGNORE
 
 
-class TestInvitationViewSet(OrganisationSetupTestMixin, FunctionalTestBase):
+class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
     def setUp(self) -> None:
         super().setUp()
         self.invitation_object = Invitation.objects.create(
@@ -19,6 +19,8 @@ class TestInvitationViewSet(OrganisationSetupTestMixin, FunctionalTestBase):
             name="test name",
             email="test@example.com",  # /PS-IGNORE
             organisation=self.organisation,
+            case=self.case_object,
+            user=self.user
         )
 
     def test_update_contact_creation(self):
@@ -57,6 +59,8 @@ class TestInvitationViewSet(OrganisationSetupTestMixin, FunctionalTestBase):
         )
 
     def test_send_invitation_new_user(self):
+        self.invitation_object.invitation_type = 2
+        self.invitation_object.save()
         self.assertFalse(self.invitation_object.sent_at)
 
         new_contact = Contact.objects.create(email=new_email, name=new_name)
@@ -69,6 +73,8 @@ class TestInvitationViewSet(OrganisationSetupTestMixin, FunctionalTestBase):
         self.assertTrue(self.invitation_object.sent_at)
 
     def test_send_invitation_existing_user(self):
+        self.invitation_object.invitation_type = 2
+        self.invitation_object.save()
         self.assertFalse(self.invitation_object.sent_at)
         user = User.objects.create_new_user(
             name="test1",
@@ -101,5 +107,6 @@ class TestInvitationViewSet(OrganisationSetupTestMixin, FunctionalTestBase):
         self.assertTrue(user_query.exists())
         user_object = user_query.get()
         self.assertEqual(user_object.name, new_name)
+        self.invitation_object.refresh_from_db()
         self.assertTrue(self.invitation_object.invited_user)
         self.assertEqual(self.invitation_object.invited_user, user_object)

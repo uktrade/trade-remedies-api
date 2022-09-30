@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group
 from django.test import TestCase
 
-from cases.models import Case
+from cases.models import Case, CaseType
 from core.models import User
 from organisations.models import Organisation
 from security.constants import (
@@ -51,4 +51,10 @@ class OrganisationSetupTestMixin(UserSetupTestBase):
 class CaseSetupTestMixin(OrganisationSetupTestMixin):
     def setUp(self) -> None:
         super().setUp()
-        self.case_object = Case.objects.create(name="test case")
+        self.case_type_object = CaseType.objects.create(
+            name=""
+        )
+        self.case_object = Case.objects.create(
+            name="test case",
+            type=self.case_type_object
+        )
