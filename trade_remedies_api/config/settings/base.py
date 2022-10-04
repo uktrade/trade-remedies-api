@@ -489,7 +489,7 @@ FRIENDLY_DATE_FORMAT = "%-d %B %Y"
 API_CACHE_TIMEOUT = 3  # Cache timeout in minutes
 DEFAULT_QUERYSET_PAGE_SIZE = 20
 TRUSTED_USER_EMAIL = env("HEALTH_CHECK_USER_EMAIL")
-RUN_ASYNC = env.bool("RUN_ASYNC")
+RUN_ASYNC = env.bool("RUN_ASYNC", default=False)
 # The ENVIRONMENT_KEY settings are superfluous (they sought to link Public/CW
 # portal calls to a "security group"), because we plan to use django-guardian
 # for object level permissions. In the new `authentication` package we will
