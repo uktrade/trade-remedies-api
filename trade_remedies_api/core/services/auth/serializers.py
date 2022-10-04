@@ -233,6 +233,10 @@ class TwoFactorAuthRequestSerializer(CustomValidationModelSerializer):
         model = TwoFactorAuth
         fields = ["delivery_type"]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.send_report = {}
+
     def validate(self, attrs):
         try:
             self.send_report = self.instance.two_factor_auth(

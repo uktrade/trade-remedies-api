@@ -1,3 +1,5 @@
+AUDIT_EMAIL_RETRY_COUNTDOWN
+Amazon
 django-restql==0.15.2
 the rep organisation is
 add_user

@@ -118,7 +118,6 @@ MIDDLEWARE = [
     "config.middleware.SentryContextMiddleware",
 ]
 
-
 if DJANGO_ADMIN:
     MIDDLEWARE = [
         "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -490,7 +489,7 @@ FRIENDLY_DATE_FORMAT = "%-d %B %Y"
 API_CACHE_TIMEOUT = 3  # Cache timeout in minutes
 DEFAULT_QUERYSET_PAGE_SIZE = 20
 TRUSTED_USER_EMAIL = env("HEALTH_CHECK_USER_EMAIL")
-RUN_ASYNC = True
+RUN_ASYNC = env.bool("RUN_ASYNC")
 # The ENVIRONMENT_KEY settings are superfluous (they sought to link Public/CW
 # portal calls to a "security group"), because we plan to use django-guardian
 # for object level permissions. In the new `authentication` package we will
@@ -523,3 +522,6 @@ FLAGS = {
         {"condition": "PART_OF_GROUP", "value": True, "required": True},
     ],
 }
+AUDIT_EMAIL_ADDRESS = env.str("AUDIT_EMAIL_ADDRESS")
+AUDIT_EMAIL_MAX_RETRIES = env.int("AUDIT_EMAIL_MAX_RETRIES", default=5)
+AUDIT_EMAIL_RETRY_COUNTDOWN = env.int("AUDIT_EMAIL_RETRY_COUNTDOWN", default=1200)

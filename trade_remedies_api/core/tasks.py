@@ -1,17 +1,14 @@
 import logging
 
 from celery import shared_task
-
 from django.conf import settings
-
 from notifications_python_client.errors import HTTPError
-
+from django.core.mail import send_mail as django_send_mail
 from audit import AUDIT_TYPE_NOTIFY
 from audit.tasks import audit_log_task
 from audit.utils import new_audit_record_to_dict
-from core.notifier import send_mail as sync_send_mail
+from core.notifier import get_client, send_mail as sync_send_mail
 from core.utils import extract_error_from_api_exception
-
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +56,12 @@ def send_mail_task(self, email, context, template_id, reference=None, audit_kwar
     try:
         send_report = sync_send_mail(email, context, template_id, reference)
         logger.info(f"Send email: {send_report}")
+        if settings.RUN_ASYNC:
+            check_email_delivered.apply_async(
+                countdown=300, kwargs={"delivery_id": send_report["id"], "context": context}
+            )
+        else:
+            check_email_delivered(delivery_id=send_report["id"], context=context)
     except HTTPError as err:
         error_report, error_status = extract_error_from_api_exception(err)
         if error_status in (500, 503):
@@ -95,3 +98,39 @@ def send_mail_task(self, email, context, template_id, reference=None, audit_kwar
         audit_log_task.delay(audit_kwargs)
     else:
         audit_log_task(audit_kwargs)
+
+
+@shared_task(bind=True)
+def check_email_delivered(self, delivery_id, context):
+    notify = get_client()
+    email = notify.get_notification_by_id(delivery_id)
+    delivery_status = email[
+        "status"
+    ]  # one of: sending / delivered / permanent-failure / temporary-failure / technical-failure
+    if delivery_status in ["sending", "temporary-failure"]:
+        # The email is still pending, let's schedule this function to run again soon
+        if self.request.retries >= self.max_retries:
+            # We've reached the max retries, let's log this and give up
+            delivery_status = "unknown"
+        else:
+            # Let's schedule this task to happen again in the future,
+            # maybe then it would have delivered
+            self.retry(
+                countdown=settings.AUDIT_EMAIL_RETRY_COUNTDOWN,
+                max_retries=settings.AUDIT_EMAIL_MAX_RETRIES,
+            )
+
+    # Now let's send the audit email
+
+    # Let's get the HTML of the email
+    html_email = notify.post_template_preview(
+        template_id=email["template"]["id"], personalisation=context
+    )
+
+    # Now let's send a new audit email with that HTML
+    # todo - use the Amazon SES here with the endpoint provided by SRE:
+    # https://ditdigitalteam.slack.com/archives/C1Q2EKZK3/p1664888037480459  #/PS-IGNORE
+    # https://readme.trade.gov.uk/docs/howtos/service-email.html
+    email_subject = f"{delivery_status.capitalize()} - {email['subject']}"
+    email_html = html_email["html"]
+    to_address = settings.AUDIT_EMAIL_ADDRESS

@@ -1,5 +1,5 @@
-import re
 import os
+import re
 
 from django.conf import settings
 from notifications_python_client.notifications import NotificationsAPIClient
