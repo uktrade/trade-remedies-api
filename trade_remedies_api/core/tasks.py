@@ -1,9 +1,14 @@
 import logging
 
+from email.utils import formataddr
+from smtplib import SMTP_SSL, SMTPException
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from botocore.exceptions import ClientError
 from celery import shared_task
 from django.conf import settings
 from notifications_python_client.errors import HTTPError
-from django.core.mail import send_mail as django_send_mail
+
 from audit import AUDIT_TYPE_NOTIFY
 from audit.tasks import audit_log_task
 from audit.utils import new_audit_record_to_dict
@@ -133,4 +138,24 @@ def check_email_delivered(self, delivery_id, context):
     # https://readme.trade.gov.uk/docs/howtos/service-email.html
     email_subject = f"{delivery_status.capitalize()} - {email['subject']}"
     email_html = html_email["html"]
-    to_address = settings.AUDIT_EMAIL_ADDRESS
+    to_address = "chrispettinga@gmail.com"
+
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = email_subject
+    msg['From'] = formataddr((settings.AUDIT_EMAIL_FROM_NAME, settings.AUDIT_EMAIL_FROM_ADDRESS))
+    msg['To'] = to_address
+    part1 = MIMEText(email["body"], 'plain')
+    part2 = MIMEText(email_html, 'html')
+    msg.attach(part1)
+    msg.attach(part2)
+
+    try:
+        with SMTP_SSL(settings.AUDIT_EMAIL_SMTP_HOST, settings.AUDIT_EMAIL_SMTP_PORT) as server:
+            server.login(settings.AUDIT_EMAIL_SMTP_USERNAME, settings.AUDIT_EMAIL_SMTP_PASSWORD)
+            server.sendmail(settings.AUDIT_EMAIL_FROM_ADDRESS, to_address, msg.as_string())
+            server.close()
+            print("Email sent!")
+
+    except SMTPException as e:
+        print("Error: ", e)
+    print("asd")

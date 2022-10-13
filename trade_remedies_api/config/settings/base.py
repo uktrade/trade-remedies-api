@@ -432,7 +432,7 @@ ORGANISATION_INITIALISM = env("ORGANISATION_INITIALISM", default="PLACEHOLDER")
 AWS_ACCESS_KEY_ID = AWS_S3_ACCESS_KEY_ID = env("S3_STORAGE_KEY", default=None)
 AWS_SECRET_ACCESS_KEY = AWS_S3_SECRET_ACCESS_KEY = env("S3_STORAGE_SECRET", default=None)
 AWS_STORAGE_BUCKET_NAME = env("S3_BUCKET_NAME", default=None)
-AWS_S3_REGION_NAME = env("AWS_REGION", default="eu-west-1")
+AWS_S3_REGION_NAME = env("AWS_REGION", default="eu-west-2")
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_ENCRYPTION = True
 # S3 client library to use
@@ -511,7 +511,7 @@ GECKOBOARD_ENV = env("GECKOBOARD_ENV", default="dev")
 # Variable so we know if we're running in testing mode or not, this is True in the test.py settings
 TESTING = False
 
-# ------------------- DJANGO-FLAG -------------------
+# ------------------- FEATURE FLAGS -------------------
 conditions.register("PART_OF_GROUP", fn=is_user_part_of_group)
 FEATURE_FLAG_PREFIX = "FEATURE_FLAG"
 FLAGS = {
@@ -522,6 +522,14 @@ FLAGS = {
         {"condition": "PART_OF_GROUP", "value": True, "required": True},
     ],
 }
-AUDIT_EMAIL_ADDRESS = env.str("AUDIT_EMAIL_ADDRESS")
+
+# ------------------- GOV.NOTIFY AUDIT COPY EMAILS -------------------
 AUDIT_EMAIL_MAX_RETRIES = env.int("AUDIT_EMAIL_MAX_RETRIES", default=5)
 AUDIT_EMAIL_RETRY_COUNTDOWN = env.int("AUDIT_EMAIL_RETRY_COUNTDOWN", default=1200)
+AUDIT_EMAIL_FROM_ADDRESS = env.str("AUDIT_EMAIL_FROM_ADDRESS")
+AUDIT_EMAIL_FROM_NAME = env.str("AUDIT_EMAIL_FROM_NAME", default="TRS Notify Copy")
+AUDIT_EMAIL_IAM_USER = env.str("AUDIT_EMAIL_IAM_USER")
+AUDIT_EMAIL_SMTP_USERNAME = env.str("AUDIT_EMAIL_SMTP_USERNAME")
+AUDIT_EMAIL_SMTP_PASSWORD = env.str("AUDIT_EMAIL_SMTP_PASSWORD")
+AUDIT_EMAIL_SMTP_HOST = env.str("AUDIT_EMAIL_SMTP_HOST", default=f"email.eu-west-2.amazonaws.com")
+AUDIT_EMAIL_SMTP_PORT = env.int("AUDIT_EMAIL_SMTP_PORT", default=465)
