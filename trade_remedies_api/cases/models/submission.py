@@ -527,7 +527,7 @@ class Submission(BaseModel):
                 "id": invite.id,
                 "name": str(invite),
                 "invited_user_name": invite.contact.name if invite.contact else "",
-                "deleted_at": invite.deleted_at
+                "deleted_at": invite.deleted_at,
             }
             for invite in self.invitations.all()
         ]
