@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.db import transaction
 from django.utils import timezone
 from rest_framework.decorators import action
@@ -8,10 +9,11 @@ from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
 from cases.models import Case, Submission, get_submission_type
 from config.viewsets import BaseModelViewSet
 from contacts.models import Contact
-from core.models import TwoFactorAuth, User, UserProfile
+from core.models import User
 from core.services.v2.users.serializers import UserSerializer
 from invitations.models import Invitation
 from invitations.services.v2.serializers import InvitationSerializer
+from security.constants import SECURITY_GROUP_THIRD_PARTY_USER
 
 
 class InvitationViewSet(BaseModelViewSet):
@@ -41,6 +43,9 @@ class InvitationViewSet(BaseModelViewSet):
                 contact=self.request.user.contact,
             )
             invitation_object.submission = submission_object
+            invitation_object.organisation_security_group = Group.objects.get(
+                name=SECURITY_GROUP_THIRD_PARTY_USER
+            )
         invitation_object.save()
 
         return invitation_object
@@ -123,14 +128,21 @@ class InvitationViewSet(BaseModelViewSet):
             # This is a representative invite, send the appropriate email
 
             # we need to determine if the user being invited already has an account
-            if User.objects.filter(email__iexact=invitation_object.contact.email).exists():
+            user_query = User.objects.filter(email__iexact=invitation_object.contact.email)
+            if user_query.exists():
                 # The user exists
                 template_name = "NOTIFY_EXISTING_THIRD_PARTY_INVITE"
                 link = f"{settings.PUBLIC_ROOT_URL}/accounts/login/"
+                # we want to associate the invitation with them so it is processed on next login
+                invitation_object.invited_user = user_query.get()
+                invitation_object.save()
             else:
                 # The user does not exist
                 template_name = "NOTIFY_NEW_THIRD_PARTY_INVITE"
-                link = f"{settings.PUBLIC_ROOT_URL}/register/start"  # no trailing dash
+                link = (
+                    f"{settings.PUBLIC_ROOT_URL}/case/accept_representative_invite/"
+                    f"{invitation_object.id}/start/"
+                )
 
             send_report = invitation_object.send(
                 sent_by=request.user,
@@ -158,25 +170,14 @@ class InvitationViewSet(BaseModelViewSet):
         invitation_object = self.get_object()
         contact_object = invitation_object.contact
 
-        # First we create the basic user object
-        new_user, _ = User.objects.get_or_create(
-            email=contact_object.email, defaults={"name": contact_object.name, "is_active": False}
+        new_user = User.objects.create_new_user(
+            email=contact_object.email,
+            name=contact_object.name,
+            password=request.data.get("password", None),
+            contact=contact_object,
+            is_active=False,
+            raise_exception=False,
         )
-
-        # Then we set a password
-        new_user.set_password(request.data["password"])
-
-        # Then we create a UserProfile and TwoFactorAuth object
-        TwoFactorAuth.objects.get_or_create(user=new_user)
-        UserProfile.objects.get_or_create(
-            user=new_user,
-            defaults={
-                "contact": contact_object,
-                "colour": "black",
-            },
-        )
-
-        new_user.save()
         invitation_object.invited_user = new_user
         invitation_object.save()
         return Response(UserSerializer(new_user).data)

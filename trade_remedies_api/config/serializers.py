@@ -29,7 +29,6 @@ def get_value(self, dictionary):
 
 # Now overriding the global method of serializers.Serializer to point to our new method
 serializers.Serializer.get_value = get_value
-serializers.ListSerializer.get_value = get_value
 
 
 class DynamicFieldsMixinIDAlways(DynamicFieldsMixin):
@@ -188,6 +187,8 @@ class CustomValidationSerializer(DynamicFieldsMixinIDAlways, DynamicFieldsModelS
 class CustomValidationModelSerializer(CustomValidationSerializer, serializers.ModelSerializer):
     """Raises CustomValidationErrors for use in V2 error handling using a DRF ModelSerializer"""
 
+    editable_only_on_create_fields = []  # Fields that are only editable on creation, and not update
+
     def save(self, **kwargs):
         if self.errors:
             # Let's format the errors into something more enjoyable
@@ -205,6 +206,27 @@ class CustomValidationModelSerializer(CustomValidationSerializer, serializers.Mo
 
             raise InvalidSerializerError(detail=formatted_errors, serializer=self)
         return super().save(**kwargs)
+
+    def get_extra_kwargs(self):
+        """Add additional constraints between CRUD methods to  any particular field."""
+        extra_kwargs_for_edit = super().get_extra_kwargs()
+
+        if view := self.context.get("view"):
+            action = view.action
+
+            # Sometimes we want to make fields editable only on creation, and not when updating an
+            # existing object. e.g. setting the password of a user only when creating a new one,
+            # and not updating an existing user.
+            for field in self.editable_only_on_create_fields:
+                kwargs = extra_kwargs_for_edit.get(field, {})
+                if action in ["create"]:
+                    # It's a create, these fields should be editable
+                    kwargs["read_only"] = True
+                elif action in ["update", "partial_update"]:
+                    # It's an edit/update, these fields should be read-only
+                    kwargs["read_only"] = False
+                extra_kwargs_for_edit[field] = kwargs
+        return extra_kwargs_for_edit
 
 
 def custom_fail(self, key, **kwargs):
