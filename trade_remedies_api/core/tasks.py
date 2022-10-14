@@ -1,10 +1,11 @@
 import logging
-
-from email.utils import formataddr
-from smtplib import SMTP_SSL, SMTPException
+import smtplib
+import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from botocore.exceptions import ClientError
+from email.utils import formataddr
+from time import sleep
+
 from celery import shared_task
 from django.conf import settings
 from notifications_python_client.errors import HTTPError
@@ -65,8 +66,6 @@ def send_mail_task(self, email, context, template_id, reference=None, audit_kwar
             check_email_delivered.apply_async(
                 countdown=300, kwargs={"delivery_id": send_report["id"], "context": context}
             )
-        else:
-            check_email_delivered(delivery_id=send_report["id"], context=context)
     except HTTPError as err:
         error_report, error_status = extract_error_from_api_exception(err)
         if error_status in (500, 503):
@@ -107,55 +106,87 @@ def send_mail_task(self, email, context, template_id, reference=None, audit_kwar
 
 @shared_task(bind=True)
 def check_email_delivered(self, delivery_id, context):
+    from cases.models import Case
+
     notify = get_client()
     email = notify.get_notification_by_id(delivery_id)
     delivery_status = email[
         "status"
     ]  # one of: sending / delivered / permanent-failure / temporary-failure / technical-failure
-    if delivery_status in ["sending", "temporary-failure"]:
+    if delivery_status in ["created", "sending", "temporary-failure"]:
         # The email is still pending, let's schedule this function to run again soon
-        if self.request.retries >= self.max_retries:
+        created_time = datetime.datetime.strptime(email["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ")
+        now = datetime.datetime.now()
+        # if the email was created more than AUDIT_EMAIL_GIVE_UP_SECONDS seconds ago (72 hours)
+        # give up
+        if (now - created_time).seconds >= settings.AUDIT_EMAIL_GIVE_UP_SECONDS:
             # We've reached the max retries, let's log this and give up
             delivery_status = "unknown"
         else:
             # Let's schedule this task to happen again in the future,
             # maybe then it would have delivered
-            self.retry(
-                countdown=settings.AUDIT_EMAIL_RETRY_COUNTDOWN,
-                max_retries=settings.AUDIT_EMAIL_MAX_RETRIES,
-            )
+            self.retry(countdown=settings.AUDIT_EMAIL_RETRY_COUNTDOWN)
+    elif "-" in delivery_status:
+        # making the delivery_status more palatable to look at
+        delivery_status.replace("-", " ")
+    # let's send the audit email
 
-    # Now let's send the audit email
-
-    # Let's get the HTML of the email
-    html_email = notify.post_template_preview(
-        template_id=email["template"]["id"], personalisation=context
+    # construct the subject
+    email_subject = (
+        f"{delivery_status.capitalize()} - {email['subject']} - {email['email_address']}"
     )
 
-    # Now let's send a new audit email with that HTML
-    # todo - use the Amazon SES here with the endpoint provided by SRE:
-    # https://ditdigitalteam.slack.com/archives/C1Q2EKZK3/p1664888037480459  #/PS-IGNORE
-    # https://readme.trade.gov.uk/docs/howtos/service-email.html
-    email_subject = f"{delivery_status.capitalize()} - {email['subject']}"
-    email_html = html_email["html"]
-    to_address = "chrispettinga@gmail.com"
+    # let's try and fish out a case number from the context
+    case_object = None
+    case_id = context.get("case_id") or context.get("case_pk")
+    try:
+        if case_id:
+            case_object = Case.objects.get(id=case_id)
+        elif case_name := context.get("case_name"):
+            case_object = Case.objects.get(name=case_name)
+    except (Case.DoesNotExist, Case.MultipleObjectsReturned):
+        pass
+    if case_object:
+        # a case was found in the context! Let's send to that case email instead
+        to_address = f"{case_object.reference}@traderemedies.gov.uk"  # /PS-IGNORE
+    else:
+        # if not, send the status email to the generic traderemedies inbox
+        to_address = settings.AUDIT_EMAIL_TO_ADDRESS
 
-    msg = MIMEMultipart('alternative')
-    msg['Subject'] = email_subject
-    msg['From'] = formataddr((settings.AUDIT_EMAIL_FROM_NAME, settings.AUDIT_EMAIL_FROM_ADDRESS))
-    msg['To'] = to_address
-    part1 = MIMEText(email["body"], 'plain')
-    part2 = MIMEText(email_html, 'html')
+    # getting the HTML preview from notify
+    try:
+        email_preview = notify.post_template_preview(
+            template_id=email["template"]["id"], personalisation=context
+        )
+    except HTTPError as e:
+        if e.status_code == 400:
+            # This is probably a 'missing personalisation: footer' error, let's add a footer and
+            # try again
+            context["footer"] = (
+                f"Investigations Team\r\nTrade Remedies\r\n"
+                f"Department for International Trade\r\n\
+                    Contact: {case_object.reference if case_object else 'null'}"
+                f"@traderemedies.gov.uk"  # /PS-IGNORE
+            )
+            email_preview = notify.post_template_preview(
+                template_id=email["template"]["id"], personalisation=context
+            )
+        else:
+            raise e
+
+    # constructing the MIME email containing both HTML and text versions just in case
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = email_subject
+    msg["From"] = formataddr((settings.AUDIT_EMAIL_FROM_NAME, settings.AUDIT_EMAIL_FROM_ADDRESS))
+    msg["To"] = to_address
+    part1 = MIMEText(email_preview["body"], "plain")
+    part2 = MIMEText(email_preview["html"], "html")
     msg.attach(part1)
     msg.attach(part2)
 
-    try:
-        with SMTP_SSL(settings.AUDIT_EMAIL_SMTP_HOST, settings.AUDIT_EMAIL_SMTP_PORT) as server:
-            server.login(settings.AUDIT_EMAIL_SMTP_USERNAME, settings.AUDIT_EMAIL_SMTP_PASSWORD)
-            server.sendmail(settings.AUDIT_EMAIL_FROM_ADDRESS, to_address, msg.as_string())
-            server.close()
-            print("Email sent!")
-
-    except SMTPException as e:
-        print("Error: ", e)
-    print("asd")
+    # connecting to Amazon SES via SMTP to send the MIME email
+    with smtplib.SMTP(settings.AUDIT_EMAIL_SMTP_HOST, settings.AUDIT_EMAIL_SMTP_PORT) as server:
+        server.starttls()
+        server.login(settings.AUDIT_EMAIL_SMTP_USERNAME, settings.AUDIT_EMAIL_SMTP_PASSWORD)
+        text = msg.as_string()
+        server.sendmail(settings.AUDIT_EMAIL_FROM_ADDRESS, to_address, text)
