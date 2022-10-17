@@ -480,6 +480,7 @@ COMPANIES_HOUSE_API_KEY = env("COMPANIES_HOUSE_API_KEY", default=None)
 
 # GOV Notify
 GOV_NOTIFY_API_KEY = env("GOV_NOTIFY_API_KEY", default=None)
+GOV_NOTIFY_TESTING_KEY = env("GOV_NOTIFY_TESTING_KEY", default=None)
 
 # ------------------------------------------------------------------------------
 # The Crud Zone - things likely to be refactored out.

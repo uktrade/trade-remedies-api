@@ -189,4 +189,6 @@ def check_email_delivered(self, delivery_id, context):
         server.starttls()
         server.login(settings.AUDIT_EMAIL_SMTP_USERNAME, settings.AUDIT_EMAIL_SMTP_PASSWORD)
         text = msg.as_string()
-        server.sendmail(settings.AUDIT_EMAIL_FROM_ADDRESS, to_address, text)
+        mail = server.sendmail(settings.AUDIT_EMAIL_FROM_ADDRESS, to_address, text)
+
+    return mail, msg
