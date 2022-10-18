@@ -155,6 +155,7 @@ class InvitationViewSet(BaseModelViewSet):
                 },
                 direct=True,
                 template_key=template_name,
+                footer_case_email=False
             )
 
             # We also need to update the submission status to sent
