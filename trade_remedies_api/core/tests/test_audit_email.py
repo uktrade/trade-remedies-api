@@ -1,6 +1,8 @@
 import smtplib
+import time
 import uuid
 
+from celery.exceptions import Retry
 from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase, override_settings
@@ -13,24 +15,26 @@ from core.tasks import check_email_delivered
 MOCK_AUDIT_EMAIL_TO_ADDRESS = "test@example.com"  # /PS-IGNORE
 
 
-@override_settings(AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS)
+@override_settings(
+    AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS,
+    GOV_NOTIFY_API_KEY=settings.GOV_NOTIFY_TESTING_KEY
+)
 class TestAuditEmail(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         call_command("load_sysparams")  # Load system parameters
         call_command("notify_env")  # Load the template IDs from GOV.NOTIFY
-
-    def setUp(self) -> None:
-        self.notify = get_client()
-        self.personalisation = {"code": "test_code", "footer": "test footer"}
-        self.template_id = SystemParameter.get("PUBLIC_2FA_CODE_EMAIL")
-        self.send_report = self.notify.send_email_notification(
+        cls.notify = get_client()
+        cls.personalisation = {"code": "test_code", "footer": "test footer"}
+        cls.template_id = SystemParameter.get("PUBLIC_2FA_CODE_EMAIL")
+        cls.send_report = cls.notify.send_email_notification(
             email_address=MOCK_AUDIT_EMAIL_TO_ADDRESS,
-            template_id=self.template_id,
-            personalisation=self.personalisation,
+            template_id=cls.template_id,
+            personalisation=cls.personalisation,
             reference=f"TEST-{uuid.uuid4()}",
         )
+        time.sleep(5)  # sleep for a little to allow the email to send
 
     def test_smtp_connection(self):
         """Testing that the smtp connection can be made"""
@@ -95,3 +99,15 @@ class TestAuditEmail(TestCase):
         )
         body = str(msg)
         self.assertIn("test_code", body)
+
+    def test_retry(self):
+        failed_send_report = self.notify.send_email_notification(
+            email_address="temp-fail@simulator.notify",  # /PS-IGNORE
+            template_id=self.template_id,
+            personalisation=self.personalisation,
+            reference=f"TEMP-FAIL-TEST-{uuid.uuid4()}",
+        )
+        with self.assertRaises(Retry):
+            check_email_delivered(
+                delivery_id=failed_send_report["id"], context=self.personalisation
+            )
