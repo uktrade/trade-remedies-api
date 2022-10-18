@@ -13,6 +13,7 @@ from core.tasks import check_email_delivered
 MOCK_AUDIT_EMAIL_TO_ADDRESS = "test@example.com"  # /PS-IGNORE
 
 
+@override_settings(AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS)
 class TestAuditEmail(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -20,7 +21,6 @@ class TestAuditEmail(TestCase):
         call_command("load_sysparams")  # Load system parameters
         call_command("notify_env")  # Load the template IDs from GOV.NOTIFY
 
-    @override_settings(GOV_NOTIFY_API_KEY=settings.GOV_NOTIFY_TESTING_KEY)
     def setUp(self) -> None:
         self.notify = get_client()
         self.personalisation = {"code": "test_code", "footer": "test footer"}
@@ -38,14 +38,12 @@ class TestAuditEmail(TestCase):
         server.starttls()
         server.login(settings.AUDIT_EMAIL_SMTP_USERNAME, settings.AUDIT_EMAIL_SMTP_PASSWORD)
 
-    @override_settings(AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS)
     def test_audit_email_sent(self):
         sent_mail, msg = check_email_delivered(
             delivery_id=self.send_report["id"], context=self.personalisation
         )
         self.assertEqual(sent_mail, {})  # An empty return dict means all mail was accepted
 
-    @override_settings(AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS)
     def test_audit_email_correct_subject(self):
         sent_mail, msg = check_email_delivered(
             delivery_id=self.send_report["id"], context=self.personalisation
@@ -59,7 +57,6 @@ class TestAuditEmail(TestCase):
             check_email_delivered(delivery_id=uuid.uuid4(), context=self.personalisation)
         self.assertEqual(e.exception.status_code, 404)
 
-    @override_settings(AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS)
     def test_missing_footer(self):
         """Tests that the missing footer parameter is inserted into the email"""
         sent_mail, msg = check_email_delivered(
@@ -76,7 +73,6 @@ class TestAuditEmail(TestCase):
         body = str(msg)
         self.assertIn("test footer", body)
 
-    @override_settings(AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS)
     def test_to_address(self):
         sent_mail, msg = check_email_delivered(
             delivery_id=self.send_report["id"], context=self.personalisation
@@ -84,7 +80,6 @@ class TestAuditEmail(TestCase):
         to_address = msg.get("to")
         self.assertEqual(to_address, MOCK_AUDIT_EMAIL_TO_ADDRESS)
 
-    @override_settings(AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS)
     def test_from_address(self):
         sent_mail, msg = check_email_delivered(
             delivery_id=self.send_report["id"], context=self.personalisation
@@ -93,7 +88,6 @@ class TestAuditEmail(TestCase):
         self.assertIn(settings.AUDIT_EMAIL_FROM_ADDRESS, from_address)
         self.assertIn(settings.AUDIT_EMAIL_FROM_NAME, from_address)
 
-    @override_settings(AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS)
     def test_correct_email(self):
         """Tests that the correct HTML email is inserted into the audit email"""
         sent_mail, msg = check_email_delivered(
