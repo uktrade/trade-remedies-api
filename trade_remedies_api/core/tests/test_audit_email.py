@@ -46,7 +46,7 @@ class TestAuditEmail(TestCase):
         self.assertEqual(sent_mail, {})  # An empty return dict means all mail was accepted
 
     @override_settings(AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS)
-    def test_audit_email_sent(self):
+    def test_audit_email_correct_subject(self):
         sent_mail, msg = check_email_delivered(
             delivery_id=self.send_report["id"], context=self.personalisation
         )
