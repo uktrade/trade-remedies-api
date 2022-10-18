@@ -58,3 +58,46 @@ class TestAuditEmail(TestCase):
         with self.assertRaises(HTTPError) as e:
             check_email_delivered(delivery_id=uuid.uuid4(), context=self.personalisation)
         self.assertEqual(e.exception.status_code, 404)
+
+    @override_settings(AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS)
+    def test_missing_footer(self):
+        """Tests that the missing footer parameter is inserted into the email"""
+        sent_mail, msg = check_email_delivered(
+            delivery_id=self.send_report["id"], context={"code": "test_code"}
+        )
+        body = str(msg)
+        self.assertIn("Department for International Trade", body)
+        self.assertIn("Investigations Team", body)
+
+    def test_correct_footer(self):
+        sent_mail, msg = check_email_delivered(
+            delivery_id=self.send_report["id"], context=self.personalisation
+        )
+        body = str(msg)
+        self.assertIn("test footer", body)
+
+    @override_settings(AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS)
+    def test_to_address(self):
+        sent_mail, msg = check_email_delivered(
+            delivery_id=self.send_report["id"], context=self.personalisation
+        )
+        to_address = msg.get("to")
+        self.assertEqual(to_address, MOCK_AUDIT_EMAIL_TO_ADDRESS)
+
+    @override_settings(AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS)
+    def test_from_address(self):
+        sent_mail, msg = check_email_delivered(
+            delivery_id=self.send_report["id"], context=self.personalisation
+        )
+        from_address = msg.get("from")
+        self.assertIn(settings.AUDIT_EMAIL_FROM_ADDRESS, from_address)
+        self.assertIn(settings.AUDIT_EMAIL_FROM_NAME, from_address)
+
+    @override_settings(AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS)
+    def test_correct_email(self):
+        """Tests that the correct HTML email is inserted into the audit email"""
+        sent_mail, msg = check_email_delivered(
+            delivery_id=self.send_report["id"], context=self.personalisation
+        )
+        body = str(msg)
+        self.assertIn("test_code", body)
