@@ -17,7 +17,7 @@ MOCK_AUDIT_EMAIL_TO_ADDRESS = "test@example.com"  # /PS-IGNORE
 
 @override_settings(
     AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS,
-    GOV_NOTIFY_API_KEY=settings.GOV_NOTIFY_TESTING_KEY
+    GOV_NOTIFY_API_KEY=settings.GOV_NOTIFY_TESTING_KEY,
 )
 class TestAuditEmail(TestCase):
     @classmethod
