@@ -369,7 +369,7 @@ class Invitation(BaseModel):
         self.short_code = crypto.get_random_string(8)
         self.code = str(uuid.uuid4())
 
-    def send(self, sent_by, context=None, direct=False, template_key=None):
+    def send(self, sent_by, context=None, direct=False, template_key=None, footer_case_email=True):
         """Send the invite email via notify
 
         Arguments:
@@ -379,6 +379,7 @@ class Invitation(BaseModel):
             context {dict} -- extra context dict (default: {None})
             direct {bool} -- include a direct login link with the invite codes (default: {False})
             template_key {str} -- The system param pointing to the template id (default: {None})
+            no_case_email {str} -- True you want to include the case email in the footer (default: {True})
 
         Raises:
             InvitationFailure: raises if the invite is lacking a contact reference
@@ -417,7 +418,9 @@ class Invitation(BaseModel):
             )
         # Set email and footer appropriate to case context
         email = notify_contact_email(_context.get("case_number"))
-        _context.update({"email": email, "footer": notify_footer(email)})
+        _context.update({"email": email})
+        if footer_case_email:
+            _context.update({"footer": notify_footer(email)})
         if direct is True:
             _context[
                 "login_url"
