@@ -22,7 +22,7 @@ from security.constants import (
     SECURITY_GROUP_ORGANISATION_OWNER,
     SECURITY_GROUP_ORGANISATION_USER,
 )
-from security.models import OrganisationCaseRole
+from security.models import OrganisationCaseRole, UserCase
 from .exceptions import InvitationFailure, InviteAlreadyAccepted
 
 
@@ -303,6 +303,9 @@ class Invitation(BaseModel):
         null=True, blank=True, choices=invitation_type_choices
     )
     cases_to_link = models.ManyToManyField(Case, related_name="cases_to_link", blank=True)
+    user_cases_to_link = models.ManyToManyField(
+        UserCase, related_name="user_cases_to_link", blank=True
+    )
 
     objects = InvitationManager()
 
@@ -664,25 +667,26 @@ class Invitation(BaseModel):
         """Accepting and processing the invitation when the invited user logs in"""
 
         # First let's add the user to the organisation
+        # todo - this is already done when creating the user, do we need to repeat here?
         self.contact.organisation.assign_user(
             user=self.invited_user, security_group=self.organisation_security_group, confirmed=True
         )
 
         # Let's add the user to the cases associated with this invitation
-        for case_object in self.cases_to_link.all():
+        for user_case_object in self.user_cases_to_link.all():
             # Creating the UserCase object
             # todo - maybe we do this when the LOA is approved instead???
-            case_object.assign_user(
+            user_case_object.case.assign_user(
                 user=self.invited_user,
                 created_by=self.user,
-                organisation=self.contact.organisation,
+                organisation=user_case_object.organisation,  # We want the UserCase object to maintain the relationship between interested party and representative
                 relax_security=True,
             )
 
             # Creating an OrganisationCaseRole object with status awaiting_approval
             OrganisationCaseRole.objects.assign_organisation_case_role(
                 organisation=self.contact.organisation,
-                case=case_object,
+                case=user_case_object.case,
                 role=ROLE_AWAITING_APPROVAL,
                 approved_at=None,  # approval done later
                 approved_by=None,  # approval done later

@@ -14,6 +14,7 @@ from core.services.v2.users.serializers import UserSerializer
 from invitations.models import Invitation
 from invitations.services.v2.serializers import InvitationSerializer
 from security.constants import SECURITY_GROUP_THIRD_PARTY_USER
+from security.models import UserCase
 
 
 class InvitationViewSet(BaseModelViewSet):
@@ -91,16 +92,16 @@ class InvitationViewSet(BaseModelViewSet):
             serializer.instance.meta["group"] = security_group.name
             serializer.save()
 
-        if cases_to_link := self.request.POST.getlist("cases_to_link"):
+        if user_cases_to_link := self.request.POST.getlist("user_cases_to_link"):
             # First we need to remove already-linked cases
-            serializer.instance.cases_to_link.through.objects.filter(
+            serializer.instance.user_cases_to_link.through.objects.filter(
                 invitation=serializer.instance
             ).delete()
 
-            if "clear" not in cases_to_link:
+            if "clear" not in user_cases_to_link:
                 # We want to link cases to this invitation
-                case_objects = Case.objects.filter(id__in=cases_to_link)
-                serializer.instance.cases_to_link.add(*case_objects)
+                user_case_objects = UserCase.objects.filter(id__in=user_cases_to_link)
+                serializer.instance.user_cases_to_link.add(*user_case_objects)
                 serializer.save()
 
         return super().perform_update(serializer)
@@ -155,7 +156,7 @@ class InvitationViewSet(BaseModelViewSet):
                 },
                 direct=True,
                 template_key=template_name,
-                footer_case_email=False
+                footer_case_email=False,
             )
 
             # We also need to update the submission status to sent
@@ -181,4 +182,5 @@ class InvitationViewSet(BaseModelViewSet):
         )
         invitation_object.invited_user = new_user
         invitation_object.save()
+
         return Response(UserSerializer(new_user).data)

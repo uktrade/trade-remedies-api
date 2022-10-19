@@ -47,13 +47,26 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     invitations = serializers.SerializerMethodField()
     validated = serializers.SerializerMethodField()
     organisationcaserole_set = OrganisationCaseRoleSerializer(many=True, required=False)
+    user_cases = serializers.SerializerMethodField()
 
     class Meta:
         model = Organisation
         fields = "__all__"
 
-    def get_country(self, obj):
-        return obj.country.alpha3
+    def get_user_cases(self, instance):
+        from cases.services.v2.serializers import UserCaseSerializer
+
+        user_cases = UserCase.objects.filter(
+            user__organisationuser__organisation=instance,
+            case__deleted_at__isnull=True,
+            case__archived_at__isnull=True,
+        )
+
+        return UserCaseSerializer(user_cases, many=True).data
+
+    @staticmethod
+    def get_country(instance):
+        return instance.country.alpha3
 
     def get_cases(self, instance):
         """Return all cases that this organisation is a part of."""

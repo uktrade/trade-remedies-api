@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group
 from django_restql.fields import NestedField
 from rest_framework import serializers
 
-from cases.services.v2.serializers import CaseSerializer, SubmissionSerializer
+from cases.services.v2.serializers import CaseSerializer, SubmissionSerializer, UserCaseSerializer
 from config.serializers import CustomValidationModelSerializer
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from invitations.models import Invitation
@@ -36,3 +36,4 @@ class InvitationSerializer(CustomValidationModelSerializer):
         serializer_class=UserSerializer, read_only=True, required=False, exclude=["organisation"]
     )
     cases_to_link = NestedField(serializer_class=CaseSerializer, many=True, required=False)
+    user_cases_to_link = NestedField(serializer_class=UserCaseSerializer, many=True, required=False)

@@ -31,11 +31,12 @@ class OrganisationViewSet(viewsets.ModelViewSet):
         organisation_object = self.get_object()
         user_object = get_object_or_404(User, pk=request.data["user_id"])
         group_object = get_object_or_404(Group, name=request.data["organisation_security_group"])
+        confirmed = request.data.get("confirmed") == "True"
 
         organisation_object.assign_user(
             user=user_object,
             security_group=group_object,
-            confirmed=request.data.get("confirmed", False),
+            confirmed=confirmed,
         )
 
         user_object.groups.add(group_object)
