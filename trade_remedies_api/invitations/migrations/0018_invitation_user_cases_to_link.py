@@ -6,14 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('security', '0007_auto_20191104_1337'),
-        ('invitations', '0017_alter_invitation_cases_to_link'),
+        ("security", "0007_auto_20191104_1337"),
+        ("invitations", "0017_alter_invitation_cases_to_link"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='invitation',
-            name='user_cases_to_link',
-            field=models.ManyToManyField(blank=True, related_name='user_cases_to_link', to='security.UserCase'),
+            model_name="invitation",
+            name="user_cases_to_link",
+            field=models.ManyToManyField(
+                blank=True, related_name="user_cases_to_link", to="security.UserCase"
+            ),
         ),
     ]
