@@ -61,6 +61,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         )
 
         from security.services.v2.serializers import UserCaseSerializer
+
         return UserCaseSerializer(user_cases, many=True).data
 
     @staticmethod

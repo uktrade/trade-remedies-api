@@ -101,6 +101,7 @@ class ContactViewSet(viewsets.ModelViewSet):
     def change_organisation(self, request, *args, **kwargs):
         """Changes the organisation of the contact."""
         from organisations.models import Organisation
+
         organisation_object = get_object_or_404(Organisation, pk=request.data["organisation_id"])
         contact_object = self.get_object()
         contact_object.organisation = organisation_object
