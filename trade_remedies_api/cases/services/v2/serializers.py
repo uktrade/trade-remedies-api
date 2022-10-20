@@ -127,12 +127,3 @@ class SubmissionSerializer(CustomValidationModelSerializer):
                 )
 
         return orphaned_documents
-
-
-class UserCaseSerializer(CustomValidationModelSerializer):
-    class Meta:
-        model = UserCase
-        fields = "__all__"
-
-    organisation = OrganisationSerializer(fields=["name"])
-    case = CaseSerializer(fields=["name", "reference"])

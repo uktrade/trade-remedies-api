@@ -54,14 +54,13 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         fields = "__all__"
 
     def get_user_cases(self, instance):
-        from cases.services.v2.serializers import UserCaseSerializer
-
         user_cases = UserCase.objects.filter(
             user__organisationuser__organisation=instance,
             case__deleted_at__isnull=True,
             case__archived_at__isnull=True,
         )
 
+        from security.services.v2.serializers import UserCaseSerializer
         return UserCaseSerializer(user_cases, many=True).data
 
     @staticmethod

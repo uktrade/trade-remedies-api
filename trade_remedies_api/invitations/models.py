@@ -679,7 +679,9 @@ class Invitation(BaseModel):
             user_case_object.case.assign_user(
                 user=self.invited_user,
                 created_by=self.user,
-                organisation=user_case_object.organisation,  # We want the UserCase object to maintain the relationship between interested party and representative
+                # We want the UserCase object to maintain the relationship between
+                # interested party and representative
+                organisation=user_case_object.organisation,
                 relax_security=True,
             )
 
