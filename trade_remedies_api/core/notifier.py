@@ -11,8 +11,6 @@ def get_client():
     """
     Return a Notification client
     """
-    print(settings.GOV_NOTIFY_API_KEY)
-    print(type(settings.GOV_NOTIFY_API_KEY))
     return NotificationsAPIClient(settings.GOV_NOTIFY_API_KEY)
 
 
