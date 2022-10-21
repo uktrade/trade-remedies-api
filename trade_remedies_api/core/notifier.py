@@ -1,5 +1,5 @@
-import re
 import os
+import re
 
 from django.conf import settings
 from notifications_python_client.notifications import NotificationsAPIClient
@@ -11,6 +11,8 @@ def get_client():
     """
     Return a Notification client
     """
+    print(settings.GOV_NOTIFY_API_KEY)
+    print(type(settings.GOV_NOTIFY_API_KEY))
     return NotificationsAPIClient(settings.GOV_NOTIFY_API_KEY)
 
 
@@ -40,9 +42,8 @@ def notify_footer(email=None):
     :returns (str): NOTIFY_BLOCK_FOOTER system parameter value
       with email appended, if any.
     """
-    from core.models import SystemParameter
 
-    footer = SystemParameter.get("NOTIFY_BLOCK_FOOTER")
+    footer = "Investigations Team\r\nTrade Remedies Authority"
     if email:
         return "\n".join([footer, f"Contact: {email}"])
     return footer
@@ -57,11 +58,9 @@ def notify_contact_email(case_number=None):
     :returns (str): A case contact email if case number specified, otherwise
       value of TRADE_REMEDIES_EMAIL system parameter.
     """
-    from core.models import SystemParameter
-
     if case_number:
-        return f"{case_number}@{SystemParameter.get('TRADE_REMEDIES_EMAIL_DOMAIN')}"
-    return SystemParameter.get("TRADE_REMEDIES_EMAIL")
+        return f"{case_number}@traderemedies.gov.uk"  # /PS-IGNORE
+    return "contact@traderemedies.gov.uk"  # /PS-IGNORE
 
 
 def get_context(extra_context=None):
