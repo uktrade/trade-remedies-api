@@ -208,7 +208,7 @@ class CustomValidationModelSerializer(CustomValidationSerializer, serializers.Mo
         return super().save(**kwargs)
 
     def get_extra_kwargs(self):
-        """Add additional constraints between CRUD methods to  any particular field."""
+        """Add additional constraints between CRUD methods to any particular field."""
         extra_kwargs_for_edit = super().get_extra_kwargs()
 
         if view := self.context.get("view"):

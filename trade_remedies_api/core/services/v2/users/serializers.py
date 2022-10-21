@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Group
+from django.contrib.auth.password_validation import validate_password
 from django_restql.fields import NestedField
 from rest_framework import serializers
 
@@ -55,13 +56,20 @@ class UserSerializer(CustomValidationModelSerializer):
 
     class Meta:
         model = User
-        exclude = ("password",)
+        fields = "__all__"
 
     email = serializers.EmailField()
     cases = serializers.SerializerMethodField()
     organisation = serializers.SerializerMethodField()
     twofactorauth = TwoFactorAuthSerializer(required=False)
     contact = NestedField(serializer_class=ContactSerializer, required=False)
+
+    def to_internal_value(self, data):
+        data = super().to_internal_value(data)
+        # Remove password field if serializer is updating an existing user
+        if self.instance:
+            data.pop('password', None)
+        return data
 
     def get_cases(self, instance):
         from cases.services.v2.serializers import CaseSerializer
@@ -80,6 +88,11 @@ class UserSerializer(CustomValidationModelSerializer):
             return OrganisationSerializer(
                 instance=organisation_user_object.organisation, exclude=["organisationuser_set"]
             ).data
+
+    @staticmethod
+    def validate_password(value):
+        validate_password(value)
+        return value
 
     def create(self, validated_data):
         return User.objects.create_new_user(

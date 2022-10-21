@@ -99,6 +99,7 @@ class UserManager(BaseUserManager):
             # throw an exception, then do so, what are you waiting for!
             raise Exception(f"User with email {email} already exists")
 
+        validate_password(password)
         new_user.set_password(password)
         TwoFactorAuth.objects.get_or_create(user=new_user)
         contact = contact or Contact.objects.create(
