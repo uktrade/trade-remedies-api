@@ -68,7 +68,7 @@ class UserSerializer(CustomValidationModelSerializer):
         data = super().to_internal_value(data)
         # Remove password field if serializer is updating an existing user
         if self.instance:
-            data.pop('password', None)
+            data.pop("password", None)
         return data
 
     def get_cases(self, instance):
