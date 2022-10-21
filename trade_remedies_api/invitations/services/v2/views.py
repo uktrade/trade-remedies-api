@@ -147,6 +147,17 @@ class InvitationViewSet(BaseModelViewSet):
 
             # We also need to update the submission status to sent
             invitation_object.submission.update_status("sufficient", request.user)
+        elif invitation_object.invitation_type == 3:
+            # This is an invitation from within the organisation
+            invitation_object.send(
+                sent_by=request.user,
+                direct=False,
+                template_key="NOTIFY_INVITE_ORGANISATION_USER", # NEED TO CHANGE TO CORRECT (NEW) TEMPLATE
+                context={
+                    "login_url": f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/"
+                    f"{invitation_object.id}/start/"
+                },
+            )
 
         invitation_object.sent_at = timezone.now()
         invitation_object.save()

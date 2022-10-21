@@ -22,6 +22,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     cases = serializers.SerializerMethodField()
     invitations = serializers.SerializerMethodField()
     validated = serializers.SerializerMethodField()
+    contacts = serializers.SerializerMethodField()
 
     class Meta:
         model = Organisation
@@ -59,6 +60,11 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     def get_validated(self, instance):
         """Returns true if the organisation has been validated on the TRS at some point"""
         return instance.organisationcaserole_set.filter(validated_at__isnull=False).exists()
+
+    @staticmethod
+    def get_contacts(instance):
+        from core.services.v2.users.serializers import ContactSerializer
+        return [ContactSerializer(each).data for each in instance.contacts.all()]
 
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):

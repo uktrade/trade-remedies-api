@@ -249,6 +249,7 @@ class Invitation(BaseModel):
     invitation_type_choices = (
         (1, "Own Organisation"),
         (2, "Representative"),
+        (3, "Caseworker"),
     )
 
     organisation = models.ForeignKey(
