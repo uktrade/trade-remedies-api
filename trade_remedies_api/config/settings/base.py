@@ -120,8 +120,8 @@ MIDDLEWARE = [
 
 if DJANGO_ADMIN:
     MIDDLEWARE = [
-        "whitenoise.middleware.WhiteNoiseMiddleware",
-    ] + MIDDLEWARE
+                     "whitenoise.middleware.WhiteNoiseMiddleware",
+                 ] + MIDDLEWARE
 
 ROOT_URLCONF = "config.urls"
 
@@ -525,6 +525,7 @@ FLAGS = {
 }
 
 # ------------------- GOV.NOTIFY AUDIT COPY EMAILS -------------------
+AUDIT_EMAIL_ENABLED = env.bool("AUDIT_EMAIL_ENABLED", True)
 AUDIT_EMAIL_GIVE_UP_SECONDS = env.int("AUDIT_EMAIL_GIVE_UP_SECONDS", default=259200)
 AUDIT_EMAIL_RETRY_COUNTDOWN = env.int("AUDIT_EMAIL_RETRY_COUNTDOWN", default=1200)
 AUDIT_EMAIL_FROM_ADDRESS = env.str(

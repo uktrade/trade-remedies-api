@@ -13,7 +13,7 @@ from notifications_python_client.errors import HTTPError
 from audit import AUDIT_TYPE_NOTIFY
 from audit.tasks import audit_log_task
 from audit.utils import new_audit_record_to_dict
-from core.notifier import get_client, send_mail as sync_send_mail
+from core.notifier import get_client, notify_footer, send_mail as sync_send_mail
 from core.utils import extract_error_from_api_exception
 
 logger = logging.getLogger(__name__)
@@ -62,7 +62,7 @@ def send_mail_task(self, email, context, template_id, reference=None, audit_kwar
     try:
         send_report = sync_send_mail(email, context, template_id, reference)
         logger.info(f"Send email: {send_report}")
-        if settings.RUN_ASYNC:
+        if settings.RUN_ASYNC and settings.AUDIT_EMAIL_ENABLED:
             check_email_delivered.apply_async(
                 countdown=300, kwargs={"delivery_id": send_report["id"], "context": context}
             )
@@ -136,22 +136,7 @@ def check_email_delivered(self, delivery_id, context):
         f"{delivery_status.capitalize()} - {email['subject']} - {email['email_address']}"
     )
 
-    # let's try and fish out a case number from the context
-    case_object = None
-    case_id = context.get("case_id") or context.get("case_pk")
-    try:
-        if case_id:
-            case_object = Case.objects.get(id=case_id)
-        elif case_name := context.get("case_name"):
-            case_object = Case.objects.get(name=case_name)
-    except (Case.DoesNotExist, Case.MultipleObjectsReturned):
-        pass
-    if case_object:
-        # a case was found in the context! Let's send to that case email instead
-        to_address = f"{case_object.reference}@traderemedies.gov.uk"  # /PS-IGNORE
-    else:
-        # if not, send the status email to the generic traderemedies inbox
-        to_address = settings.AUDIT_EMAIL_TO_ADDRESS
+    to_address = settings.AUDIT_EMAIL_TO_ADDRESS
 
     # getting the HTML preview from notify
     try:
@@ -162,12 +147,7 @@ def check_email_delivered(self, delivery_id, context):
         if e.status_code == 400:
             # This is probably a 'missing personalisation: footer' error, let's add a footer and
             # try again
-            context["footer"] = (
-                f"Investigations Team\r\nTrade Remedies\r\n"
-                f"Department for International Trade\r\n\
-                    Contact: {case_object.reference if case_object else 'null'}"
-                f"@traderemedies.gov.uk"  # /PS-IGNORE
-            )
+            context["footer"] = notify_footer()
             email_preview = notify.post_template_preview(
                 template_id=email["template"]["id"], personalisation=context
             )
