@@ -120,8 +120,8 @@ MIDDLEWARE = [
 
 if DJANGO_ADMIN:
     MIDDLEWARE = [
-                     "whitenoise.middleware.WhiteNoiseMiddleware",
-                 ] + MIDDLEWARE
+        "whitenoise.middleware.WhiteNoiseMiddleware",
+    ] + MIDDLEWARE
 
 ROOT_URLCONF = "config.urls"
 
