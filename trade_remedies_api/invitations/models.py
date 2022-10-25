@@ -20,7 +20,8 @@ from security.constants import (
     ROLE_AWAITING_APPROVAL,
     ROLE_PREPARING,
     SECURITY_GROUP_ORGANISATION_OWNER,
-    SECURITY_GROUP_ORGANISATION_USER, SECURITY_GROUP_THIRD_PARTY_USER,
+    SECURITY_GROUP_ORGANISATION_USER,
+    SECURITY_GROUP_THIRD_PARTY_USER,
 )
 from security.models import OrganisationCaseRole, UserCase
 from .exceptions import InvitationFailure, InviteAlreadyAccepted
