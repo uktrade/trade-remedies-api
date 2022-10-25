@@ -40,10 +40,11 @@ def strip_sensitive_data(event, hint):
     return event
 
 
+SENTRY_ENVIRONMENT = env.str("SENTRY_ENVIRONMENT", default="local")
 sentry_sdk.init(
     dsn=env("SENTRY_DSN", default=""),
     integrations=[DjangoIntegration(), CeleryIntegration()],
-    environment=env("SENTRY_ENVIRONMENT", default="uat"),
+    environment=SENTRY_ENVIRONMENT,
     before_send=strip_sensitive_data,
 )
 
@@ -120,8 +121,8 @@ MIDDLEWARE = [
 
 if DJANGO_ADMIN:
     MIDDLEWARE = [
-        "whitenoise.middleware.WhiteNoiseMiddleware",
-    ] + MIDDLEWARE
+                     "whitenoise.middleware.WhiteNoiseMiddleware",
+                 ] + MIDDLEWARE
 
 ROOT_URLCONF = "config.urls"
 
