@@ -20,7 +20,7 @@ from security.constants import (
     ROLE_AWAITING_APPROVAL,
     ROLE_PREPARING,
     SECURITY_GROUP_ORGANISATION_OWNER,
-    SECURITY_GROUP_ORGANISATION_USER,
+    SECURITY_GROUP_ORGANISATION_USER, SECURITY_GROUP_THIRD_PARTY_USER,
 )
 from security.models import OrganisationCaseRole, UserCase
 from .exceptions import InvitationFailure, InviteAlreadyAccepted
@@ -666,10 +666,16 @@ class Invitation(BaseModel):
     def accept_invitation(self):
         """Accepting and processing the invitation when the invited user logs in"""
 
-        # First let's add the user to the organisation
-        # todo - this is already done when creating the user, do we need to repeat here?
+        # First let's add the invitee as an admin user to their organisation
+        security_group = Group.objects.get(name=SECURITY_GROUP_ORGANISATION_OWNER)
         self.contact.organisation.assign_user(
-            user=self.invited_user, security_group=self.organisation_security_group, confirmed=True
+            user=self.invited_user, security_group=security_group, confirmed=True
+        )
+
+        # Then add them as a third party user of the inviting organisation
+        security_group = Group.objects.get(name=SECURITY_GROUP_THIRD_PARTY_USER)
+        self.organisation.assign_user(
+            user=self.invited_user, security_group=security_group, confirmed=True
         )
 
         # Let's add the user to the cases associated with this invitation
