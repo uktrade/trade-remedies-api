@@ -152,10 +152,11 @@ class InvitationViewSet(BaseModelViewSet):
             invitation_object.send(
                 sent_by=request.user,
                 direct=False,
-                template_key="NOTIFY_INVITE_ORGANISATION_USER", # NEED TO CHANGE TO CORRECT (NEW) TEMPLATE
+                template_key="NOTIFY_INFORM_INTERESTED_PARTIES",
                 context={
                     "login_url": f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/"
-                    f"{invitation_object.id}/start/"
+                    f"{invitation_object.id}/start/",   # NEED TO ADD CORRECT URL - once (public) acceptance created
+                    "deadline": "some deadline",   # NEED TO ADD CORRECT DATE
                 },
             )
 
