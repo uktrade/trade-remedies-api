@@ -671,7 +671,7 @@ class Invitation(BaseModel):
             self.contact.organisation.assign_user(
                 user=self.invited_user,
                 security_group=self.organisation_security_group,  # user or admin
-                confirmed=True
+                confirmed=True,
             )
 
         elif self.invitation_type == 2:
