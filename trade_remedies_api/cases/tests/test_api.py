@@ -256,4 +256,3 @@ class SubmissionStatusAPITest(APITestCase, APISetUpMixin):
         self.assertTrue(response_data["success"])
         self.assertEqual(response_data["result"]["submission"]["id"], str(self.submission.id))
         self.assertEqual(response_data["result"]["submission"]["type"]["name"], "General")
-
