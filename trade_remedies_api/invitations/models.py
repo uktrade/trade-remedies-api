@@ -666,18 +666,27 @@ class Invitation(BaseModel):
     @transaction.atomic()
     def accept_invitation(self):
         """Accepting and processing the invitation when the invited user logs in"""
+        if self.invitation_type == 1:
+            # this is an own-org invitation
+            self.contact.organisation.assign_user(
+                user=self.invited_user,
+                security_group=self.organisation_security_group,  # user or admin
+                confirmed=True
+            )
 
-        # First let's add the invitee as an admin user to their organisation
-        security_group = Group.objects.get(name=SECURITY_GROUP_ORGANISATION_OWNER)
-        self.contact.organisation.assign_user(
-            user=self.invited_user, security_group=security_group, confirmed=True
-        )
+        elif self.invitation_type == 2:
+            # this is a representative invitation
+            # First let's add the invitee as an admin user to their organisation
+            security_group = Group.objects.get(name=SECURITY_GROUP_ORGANISATION_OWNER)
+            self.contact.organisation.assign_user(
+                user=self.invited_user, security_group=security_group, confirmed=True
+            )
 
-        # Then add them as a third party user of the inviting organisation
-        security_group = Group.objects.get(name=SECURITY_GROUP_THIRD_PARTY_USER)
-        self.organisation.assign_user(
-            user=self.invited_user, security_group=security_group, confirmed=True
-        )
+            # Then add them as a third party user of the inviting organisation
+            security_group = Group.objects.get(name=SECURITY_GROUP_THIRD_PARTY_USER)
+            self.organisation.assign_user(
+                user=self.invited_user, security_group=security_group, confirmed=True
+            )
 
         # Let's add the user to the cases associated with this invitation
         for user_case_object in self.user_cases_to_link.all():
