@@ -98,7 +98,7 @@ class InvitationViewSet(BaseModelViewSet):
                 invitation=serializer.instance
             ).delete()
 
-            if "clear" not in user_cases_to_link:
+            if "choose_user_case_later" not in user_cases_to_link:
                 # We want to link cases to this invitation
                 user_case_objects = UserCase.objects.filter(id__in=user_cases_to_link)
                 serializer.instance.user_cases_to_link.add(*user_case_objects)
