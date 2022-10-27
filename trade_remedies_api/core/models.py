@@ -1465,3 +1465,30 @@ class SystemParameter(models.Model):
                     this_object.editable = load_object["editable"]
                     this_object.save()
         return count_created, count_updated, count_removed
+
+
+class Feedback(models.Model):
+    rating_choices = (
+        (1, "Very dissatisfied"),
+        (2, "Dissatisfied"),
+        (3, "Neither satisfied or dissatisfied"),
+        (4, "Satisfied"),
+        (5, "Very satisfied"),
+    )
+
+    form_placement_choices = (
+        (1, "banner"),
+        (2, "footer"),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True)
+    rating = models.PositiveSmallIntegerField(choices=rating_choices)
+    what_didnt_work_so_well = models.JSONField(null=True)
+    what_didnt_work_so_well_other = models.TextField(null=True)
+    how_could_we_improve_service = models.TextField(null=True)
+    url = models.URLField()
+    url_name = models.CharField(max_length=100, null=True)
+    date_time_created = models.DateTimeField()
+    form_placement = models.PositiveSmallIntegerField(choices=form_placement_choices)
+    journey = models.TextField(max_length=100, null=True)
+
