@@ -1491,4 +1491,3 @@ class Feedback(models.Model):
     date_time_created = models.DateTimeField()
     form_placement = models.PositiveSmallIntegerField(choices=form_placement_choices)
     journey = models.TextField(max_length=100, null=True)
-

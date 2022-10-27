@@ -197,9 +197,7 @@ router.register(
 router.register(
     f"{settings.API_V2_PREFIX}/django-feature-flags", FlagViewSet, basename="django-feature-flags"
 )
-router.register(
-    f"{settings.API_V2_PREFIX}/feedback", FeedbackViewSet, basename="feedback"
-)
+router.register(f"{settings.API_V2_PREFIX}/feedback", FeedbackViewSet, basename="feedback")
 urlpatterns += router.urls
 
 if settings.DEBUG:
