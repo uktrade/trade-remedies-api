@@ -7,13 +7,13 @@ import django_countries.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0060_submission_primary_contact'),
+        ("cases", "0060_submission_primary_contact"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='exportsource',
-            name='country',
+            model_name="exportsource",
+            name="country",
             field=django_countries.fields.CountryField(max_length=3),
         ),
     ]
