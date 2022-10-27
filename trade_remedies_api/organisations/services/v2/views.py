@@ -53,7 +53,7 @@ class OrganisationViewSet(viewsets.ModelViewSet):
             ).filter(similarity__gt=0.3).order_by('-similarity')
         )
 
-        return Response(OrganisationSerializer(instance=matching_organisations, many=True, fields=['name', 'address', 'companies_house_id', 'id']).data)
+        return Response(OrganisationSerializer(instance=matching_organisations, many=True, fields=['name', 'address', 'post_code', 'companies_house_id', 'id']).data)
 
 
 class OrganisationCaseRoleViewSet(viewsets.ModelViewSet):

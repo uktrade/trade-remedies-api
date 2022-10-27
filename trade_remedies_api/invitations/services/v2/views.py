@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
@@ -10,6 +12,7 @@ from config.viewsets import BaseModelViewSet
 from contacts.models import Contact
 from core.models import TwoFactorAuth, User, UserProfile
 from core.services.v2.users.serializers import UserSerializer
+from core.utils import public_login_url
 from invitations.models import Invitation
 from invitations.services.v2.serializers import InvitationSerializer
 
@@ -147,16 +150,39 @@ class InvitationViewSet(BaseModelViewSet):
 
             # We also need to update the submission status to sent
             invitation_object.submission.update_status("sufficient", request.user)
+
         elif invitation_object.invitation_type == 3:
-            # This is an invitation from within the organisation
+            # determine if deadline passed or not
+            if date.today() > invitation_object.case.registration_deadline.date():
+                deadline = ""
+                on_or_before_due_date = False
+            else:
+                deadline = invitation_object.case.registration_deadline.strftime("%d %B %Y")
+                on_or_before_due_date = True
+
+            # determine if user has account
+            if invitation_object.contact.has_user:
+                new_user = False
+                login_url = public_login_url()
+                # attach user to invitation
+                invitation_object.invited_user = invitation_object.contact.userprofile.user
+            else:
+                new_user = True
+                login_url = f"{settings.PUBLIC_ROOT_URL}/cases/accept_invite/{invitation_object.id}/start/"
+
+            # new_user = False if invitation_object.contact.has_user else True
+
+            # This is an invitation sent by the TRA
             invitation_object.send(
                 sent_by=request.user,
                 direct=False,
-                template_key="NOTIFY_INFORM_INTERESTED_PARTIES",
+                template_key="NOTIFY_INFORM_INTERESTED_PARTIES_V2",
                 context={
-                    "login_url": f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/"
-                    f"{invitation_object.id}/start/",   # NEED TO ADD CORRECT URL - once (public) acceptance created
-                    "deadline": "some deadline",   # NEED TO ADD CORRECT DATE
+                    "login_url": login_url,
+                    "deadline": deadline,
+                    "new_user": new_user,
+                    "not_new_user": not new_user,
+                    "on_or_before_due_date": on_or_before_due_date,
                 },
             )
 
