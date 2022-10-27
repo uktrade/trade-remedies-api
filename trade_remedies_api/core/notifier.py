@@ -61,7 +61,7 @@ def notify_contact_email(case_number=None):
 
     if case_number:
         return f"{case_number}@{SystemParameter.get('TRADE_REMEDIES_EMAIL_DOMAIN')}"
-    return SystemParameter.get("TRADE_REMEDIES_EMAIL")
+    return "contact@traderemedies.gov.uk"
 
 
 def get_context(extra_context=None):

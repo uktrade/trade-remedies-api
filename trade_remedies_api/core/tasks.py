@@ -1,10 +1,10 @@
+import datetime
 import logging
 import smtplib
-import datetime
+import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formataddr
-from time import sleep
 
 from celery import shared_task
 from django.conf import settings
@@ -13,7 +13,12 @@ from notifications_python_client.errors import HTTPError
 from audit import AUDIT_TYPE_NOTIFY
 from audit.tasks import audit_log_task
 from audit.utils import new_audit_record_to_dict
-from core.notifier import get_client, notify_footer, send_mail as sync_send_mail
+from core.notifier import (
+    get_client,
+    notify_contact_email,
+    notify_footer,
+    send_mail as sync_send_mail,
+)
 from core.utils import extract_error_from_api_exception
 
 logger = logging.getLogger(__name__)
@@ -62,10 +67,13 @@ def send_mail_task(self, email, context, template_id, reference=None, audit_kwar
     try:
         send_report = sync_send_mail(email, context, template_id, reference)
         logger.info(f"Send email: {send_report}")
-        if settings.RUN_ASYNC and settings.AUDIT_EMAIL_ENABLED:
-            check_email_delivered.apply_async(
-                countdown=300, kwargs={"delivery_id": send_report["id"], "context": context}
-            )
+        if settings.AUDIT_EMAIL_ENABLED:
+            if settings.RUN_ASYNC:
+                check_email_delivered.apply_async(
+                    countdown=300, kwargs={"delivery_id": send_report["id"], "context": context}
+                )
+            else:
+                check_email_delivered.apply_async(delivery_id=send_report["id"], context=context)
     except HTTPError as err:
         error_report, error_status = extract_error_from_api_exception(err)
         if error_status in (500, 503):
@@ -106,8 +114,7 @@ def send_mail_task(self, email, context, template_id, reference=None, audit_kwar
 
 @shared_task(bind=True)
 def check_email_delivered(self, delivery_id, context):
-    from cases.models import Case
-
+    time.sleep(5)
     notify = get_client()
     email = notify.get_notification_by_id(delivery_id)
     delivery_status = email[
@@ -139,20 +146,11 @@ def check_email_delivered(self, delivery_id, context):
     to_address = settings.AUDIT_EMAIL_TO_ADDRESS
 
     # getting the HTML preview from notify
-    try:
-        email_preview = notify.post_template_preview(
-            template_id=email["template"]["id"], personalisation=context
-        )
-    except HTTPError as e:
-        if e.status_code == 400:
-            # This is probably a 'missing personalisation: footer' error, let's add a footer and
-            # try again
-            context["footer"] = notify_footer()
-            email_preview = notify.post_template_preview(
-                template_id=email["template"]["id"], personalisation=context
-            )
-        else:
-            raise e
+    case_email = notify_contact_email(context.get("case_number"))
+    context["footer"] = notify_footer(email=case_email)
+    email_preview = notify.post_template_preview(
+        template_id=email["template"]["id"], personalisation=context
+    )
 
     # constructing the MIME email containing both HTML and text versions just in case
     msg = MIMEMultipart("alternative")
