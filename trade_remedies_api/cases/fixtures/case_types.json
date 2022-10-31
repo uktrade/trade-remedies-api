@@ -318,8 +318,8 @@
     "model": "cases.casetype",
     "pk": 10,
     "fields": {
-      "name": "Suspension review",
-      "acronym": "SR",
+      "name": "Suspension Application",
+      "acronym": "SA",
       "colour": "#6F777B",
       "workflow": "c83c0c75-a04d-4212-a942-eb35855c60fe",
       "order": 60,
