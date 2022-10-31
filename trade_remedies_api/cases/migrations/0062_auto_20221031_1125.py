@@ -9,11 +9,11 @@ def change_safeguarding_review_name(apps, schema_editor):
     CaseType = apps.get_model("cases", "CaseType")
     db_alias = schema_editor.connection.alias
     CaseType.objects.using(db_alias).filter(name="Suspension Review").update(
-        name="Suspension Application", acronym="SA"
+        name="Suspension application", acronym="SA"
     )
 
     CaseType.objects.using(db_alias).filter(name="Safeguard suspension review").update(
-        name="Safeguard Suspension Application"
+        name="Safeguard suspension application"
     )
 
 
