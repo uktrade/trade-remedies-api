@@ -19,7 +19,7 @@ def change_safeguarding_review_name(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cases", "0060_submission_primary_contact"),
+        ("cases", "0061_alter_exportsource_country"),
     ]
 
     operations = [migrations.RunPython(change_safeguarding_review_name)]
