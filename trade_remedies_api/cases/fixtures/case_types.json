@@ -318,8 +318,8 @@
     "model": "cases.casetype",
     "pk": 10,
     "fields": {
-      "name": "Suspension review",
-      "acronym": "SR",
+      "name": "Suspension Application",
+      "acronym": "SA",
       "colour": "#6F777B",
       "workflow": "c83c0c75-a04d-4212-a942-eb35855c60fe",
       "order": 60,
@@ -550,7 +550,7 @@
     "model": "cases.casetype",
     "pk": 19,
     "fields": {
-      "name": "Safeguard suspension review",
+      "name": "Safeguard suspension application",
       "acronym": "SS",
       "colour": "#6F777B",
       "workflow": "259838a3-21b9-4232-a134-630495e4835c",

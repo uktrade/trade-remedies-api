@@ -103,11 +103,6 @@ class CaseOrNotice:
                         )
                     else:
                         end_date = rel_date if not end_date or (rel_date < end_date) else end_date
-                elif criterion == "parent_case_types":
-                    # Some review types are only allowed if they're on a case with a particular case type
-                    acronym = self.type.acronym
-                    if acronym not in test.get("value", []):
-                        status = "invalid_case_type"
                 elif criterion == "state_value":
                     # Some review types are only allowed on cases which have reached a certain point in their worflow
                     state_value = self.get_state_key(key=test["key"])
