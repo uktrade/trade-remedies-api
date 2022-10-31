@@ -8,11 +8,11 @@ def change_safeguarding_review_name(apps, schema_editor):
     # if we directly import it, it'll be the wrong version
     CaseType = apps.get_model("cases", "CaseType")
     db_alias = schema_editor.connection.alias
-    CaseType.objects.using(db_alias).filter(name="Suspension Review").update(
+    CaseType.objects.using(db_alias).filter(name__iexact="Suspension Review").update(
         name="Suspension application", acronym="SA"
     )
 
-    CaseType.objects.using(db_alias).filter(name="Safeguard suspension review").update(
+    CaseType.objects.using(db_alias).filter(name__iexact="Safeguard suspension review").update(
         name="Safeguard suspension application"
     )
 
