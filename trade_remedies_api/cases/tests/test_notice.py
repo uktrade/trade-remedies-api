@@ -36,7 +36,9 @@ class CaseTest(TestCase, CaseTestMixin):
             "RI",
             "SE",
             "SS",
-            "BU" "TQ" "CE",
+            "BU",
+            "TQ",
+            "CE",
         }
 
     def test_correct_review_types(self):
@@ -63,7 +65,7 @@ class CaseTest(TestCase, CaseTestMixin):
 
         available_review_types = self.notice.available_case_review_types()
         for available_review in available_review_types:
-            if available_review["acronym"] != "RI":
+            if available_review["acronym"] not in ["RI", "CE", "CR"]:
                 self.assertEqual(available_review["dates"]["status"], "after_end")
 
     def test_correct_review_types_termination_change_2(self):
