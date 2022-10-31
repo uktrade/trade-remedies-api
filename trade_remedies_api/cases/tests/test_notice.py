@@ -2,10 +2,7 @@ import datetime
 
 from django.test import TestCase
 
-from cases.models import (
-    CaseType,
-    Notice
-)
+from cases.models import CaseType, Notice
 from cases.tests.test_case import CaseTestMixin, get_case_fixtures
 from core.models import User
 
@@ -18,15 +15,15 @@ class CaseTest(TestCase, CaseTestMixin):
         self.user_owner = User.objects.create_user(
             name="org owner",  # /PS-IGNORE
             email="owner@test.com",  # /PS-IGNORE
-            password='FSHJ3J472!£@3Fsdf',  # /PS-IGNORE
-            assign_default_groups=False
+            password="FSHJ3J472!£@3Fsdf",  # /PS-IGNORE
+            assign_default_groups=False,
         )
         self.notice = Notice.objects.create(
-            name='notice 1',
-            reference='reference 1',
-            case_type=CaseType.objects.get(acronym='AD'),
+            name="notice 1",
+            reference="reference 1",
+            case_type=CaseType.objects.get(acronym="AD"),
             published_at=self.now - datetime.timedelta(weeks=60),
-            terminated_at=self.now + datetime.timedelta(weeks=60)
+            terminated_at=self.now + datetime.timedelta(weeks=60),
         )
         self.notice_expected_type_acronyms = {
             "IR",
@@ -39,9 +36,7 @@ class CaseTest(TestCase, CaseTestMixin):
             "RI",
             "SE",
             "SS",
-            "BU"
-            "TQ"
-            "CE"
+            "BU" "TQ" "CE",
         }
 
     def test_correct_review_types(self):
@@ -89,11 +84,11 @@ class CaseTest(TestCase, CaseTestMixin):
                 self.assertEqual(available_review["dates"]["status"], "ok")
 
     def test_correct_review_types_sf(self):
-        """Tests that when the case_type of the Notice is changed, the review types should not.
-        """
+        """Tests that when the case_type of the Notice is changed, the review types should not."""
         previous_available_review_types = self.notice.available_case_review_types()
         self.notice.case_type = CaseType.objects.get(
-            acronym='SF')  # Change to safeguarding investigation
+            acronym="SF"
+        )  # Change to safeguarding investigation
         self.notice.save()
         available_review_types = self.notice.available_case_review_types()
 
