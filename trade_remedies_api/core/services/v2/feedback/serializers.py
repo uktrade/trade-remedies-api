@@ -1,8 +1,6 @@
-from django_restql.fields import NestedField
-
 from config.serializers import CustomValidationModelSerializer
 from core.models import Feedback
-from core.services.v2.users.serializers import UserSerializer
+from rest_framework import serializers
 
 
 class FeedbackSerializer(CustomValidationModelSerializer):
@@ -10,4 +8,9 @@ class FeedbackSerializer(CustomValidationModelSerializer):
         model = Feedback
         fields = "__all__"
 
-    user = NestedField(serializer_class=UserSerializer, accept_pk=True)
+    verbose_rating_name = serializers.ReadOnlyField(source="get_rating_display")
+    verbose_what_didnt_go_so_well = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_verbose_what_didnt_go_so_well(instance):
+        display_choices = dict(Feedback.what_didnt_work_so_well)
