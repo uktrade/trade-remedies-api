@@ -13,4 +13,9 @@ class FeedbackSerializer(CustomValidationModelSerializer):
 
     @staticmethod
     def get_verbose_what_didnt_go_so_well(instance):
-        display_choices = dict(Feedback.what_didnt_work_so_well)
+        display_choices = dict(Feedback.what_didnt_work_so_well_choices)
+        return (
+            [display_choices[each] for each in instance.what_didnt_work_so_well]
+            if instance.what_didnt_work_so_well
+            else []
+        )

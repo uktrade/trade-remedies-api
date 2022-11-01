@@ -1493,7 +1493,9 @@ class Feedback(SimpleBaseModel):
 
     logged_in = models.BooleanField()
     rating = models.PositiveSmallIntegerField(choices=rating_choices)
-    what_didnt_work_so_well = ArrayField(null=True, base_field=models.CharField(max_length=50, null=True))
+    what_didnt_work_so_well = ArrayField(
+        null=True, base_field=models.CharField(max_length=50, null=True)
+    )
     what_didnt_work_so_well_other = models.TextField(null=True)
     how_could_we_improve_service = models.TextField(null=True)
     url = models.CharField(max_length=300)
