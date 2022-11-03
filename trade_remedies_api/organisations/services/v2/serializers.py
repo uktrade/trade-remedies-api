@@ -75,6 +75,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         from cases.services.v2.serializers import CaseSerializer
 
         from cases.models import Case
+
         user_cases = UserCase.objects.filter(
             user__organisationuser__organisation=instance,
             case__deleted_at__isnull=True,
