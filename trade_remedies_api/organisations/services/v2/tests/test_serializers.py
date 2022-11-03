@@ -43,3 +43,7 @@ class TestOrganisationSerializer(CaseSetupTestMixin):
         assert serializer.data["invitations"]
         assert len(serializer.data["invitations"]) == 1
         assert serializer.data["invitations"][0]["id"] == str(invitation.id)
+
+class TestOrganisationCaseRoleSerializer(CaseSetupTestMixin):
+    def test_normal(self):
+        pass
