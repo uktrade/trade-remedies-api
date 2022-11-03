@@ -14,6 +14,11 @@ from core.tasks import check_email_delivered
 
 MOCK_AUDIT_EMAIL_TO_ADDRESS = "test@example.com"  # /PS-IGNORE
 
+# use pytest patch to mock a working and failing smtp server
+# instead of email being sent through mail system, it mocks it so we don't have to wait
+# maybe make smtp lib a variable that can either be a mock or the real
+# LITE has integration tests that run after deployment
+
 
 @override_settings(
     AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS,
