@@ -522,7 +522,15 @@ class Submission(BaseModel):
     def _to_embedded_dict(self, **kwargs):  # noqa
         downloaded_count = self.submissiondocument_set.filter(downloads__gt=0).count()
         out = self.to_minimal_dict()
-        invitations = [{"id": invite.id, "name": str(invite)} for invite in self.invitations.all()]
+        invitations = [
+            {
+                "id": invite.id,
+                "name": str(invite),
+                "invited_user_name": invite.contact.name if invite.contact else "",
+                "deleted_at": invite.deleted_at,
+            }
+            for invite in self.invitations.all()
+        ]
         out.update(
             {
                 # how many documents were downloaded at least once
