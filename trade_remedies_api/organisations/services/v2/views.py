@@ -58,4 +58,4 @@ class OrganisationCaseRoleViewSet(viewsets.ModelViewSet):
         if organisation_id := self.request.query_params.get("organisation_id"):
             filter_kwargs["organisation_id"] = organisation_id
 
-        return self.queryset.filter(**filter_kwargs)
+        return self.queryset.filter(**filter_kwargs).distinct("case_id", "organisation_id")

@@ -9,6 +9,8 @@ from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, Us
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
     case = serializers.SerializerMethodField()
+    validated_by = UserSerializer(fields=["name", "email"])
+    role_name = serializers.CharField(source="role.name")
 
     class Meta:
         model = OrganisationCaseRole
@@ -72,14 +74,18 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         """Return all cases that this organisation is a part of."""
         from cases.services.v2.serializers import CaseSerializer
 
-        cases = UserCase.objects.filter(
+        from cases.models import Case
+        user_cases = UserCase.objects.filter(
             user__organisationuser__organisation=instance,
             case__deleted_at__isnull=True,
             case__archived_at__isnull=True,
         ).select_related("case")
+        cases = Case.objects.filter(usercase__in=user_cases).distinct()
+
         if request := self.context.get("request", None):
-            cases = cases.filter(user=request.user)
-        return [CaseSerializer(each.case).data for each in cases]
+            if not request.user.is_tra():
+                cases = cases.filter(user=request.user)
+        return CaseSerializer(cases, many=True).data
 
     def get_invitations(self, instance):
         """Return all invitations that this organisation has sent."""
