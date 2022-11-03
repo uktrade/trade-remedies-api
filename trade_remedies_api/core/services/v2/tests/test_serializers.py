@@ -8,7 +8,6 @@ class TestUserSerializer(CaseSetupTestMixin):
         serializer = UserSerializer(instance=self.user)
         assert not serializer.data["cases"]
         assert not serializer.data["organisation"]
-        assert "password" not in serializer.data
 
     def test_cases(self):
         self.case_object.assign_user(
@@ -26,3 +25,10 @@ class TestUserSerializer(CaseSetupTestMixin):
         serializer = UserSerializer(instance=self.user)
         assert serializer.data["organisation"]
         assert str(self.organisation.id) == serializer.data["organisation"]["id"]
+
+    def test_password_cant_be_updated(self):
+        hashed_password = self.user.password
+        serializer = UserSerializer(instance=self.user, data={"password": "new_testpassword123!DD"})
+        serializer.save()
+        self.user.refresh_from_db()
+        assert hashed_password == self.user.password

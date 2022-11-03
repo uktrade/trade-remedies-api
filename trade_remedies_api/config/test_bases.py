@@ -1,7 +1,8 @@
 from django.contrib.auth.models import Group
 from django.test import TestCase
 
-from cases.models import Case, CaseType
+from cases.models import Case, CaseType, ExportSource, Product, Sector
+from contacts.models import Contact
 from core.models import User
 from organisations.models import Organisation
 from security.constants import (
@@ -33,6 +34,7 @@ class UserSetupTestBase(TestCase):
             email=email,
             password=password,
         )
+        self.contact_object = self.user.contact
         self.user_group = Group.objects.create(name=SECURITY_GROUP_ORGANISATION_USER)
         self.owner_group = Group.objects.create(name=SECURITY_GROUP_ORGANISATION_OWNER)
         self.third_party_group = Group.objects.create(name=SECURITY_GROUP_THIRD_PARTY_USER)
@@ -51,5 +53,14 @@ class OrganisationSetupTestMixin(UserSetupTestBase):
 class CaseSetupTestMixin(OrganisationSetupTestMixin):
     def setUp(self) -> None:
         super().setUp()
+
         self.case_type_object = CaseType.objects.create(name="")
-        self.case_object = Case.objects.create(name="test case", type=self.case_type_object)
+        self.case_object = Case.objects.create(
+            name="test case",
+            type=self.case_type_object,
+        )
+        self.sector_object = Sector.objects.create(name="sector", code="sector")
+        self.export_source_object = ExportSource.objects.create(country="GB", case=self.case_object)
+        self.product_object = Product.objects.create(
+            sector=self.sector_object, name="product", case=self.case_object
+        )

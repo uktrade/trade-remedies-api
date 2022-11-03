@@ -1,5 +1,7 @@
 from django.contrib.auth.models import Group
 
+from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
+from cases.models import Submission, get_submission_type
 from config.test_bases import CaseSetupTestMixin, OrganisationSetupTestMixin
 from contacts.models import Contact
 from core.models import User
@@ -14,6 +16,16 @@ new_email = "new_email@example.com"  # /PS-IGNORE
 class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
     def setUp(self) -> None:
         super().setUp()
+        submission_type = get_submission_type(SUBMISSION_TYPE_INVITE_3RD_PARTY)
+        submission_status = submission_type.default_status
+        self.submission_object = Submission.objects.create(
+            name="Invite 3rd party",
+            type=submission_type,
+            status=submission_status,
+            case=self.case_object,
+            contact=self.contact_object,
+            organisation=self.organisation,
+        )
         self.invitation_object = Invitation.objects.create(
             organisation_security_group=Group.objects.get(name=SECURITY_GROUP_ORGANISATION_USER),
             name="test name",
@@ -21,6 +33,8 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
             organisation=self.organisation,
             case=self.case_object,
             user=self.user,
+            submission=self.submission_object,
+            contact=self.contact_object,
         )
 
     def test_update_contact_creation(self):
