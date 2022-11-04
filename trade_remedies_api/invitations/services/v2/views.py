@@ -15,6 +15,10 @@ from core.services.v2.users.serializers import UserSerializer
 from core.utils import public_login_url
 from invitations.models import Invitation
 from invitations.services.v2.serializers import InvitationSerializer
+from security.constants import (
+    ROLE_AWAITING_APPROVAL,
+)
+from security.models import OrganisationCaseRole, CaseRole
 
 
 class InvitationViewSet(BaseModelViewSet):
@@ -160,7 +164,7 @@ class InvitationViewSet(BaseModelViewSet):
                 deadline = invitation_object.case.registration_deadline.strftime("%d %B %Y")
                 on_or_before_due_date = True
 
-            # determine if user has account
+            # determine if contact has an existing user account
             if invitation_object.contact.has_user:
                 new_user = False
                 login_url = public_login_url()
@@ -170,7 +174,15 @@ class InvitationViewSet(BaseModelViewSet):
                 new_user = True
                 login_url = f"{settings.PUBLIC_ROOT_URL}/cases/accept_invite/{invitation_object.id}/start/"
 
-            # new_user = False if invitation_object.contact.has_user else True
+            # The following (create OrganisationCaseRole)is no longer required? 03/11/2022.
+            # # Creating an OrganisationCaseRole object with status awaiting_approval
+            # OrganisationCaseRole.objects.assign_organisation_case_role(
+            #     organisation=invitation_object.contact.organisation,
+            #     case=invitation_object.case,
+            #     role=ROLE_AWAITING_APPROVAL,
+            #     approved_at=None,  # approval done later
+            #     approved_by=None,  # approval done later
+            # )
 
             # This is an invitation sent by the TRA
             invitation_object.send(
