@@ -129,18 +129,13 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
     def test_user_cases_to_link_deleted(self):
         """Checks that user_cases_to_link is cleared when we perform an update and choose later"""
         user_case_object = UserCase.objects.create(
-            user=self.user,
-            case=self.case_object,
-            organisation=self.organisation
+            user=self.user, case=self.case_object, organisation=self.organisation
         )
         self.invitation_object.user_cases_to_link.add(user_case_object)
         assert user_case_object in self.invitation_object.user_cases_to_link.all()
         self.client.put(
             f"/api/v2/invitations/{self.invitation_object.pk}/",
-            data={
-                "name": "new NEW name",
-                "user_cases_to_link": "choose_user_case_later"
-            },
+            data={"name": "new NEW name", "user_cases_to_link": "choose_user_case_later"},
         )
         self.invitation_object.refresh_from_db()
         assert user_case_object not in self.invitation_object.user_cases_to_link.all()

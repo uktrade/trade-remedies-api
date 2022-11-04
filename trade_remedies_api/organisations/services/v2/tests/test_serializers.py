@@ -62,14 +62,8 @@ class TestOrganisationSerializer(CaseSetupTestMixin):
 class TestOrganisationCaseRoleSerializer(CaseSetupTestMixin):
     @classmethod
     def setUpClass(cls):
-        cls.applicant_case_role = CaseRole.objects.create(
-            key="applicant",
-            name="Applicant"
-        )
-        cls.contributor_case_role = CaseRole.objects.create(
-            key="contributor",
-            name="Contributor"
-        )
+        cls.applicant_case_role = CaseRole.objects.create(key="applicant", name="Applicant")
+        cls.contributor_case_role = CaseRole.objects.create(key="contributor", name="Contributor")
         super().setUpClass()
 
     def test_role_key_conversion(self):
