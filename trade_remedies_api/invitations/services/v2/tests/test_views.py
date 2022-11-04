@@ -144,4 +144,3 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
         )
         self.invitation_object.refresh_from_db()
         assert user_case_object not in self.invitation_object.user_cases_to_link.all()
-

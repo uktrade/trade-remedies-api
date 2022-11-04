@@ -62,31 +62,34 @@ class TestOrganisationSerializer(CaseSetupTestMixin):
 class TestOrganisationCaseRoleSerializer(CaseSetupTestMixin):
     @classmethod
     def setUpClass(cls):
+        cls.applicant_case_role = CaseRole.objects.create(
+            key="applicant",
+            name="Applicant"
+        )
+        cls.contributor_case_role = CaseRole.objects.create(
+            key="contributor",
+            name="Contributor"
+        )
         super().setUpClass()
-        call_command("loaddata", "security/fixtures/actions.json")
-        call_command("loaddata", "security/fixtures/roles.json")
 
     def test_role_key_conversion(self):
         """Tests that passing role_key in post data gets converted to CaseRole object"""
-        applicant_role = CaseRole.objects.get(key="applicant")
-        contributor_role = CaseRole.objects.get(key="contributor")
-
         new_org_case_role, _ = OrganisationCaseRole.objects.assign_organisation_case_role(
-            organisation=self.organisation, case=self.case_object, role=applicant_role
+            organisation=self.organisation, case=self.case_object, role=self.applicant_case_role
         )
-        assert new_org_case_role.role == applicant_role
+        assert new_org_case_role.role == self.applicant_case_role
         serializer = OrganisationCaseRoleSerializer(
             new_org_case_role, data={"role_key": "contributor"}
         )
         assert serializer.is_valid()
         new_org_case_role = serializer.save()
-        assert new_org_case_role.role == contributor_role
+        assert new_org_case_role.role == self.contributor_case_role
 
     def test_get_case(self):
         org_case_role = OrganisationCaseRole.objects.create(
             organisation=self.organisation,
             case=self.case_object,
-            role=CaseRole.objects.get(key="applicant"),
+            role=self.applicant_case_role,
         )
         serializer = OrganisationCaseRoleSerializer(org_case_role)
         assert serializer.data["case"]["id"] == str(self.case_object.id)

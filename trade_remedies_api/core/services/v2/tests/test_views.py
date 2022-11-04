@@ -14,4 +14,3 @@ class TestContactViewSet(CaseSetupTestMixin, FunctionalTestBase):
             data={"organisation_id": new_organisation.id},
         )
         assert self.contact_object.organisation_id == new_organisation.id
-
