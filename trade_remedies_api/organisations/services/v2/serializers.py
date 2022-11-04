@@ -43,7 +43,8 @@ class OrganisationUserSerializer(CustomValidationModelSerializer):
 
 
 class OrganisationSerializer(CustomValidationModelSerializer):
-    country = serializers.SerializerMethodField()
+    country = serializers.CharField(source="country.alpha3", required=False)
+    country_code = serializers.ReadOnlyField(source="country.code")
     organisationuser_set = OrganisationUserSerializer(many=True, required=False)
     cases = serializers.SerializerMethodField()
     invitations = serializers.SerializerMethodField()
@@ -65,10 +66,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         from security.services.v2.serializers import UserCaseSerializer
 
         return UserCaseSerializer(user_cases, many=True).data
-
-    @staticmethod
-    def get_country(instance):
-        return instance.country.alpha3
 
     def get_cases(self, instance):
         """Return all cases that this organisation is a part of."""
@@ -104,3 +101,9 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     def get_validated(self, instance):
         """Returns true if the organisation has been validated on the TRS at some point"""
         return instance.organisationcaserole_set.filter(validated_at__isnull=False).exists()
+
+    def to_internal_value(self, data):
+        data = super().to_internal_value(data)
+        if "country" in data and isinstance(data["country"], dict):
+            data["country"] = data["country"]["alpha3"]
+        return data
