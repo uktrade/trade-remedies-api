@@ -174,16 +174,6 @@ class InvitationViewSet(BaseModelViewSet):
                 new_user = True
                 login_url = f"{settings.PUBLIC_ROOT_URL}/cases/accept_invite/{invitation_object.id}/start/"
 
-            # The following (create OrganisationCaseRole)is no longer required? 03/11/2022.
-            # # Creating an OrganisationCaseRole object with status awaiting_approval
-            # OrganisationCaseRole.objects.assign_organisation_case_role(
-            #     organisation=invitation_object.contact.organisation,
-            #     case=invitation_object.case,
-            #     role=ROLE_AWAITING_APPROVAL,
-            #     approved_at=None,  # approval done later
-            #     approved_by=None,  # approval done later
-            # )
-
             # This is an invitation sent by the TRA
             invitation_object.send(
                 sent_by=request.user,
