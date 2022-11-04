@@ -27,10 +27,14 @@ class TestUserSerializer(CaseSetupTestMixin):
 
     def test_password_cant_be_updated(self):
         hashed_password = self.user.password
-        serializer = UserSerializer(instance=self.user, data={
-            "password": "new_testpassword123!DD",
-            "name": "new_name"
-        })
+        serializer = UserSerializer(
+            instance=self.user,
+            data={
+                "password": "new_testpassword123!DD",
+                "name": "new_name",
+                "email": self.user.email,
+            },
+        )
         assert serializer.is_valid()
         serializer.save()
         self.user.refresh_from_db()
@@ -38,18 +42,17 @@ class TestUserSerializer(CaseSetupTestMixin):
         assert self.user.name == "new_name"
 
     def test_unusable_password(self):
-        serializer = UserSerializer(data={
-            "email": "new_user@example.com",
-            "name": "new user",
-        })
+        serializer = UserSerializer(data={"name": "new user", "email": self.user.email})
         assert serializer.is_valid()
         new_user = serializer.save()
         assert not new_user.has_usable_password()
 
     def test_invalid_password(self):
-        serializer = UserSerializer(data={
-            "email": "new_user@example.com",
-            "name": "new user",
-            "password": "invalid_password"
-        })
+        serializer = UserSerializer(
+            data={
+                "email": "new_user@example.com",  # /PS-IGNORE
+                "name": "new user",
+                "password": "invalid_password",
+            }
+        )
         assert not serializer.is_valid()

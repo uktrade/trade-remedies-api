@@ -1,14 +1,3 @@
-from django.core.management import call_command
-
-from config.test_bases import CaseSetupTestMixin
-from invitations.models import Invitation
-from organisations.services.v2.serializers import (
-    OrganisationCaseRoleSerializer,
-    OrganisationSerializer,
-)
-from security.models import CaseRole, OrganisationCaseRole
-from django.core.management import call_command
-
 from config.test_bases import CaseSetupTestMixin
 from invitations.models import Invitation
 from organisations.services.v2.serializers import (
@@ -62,9 +51,9 @@ class TestOrganisationSerializer(CaseSetupTestMixin):
 class TestOrganisationCaseRoleSerializer(CaseSetupTestMixin):
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.applicant_case_role = CaseRole.objects.create(key="applicant", name="Applicant")
         cls.contributor_case_role = CaseRole.objects.create(key="contributor", name="Contributor")
-        super().setUpClass()
 
     def test_role_key_conversion(self):
         """Tests that passing role_key in post data gets converted to CaseRole object"""

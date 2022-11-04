@@ -11,4 +11,5 @@ class TestContactViewSet(CaseSetupTestMixin, FunctionalTestBase):
             f"/api/v2/contacts/{self.contact_object.pk}/change_organisation/",
             data={"organisation_id": new_organisation.id},
         )
+        self.contact_object.refresh_from_db()
         assert self.contact_object.organisation_id == new_organisation.id
