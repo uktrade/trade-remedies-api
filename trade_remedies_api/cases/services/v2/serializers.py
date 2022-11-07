@@ -91,7 +91,7 @@ class SubmissionSerializer(CustomValidationModelSerializer):
         return Submission.objects.create(
             status=validated_data["type"].default_status,
             name=validated_data["type"].name,
-            **validated_data
+            **validated_data,
         )
 
     def update(self, instance, validated_data):
