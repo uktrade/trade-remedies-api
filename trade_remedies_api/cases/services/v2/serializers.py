@@ -15,7 +15,6 @@ from config.serializers import CustomValidationModelSerializer
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from documents.services.v2.serializers import DocumentSerializer
 from organisations.services.v2.serializers import OrganisationSerializer
-from security.models import UserCase
 
 
 class CaseTypeSerializer(CustomValidationModelSerializer):
@@ -94,6 +93,15 @@ class SubmissionSerializer(CustomValidationModelSerializer):
             name=validated_data["type"].name,
             **validated_data
         )
+
+    def update(self, instance, validated_data):
+        if deficiency_notice_params := validated_data.pop("deficiency_notice_params", None):
+            # we're updating the deficiency_notice_params field, it's a JSONField so let's update,
+            # rather than overwrite
+            if not instance.deficiency_notice_params:
+                instance.deficiency_notice_params = {}
+            instance.deficiency_notice_params.update(deficiency_notice_params)
+        return super().update(instance, validated_data)
 
     def get_paired_documents(self, instance):
         # We need to order the documents, so they come in pairs (confidential, non_confidential)
