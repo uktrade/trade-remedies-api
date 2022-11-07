@@ -39,4 +39,4 @@ class InvitationSerializer(CustomValidationModelSerializer):
     )
     cases_to_link = NestedField(serializer_class=CaseSerializer, many=True, required=False)
     user_cases_to_link = NestedField(serializer_class=UserCaseSerializer, many=True, required=False)
-    case = CaseSerializer(required=False)
+    case = NestedField(required=False, serializer_class=CaseSerializer, accept_pk=True)

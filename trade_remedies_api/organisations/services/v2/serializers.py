@@ -78,11 +78,11 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             case__deleted_at__isnull=True,
             case__archived_at__isnull=True,
         ).select_related("case")
-        cases = Case.objects.filter(usercase__in=user_cases).distinct()
-
         if request := self.context.get("request", None):
             if not request.user.is_tra():
-                cases = cases.filter(user=request.user)
+                cases = user_cases.filter(user=request.user)
+
+        cases = Case.objects.filter(usercase__in=user_cases).distinct()
         return CaseSerializer(cases, many=True).data
 
     def get_invitations(self, instance):

@@ -8,13 +8,13 @@ from rest_framework.response import Response
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
 from cases.models import Submission, get_submission_type
 from config.viewsets import BaseModelViewSet
-from contacts.models import Contact
+from contacts.models import CaseContact, Contact
 from core.models import User
 from core.services.v2.users.serializers import UserSerializer
 from invitations.models import Invitation
 from invitations.services.v2.serializers import InvitationSerializer
-from security.constants import ROLE_AWAITING_APPROVAL, SECURITY_GROUP_THIRD_PARTY_USER
-from security.models import OrganisationCaseRole, UserCase
+from security.constants import SECURITY_GROUP_THIRD_PARTY_USER
+from security.models import UserCase
 
 
 class InvitationViewSet(BaseModelViewSet):
@@ -47,15 +47,6 @@ class InvitationViewSet(BaseModelViewSet):
             invitation_object.organisation_security_group = Group.objects.get(
                 name=SECURITY_GROUP_THIRD_PARTY_USER
             )
-
-            # let's create an OrgCaseRole between the invited org and the case with awaiting approval
-            OrganisationCaseRole.objects.assign_organisation_case_role(
-                organisation=invitation_object.contact.organisation,
-                case=invitation_object.case,
-                role=ROLE_AWAITING_APPROVAL,
-                approved_at=None,
-                approved_by=None,
-            )
         invitation_object.save()
 
         return invitation_object
@@ -66,12 +57,12 @@ class InvitationViewSet(BaseModelViewSet):
             # invitation object doesn't already have a contact or the contact associated with the
             # invitation has different name/email to the submitted
             if (
-                serializer.instance.contact
-                and (
+                    serializer.instance.contact
+                    and (
                     serializer.instance.contact.name != serializer.validated_data["name"]
                     or serializer.instance.contact.email != serializer.validated_data["email"]
-                )
-                or not serializer.instance.contact
+            )
+                    or not serializer.instance.contact
             ):
                 contact_object = Contact.objects.create(
                     created_by=self.request.user,
@@ -113,6 +104,24 @@ class InvitationViewSet(BaseModelViewSet):
                 serializer.instance.user_cases_to_link.add(*user_case_objects)
                 serializer.save()
 
+        if updated_contact := serializer.validated_data.get("contact"):
+            # Let's create a CaseContact to link the contact to the case
+
+            if original_contact := serializer.instance.contact:
+                # first let's delete the previous one if it exists
+                CaseContact.objects.filter(
+                    contact=original_contact,
+                    case=serializer.instance.case,
+                    organisation=serializer.instance.organisation
+                ).delete()
+
+            # creating the new one with the updated contact
+            CaseContact.objects.filter(
+                contact=updated_contact,
+                case=serializer.instance.case,
+                organisation=serializer.instance.organisation  # the inviting organisation
+            )
+
         return super().perform_update(serializer)
 
     @action(detail=True, methods=["post"], url_name="send_invitation")
@@ -131,7 +140,7 @@ class InvitationViewSet(BaseModelViewSet):
                 template_key="NOTIFY_INVITE_ORGANISATION_USER",
                 context={
                     "login_url": f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/"
-                    f"{invitation_object.id}/start/"
+                                 f"{invitation_object.id}/start/"
                 },
             )
         elif invitation_object.invitation_type == 2:
