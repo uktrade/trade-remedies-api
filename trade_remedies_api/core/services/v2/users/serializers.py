@@ -58,6 +58,7 @@ class UserSerializer(CustomValidationModelSerializer):
         model = User
         fields = "__all__"
 
+    password = serializers.CharField(required=False)
     email = serializers.EmailField()
     cases = serializers.SerializerMethodField()
     organisation = serializers.SerializerMethodField()
