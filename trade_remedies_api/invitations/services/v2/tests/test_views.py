@@ -136,7 +136,7 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
         self.client.patch(
             f"/api/v2/invitations/{self.invitation_object.pk}/",
             data={"name": "new NEW name", "user_cases_to_link": "choose_user_case_later"},
-            content_type="application/x-www-form-urlencoded"
+            content_type="application/x-www-form-urlencoded",
         )
         self.invitation_object.refresh_from_db()
         assert user_case_object not in self.invitation_object.user_cases_to_link.all()
