@@ -94,7 +94,6 @@ class SubmissionSerializer(CustomValidationModelSerializer):
             **validated_data,
         )
 
-
     def update(self, instance, validated_data):
         if deficiency_notice_params := validated_data.pop("deficiency_notice_params", None):
             # we're updating the deficiency_notice_params field, it's a JSONField so let's update,

@@ -21,6 +21,19 @@ class InvitationViewSet(BaseModelViewSet):
     queryset = Invitation.objects.all()
     serializer_class = InvitationSerializer
 
+    def get_queryset(self):
+        """We can filter the queryset using GET query parameters.
+
+        type_id: the type of submission associated with the invitation
+        contact_organisation_id: the ID of the organisation the contact of the invitation is part of
+        """
+        queryset = super().get_queryset()
+        if type_id := self.request.GET.get("type_id"):
+            queryset = queryset.filter(submission__type_id=type_id)
+        if contact_organisation_id := self.request.GET.get("contact_organisation_id"):
+            queryset = queryset.filter(contact__organisation_id=contact_organisation_id)
+        return queryset
+
     @transaction.atomic
     def perform_create(self, serializer):
         invitation_object = serializer.save(
@@ -57,12 +70,12 @@ class InvitationViewSet(BaseModelViewSet):
             # invitation object doesn't already have a contact or the contact associated with the
             # invitation has different name/email to the submitted
             if (
-                    serializer.instance.contact
-                    and (
+                serializer.instance.contact
+                and (
                     serializer.instance.contact.name != serializer.validated_data["name"]
                     or serializer.instance.contact.email != serializer.validated_data["email"]
-            )
-                    or not serializer.instance.contact
+                )
+                or not serializer.instance.contact
             ):
                 contact_object = Contact.objects.create(
                     created_by=self.request.user,
@@ -112,14 +125,14 @@ class InvitationViewSet(BaseModelViewSet):
                 CaseContact.objects.filter(
                     contact=original_contact,
                     case=serializer.instance.case,
-                    organisation=serializer.instance.organisation
+                    organisation=serializer.instance.organisation,
                 ).delete()
 
             # creating the new one with the updated contact
             CaseContact.objects.filter(
                 contact=updated_contact,
                 case=serializer.instance.case,
-                organisation=serializer.instance.organisation  # the inviting organisation
+                organisation=serializer.instance.organisation,  # the inviting organisation
             )
 
         return super().perform_update(serializer)
@@ -140,7 +153,7 @@ class InvitationViewSet(BaseModelViewSet):
                 template_key="NOTIFY_INVITE_ORGANISATION_USER",
                 context={
                     "login_url": f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/"
-                                 f"{invitation_object.id}/start/"
+                    f"{invitation_object.id}/start/"
                 },
             )
         elif invitation_object.invitation_type == 2:
