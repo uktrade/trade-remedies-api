@@ -87,14 +87,18 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             representation = {
                 "on_behalf_of": case_contact.organisation.name,
                 "case": CaseSerializer(case_contact.case).data,
-                "role": corresponding_org_case_role.role.name
+                "role": corresponding_org_case_role.role.name,
             }
             # now we need to find if this case_contact has been created as part of an ROI or an invitation
-            invitation = Invitation.objects.filter(
-                contact__organisation=instance,
-                case=case_contact.case,
-                organisation=case_contact.organisation,
-            ).order_by("-last_modified").first()
+            invitation = (
+                Invitation.objects.filter(
+                    contact__organisation=instance,
+                    case=case_contact.case,
+                    organisation=case_contact.organisation,
+                )
+                .order_by("-last_modified")
+                .first()
+            )
             if invitation:
                 representation.update(
                     {
@@ -120,10 +124,12 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                         case=case_contact.case,
                         organisation=case_contact.organisation,
                     )
-                    representation.update({
-                        "validated": bool(corresponding_org_case_role.validated_at),
-                        "validated_at": corresponding_org_case_role.validated_at
-                    })
+                    representation.update(
+                        {
+                            "validated": bool(corresponding_org_case_role.validated_at),
+                            "validated_at": corresponding_org_case_role.validated_at,
+                        }
+                    )
                     representations.append(representation)
                 except Submission.DoesNotExist:
                     ...
@@ -152,10 +158,10 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 )
                 if response.status_code == 200:
                     if (
-                            response.json().get(
-                                "company_name",
-                            )
-                            == organisation_name
+                        response.json().get(
+                            "company_name",
+                        )
+                        == organisation_name
                     ):
                         return True
         return False
