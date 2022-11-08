@@ -99,7 +99,10 @@ class UserManager(BaseUserManager):
             # throw an exception, then do so, what are you waiting for!
             raise Exception(f"User with email {email} already exists")
 
-        validate_password(password)
+        if password:
+            # we only want to validate the password if it has been provided
+            validate_password(password)
+        # a None password here will generate an unusable password
         new_user.set_password(password)
         TwoFactorAuth.objects.get_or_create(user=new_user)
         contact = contact or Contact.objects.create(
