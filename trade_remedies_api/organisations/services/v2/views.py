@@ -48,12 +48,21 @@ class OrganisationViewSet(viewsets.ModelViewSet):
     )
     def search_by_company_name(self, request, *args, **kwargs):
         company_name = request.GET["company_name"]
-        matching_organisations = (Organisation.objects.annotate(
-            similarity=TrigramSimilarity('name', company_name),
-            ).filter(similarity__gt=0.3).order_by('-similarity')
+        matching_organisations = (
+            Organisation.objects.annotate(
+                similarity=TrigramSimilarity("name", company_name),
+            )
+            .filter(similarity__gt=0.3)
+            .order_by("-similarity")
         )
 
-        return Response(OrganisationSerializer(instance=matching_organisations, many=True, fields=['name', 'address', 'post_code', 'companies_house_id', 'id']).data)
+        return Response(
+            OrganisationSerializer(
+                instance=matching_organisations,
+                many=True,
+                fields=["name", "address", "post_code", "companies_house_id", "id"],
+            ).data
+        )
 
 
 class OrganisationCaseRoleViewSet(viewsets.ModelViewSet):
