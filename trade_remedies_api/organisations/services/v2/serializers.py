@@ -64,7 +64,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     @staticmethod
     def get_contacts(instance):
         from core.services.v2.users.serializers import ContactSerializer
-        return [ContactSerializer(each).data for each in instance.contacts.all()]
+        return ContactSerializer(instance.contacts.all(), many=True).data
 
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
