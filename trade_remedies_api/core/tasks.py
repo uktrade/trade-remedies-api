@@ -147,7 +147,7 @@ def check_email_delivered(self, delivery_id, context):
 
     # getting the HTML preview from notify
     case_email = notify_contact_email(context.get("case_number"))
-    context["footer"] = notify_footer(email=case_email)
+    context.update({"footer": notify_footer(email=case_email)})
     email_preview = notify.post_template_preview(
         template_id=email["template"]["id"], personalisation=context
     )

@@ -1,6 +1,6 @@
 import smtplib
-import time
 import uuid
+from unittest.mock import Mock, patch
 
 from celery.exceptions import Retry
 from django.conf import settings
@@ -9,7 +9,7 @@ from django.test import TestCase, override_settings
 from notifications_python_client.errors import HTTPError
 
 from core.models import SystemParameter
-from core.notifier import get_client
+from core.notifier import get_client, notify_contact_email, notify_footer
 from core.tasks import check_email_delivered
 
 MOCK_AUDIT_EMAIL_TO_ADDRESS = "test@example.com"  # /PS-IGNORE
@@ -18,6 +18,34 @@ MOCK_AUDIT_EMAIL_TO_ADDRESS = "test@example.com"  # /PS-IGNORE
 # instead of email being sent through mail system, it mocks it so we don't have to wait
 # maybe make smtp lib a variable that can either be a mock or the real
 # LITE has integration tests that run after deployment
+
+random_uuid = str(uuid.uuid4())
+
+
+def fake_get_notification_by_id():
+    return {
+        "id": random_uuid,
+        "subject": 'Sign-in authentication code for Trade Remedies Service',
+        "status": "delivered",
+        "email_address": MOCK_AUDIT_EMAIL_TO_ADDRESS
+    }
+
+
+def fake_post_template_preview():
+    return {
+        "id": random_uuid,
+        "body": notify_footer(),
+        "html": "<p>Random HTML STRING</p>"
+    }
+
+
+def fake_sendmail(from_address, to_address, text):
+    return {}
+
+notifications_python_client = Mock()
+notifications_python_client.NotificationsAPIClient.post_template_preview.return_value = fake_post_template_preview()
+notifications_python_client.NotificationsAPIClient.get_notification_by_id.return_value = fake_get_notification_by_id()
+smtplib.SMTP = Mock()
 
 
 @override_settings(
@@ -30,22 +58,18 @@ class TestAuditEmail(TestCase):
         super().setUpClass()
         call_command("load_sysparams")  # Load system parameters
         call_command("notify_env")  # Load the template IDs from GOV.NOTIFY
-        cls.notify = get_client()
         cls.personalisation = {"code": "test_code", "footer": "test footer"}
         cls.template_id = SystemParameter.get("PUBLIC_2FA_CODE_EMAIL")
-        cls.send_report = cls.notify.send_email_notification(
-            email_address=MOCK_AUDIT_EMAIL_TO_ADDRESS,
-            template_id=cls.template_id,
-            personalisation=cls.personalisation,
-            reference=f"TEST-{uuid.uuid4()}",
-        )
-        time.sleep(5)  # sleep for a little to allow the email to send
 
-    def test_smtp_connection(self):
-        """Testing that the smtp connection can be made"""
-        server = smtplib.SMTP(settings.AUDIT_EMAIL_SMTP_HOST, settings.AUDIT_EMAIL_SMTP_PORT)
-        server.starttls()
-        server.login(settings.AUDIT_EMAIL_SMTP_USERNAME, settings.AUDIT_EMAIL_SMTP_PASSWORD)
+        with patch('notifications_python_client.NotificationsAPIClient.send_email_notification',
+                   return_value=random_uuid):
+            cls.notify = get_client()
+            cls.send_report = cls.notify.send_email_notification(
+                email_address=MOCK_AUDIT_EMAIL_TO_ADDRESS,
+                template_id=cls.template_id,
+                personalisation=cls.personalisation,
+                reference=f"TEST-{uuid.uuid4()}",
+            )
 
     def test_audit_email_sent(self):
         sent_mail, msg = check_email_delivered(
@@ -65,15 +89,6 @@ class TestAuditEmail(TestCase):
         with self.assertRaises(HTTPError) as e:
             check_email_delivered(delivery_id=uuid.uuid4(), context=self.personalisation)
         self.assertEqual(e.exception.status_code, 404)
-
-    def test_missing_footer(self):
-        """Tests that the missing footer parameter is inserted into the email"""
-        sent_mail, msg = check_email_delivered(
-            delivery_id=self.send_report["id"], context={"code": "test_code"}
-        )
-        body = str(msg)
-        self.assertIn("Department for International Trade", body)
-        self.assertIn("Investigations Team", body)
 
     def test_correct_footer(self):
         sent_mail, msg = check_email_delivered(
