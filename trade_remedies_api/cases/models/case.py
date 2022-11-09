@@ -103,11 +103,6 @@ class CaseOrNotice:
                         )
                     else:
                         end_date = rel_date if not end_date or (rel_date < end_date) else end_date
-                elif criterion == "parent_case_types":
-                    # Some review types are only allowed if they're on a case with a particular case type
-                    acronym = self.type.acronym
-                    if acronym not in test.get("value", []):
-                        status = "invalid_case_type"
                 elif criterion == "state_value":
                     # Some review types are only allowed on cases which have reached a certain point in their worflow
                     state_value = self.get_state_key(key=test["key"])
@@ -1119,11 +1114,6 @@ class Case(BaseModel, CaseOrNotice):
             context["submission_request_name"] = submission.name
             context["submission_type"] = submission.type.name
             context["submission_name"] = submission.name
-
-        if template_name == "DRAFT_SUBMISSION_CANCELLED":
-            context[
-                "footer"
-            ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade\r\nContact: contact@traderemedies.gov.uk"  # /PS-IGNORE
 
         if extra_context:
             context.update(extra_context)

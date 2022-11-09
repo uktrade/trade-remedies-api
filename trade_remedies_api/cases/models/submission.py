@@ -522,7 +522,15 @@ class Submission(BaseModel):
     def _to_embedded_dict(self, **kwargs):  # noqa
         downloaded_count = self.submissiondocument_set.filter(downloads__gt=0).count()
         out = self.to_minimal_dict()
-        invitations = [{"id": invite.id, "name": str(invite)} for invite in self.invitations.all()]
+        invitations = [
+            {
+                "id": invite.id,
+                "name": str(invite),
+                "invited_user_name": invite.contact.name if invite.contact else "",
+                "deleted_at": invite.deleted_at,
+            }
+            for invite in self.invitations.all()
+        ]
         out.update(
             {
                 # how many documents were downloaded at least once
@@ -724,17 +732,6 @@ class Submission(BaseModel):
             "notice_url": self.case.latest_notice_of_initiation_url,  # TODO: remove
             "notice_of_initiation_url": self.case.latest_notice_of_initiation_url,
         }
-
-        if context:
-            if template_id == "NOTIFY_QUESTIONNAIRE":
-                context[
-                    "footer"
-                ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade"  # /PS-IGNORE
-            values.update(context)
-        if template_id == "NOTIFY_AD_HOC_EMAIL":
-            values[
-                "footer"
-            ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade\r\nContact: contact@traderemedies.gov.uk"  # /PS-IGNORE
 
         audit_kwargs = {
             "audit_type": AUDIT_TYPE_NOTIFY,

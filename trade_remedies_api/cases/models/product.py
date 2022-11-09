@@ -96,7 +96,8 @@ class Product(BaseModel):
 
 class ExportSource(BaseModel):
     case = models.ForeignKey("cases.Case", null=True, blank=False, on_delete=models.PROTECT)
-    country = CountryField(blank_label="Select Country", null=False, blank=False)
+    # overriding the max-length to accommodate for the "ALL" option
+    country = CountryField(blank_label="Select Country", null=False, blank=False, max_length=3)
 
     class Meta:
         unique_together = ["case", "country"]
