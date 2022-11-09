@@ -1,3 +1,4 @@
+Trade Remedies Service'
 LITE
 "Testing that the smtp connection can be
 AUDIT_EMAIL_SMTP_PASSWORD

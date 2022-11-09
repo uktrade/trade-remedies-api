@@ -114,7 +114,6 @@ def send_mail_task(self, email, context, template_id, reference=None, audit_kwar
 
 @shared_task(bind=True)
 def check_email_delivered(self, delivery_id, context):
-    time.sleep(5)
     notify = get_client()
     email = notify.get_notification_by_id(delivery_id)
     delivery_status = email[
@@ -135,7 +134,7 @@ def check_email_delivered(self, delivery_id, context):
             self.retry(countdown=settings.AUDIT_EMAIL_RETRY_COUNTDOWN)
     elif "-" in delivery_status:
         # making the delivery_status more palatable to look at
-        delivery_status.replace("-", " ")
+        delivery_status = delivery_status.replace("-", " ")
     # let's send the audit email
 
     # construct the subject
