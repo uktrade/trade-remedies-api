@@ -1,7 +1,10 @@
 from config.test_bases import CaseSetupTestMixin
 from invitations.models import Invitation
-from organisations.services.v2.serializers import OrganisationSerializer
-from security.models import CaseRole
+from organisations.services.v2.serializers import (
+    OrganisationCaseRoleSerializer,
+    OrganisationSerializer,
+)
+from security.models import CaseRole, OrganisationCaseRole
 
 
 class TestOrganisationSerializer(CaseSetupTestMixin):
@@ -43,3 +46,33 @@ class TestOrganisationSerializer(CaseSetupTestMixin):
         assert serializer.data["invitations"]
         assert len(serializer.data["invitations"]) == 1
         assert serializer.data["invitations"][0]["id"] == str(invitation.id)
+
+
+class TestOrganisationCaseRoleSerializer(CaseSetupTestMixin):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.applicant_case_role = CaseRole.objects.create(key="applicant", name="Applicant")
+        cls.contributor_case_role = CaseRole.objects.create(key="contributor", name="Contributor")
+
+    def test_role_key_conversion(self):
+        """Tests that passing role_key in post data gets converted to CaseRole object"""
+        new_org_case_role, _ = OrganisationCaseRole.objects.assign_organisation_case_role(
+            organisation=self.organisation, case=self.case_object, role=self.applicant_case_role
+        )
+        assert new_org_case_role.role == self.applicant_case_role
+        serializer = OrganisationCaseRoleSerializer(
+            new_org_case_role, data={"role_key": "contributor"}
+        )
+        assert serializer.is_valid()
+        new_org_case_role = serializer.save()
+        assert new_org_case_role.role == self.contributor_case_role
+
+    def test_get_case(self):
+        org_case_role = OrganisationCaseRole.objects.create(
+            organisation=self.organisation,
+            case=self.case_object,
+            role=self.applicant_case_role,
+        )
+        serializer = OrganisationCaseRoleSerializer(org_case_role)
+        assert serializer.data["case"]["id"] == str(self.case_object.id)

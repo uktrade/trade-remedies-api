@@ -1,3 +1,9 @@
+new_testpassword123!DD
+NEW
+new_NEW_email@example.com
+is_active Returns
+PUBLIC_ROOT_URL}/case/accept_representative_invite/
+django-restql==0.15.2
 the rep organisation is
 add_user
 v2

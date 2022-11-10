@@ -1,41 +1,41 @@
 import json
 import mimetypes
+import re
 
-from rest_framework.response import Response
-
-from .auth.serializers import UserExistsSerializer
-from .base import ResponseError, TradeRemediesApiView, ResponseSuccess
-from .exceptions import InvalidRequestParams, IntegrityErrorRequest, NotFoundApiExceptions
 from django.contrib.auth.models import Group
-from django.db import transaction
-from django.db.utils import IntegrityError
-from django.db.models import Q
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.db.models import Q
+from django.db.utils import IntegrityError
 from django.http import HttpResponse
+from feedback.models import FeedbackForm
 from rest_framework import status
 from rest_framework.views import APIView
-from feedback.models import FeedbackForm
+
 from audit import AUDIT_TYPE_NOTIFY
-from core.feature_flags import is_enabled, FeatureFlagNotFound
-from core.models import User, SystemParameter, JobTitle
-from core.utils import convert_to_e164, pluck, public_login_url
-from core.notifier import get_template, get_preview, notify_footer, notify_contact_email
 from core.constants import TRUTHFUL_INPUT_VALUES
-from core.tasks import send_mail
+from core.feature_flags import FeatureFlagNotFound, is_enabled
 from core.feedback import feedback_export
-from organisations.models import Organisation
+from core.models import JobTitle, SystemParameter, User
+from core.notifier import get_preview, get_template
+from core.tasks import send_mail
+from core.utils import convert_to_e164, pluck, public_login_url
 from invitations.models import Invitation
-from security.exceptions import InvalidAccess
+from organisations.models import Organisation
 from security.constants import (
     GROUPS,
-    SECURITY_GROUP_SUPER_USER,
-    SECURITY_GROUPS_TRA_ADMINS,
-    SECURITY_GROUPS_TRA,
     SECURITY_GROUPS_PUBLIC,
+    SECURITY_GROUPS_TRA,
+    SECURITY_GROUPS_TRA_ADMINS,
     SECURITY_GROUP_ORGANISATION_OWNER,
+    SECURITY_GROUP_SUPER_USER,
 )
+from security.exceptions import InvalidAccess
+from .auth.serializers import UserExistsSerializer
+from .base import ResponseError, ResponseSuccess, TradeRemediesApiView
+from .exceptions import IntegrityErrorRequest, InvalidRequestParams, NotFoundApiExceptions
 from ..validation_errors import validation_errors
 
 
@@ -401,6 +401,10 @@ class PublicUserApiView(TradeRemediesApiView):
             errors["password"] = "Password is required"
         if request_data.get("terms_required") and not request_data.get("terms"):
             errors["terms"] = "Please accept the terms of use"
+        phone_number_regex = r"^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$"
+        if phone := request_data.get("phone"):
+            if not re.fullmatch(phone_number_regex, phone):
+                errors["phone"] = "Invalid phone number"
 
         if not errors:
             if user_id is not None:
@@ -512,9 +516,6 @@ class AssignUserToCaseView(TradeRemediesApiView):
                 "representing_clause": f" representing {representing.name}",
                 "login_url": public_login_url(),
             }
-            context[
-                "footer"
-            ] = "Investigations Team\r\nTrade Remedies\r\nDepartment for International Trade"  # /PS-IGNORE
             context["full_name"] = user.contact.name or user.name
             audit_kwargs = {
                 "audit_type": AUDIT_TYPE_NOTIFY,
