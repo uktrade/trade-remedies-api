@@ -56,7 +56,7 @@ class OrganisationViewSet(viewsets.ModelViewSet):
             .filter(similarity__gt=0.1)
             .order_by("-similarity")
         )
-        
+
         matching_organisations_by_number = (
             Organisation.objects.annotate(
                 similarity=TrigramSimilarity("companies_house_id", search_string),
