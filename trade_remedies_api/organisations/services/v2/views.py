@@ -47,15 +47,26 @@ class OrganisationViewSet(viewsets.ModelViewSet):
         url_name="search_by_company_name",
     )
     def search_by_company_name(self, request, *args, **kwargs):
-        company_name = request.GET["company_name"]
-        matching_organisations = (
+        search_string = request.GET["company_name"]
+
+        matching_organisations_by_name = (
             Organisation.objects.annotate(
-                similarity=TrigramSimilarity("name", company_name),
+                similarity=TrigramSimilarity("name", search_string),
             )
-            .filter(similarity__gt=0.3)
+            .filter(similarity__gt=0.1)
+            .order_by("-similarity")
+        )
+        
+        matching_organisations_by_number = (
+            Organisation.objects.annotate(
+                similarity=TrigramSimilarity("companies_house_id", search_string),
+            )
+            .filter(similarity__gt=0.1)
             .order_by("-similarity")
         )
 
+        # merge the two querysets into one and then return
+        matching_organisations = matching_organisations_by_name | matching_organisations_by_number
         return Response(
             OrganisationSerializer(
                 instance=matching_organisations,
