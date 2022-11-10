@@ -220,9 +220,8 @@ class SubmissionStatusAPITest(APITestCase, APISetUpMixin):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Build footer
-        email = f"{self.case.reference}@{SystemParameter.get('TRADE_REMEDIES_EMAIL_DOMAIN')}"
+        email = notify_contact_email(self.case.reference)
         footer = notify_footer(email=email)
-
         notify_data = {
             "company": self.organisation.name,
             "case_name": self.case.name,

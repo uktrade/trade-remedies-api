@@ -5,6 +5,7 @@ import os
 import uuid
 from functools import singledispatch
 from random import randint
+from typing import Union
 
 import pytz
 import sentry_sdk
@@ -62,6 +63,64 @@ class JobTitle(models.Model):
 
 
 class UserManager(BaseUserManager):
+    @transaction.atomic
+    def create_new_user(
+        self,
+        email: str,
+        name: str,
+        password: Union[str, None] = None,
+        contact=None,
+        raise_exception: bool = True,
+        **kwargs,
+    ):
+        """
+        Creates a new user object and all the relevant satellite objects (UserProfile, 2FA...etc.).
+
+        Parameters
+        ----------
+        email : email of the user
+        password : cleartext (raw) password of the new user
+        name : name of the new user
+        contact : optional Contact object you want to use for this user
+        raise_exception : True if you want to raise an exception if the user already exists
+        kwargs: extra keywords/values to pass to the User.objects.create(), e.g. is_active
+
+        Returns
+        -------
+        The newly created User object
+        """
+        from contacts.models import Contact
+
+        # Creating the User object
+        email = self.normalize_email(email)
+        new_user, created = self.get_or_create(email=email, defaults={"name": name, **kwargs})
+        if raise_exception and not created:
+            # If the user was not created (i.e. the email already exists in the DB) and we want to
+            # throw an exception, then do so, what are you waiting for!
+            raise Exception(f"User with email {email} already exists")
+
+        if password:
+            # we only want to validate the password if it has been provided
+            validate_password(password)
+        # a None password here will generate an unusable password
+        new_user.set_password(password)
+        TwoFactorAuth.objects.get_or_create(user=new_user)
+        contact = contact or Contact.objects.create(
+            name=name,
+            email=email,
+        )
+        UserProfile.objects.get_or_create(
+            user=new_user,
+            defaults={
+                "contact": contact,
+                "colour": "black",
+            },
+        )
+        Token.objects.get_or_create(user=new_user)
+
+        new_user.save()
+        return new_user
+
     def create_base_user_model(self, email, **kwargs):
         """
         Generate a base user record.
