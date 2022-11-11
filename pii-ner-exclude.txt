@@ -1,3 +1,6 @@
+accept_invite/{invitation_object.id}/start/
+NOTIFY_INFORM_INTERESTED_PARTIES_V2
+new_user
 new_testpassword123!DD
 NEW
 new_NEW_email@example.com

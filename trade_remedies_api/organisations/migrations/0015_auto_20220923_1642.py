@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organisations', '0013_alter_organisation_json_data'),
+        ("organisations", "0014_alter_organisation_name"),
     ]
 
     operations = [

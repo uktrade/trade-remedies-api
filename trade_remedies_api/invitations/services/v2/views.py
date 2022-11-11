@@ -187,7 +187,7 @@ class InvitationViewSet(BaseModelViewSet):
             else:
                 new_user = True
                 login_url = (
-                    f"{settings.PUBLIC_ROOT_URL}/cases/accept_invite/{invitation_object.id}/start/"
+                    f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/{invitation_object.id}/start/"
                 )
 
             # This is an invitation sent by the TRA

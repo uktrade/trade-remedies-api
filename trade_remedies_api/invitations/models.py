@@ -23,7 +23,7 @@ from security.constants import (
     SECURITY_GROUP_ORGANISATION_USER,
     SECURITY_GROUP_THIRD_PARTY_USER,
 )
-from security.models import OrganisationCaseRole, UserCase
+from security.models import CaseRole, OrganisationCaseRole, UserCase
 from .exceptions import InvitationFailure, InviteAlreadyAccepted
 
 
@@ -687,6 +687,30 @@ class Invitation(BaseModel):
             security_group = Group.objects.get(name=SECURITY_GROUP_THIRD_PARTY_USER)
             self.organisation.assign_user(
                 user=self.invited_user, security_group=security_group, confirmed=True
+            )
+        elif self.invitation_type == 3:
+            # associate the user with the organisation
+            self.organisation.assign_user(
+                user=self.invited_user,
+                security_group=self.organisation_security_group,  # user or admin
+                confirmed=True,
+            )
+
+            # this is a caseworker invite, create a draft ROI for the case in question
+            self.create_registration_of_interest(
+                user=self.contact.user, organisation=self.organisation
+            )
+
+            # now associate the user with the case
+            # Associating the organisation with the case
+            OrganisationCaseRole.objects.get_or_create(
+                organisation=self.organisation,
+                case=self.case,
+                defaults={
+                    "role": self.case_role,
+                    "sampled": True,
+                    "created_by": self.user,
+                },
             )
 
         # Let's add the user to the cases associated with this invitation
