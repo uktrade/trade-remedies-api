@@ -8,14 +8,18 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
-from cases.models import Case, Submission, get_submission_type
+from cases.models import Submission, get_submission_type
 from config.viewsets import BaseModelViewSet
+from contacts.models import CaseContact, Contact
+from core.models import User
 from contacts.models import Contact
 from core.models import User
 from core.services.v2.users.serializers import UserSerializer
 from core.utils import public_login_url
 from invitations.models import Invitation
 from invitations.services.v2.serializers import InvitationSerializer
+from security.constants import SECURITY_GROUP_THIRD_PARTY_USER
+from security.models import UserCase
 from security.constants import SECURITY_GROUP_THIRD_PARTY_USER
 from security.models import UserCase
 from security.constants import (
@@ -27,6 +31,19 @@ from security.models import OrganisationCaseRole, CaseRole
 class InvitationViewSet(BaseModelViewSet):
     queryset = Invitation.objects.all()
     serializer_class = InvitationSerializer
+
+    def get_queryset(self):
+        """We can filter the queryset using GET query parameters.
+
+        type_id: the type of submission associated with the invitation
+        contact_organisation_id: the ID of the organisation the contact of the invitation is part of
+        """
+        queryset = super().get_queryset()
+        if type_id := self.request.GET.get("type_id"):
+            queryset = queryset.filter(submission__type_id=type_id)
+        if contact_organisation_id := self.request.GET.get("contact_organisation_id"):
+            queryset = queryset.filter(contact__organisation_id=contact_organisation_id)
+        return queryset
 
     @transaction.atomic
     def perform_create(self, serializer):
@@ -110,6 +127,24 @@ class InvitationViewSet(BaseModelViewSet):
                 user_case_objects = UserCase.objects.filter(id__in=user_cases_to_link)
                 serializer.instance.user_cases_to_link.add(*user_case_objects)
                 serializer.save()
+
+        if updated_contact := serializer.validated_data.get("contact"):
+            # Let's create a CaseContact to link the contact to the case
+
+            if original_contact := serializer.instance.contact:
+                # first let's delete the previous one if it exists
+                CaseContact.objects.filter(
+                    contact=original_contact,
+                    case=serializer.instance.case,
+                    organisation=serializer.instance.organisation,
+                ).delete()
+
+            # creating the new one with the updated contact
+            CaseContact.objects.filter(
+                contact=updated_contact,
+                case=serializer.instance.case,
+                organisation=serializer.instance.organisation,  # the inviting organisation
+            )
 
         return super().perform_update(serializer)
 

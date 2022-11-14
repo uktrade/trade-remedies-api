@@ -23,6 +23,7 @@ from security.constants import (
     SECURITY_GROUP_ORGANISATION_USER,
     SECURITY_GROUP_THIRD_PARTY_USER,
 )
+from security.models import OrganisationCaseRole, UserCase
 from security.models import CaseRole, OrganisationCaseRole, UserCase
 from .exceptions import InvitationFailure, InviteAlreadyAccepted
 

@@ -7,6 +7,7 @@ from config.serializers import CustomValidationModelSerializer
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from invitations.models import Invitation
 from organisations.services.v2.serializers import OrganisationSerializer
+from security.services.v2.serializers import UserCaseSerializer
 from security.models import CaseRole
 from security.services.v2.serializers import CaseRoleSerializer, UserCaseSerializer
 
@@ -16,6 +17,7 @@ class InvitationSerializer(CustomValidationModelSerializer):
         model = Invitation
         fields = "__all__"
 
+    created_by = UserSerializer(required=False, fields=["name", "email"])
     organisation = NestedField(
         serializer_class=OrganisationSerializer,
         required=False,
@@ -39,6 +41,7 @@ class InvitationSerializer(CustomValidationModelSerializer):
     )
     cases_to_link = NestedField(serializer_class=CaseSerializer, many=True, required=False)
     user_cases_to_link = NestedField(serializer_class=UserCaseSerializer, many=True, required=False)
+    case = NestedField(required=False, serializer_class=CaseSerializer, accept_pk=True)
 
     def to_internal_value(self, data):
         """API requests can pass case_role with the key"""

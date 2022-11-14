@@ -336,9 +336,14 @@ validation_errors = {
         "error_summary": "Select 'No cases' or one or more cases",
     },
     "invite_representative_who_is_registering_missing": {
-        "who_is_registering": "which_case",
+        "field": "who_is_registering",
         "error_text": "Select who is registering",
         "error_summary": "You need to select who is registering",
+    },
+    "edit_organisation_no_organisation_name": {
+        "field": "name",
+        "error_text": "Error text",
+        "error_summary": "Error summary",
     },
     "invite_contact_no_organisation_name": {
         "field": "organisation_name",
