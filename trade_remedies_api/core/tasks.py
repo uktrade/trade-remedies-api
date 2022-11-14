@@ -72,8 +72,6 @@ def send_mail_task(self, email, context, template_id, reference=None, audit_kwar
                 check_email_delivered.apply_async(
                     countdown=300, kwargs={"delivery_id": send_report["id"], "context": context}
                 )
-            else:
-                check_email_delivered.apply_async(delivery_id=send_report["id"], context=context)
     except HTTPError as err:
         error_report, error_status = extract_error_from_api_exception(err)
         if error_status in (500, 503):
