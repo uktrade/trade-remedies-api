@@ -42,6 +42,7 @@ def fake_post_template_preview():
 @override_settings(
     AUDIT_EMAIL_TO_ADDRESS=MOCK_AUDIT_EMAIL_TO_ADDRESS,
     GOV_NOTIFY_API_KEY=settings.GOV_NOTIFY_TESTING_KEY,
+    AUDIT_EMAIL_ENABLED=True,
 )
 @patch("notifications_python_client.NotificationsAPIClient.post_template_preview")
 @patch("notifications_python_client.NotificationsAPIClient.get_notification_by_id")
