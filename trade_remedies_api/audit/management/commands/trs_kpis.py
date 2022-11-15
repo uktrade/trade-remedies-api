@@ -47,56 +47,33 @@ class Command(BaseCommand):
 
         if options["date_from"] and options["date_to"]:
             additional_filters = {
-                "date_range": (
+                "created_at__range": (
                     options["date_from"],
                     options["date_to"],
                 )
             }
-         else:
-             additional_filters = {}
-           
-        
-            date_range = (
-                options["date_from"],
-                options["date_to"],
-            )
-
-       public_users_count = UserProfile.objects.filter(
-                email_verified_at__isnull=False,
-                user__groups__name__in=SECURITY_GROUPS_PUBLIC,
-                **additional_filters
-            ).count()
-                email_verified_at__isnull=False,
-                user__created_at__range=date_range,
-                user__groups__name__in=SECURITY_GROUPS_PUBLIC,
-            ).count()
-            case_accepted_count = Case.objects.filter(
-                initiated_at__isnull=False, created_at__range=date_range
-            ).count()
-            case_submitted_count = Case.objects.filter(
-                submitted_at__isnull=False, created_at__range=date_range
-            ).count()
-            submission_count = Submission.objects.filter(created_at__range=date_range).count()
-            files_uploaded_by_public_user_count = (
-                SubmissionDocument.objects.select_related("created_by")
-                .filter(
-                    created_by__groups__name__in=SECURITY_GROUPS_PUBLIC,
-                    created_at__range=date_range,
-                )
-                .count()
-            )
+            user_additional_filters = {"user__created_at__range": additional_filters["created_at__range"]}
         else:
-            public_users_count = UserProfile.objects.filter(
-                email_verified_at__isnull=False, user__groups__name__in=SECURITY_GROUPS_PUBLIC
-            ).count()
-            case_accepted_count = Case.objects.filter(initiated_at__isnull=False).count()
-            case_submitted_count = Case.objects.filter(submitted_at__isnull=False).count()
-            submission_count = Submission.objects.all().count()
-            files_uploaded_by_public_user_count = (
-                SubmissionDocument.objects.select_related("created_by")
-                .filter(created_by__groups__name__in=SECURITY_GROUPS_PUBLIC)
-                .count()
-            )
+            additional_filters = {}
+            user_additional_filters = {}
+
+        public_users_count = UserProfile.objects.filter(
+            email_verified_at__isnull=False,
+            user__groups__name__in=SECURITY_GROUPS_PUBLIC,
+            **user_additional_filters
+        ).count()
+        case_accepted_count = Case.objects.filter(
+            initiated_at__isnull=False, **additional_filters
+        ).count()
+        case_submitted_count = Case.objects.filter(
+            submitted_at__isnull=False,
+            **additional_filters
+        ).count()
+        submission_count = Submission.objects.filter(**additional_filters).count()
+        files_uploaded_by_public_user_count = SubmissionDocument.objects.select_related("created_by").filter(
+            created_by__groups__name__in=SECURITY_GROUPS_PUBLIC,
+            **additional_filters
+        ).count()
 
         # since this value increments on a single section in the database
         # we will have to call this query without the ability for date range fetch
