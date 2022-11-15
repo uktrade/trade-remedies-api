@@ -1,6 +1,6 @@
 import os
 
-from typing import Any, Optional, List, Union
+from typing import Any, Optional
 
 from django.core.management.base import BaseCommand, CommandParser
 
@@ -43,8 +43,6 @@ class Command(BaseCommand):
             outpath:    ->   e.g. => /tmp/
         """
 
-        date_range: Union[List[str], None]
-
         if options["date_from"] and options["date_to"]:
             additional_filters = {
                 "created_at__range": (
@@ -52,7 +50,9 @@ class Command(BaseCommand):
                     options["date_to"],
                 )
             }
-            user_additional_filters = {"user__created_at__range": additional_filters["created_at__range"]}
+            user_additional_filters = {
+                "user__created_at__range": additional_filters["created_at__range"]
+            }
         else:
             additional_filters = {}
             user_additional_filters = {}
@@ -60,20 +60,20 @@ class Command(BaseCommand):
         public_users_count = UserProfile.objects.filter(
             email_verified_at__isnull=False,
             user__groups__name__in=SECURITY_GROUPS_PUBLIC,
-            **user_additional_filters
+            **user_additional_filters,
         ).count()
         case_accepted_count = Case.objects.filter(
             initiated_at__isnull=False, **additional_filters
         ).count()
         case_submitted_count = Case.objects.filter(
-            submitted_at__isnull=False,
-            **additional_filters
+            submitted_at__isnull=False, **additional_filters
         ).count()
         submission_count = Submission.objects.filter(**additional_filters).count()
-        files_uploaded_by_public_user_count = SubmissionDocument.objects.select_related("created_by").filter(
-            created_by__groups__name__in=SECURITY_GROUPS_PUBLIC,
-            **additional_filters
-        ).count()
+        files_uploaded_by_public_user_count = (
+            SubmissionDocument.objects.select_related("created_by")
+            .filter(created_by__groups__name__in=SECURITY_GROUPS_PUBLIC, **additional_filters)
+            .count()
+        )
 
         # since this value increments on a single section in the database
         # we will have to call this query without the ability for date range fetch
