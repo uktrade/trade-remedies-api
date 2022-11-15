@@ -16,11 +16,11 @@ class CaseContactSerializer(CustomValidationModelSerializer):
         serializer_module="organisations.services.v2.serializers",
         serializer_class_name="OrganisationSerializer",
         required=False,
-        accept_pk=True
+        accept_pk=True,
     )
     case = StringNestedField(
         serializer_module="cases.services.v2.serializers",
         serializer_class_name="CaseSerializer",
         required=False,
-        accept_pk=True
+        accept_pk=True,
     )
