@@ -46,6 +46,16 @@ class Command(BaseCommand):
         date_range: Union[List[str], None]
 
         if options["date_from"] and options["date_to"]:
+            additional_filters = {
+                "date_range": (
+                    options["date_from"],
+                    options["date_to"],
+                )
+            }
+         else:
+             additional_filters = {}
+           
+        
             date_range = (
                 options["date_from"],
                 options["date_to"],
