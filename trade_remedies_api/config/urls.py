@@ -22,6 +22,7 @@ from rest_framework.views import APIView
 
 from cases.services import api as cases_api
 from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, SubmissionViewSet
+from contacts.services.v2.views import CaseContactViewSet
 from core.services import api as core_api
 from core.services.auth import views as auth_api
 from core.services.v2.feature_flags.views import FlagViewSet
@@ -195,6 +196,9 @@ router.register(
 )
 router.register(
     f"{settings.API_V2_PREFIX}/django-feature-flags", FlagViewSet, basename="django-feature-flags"
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/case_contacts", CaseContactViewSet, basename="case_contacts"
 )
 urlpatterns += router.urls
 
