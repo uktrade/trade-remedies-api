@@ -61,7 +61,11 @@ class Command(BaseCommand):
                 options["date_to"],
             )
 
-            public_users_count = UserProfile.objects.filter(
+       public_users_count = UserProfile.objects.filter(
+                email_verified_at__isnull=False,
+                user__groups__name__in=SECURITY_GROUPS_PUBLIC,
+                **additional_filters
+            ).count()
                 email_verified_at__isnull=False,
                 user__created_at__range=date_range,
                 user__groups__name__in=SECURITY_GROUPS_PUBLIC,
