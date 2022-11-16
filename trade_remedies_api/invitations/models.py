@@ -664,8 +664,36 @@ class Invitation(BaseModel):
         return assigned
 
     @transaction.atomic()
+    def assign_cases(self):
+        """Assign the invitee to the cases associated with this invitation"""
+        for user_case_object in self.user_cases_to_link.all():
+            # Creating the UserCase object
+            user_case_object.case.assign_user(
+                user=self.invited_user,
+                created_by=self.user,
+                # We want the UserCase object to maintain the relationship between
+                # interested party and representative
+                organisation=user_case_object.organisation,
+                relax_security=True,
+            )
+
+            # Creating an OrganisationCaseRole object with status case_role
+            if self.case_role:
+                OrganisationCaseRole.objects.assign_organisation_case_role(
+                    organisation=self.contact.organisation,
+                    case=user_case_object.case,
+                    role=ROLE_AWAITING_APPROVAL,
+                    approved_at=None,  # approval done later
+                    approved_by=None,  # approval done later
+                )
+
+    @transaction.atomic()
     def accept_invitation(self):
         """Accepting and processing the invitation when the invited user logs in"""
+
+        assign_cases = True  # True if we want to assign cases to this user now
+        accept = True  # True if we want the invitation to be marked as accepted
+
         if self.invitation_type == 1:
             # this is an own-org invitation
             self.contact.organisation.assign_user(
@@ -676,6 +704,9 @@ class Invitation(BaseModel):
 
         elif self.invitation_type == 2:
             # this is a representative invitation
+            accept = False
+            assign_cases = False
+
             # First let's add the invitee as an admin user to their organisation
             security_group = Group.objects.get(name=SECURITY_GROUP_ORGANISATION_OWNER)
             self.contact.organisation.assign_user(
@@ -688,30 +719,29 @@ class Invitation(BaseModel):
                 user=self.invited_user, security_group=security_group, confirmed=True
             )
 
+            # case assignment is done when the parent 'Invite Third Party' submission is approved
+            if self.submission.status.sufficient:
+                assign_cases = True
+                # once we assign cases, we can finally mark the invitation as accepted
+                accept = True
+                for user_case in self.user_cases_to_link.all():
+                    CaseContact.objects.create(
+                        case=user_case.case,
+                        contact=self.contact,
+                        organisation=self.organisation,
+                    )
+            elif self.submission.status.deficient:
+                # if the submission has been marked as deficient, then mark as accepted so it doesnt
+                # get continuously invited
+                accept = True
         # Let's add the user to the cases associated with this invitation
-        for user_case_object in self.user_cases_to_link.all():
-            # Creating the UserCase object
-            # todo - maybe we do this when the LOA is approved instead???
-            user_case_object.case.assign_user(
-                user=self.invited_user,
-                created_by=self.user,
-                # We want the UserCase object to maintain the relationship between
-                # interested party and representative
-                organisation=user_case_object.organisation,
-                relax_security=True,
-            )
+        if assign_cases:
+            self.assign_cases()
 
-            # Creating an OrganisationCaseRole object with status awaiting_approval
-            OrganisationCaseRole.objects.assign_organisation_case_role(
-                organisation=self.contact.organisation,
-                case=user_case_object.case,
-                role=ROLE_AWAITING_APPROVAL,
-                approved_at=None,  # approval done later
-                approved_by=None,  # approval done later
-            )
-
-        # Now we mark the invitation as accepted
-        self.accepted()
+        # Now we mark the invitation as accepted if accept is True
+        if accept:
+            self.accepted_at = timezone.now()
+            self.save()
 
     def compare_user_contact(self):
         """

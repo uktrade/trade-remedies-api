@@ -215,3 +215,41 @@ class InvitationViewSet(BaseModelViewSet):
         invitation_object.save()
 
         return Response(UserSerializer(new_user).data)
+
+    @transaction.atomic
+    @action(
+        detail=True,
+        methods=["patch"],
+        url_name="process_representative_invitation",
+        url_path="process_representative_invitation",
+    )
+    def process_representative_invitation(self, request, *args, **kwargs):
+        """Once a 3rd party invitation has been approved/declined by a caseworker, we can process
+        invitation and make the necessary changes depending on if it's approved or declined.
+        """
+        invitation_object = self.get_object()
+        if (
+            invitation_object.invitation_type == 2
+            and invitation_object.submission.status.sufficient
+        ):
+            # Only proceed if the submission is marked as sufficient (been approved by TRA) and this
+            # is a representative invite
+            if request.data["approved"] == "yes":
+                for user_case_object in invitation_object.user_cases_to_link.all():
+                    # Creating the UserCase object
+                    user_case_object.case.assign_user(
+                        user=invitation_object.invited_user,
+                        created_by=invitation_object.user,
+                        # We want the UserCase object to maintain the relationship between
+                        # interested party and representative
+                        organisation=user_case_object.organisation,
+                        relax_security=True,
+                    )
+
+                    # creating the CaseContact
+                    CaseContact.objects.create(
+                        contact=invitation_object.contact,
+                        case=user_case_object.case,
+                        organisation=user_case_object.organisation,  # who they are representing
+                    )
+        return self.retrieve(request)
