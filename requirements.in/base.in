@@ -49,3 +49,4 @@ opensearch-py==1.0.0
 django-restql==0.15.2
 # CVE-2021-33503
 urllib3==1.26.5
+model-bakery==1.9.0
