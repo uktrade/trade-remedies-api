@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.db import transaction
@@ -10,11 +12,20 @@ from cases.models import Submission, get_submission_type
 from config.viewsets import BaseModelViewSet
 from contacts.models import CaseContact, Contact
 from core.models import User
+from contacts.models import Contact
+from core.models import User
 from core.services.v2.users.serializers import UserSerializer
+from core.utils import public_login_url
 from invitations.models import Invitation
 from invitations.services.v2.serializers import InvitationSerializer
 from security.constants import SECURITY_GROUP_THIRD_PARTY_USER
 from security.models import UserCase
+from security.constants import SECURITY_GROUP_THIRD_PARTY_USER
+from security.models import UserCase
+from security.constants import (
+    ROLE_AWAITING_APPROVAL,
+)
+from security.models import OrganisationCaseRole, CaseRole
 
 
 class InvitationViewSet(BaseModelViewSet):
@@ -192,6 +203,41 @@ class InvitationViewSet(BaseModelViewSet):
 
             # We also need to update the submission status to sent
             invitation_object.submission.update_status("sufficient", request.user)
+
+        elif invitation_object.invitation_type == 3:
+            # determine if deadline passed or not
+            if date.today() > invitation_object.case.registration_deadline.date():
+                deadline = ""
+                on_or_before_due_date = False
+            else:
+                deadline = invitation_object.case.registration_deadline.strftime("%d %B %Y")
+                on_or_before_due_date = True
+
+            # determine if contact has an existing user account
+            if invitation_object.contact.has_user:
+                new_user = False
+                login_url = public_login_url()
+                # attach user to invitation
+                invitation_object.invited_user = invitation_object.contact.userprofile.user
+            else:
+                new_user = True
+                login_url = (
+                    f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/{invitation_object.id}/start/"
+                )
+
+            # This is an invitation sent by the TRA
+            invitation_object.send(
+                sent_by=request.user,
+                direct=False,
+                template_key="NOTIFY_INFORM_INTERESTED_PARTIES_V2",
+                context={
+                    "login_url": login_url,
+                    "deadline": deadline,
+                    "new_user": new_user,
+                    "not_new_user": not new_user,
+                    "on_or_before_due_date": on_or_before_due_date,
+                },
+            )
 
         invitation_object.sent_at = timezone.now()
         invitation_object.save()

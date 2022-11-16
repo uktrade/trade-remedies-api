@@ -8,6 +8,8 @@ from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from invitations.models import Invitation
 from organisations.services.v2.serializers import OrganisationSerializer
 from security.services.v2.serializers import UserCaseSerializer
+from security.models import CaseRole
+from security.services.v2.serializers import CaseRoleSerializer, UserCaseSerializer
 
 
 class InvitationSerializer(CustomValidationModelSerializer):
@@ -40,3 +42,12 @@ class InvitationSerializer(CustomValidationModelSerializer):
     cases_to_link = NestedField(serializer_class=CaseSerializer, many=True, required=False)
     user_cases_to_link = NestedField(serializer_class=UserCaseSerializer, many=True, required=False)
     case = NestedField(required=False, serializer_class=CaseSerializer, accept_pk=True)
+
+    def to_internal_value(self, data):
+        """API requests can pass case_role with the key"""
+        data = data.copy()  # Making the QueryDict mutable
+        if role_key := data.get("case_role_key"):
+            # We can pass a role_key in the request.POST which we can use to lookup a CaseRole obj
+            role_object = CaseRole.objects.get(key=role_key)
+            data["case_role"] = role_object.pk
+        return super().to_internal_value(data)

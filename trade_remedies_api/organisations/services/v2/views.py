@@ -1,9 +1,11 @@
 from django.contrib.auth.models import Group
+from django.contrib.postgres.search import TrigramSimilarity
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+from config.viewsets import BaseModelViewSet
 from core.models import User
 from organisations.models import Organisation
 from organisations.services.v2.serializers import (
@@ -13,7 +15,7 @@ from organisations.services.v2.serializers import (
 from security.models import OrganisationCaseRole
 
 
-class OrganisationViewSet(viewsets.ModelViewSet):
+class OrganisationViewSet(BaseModelViewSet):
     """
     ModelViewSet for interacting with user objects via the API.
     """
@@ -43,6 +45,40 @@ class OrganisationViewSet(viewsets.ModelViewSet):
         return Response(
             OrganisationSerializer(
                 instance=organisation_object, fields=["organisationuser_set"]
+            ).data
+        )
+
+    @action(
+        detail=False,
+        methods=["get"],
+        url_name="search_by_company_name",
+    )
+    def search_by_company_name(self, request, *args, **kwargs):
+        search_string = request.GET["company_name"]
+
+        matching_organisations_by_name = (
+            Organisation.objects.annotate(
+                similarity=TrigramSimilarity("name", search_string),
+            )
+            .filter(similarity__gt=0.1)
+            .order_by("-similarity")
+        )
+
+        matching_organisations_by_number = (
+            Organisation.objects.annotate(
+                similarity=TrigramSimilarity("companies_house_id", search_string),
+            )
+            .filter(similarity__gt=0.1)
+            .order_by("-similarity")
+        )
+
+        # merge the two querysets into one and then return
+        matching_organisations = matching_organisations_by_name | matching_organisations_by_number
+        return Response(
+            OrganisationSerializer(
+                instance=matching_organisations,
+                many=True,
+                fields=["name", "address", "post_code", "companies_house_id", "id"],
             ).data
         )
 

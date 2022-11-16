@@ -60,6 +60,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     does_name_match_companies_house = serializers.SerializerMethodField()
     case_contacts = serializers.SerializerMethodField()
     representative_cases = serializers.SerializerMethodField()
+    contacts = serializers.SerializerMethodField()
 
     class Meta:
         model = Organisation
@@ -218,3 +219,9 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         if "country" in data and isinstance(data["country"], dict):
             data["country"] = data["country"]["alpha3"]
         return data
+
+    @staticmethod
+    def get_contacts(instance):
+        from core.services.v2.users.serializers import ContactSerializer
+
+        return ContactSerializer(instance.contacts.all(), many=True).data

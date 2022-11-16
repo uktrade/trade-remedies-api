@@ -26,6 +26,7 @@ class ContactSerializer(CustomValidationModelSerializer):
     name = serializers.CharField(required=False)
     country = serializers.CharField(source="country.alpha3", required=False)
     organisation_name = serializers.ReadOnlyField(source="organisation.name")
+    has_user = serializers.ReadOnlyField()
     user_id = serializers.SerializerMethodField()
 
     @staticmethod
