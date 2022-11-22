@@ -91,6 +91,19 @@ class OrganisationManager(models.Manager):
             organisation=parent_organisation
         )
 
+        # updating the contacts, this will also update the CaseContact object
+        Contact.objects.filter(organisation=child_organisation).update(
+            organisation=parent_organisation
+        )
+
+        # updating all OrganisationCaseRole objects which are unique to the child organisation, and
+        # to cases which the parent_organisation doesn't have a corresponding OrganisationCaseRole object
+        OrganisationCaseRole.objects.filter(organisation=child_organisation).exclude(
+            case__organisation_case_role__organisation=parent_organisation
+        ).update(organisation=parent_organisation)
+
+
+
 
 
 
