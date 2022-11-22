@@ -732,10 +732,10 @@ class Invitation(BaseModel):
                         contact=self.contact,
                         organisation=self.organisation,
                     )
-            elif self.submission.status.deficient:
+            """elif self.submission.status.deficient:
                 # if the submission has been marked as deficient, then mark as accepted so it doesnt
                 # get continuously invited
-                accept = True
+                accept = True"""
         elif self.invitation_type == 3:
             # associate the user with the organisation
             self.organisation.assign_user(
