@@ -83,6 +83,7 @@ django==3.2.15
     #   django-timezone-field
     #   djangorestframework
     #   feed-gov-back
+    #   model-bakery
 django-appconf==1.0.4
     # via
     #   -r requirements.in/../requirements/base.txt
@@ -187,6 +188,8 @@ marshmallow==3.6.1
     #   -r requirements.in/../requirements/base.txt
     #   kubi-ecs-logger
 minio==4.0.11
+    # via -r requirements.in/../requirements/base.txt
+model-bakery==1.9.0
     # via -r requirements.in/../requirements/base.txt
 notifications-python-client==6.3.0
     # via -r requirements.in/../requirements/base.txt
