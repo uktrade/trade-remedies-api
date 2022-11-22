@@ -45,7 +45,7 @@ class Command(BaseCommand):
             objects = json.loads(str(json_data.read()))
         count_created, count_updated, count_removed = SystemParameter.load_parameters(objects)
         if count_updated:
-            logger.info(f"Upadted {count_updated} row(s)")
+            logger.info(f"Updated {count_updated} row(s)")
         if count_created:
             logger.info(f"Created {count_created} row(s)")
         if count_removed:
