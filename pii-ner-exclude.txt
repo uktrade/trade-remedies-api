@@ -1,7 +1,12 @@
-Invite Third Party'
-accept_invite/{invitation_object.id}/start/
-NOTIFY_INFORM_INTERESTED_PARTIES_V2
-new_user
+Trade Remedies Service'
+LITE
+"Testing that the smtp connection can be
+AUDIT_EMAIL_SMTP_PASSWORD
+AUDIT_EMAIL_SMTP_PORT
+MIME
+Amazon SES
+AUDIT_EMAIL_RETRY_COUNTDOWN
+Amazon
 new_testpassword123!DD
 NEW
 new_NEW_email@example.com
