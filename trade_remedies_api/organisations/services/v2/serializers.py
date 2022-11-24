@@ -4,6 +4,7 @@ from django.db.models import F
 from rest_framework import serializers
 
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY, SUBMISSION_TYPE_REGISTER_INTEREST
+from cases.models import Submission
 from config.serializers import CustomValidationModelSerializer
 from contacts.models import CaseContact
 from contacts.services.v2.serializers import CaseContactSerializer
@@ -61,10 +62,36 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     case_contacts = serializers.SerializerMethodField()
     representative_cases = serializers.SerializerMethodField()
     contacts = serializers.SerializerMethodField()
+    country_name = serializers.ReadOnlyField(source="country.name")
+    rejected_cases = serializers.SerializerMethodField()
 
     class Meta:
         model = Organisation
         fields = "__all__"
+
+    @staticmethod
+    def get_rejected_cases(instance):
+        """Return all instances when this organisation was rejected from a case"""
+        from cases.services.v2.serializers import CaseSerializer
+        rejections = []
+
+        # first finding the rep invitations for this org which have been rejected
+        rejected_invitation_submissions = Submission.objects.filter(
+            contact__organisation=instance,
+            type_id=SUBMISSION_TYPE_INVITE_3RD_PARTY,
+            deficiency_notice_params__contact_org_verify=False,
+            deficiency_notice_params__contact_org_not_verified_date_isnull=False
+        )
+        for submission in rejected_invitation_submissions:
+            rejections.append({
+                "case": CaseSerializer(submission.case, fields=["name"]),
+                "date_rejected": submission.deficiency_notice_params[
+                    "contact_org_not_verified_date"],
+                "rejected_reason": submission.deficiency_notice_params.get(
+                    "explain_why_contact_org_not_verified", "")
+            })
+
+        return rejections
 
     def get_representative_cases(self, instance):
         """Return all cases where this Organisation is acting as a representative"""
@@ -159,10 +186,10 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 )
                 if response.status_code == 200:
                     if (
-                        response.json().get(
-                            "company_name",
-                        )
-                        == organisation_name
+                            response.json().get(
+                                "company_name",
+                            )
+                            == organisation_name
                     ):
                         return True
         return False

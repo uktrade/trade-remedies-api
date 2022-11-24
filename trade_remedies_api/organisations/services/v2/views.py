@@ -83,15 +83,16 @@ class OrganisationViewSet(BaseModelViewSet):
         )
 
 
-class OrganisationCaseRoleViewSet(viewsets.ModelViewSet):
+class OrganisationCaseRoleViewSet(BaseModelViewSet):
     queryset = OrganisationCaseRole.objects.all()
     serializer_class = OrganisationCaseRoleSerializer
 
     def get_queryset(self):
+        if not self.request.query_params.get("case_id") and not self.request.query_params.get("organisation_id"):
+            return super().get_queryset()
         filter_kwargs = {}
         if case_id := self.request.query_params.get("case_id"):
             filter_kwargs["case_id"] = case_id
         if organisation_id := self.request.query_params.get("organisation_id"):
             filter_kwargs["organisation_id"] = organisation_id
-
         return self.queryset.filter(**filter_kwargs).distinct("case_id", "organisation_id")
