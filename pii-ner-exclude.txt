@@ -1,3 +1,7 @@
+NOTIFY_INFORM_INTERESTED_PARTIES_V2
+new_user
+NOTIFY_INFORM_INTERESTED_PARTIES_V2
+new_user
 Trade Remedies Service'
 LITE
 "Testing that the smtp connection can be
