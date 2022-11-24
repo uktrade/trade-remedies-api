@@ -288,7 +288,7 @@ phonenumbers==8.12.38
     # via -r requirements.in/../requirements/base.txt
 pickleshare==0.7.5
     # via ipython
-pillow==9.0.1
+pillow==9.3.0
     # via
     #   -r requirements.in/../requirements/base.txt
     #   matplotlib
