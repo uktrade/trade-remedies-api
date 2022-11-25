@@ -89,6 +89,9 @@ logger = logging.getLogger(__name__)
 
 class PublicCaseView(APIView):
     def get(self, request, case_number=None, *args, **kwargs):
+        if case_number.startswith("SR"):
+            # we changed SR to SA, so redirect
+            case_number = "SA" + case_number[2:]
         match = re.search("([A-Za-z]{1,3})([0-9]+)", case_number)
         if match:
             case = Case.objects.get(

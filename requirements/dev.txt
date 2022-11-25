@@ -112,6 +112,7 @@ django==3.2.16
     #   django-timezone-field
     #   djangorestframework
     #   feed-gov-back
+    #   model-bakery
 django-appconf==1.0.4
     # via
     #   -r requirements.in/../requirements/base.txt
@@ -253,6 +254,8 @@ mccabe==0.7.0
     # via flake8
 minio==4.0.11
     # via -r requirements.in/../requirements/base.txt
+model-bakery==1.9.0
+    # via -r requirements.in/../requirements/base.txt
 mypy-extensions==0.4.3
     # via black
 nodeenv==1.6.0
@@ -285,7 +288,7 @@ phonenumbers==8.12.38
     # via -r requirements.in/../requirements/base.txt
 pickleshare==0.7.5
     # via ipython
-pillow==9.0.1
+pillow==9.3.0
     # via
     #   -r requirements.in/../requirements/base.txt
     #   matplotlib
