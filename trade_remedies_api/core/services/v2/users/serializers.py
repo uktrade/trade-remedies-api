@@ -7,6 +7,7 @@ from cases.models import Case
 from config.serializers import CustomValidationModelSerializer
 from contacts.models import Contact
 from core.models import TwoFactorAuth, User
+from core.services.auth.serializers import EmailSerializer
 from core.utils import convert_to_e164
 
 
@@ -18,7 +19,7 @@ class TwoFactorAuthSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source="user.id")  # One-to-One field which is also PK
 
 
-class ContactSerializer(CustomValidationModelSerializer):
+class ContactSerializer(CustomValidationModelSerializer, EmailSerializer):
     class Meta:
         model = Contact
         fields = "__all__"
