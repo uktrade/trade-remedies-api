@@ -722,7 +722,7 @@ class Invitation(BaseModel):
             )
 
             # case assignment is done when the parent 'Invite Third Party' submission is approved
-            if self.submission.status.sufficient:
+            if self.submission.status.review_ok:
                 assign_cases = True
                 # once we assign cases, we can finally mark the invitation as accepted
                 accept = True
@@ -732,10 +732,10 @@ class Invitation(BaseModel):
                         contact=self.contact,
                         organisation=self.organisation,
                     )
-            """elif self.submission.status.deficient:
+            elif self.submission.status.version:
                 # if the submission has been marked as deficient, then mark as accepted so it doesnt
                 # get continuously invited
-                accept = True"""
+                accept = True
         elif self.invitation_type == 3:
             # associate the user with the organisation
             self.organisation.assign_user(

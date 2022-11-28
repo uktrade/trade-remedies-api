@@ -82,18 +82,18 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             submission__deficiency_notice_params__contact_org_verify=False,
             submission__deficiency_notice_params__contact_org_verify_at__isnull=False,
             submission__deficiency_notice_params__contact_org_verify_by__isnull=False,
-            invitation_type=2  # only rep invites
+            invitation_type=2,  # only rep invites
         )
         for invitation in rejected_invitations:
             inviting_organisation_case_role = OrganisationCaseRole.objects.get(
-                organisation=invitation.organisation,
-                case=invitation.case
+                organisation=invitation.organisation, case=invitation.case
             )
 
             rejections.append(
                 {
-                    "case": CaseSerializer(invitation.submission.case,
-                                           fields=["name", "reference"]).data,
+                    "case": CaseSerializer(
+                        invitation.submission.case, fields=["name", "reference"]
+                    ).data,
                     "date_rejected": invitation.submission.deficiency_notice_params[
                         "contact_org_verify_at"
                     ],
@@ -202,10 +202,10 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 )
                 if response.status_code == 200:
                     if (
-                            response.json().get(
-                                "company_name",
-                            )
-                            == organisation_name
+                        response.json().get(
+                            "company_name",
+                        )
+                        == organisation_name
                     ):
                         return True
         return False
