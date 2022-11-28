@@ -3,8 +3,7 @@ from django.contrib.auth.models import Group
 from django.db.models import F
 from rest_framework import serializers
 
-from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY, SUBMISSION_TYPE_REGISTER_INTEREST
-from cases.models import Submission
+from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
 from config.serializers import CustomValidationModelSerializer
 from contacts.models import CaseContact
 from contacts.services.v2.serializers import CaseContactSerializer
@@ -72,27 +71,39 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     @staticmethod
     def get_rejected_cases(instance):
         """Return all instances when this organisation was rejected from a case"""
+        from invitations.models import Invitation
         from cases.services.v2.serializers import CaseSerializer
 
         rejections = []
 
-        # first finding the rep invitations for this org which have been rejected
-        rejected_invitation_submissions = Submission.objects.filter(
+        # finding the rep invitations for this org which have been rejected
+        rejected_invitations = Invitation.objects.filter(
             contact__organisation=instance,
-            type_id=SUBMISSION_TYPE_INVITE_3RD_PARTY,
-            deficiency_notice_params__contact_org_verify=False,
-            deficiency_notice_params__contact_org_not_verified_date_isnull=False,
+            submission__deficiency_notice_params__contact_org_verify=False,
+            submission__deficiency_notice_params__contact_org_verify_at__isnull=False,
+            submission__deficiency_notice_params__contact_org_verify_by__isnull=False,
+            invitation_type=2  # only rep invites
         )
-        for submission in rejected_invitation_submissions:
+        for invitation in rejected_invitations:
+            inviting_organisation_case_role = OrganisationCaseRole.objects.get(
+                organisation=invitation.organisation,
+                case=invitation.case
+            )
+
             rejections.append(
                 {
-                    "case": CaseSerializer(submission.case, fields=["name"]),
-                    "date_rejected": submission.deficiency_notice_params[
-                        "contact_org_not_verified_date"
+                    "case": CaseSerializer(invitation.submission.case,
+                                           fields=["name", "reference"]).data,
+                    "date_rejected": invitation.submission.deficiency_notice_params[
+                        "contact_org_verify_at"
                     ],
-                    "rejected_reason": submission.deficiency_notice_params.get(
+                    "rejected_reason": invitation.submission.deficiency_notice_params.get(
                         "explain_why_contact_org_not_verified", ""
                     ),
+                    "case_role": inviting_organisation_case_role.role.name,
+                    "rejected_by": invitation.submission.deficiency_notice_params[
+                        "contact_org_verify_by"
+                    ],
                 }
             )
 
@@ -191,10 +202,10 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 )
                 if response.status_code == 200:
                     if (
-                        response.json().get(
-                            "company_name",
-                        )
-                        == organisation_name
+                            response.json().get(
+                                "company_name",
+                            )
+                            == organisation_name
                     ):
                         return True
         return False
