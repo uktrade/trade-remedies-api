@@ -73,6 +73,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     def get_representative_contacts(instance):
         """Returns all contacts that are representing this organisation"""
         from core.services.v2.users.serializers import ContactSerializer
+
         contacts = Contact.objects.filter(casecontact__organisation=instance)
         return ContactSerializer(instance=contacts, many=True).data
 
