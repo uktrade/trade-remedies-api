@@ -162,12 +162,15 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             else:
                 # maybe it's an ROI that got them here
                 try:
-                    Submission.objects.get(
+                    (Submission.objects.get(
                         type_id=SUBMISSION_TYPE_REGISTER_INTEREST,
                         contact__organisation=instance,
                         case=case_contact.case,
                         organisation=case_contact.organisation,
                     )
+                     .order_by("-last_modified")
+                     .first()
+                     )
                     representation.update(
                         {
                             "validated": bool(corresponding_org_case_role.validated_at),
@@ -202,10 +205,10 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 )
                 if response.status_code == 200:
                     if (
-                        response.json().get(
-                            "company_name",
-                        )
-                        == organisation_name
+                            response.json().get(
+                                "company_name",
+                            )
+                            == organisation_name
                     ):
                         return True
         return False
