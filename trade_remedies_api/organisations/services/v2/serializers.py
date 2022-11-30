@@ -87,10 +87,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             invitation_type=2,  # only rep invites
         )
         for invitation in rejected_invitations:
-            inviting_organisation_case_role = OrganisationCaseRole.objects.get(
-                organisation=invitation.organisation, case=invitation.case
-            )
-
             rejections.append(
                 {
                     "case": CaseSerializer(
@@ -102,7 +98,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                     "rejected_reason": invitation.submission.deficiency_notice_params.get(
                         "explain_why_contact_org_not_verified", ""
                     ),
-                    "case_role": inviting_organisation_case_role.role.name,
                     "rejected_by": invitation.submission.deficiency_notice_params[
                         "contact_org_verify_by"
                     ],
