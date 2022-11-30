@@ -160,7 +160,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 # maybe it's an ROI that got them here
                 try:
                     (
-                        Submission.objects.get(
+                        Submission.objects.filter(
                             type_id=SUBMISSION_TYPE_REGISTER_INTEREST,
                             contact__organisation=instance,
                             case=case_contact.case,
