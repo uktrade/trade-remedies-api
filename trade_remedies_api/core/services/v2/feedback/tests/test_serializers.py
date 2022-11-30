@@ -6,7 +6,7 @@ from core.services.v2.feedback.serializers import FeedbackSerializer
 class TestFeedbackSerializer(CaseSetupTestMixin):
     @classmethod
     def setUpClass(cls):
-        super().setUp()
+        super().setUpClass()
         cls.feedback_object = Feedback.objects.create(
             rating=2,
             what_didnt_work_so_well=["not_enough_guidance", "other_issue"],

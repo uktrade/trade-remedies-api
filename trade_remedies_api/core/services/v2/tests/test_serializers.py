@@ -63,5 +63,6 @@ class TestContactSerializer(CaseSetupTestMixin):
         serializer = ContactSerializer(
             data={"name": "test", "email": "mixEDEmail@example.cOM"}  # /PS-IGNORE
         )
+        assert serializer.is_valid()
         new_contact = serializer.save()
         assert new_contact.email.islower()
