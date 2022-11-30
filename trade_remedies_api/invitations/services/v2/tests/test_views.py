@@ -63,14 +63,14 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
             f"/api/v2/invitations/{self.invitation_object.pk}/",
             data={
                 "name": "new NEW name",
-                "email": "new_NEW_email@example.com",  # /PS-IGNORE
+                "email": "new_new_email@example.com",  # /PS-IGNORE
             },
         )
         self.invitation_object.refresh_from_db()
         self.assertFalse(self.invitation_object.contact == new_contact)
         self.assertTrue(self.invitation_object.contact.name == "new NEW name")
         self.assertTrue(
-            self.invitation_object.contact.email == "new_NEW_email@example.com"  # /PS-IGNORE
+            self.invitation_object.contact.email == "new_new_email@example.com"  # /PS-IGNORE
         )
 
     def test_send_invitation_new_user(self):

@@ -8,6 +8,7 @@ import environ
 import sentry_sdk
 from django_log_formatter_ecs import ECSFormatter
 from flags import conditions
+from flags.conditions import DuplicateCondition
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -514,7 +515,11 @@ GECKOBOARD_ENV = env("GECKOBOARD_ENV", default="dev")
 TESTING = False
 
 # ------------------- FEATURE FLAGS -------------------
-conditions.register("PART_OF_GROUP", fn=is_user_part_of_group)
+try:
+    conditions.register("PART_OF_GROUP", fn=is_user_part_of_group)
+except DuplicateCondition:
+    # During deployment, this can sometimes be ran twice causing a DuplicateCondition error
+    pass
 FEATURE_FLAG_PREFIX = "FEATURE_FLAG"
 FLAGS = {
     f"{FEATURE_FLAG_PREFIX}_UAT_TEST": [

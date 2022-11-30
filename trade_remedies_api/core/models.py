@@ -15,6 +15,7 @@ from django.contrib.auth.models import Group, Permission, PermissionsMixin
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
 from django.utils import crypto, timezone
 from phonenumbers.phonenumberutil import NumberParseException
@@ -35,6 +36,7 @@ from security.constants import (
     SOS_SECURITY_GROUPS,
 )
 from security.models import CaseSecurityMixin, OrganisationUser, UserCase
+from .base import SimpleBaseModel
 from .constants import DEFAULT_USER_COLOUR, SAFE_COLOURS, TRUTHFUL_INPUT_VALUES
 from .decorators import method_cache
 from .exceptions import UserExists
@@ -1523,3 +1525,38 @@ class SystemParameter(models.Model):
                     this_object.editable = load_object["editable"]
                     this_object.save()
         return count_created, count_updated, count_removed
+
+
+class Feedback(SimpleBaseModel):
+    rating_choices = (
+        (1, "Very dissatisfied"),
+        (2, "Dissatisfied"),
+        (3, "Neither satisfied or dissatisfied"),
+        (4, "Satisfied"),
+        (5, "Very satisfied"),
+    )
+
+    form_placement_choices = (
+        (1, "banner"),
+        (2, "footer"),
+    )
+
+    what_didnt_work_so_well_choices = (
+        ("process_not_clear", "Process is not clear"),
+        ("not_enough_guidance", "Not enough guidance"),
+        ("asked_for_info_didnt_have", "I was asked for information I don’t have"),
+        ("didnt_get_information_i_expected", "I couldn’t find the information I wanted"),
+        ("other_issue", "Other issue"),
+    )
+
+    logged_in = models.BooleanField()
+    rating = models.PositiveSmallIntegerField(choices=rating_choices)
+    what_didnt_work_so_well = ArrayField(
+        null=True, base_field=models.CharField(max_length=50, null=True)
+    )
+    what_didnt_work_so_well_other = models.TextField(null=True)
+    how_could_we_improve_service = models.TextField(null=True)
+    url = models.CharField(max_length=300)
+    url_name = models.CharField(max_length=100, null=True)
+    form_placement = models.PositiveSmallIntegerField(choices=form_placement_choices, null=True)
+    journey = models.TextField(max_length=100, null=True)
