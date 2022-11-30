@@ -91,7 +91,7 @@ class InvitationViewSet(BaseModelViewSet):
                 contact_object = Contact.objects.create(
                     created_by=self.request.user,
                     name=serializer.validated_data["name"],
-                    email=serializer.validated_data["email"],
+                    email=serializer.validated_data["email"].lower(),
                     user_context=self.request.user,
                     country=serializer.instance.organisation.country,
                     post_code=serializer.instance.organisation.post_code,
