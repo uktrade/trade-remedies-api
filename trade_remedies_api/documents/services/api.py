@@ -398,13 +398,7 @@ class DocumentAPIView(TradeRemediesApiView):
                             f"Document to replace with id '{_replace_id}' was not found: {e}"
                         )
                 if submission:
-                    if (
-                        submission.type_id == SUBMISSION_TYPE_INVITE_3RD_PARTY
-                        and not request.user.is_tra()
-                    ):
-                        # This is an invitation submission and uploaded by a public user, it must be LOA
-                        submission_document_type = SubmissionDocumentType.objects.get(key="loa")
-                    elif _submission_document_type:
+                    if _submission_document_type:
                         submission_document_type = SubmissionDocumentType.objects.get(
                             key=_submission_document_type
                         )
