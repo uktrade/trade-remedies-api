@@ -709,17 +709,8 @@ class Invitation(BaseModel):
             accept = False
             assign_cases = False
 
-            # First let's add the invitee as an admin user to their organisation
-            security_group = Group.objects.get(name=SECURITY_GROUP_ORGANISATION_OWNER)
-            self.contact.organisation.assign_user(
-                user=self.invited_user, security_group=security_group, confirmed=True
-            )
-
-            # Then add them as a third party user of the inviting organisation
-            security_group = Group.objects.get(name=SECURITY_GROUP_THIRD_PARTY_USER)
-            self.organisation.assign_user(
-                user=self.invited_user, security_group=security_group, confirmed=True
-            )
+            # They have already been added to the organisation when they accepted the invite and
+            # created their account
 
             # case assignment is done when the parent 'Invite Third Party' submission is approved
             if self.submission.status.review_ok:
