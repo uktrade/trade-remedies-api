@@ -179,6 +179,9 @@ class InvitationViewSet(BaseModelViewSet):
                 # we want to associate the invitation with them so it is processed on next login
                 invitation_object.invited_user = user_query.get()
                 invitation_object.save()
+
+                # now we want to mark the submission as received
+                invitation_object.submission.update_status(request.user, "received")
             else:
                 # The user does not exist
                 template_name = "NOTIFY_NEW_THIRD_PARTY_INVITE"
