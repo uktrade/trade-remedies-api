@@ -99,7 +99,6 @@ class Command(BaseCommand):
 
         stats = {
             "Verified Public user count": public_users_count,
-            "Total case registrations requested": submitted_rois + accepted_rois,
             "Case registrations submitted": submitted_rois,
             "Case registrations accepted": accepted_rois,
             "Total case applications submitted": submitted_applications,
