@@ -22,9 +22,10 @@ class Command(BaseCommand):
         "Produce report related to key metrics relating to the TRS"
         "Accounts: Email verified public user accounts"
         "Sessions: Successful public user log-ins (in period)"
-        "Case registrations requested"
-        "Submissions: Case Submissions"
-        "Files uploaded by public users"
+        "Case registrations submitted"
+        "Case registrations accepted"
+        "Total case applications submitted"
+        "Submissions count"
         "Files downloaded by public users"
     )
 
