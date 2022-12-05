@@ -1,30 +1,31 @@
-import pytest
-
-from unittest.mock import patch, mock_open
-
-from io import StringIO
-
 from datetime import datetime, timedelta
+from io import StringIO
+from unittest.mock import mock_open, patch
 
+import pytest
+from django.contrib.auth.models import Group
+from django.core.management import call_command
 from model_bakery import baker
 
-from django.core.management import call_command
-from django.contrib.auth.models import Group
-
 from cases.constants import (
-    SUBMISSION_STATUS_REGISTER_INTEREST_DRAFT,
     SUBMISSION_STATUS_REGISTER_INTEREST_RECEIVED,
     SUBMISSION_TYPE_APPLICATION,
     SUBMISSION_TYPE_REGISTER_INTEREST,
 )
 from cases.models import Submission, SubmissionStatus
+from config.test_bases import CaseSetupTestMixin
 
 time_periods = [datetime.today().replace(day=1, month=i) for i in range(1, 7)]
 
 
+class TestTrsKpis(CaseSetupTestMixin):
+    @classmethod
+    def setUpClass(cls):
+        pass
+
+
 @pytest.fixture
 def load_sample_data():
-
     # create public group
     group = baker.make(Group, name="Organisation Owner")
 
