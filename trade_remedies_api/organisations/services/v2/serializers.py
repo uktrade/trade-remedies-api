@@ -122,9 +122,12 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             .distinct("case")
         )
         for case_contact in representative_case_contacts:
-            corresponding_org_case_role = OrganisationCaseRole.objects.get(
-                organisation=case_contact.organisation, case=case_contact.case
-            )
+            try:
+                corresponding_org_case_role = OrganisationCaseRole.objects.get(
+                    organisation=case_contact.organisation, case=case_contact.case
+                )
+            except OrganisationCaseRole.DoesNotExist:
+                continue
             representation = {
                 "on_behalf_of": case_contact.organisation.name,
                 "case": CaseSerializer(case_contact.case).data,

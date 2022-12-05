@@ -181,7 +181,7 @@ class InvitationViewSet(BaseModelViewSet):
                 invitation_object.save()
 
                 # now we want to mark the submission as received
-                invitation_object.submission.update_status(request.user, "received")
+                invitation_object.submission.update_status("received", request.user)
             else:
                 # The user does not exist
                 template_name = "NOTIFY_NEW_THIRD_PARTY_INVITE"
