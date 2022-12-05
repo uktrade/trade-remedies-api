@@ -12,20 +12,12 @@ from cases.models import Submission, get_submission_type
 from config.viewsets import BaseModelViewSet
 from contacts.models import CaseContact, Contact
 from core.models import User
-from contacts.models import Contact
-from core.models import User
 from core.services.v2.users.serializers import UserSerializer
 from core.utils import public_login_url
 from invitations.models import Invitation
 from invitations.services.v2.serializers import InvitationSerializer
 from security.constants import SECURITY_GROUP_THIRD_PARTY_USER
 from security.models import UserCase
-from security.constants import SECURITY_GROUP_THIRD_PARTY_USER
-from security.models import UserCase
-from security.constants import (
-    ROLE_AWAITING_APPROVAL,
-)
-from security.models import OrganisationCaseRole, CaseRole
 
 
 class InvitationViewSet(BaseModelViewSet):
@@ -76,10 +68,15 @@ class InvitationViewSet(BaseModelViewSet):
         return invitation_object
 
     def perform_update(self, serializer):
-        if "name" in serializer.validated_data and "email" in serializer.validated_data:
+        if (
+            "name" in serializer.validated_data
+            and "email" in serializer.validated_data
+            and "contact" not in serializer.validated_data
+        ):
             # We want to create a new Contact object to associate with this Invitation, only if the
             # invitation object doesn't already have a contact or the contact associated with the
-            # invitation has different name/email to the submitted
+            # invitation has different name/email to the submitted. And only if a contact object
+            # is NOT passed along with this request, in that case we want to use that one instead.
             if (
                 serializer.instance.contact
                 and (
@@ -140,7 +137,7 @@ class InvitationViewSet(BaseModelViewSet):
                 ).delete()
 
             # creating the new one with the updated contact
-            CaseContact.objects.filter(
+            CaseContact.objects.create(
                 contact=updated_contact,
                 case=serializer.instance.case,
                 organisation=serializer.instance.organisation,  # the inviting organisation
@@ -167,6 +164,7 @@ class InvitationViewSet(BaseModelViewSet):
                     f"{invitation_object.id}/start/"
                 },
             )
+
         elif invitation_object.invitation_type == 2:
             # This is a representative invite, send the appropriate email
 
@@ -189,6 +187,8 @@ class InvitationViewSet(BaseModelViewSet):
                     f"{settings.PUBLIC_ROOT_URL}/case/accept_representative_invite/"
                     f"{invitation_object.id}/start/"
                 )
+                # We also need to update the submission status to sent
+                invitation_object.submission.update_status("sent", request.user)
 
             send_report = invitation_object.send(
                 sent_by=request.user,
@@ -203,9 +203,6 @@ class InvitationViewSet(BaseModelViewSet):
                 template_key=template_name,
                 footer_case_email=False,
             )
-
-            # We also need to update the submission status to sent
-            invitation_object.submission.update_status("sufficient", request.user)
 
         elif invitation_object.invitation_type == 3:
             # determine if deadline passed or not
