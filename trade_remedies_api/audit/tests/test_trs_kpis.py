@@ -46,7 +46,7 @@ def load_sample_data():
         Submission.objects.create(
             type_id=SUBMISSION_TYPE_REGISTER_INTEREST,
             status_id=SUBMISSION_STATUS_REGISTER_INTEREST_RECEIVED,
-            case=case_object
+            case=case_object,
         )
     for i in range(5):
         Submission.objects.create(
@@ -54,14 +54,12 @@ def load_sample_data():
             status=SubmissionStatus.objects.get(
                 type_id=SUBMISSION_TYPE_REGISTER_INTEREST, sufficient=True
             ),
-            case=case_object
+            case=case_object,
         )
     Submission.objects.create(
         type_id=SUBMISSION_TYPE_APPLICATION,
         case=case_object,
-        status=SubmissionStatus.objects.get(
-            type_id=SUBMISSION_TYPE_APPLICATION, received=True
-        )
+        status=SubmissionStatus.objects.get(type_id=SUBMISSION_TYPE_APPLICATION, received=True),
     )
 
 
