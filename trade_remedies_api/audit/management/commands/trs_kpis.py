@@ -69,12 +69,9 @@ class Command(BaseCommand):
             **user_additional_filters,
         ).count()
 
-        total_rois = Submission.objects.filter(
-            type_id=SUBMISSION_TYPE_REGISTER_INTEREST, **additional_filters
-        ).count()
         submitted_rois = Submission.objects.filter(
             type_id=SUBMISSION_TYPE_REGISTER_INTEREST,
-            status_id=SUBMISSION_STATUS_REGISTER_INTEREST_RECEIVED,
+            status__draft=False,
             **additional_filters,
         ).count()
         accepted_rois = Submission.objects.filter(

@@ -69,7 +69,7 @@ def test_get_all_kpis(load_sample_data):
     call_command("trs_kpis", stdout=out)
 
     assert "Verified Public user count: 6" in out.getvalue()
-    assert "Case registrations submitted: 4" in out.getvalue()
+    assert "Case registrations submitted: 9" in out.getvalue()
     assert "Case registrations accepted: 5" in out.getvalue()
     assert "Total case applications submitted: 1" in out.getvalue()
     assert "Submissions count: 16" in out.getvalue()
