@@ -45,7 +45,7 @@ class OrganisationManager(models.Manager):
             child_organisation
     ):
         """
-        Merges two organisations together into a new one.
+        Merges the child_organisation into the parent_organisation, deleting the former.
         Parameters
         ----------
         parent_organisation : parent organisation that will retain its details (name..etc.)
@@ -53,27 +53,9 @@ class OrganisationManager(models.Manager):
 
         Returns
         -------
-         A new Organisation object containing the records of both organisation_a and organisation_b
+        The parent organisation object containing the records of both organisation_a and organisation_b
         """
-        new_organisation = self.create(
-            name=parent_organisation.name,
-            datahub_id=parent_organisation.datahub_id,
-            companies_house_id=parent_organisation.companies_house_id,
-            trade_association=parent_organisation.trade_association,
-            gov_body=parent_organisation.gov_body,
-            address=parent_organisation.address,
-            post_code=parent_organisation.post_code,
-            country=parent_organisation.country,
-            duplicate_of=parent_organisation.duplicate_of,
-            vat_number=parent_organisation.vat_number,
-            eori_number=parent_organisation.eori_number,
-            duns_number=parent_organisation.duns_number,
-            organisation_website=parent_organisation.organisation_website,
-            fraudulent=parent_organisation.fraudulent,
-            json_data=parent_organisation.eori_number,
-            merged_from_parent=parent_organisation,
-            merged_from_child=child_organisation
-        )
+        from invitations.models import Invitation
 
         # finding the users who are members of the child org, but not of the parent.
         # we need to add those users to the parent
@@ -102,263 +84,274 @@ class OrganisationManager(models.Manager):
             case__organisation_case_role__organisation=parent_organisation
         ).update(organisation=parent_organisation)
 
-
-
-
-
-
-
-@transaction.atomic
-def find_similar_organisations(self, limit=None):
-    """
-    Perform a similarity check on organisation names
-    """
-    limit = float(limit or 0.5)
-    _SQL = f"""
-            SELECT set_limit({limit});
-            SELECT similarity(o1.name, o2.name) AS score, o1.name, o2.name
-            FROM organisations_organisation o1 JOIN organisations_organisation o2
-            ON o1.name != o2.name AND o1.name % o2.name
-            WHERE o1.duplicate_of_id is null and o2.duplicate_of_id is null;
-        """  # noqa
-    with connection.cursor() as cursor:
-        cursor.execute(_SQL)
-        rows = cursor.fetchall()
-    return rows
-
-
-@transaction.atomic  # noqa: C901
-def merge_organisation_records(
-        self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
-):
-    """
-    Merge two organisations records into one.
-    parameter_map is a map of fields that need to be copied from the merge_with object
-    """
-    from contacts.models import Contact
-    from invitations.models import Invitation
-
-    results = []
-    results.append(
-        Submission.objects.filter(organisation=merge_with).update(organisation=organisation)
-    )
-    results.append(
-        Contact.objects.filter(organisation=merge_with).update(organisation=organisation)
-    )
-    results.append(
-        Invitation.objects.filter(organisation=merge_with).update(organisation=organisation)
-    )
-    results.append(
-        OrganisationName.objects.filter(organisation=merge_with).update(
-            organisation=organisation
+        # updating the submissions
+        Submission.objects.filter(organisation=child_organisation).update(
+            organisation=parent_organisation
         )
-    )
-    # transfer usercases after finding clashes
-    sql = f"""select uc2.id from security_usercase uc1 join security_usercase uc2
-            on uc1.organisation_id='{organisation.id}'
-            and uc2.organisation_id = '{merge_with.id}'
-            and uc1.case_id=uc2.case_id and uc1.user_id=uc2.user_id
-            """
-    clash_list = sql_get_list(sql)
-    try:
+
+        # updating the invitations
+        Invitation.objects.filter(organisation=child_organisation).update(
+            organisation=parent_organisation
+        )
+
+        OrganisationMerge.objects.create(
+            parent_organisation=parent_organisation,
+            child_organisation=child_organisation
+        )
+        child_organisation.delete()
+
+
+    @transaction.atomic
+    def find_similar_organisations(self, limit=None):
+        """
+        Perform a similarity check on organisation names
+        """
+        limit = float(limit or 0.5)
+        _SQL = f"""
+                SELECT set_limit({limit});
+                SELECT similarity(o1.name, o2.name) AS score, o1.name, o2.name
+                FROM organisations_organisation o1 JOIN organisations_organisation o2
+                ON o1.name != o2.name AND o1.name % o2.name
+                WHERE o1.duplicate_of_id is null and o2.duplicate_of_id is null;
+            """  # noqa
+        with connection.cursor() as cursor:
+            cursor.execute(_SQL)
+            rows = cursor.fetchall()
+        return rows
+
+
+    @transaction.atomic  # noqa: C901
+    def merge_organisation_records(
+            self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
+    ):
+        """
+        Merge two organisations records into one.
+        parameter_map is a map of fields that need to be copied from the merge_with object
+        """
+        from contacts.models import Contact
+        from invitations.models import Invitation
+
+        results = []
         results.append(
-            UserCase.objects.filter(organisation=merge_with)
-            .exclude(id__in=clash_list)
-            .update(organisation=organisation)
+            Submission.objects.filter(organisation=merge_with).update(organisation=organisation)
         )
-    except Exception as e:
-        raise ValueError("Same user has access to same case on behalf of both organisations")
-
-    # transfer case_org_contacts after finding clashes
-    sql = f"""select cc2.id from contacts_casecontact cc1 join contacts_casecontact cc2
-            on cc1.organisation_id='{organisation.id}'
-            and cc2.organisation_id = '{merge_with.id}'
-            and cc1.case_id=cc2.case_id and cc1.contact_id=cc2.contact_id
-            """
-    clash_list = sql_get_list(sql)
-    try:
         results.append(
-            CaseContact.objects.filter(organisation=merge_with)
-            .exclude(id__in=clash_list)
-            .update(organisation=organisation)
+            Contact.objects.filter(organisation=merge_with).update(organisation=organisation)
         )
-    except Exception as e:
-        raise ValueError("Same contact is in both organisations")
-
-    # Migrate cases (caseroles)
-    clash_cases = {}
-    for org_case in OrganisationCaseRole.objects.filter(organisation=organisation):
-        clash_cases[org_case.case.id] = org_case
-    for org_case in OrganisationCaseRole.objects.filter(organisation=merge_with):
-        clash = clash_cases.get(org_case.case.id)
-        if clash:
-            if org_case.role.key not in NOT_IN_CASE_ORG_CASE_ROLES:
-                if (
-                        clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
-                        and org_case.role.key != clash.role.key
-                ):
-                    # Argh, both orgs are in the same case with different,
-                    # non awaiting roles - blow up!
-                    raise ValueError(
-                        "Cannot merge as organisations have different roles in a case",
-                        org_case.case.name,
-                    )
-                # Pick the best possible role for the merged org
-                clash.role = org_case.role
-                clash.save()
-            clash_cases[org_case.case.id] = org_case
-            org_case.delete()
-    results.append(
-        OrganisationCaseRole.objects.filter(organisation=merge_with).update(
-            organisation=organisation
+        results.append(
+            Invitation.objects.filter(organisation=merge_with).update(organisation=organisation)
         )
-    )
-
-    results.append(
-        OrganisationUser.objects.filter(organisation=merge_with).update(
-            organisation=organisation
-        )
-    )
-    updated = False
-    for parameter, source in parameter_map.items():
-        if source == "p2":
-            setattr(organisation, parameter, getattr(merge_with, parameter))
-            updated = True
-    if updated:
-        organisation.merged_from = merge_with
-        organisation.save()
-    # Notify the admins of the organisation of the merge.
-    if notify and merged_by:
-        notify_template_id = SystemParameter.get("NOTIFY_ORGANISATION_MERGED")
-        # any baseline context can be set here.
-        context = {
-            "footer": notify_footer(notify_contact_email()),
-            "public_cases": SystemParameter.get("LINK_TRA_CASELIST"),
-        }
-        self.notify_owners(
-            organisation=organisation,
-            template_id=notify_template_id,
-            context=context,
-            notified_by=merged_by,
-        )
-    # soft delete the merged organisation
-    merge_with.delete()
-    return results
-
-
-def notify_owners(self, organisation, template_id, context, notified_by):
-    audit_kwargs = {
-        "audit_type": AUDIT_TYPE_NOTIFY,
-        "user": notified_by,
-    }
-    owners = organisation.organisationuser_set.filter(
-        user__is_active=True, user__groups__name="Organisation Owner"
-    )
-    for owner in owners:
-        user = owner.user
-        context["full_name"] = user.name
-        context["organisation_name"] = organisation.name
-        audit_kwargs["model"] = user.contact
-        context["login_url"] = public_login_url()
-        send_mail(user.contact.email, context, template_id, audit_kwargs=audit_kwargs)
-
-
-@transaction.atomic  # noqa: C901
-def create_or_update_organisation(
-        self,
-        user,
-        name,
-        trade_association=False,
-        companies_house_id=None,
-        datahub_id=None,
-        address=None,
-        post_code=None,
-        country=None,
-        organisation_id=None,
-        assign_user=False,
-        gov_body=False,
-        case=None,
-        json_data=None,
-        contact_object=None,
-        **kwargs,
-):
-    """
-    Create or update an organisation record.
-    If an organisation id is provided, it will be updated. However, if the name has changed
-    a new organisation will be created (or reused if the name exists).
-    The user will be made a user of the organisation only if assign_user is True. This is
-    only required during organisation creation when registering a new account.
-    """
-    created = False
-    organisation = None
-    if not country and companies_house_id:
-        country = "GB"
-    if organisation_id:
-        try:
-            organisation = Organisation.objects.get(id=organisation_id)
-        except Organisation.DoesNotExist:
-            pass
-    if organisation is None:
-        try:
-            organisations = Organisation.objects.filter(name=name, country=country)
-            # we can only reuse the organisation if the user is previously associated with it
-            for organisation in organisations:
-                associated = user.is_associated_with(organisation)
-                if associated:
-                    break
-            else:
-                raise Organisation.DoesNotExist()
-        except Organisation.DoesNotExist:
-            organisation = Organisation(
-                created_by=user, user_context=[user], name=name, country=country
+        results.append(
+            OrganisationName.objects.filter(organisation=merge_with).update(
+                organisation=organisation
             )
-            created = True
-    organisation.set_user_context(user)
-    organisation.set_case_context(case)
-    organisation.companies_house_id = companies_house_id or organisation.companies_house_id
-    organisation.trade_association = trade_association or organisation.trade_association
-    organisation.datahub_id = datahub_id or organisation.datahub_id
-    organisation.address = address or organisation.address
-    organisation.post_code = post_code or organisation.post_code
-    organisation.country = country if country else organisation.country
-    organisation.json_data = json_data if json_data else organisation.json_data
-    if not organisation_id and gov_body:
-        organisation.gov_body = gov_body
-
-    for key in kwargs:
-        val = kwargs[key]
-        if val is not None and hasattr(organisation, key):
-            setattr(organisation, key, val)
-    organisation.save()
-    if name and organisation.name != name:
-        organisation.change_name(name)
-    if assign_user:
-        # assign as user if owner already exists, otherwise as owner
-        user_group = get_security_group(SECURITY_GROUP_ORGANISATION_OWNER)
-        existing_owner = OrganisationUser.objects.filter(
-            organisation=organisation, security_group=user_group
-        ).exists()
-        if existing_owner:
-            user_group = get_security_group(SECURITY_GROUP_ORGANISATION_USER)
-        org_user = OrganisationUser.objects.assign_user(
-            organisation=organisation, user=user, security_group=user_group
         )
-        if contact_object:
-            contact_object.organisation = organisation
-            contact_object.save()
-    return organisation
+        # transfer usercases after finding clashes
+        sql = f"""select uc2.id from security_usercase uc1 join security_usercase uc2
+                on uc1.organisation_id='{organisation.id}'
+                and uc2.organisation_id = '{merge_with.id}'
+                and uc1.case_id=uc2.case_id and uc1.user_id=uc2.user_id
+                """
+        clash_list = sql_get_list(sql)
+        try:
+            results.append(
+                UserCase.objects.filter(organisation=merge_with)
+                .exclude(id__in=clash_list)
+                .update(organisation=organisation)
+            )
+        except Exception as e:
+            raise ValueError("Same user has access to same case on behalf of both organisations")
+
+        # transfer case_org_contacts after finding clashes
+        sql = f"""select cc2.id from contacts_casecontact cc1 join contacts_casecontact cc2
+                on cc1.organisation_id='{organisation.id}'
+                and cc2.organisation_id = '{merge_with.id}'
+                and cc1.case_id=cc2.case_id and cc1.contact_id=cc2.contact_id
+                """
+        clash_list = sql_get_list(sql)
+        try:
+            results.append(
+                CaseContact.objects.filter(organisation=merge_with)
+                .exclude(id__in=clash_list)
+                .update(organisation=organisation)
+            )
+        except Exception as e:
+            raise ValueError("Same contact is in both organisations")
+
+        # Migrate cases (caseroles)
+        clash_cases = {}
+        for org_case in OrganisationCaseRole.objects.filter(organisation=organisation):
+            clash_cases[org_case.case.id] = org_case
+        for org_case in OrganisationCaseRole.objects.filter(organisation=merge_with):
+            clash = clash_cases.get(org_case.case.id)
+            if clash:
+                if org_case.role.key not in NOT_IN_CASE_ORG_CASE_ROLES:
+                    if (
+                            clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
+                            and org_case.role.key != clash.role.key
+                    ):
+                        # Argh, both orgs are in the same case with different,
+                        # non awaiting roles - blow up!
+                        raise ValueError(
+                            "Cannot merge as organisations have different roles in a case",
+                            org_case.case.name,
+                        )
+                    # Pick the best possible role for the merged org
+                    clash.role = org_case.role
+                    clash.save()
+                clash_cases[org_case.case.id] = org_case
+                org_case.delete()
+        results.append(
+            OrganisationCaseRole.objects.filter(organisation=merge_with).update(
+                organisation=organisation
+            )
+        )
+
+        results.append(
+            OrganisationUser.objects.filter(organisation=merge_with).update(
+                organisation=organisation
+            )
+        )
+        updated = False
+        for parameter, source in parameter_map.items():
+            if source == "p2":
+                setattr(organisation, parameter, getattr(merge_with, parameter))
+                updated = True
+        if updated:
+            organisation.merged_from = merge_with
+            organisation.save()
+        # Notify the admins of the organisation of the merge.
+        if notify and merged_by:
+            notify_template_id = SystemParameter.get("NOTIFY_ORGANISATION_MERGED")
+            # any baseline context can be set here.
+            context = {
+                "footer": notify_footer(notify_contact_email()),
+                "public_cases": SystemParameter.get("LINK_TRA_CASELIST"),
+            }
+            self.notify_owners(
+                organisation=organisation,
+                template_id=notify_template_id,
+                context=context,
+                notified_by=merged_by,
+            )
+        # soft delete the merged organisation
+        merge_with.delete()
+        return results
 
 
-def user_organisation(self, user, organisation_id=None):
-    """
-    Return the organisation record behind the organisation id, if the user is a direct
-    user of that organisation.
-    If an organisation id is not provided, return the organisation associated with this user.
-    Raises a DoesNotExist if not found.
-    """
-    _kwargs = {"organisation__id": organisation_id} if organisation_id else {}
-    org_user = OrganisationUser.objects.get(user=user, **_kwargs)
-    return org_user.organisation
+    def notify_owners(self, organisation, template_id, context, notified_by):
+        audit_kwargs = {
+            "audit_type": AUDIT_TYPE_NOTIFY,
+            "user": notified_by,
+        }
+        owners = organisation.organisationuser_set.filter(
+            user__is_active=True, user__groups__name="Organisation Owner"
+        )
+        for owner in owners:
+            user = owner.user
+            context["full_name"] = user.name
+            context["organisation_name"] = organisation.name
+            audit_kwargs["model"] = user.contact
+            context["login_url"] = public_login_url()
+            send_mail(user.contact.email, context, template_id, audit_kwargs=audit_kwargs)
+
+
+    @transaction.atomic  # noqa: C901
+    def create_or_update_organisation(
+            self,
+            user,
+            name,
+            trade_association=False,
+            companies_house_id=None,
+            datahub_id=None,
+            address=None,
+            post_code=None,
+            country=None,
+            organisation_id=None,
+            assign_user=False,
+            gov_body=False,
+            case=None,
+            json_data=None,
+            contact_object=None,
+            **kwargs,
+    ):
+        """
+        Create or update an organisation record.
+        If an organisation id is provided, it will be updated. However, if the name has changed
+        a new organisation will be created (or reused if the name exists).
+        The user will be made a user of the organisation only if assign_user is True. This is
+        only required during organisation creation when registering a new account.
+        """
+        created = False
+        organisation = None
+        if not country and companies_house_id:
+            country = "GB"
+        if organisation_id:
+            try:
+                organisation = Organisation.objects.get(id=organisation_id)
+            except Organisation.DoesNotExist:
+                pass
+        if organisation is None:
+            try:
+                organisations = Organisation.objects.filter(name=name, country=country)
+                # we can only reuse the organisation if the user is previously associated with it
+                for organisation in organisations:
+                    associated = user.is_associated_with(organisation)
+                    if associated:
+                        break
+                else:
+                    raise Organisation.DoesNotExist()
+            except Organisation.DoesNotExist:
+                organisation = Organisation(
+                    created_by=user, user_context=[user], name=name, country=country
+                )
+                created = True
+        organisation.set_user_context(user)
+        organisation.set_case_context(case)
+        organisation.companies_house_id = companies_house_id or organisation.companies_house_id
+        organisation.trade_association = trade_association or organisation.trade_association
+        organisation.datahub_id = datahub_id or organisation.datahub_id
+        organisation.address = address or organisation.address
+        organisation.post_code = post_code or organisation.post_code
+        organisation.country = country if country else organisation.country
+        organisation.json_data = json_data if json_data else organisation.json_data
+        if not organisation_id and gov_body:
+            organisation.gov_body = gov_body
+
+        for key in kwargs:
+            val = kwargs[key]
+            if val is not None and hasattr(organisation, key):
+                setattr(organisation, key, val)
+        organisation.save()
+        if name and organisation.name != name:
+            organisation.change_name(name)
+        if assign_user:
+            # assign as user if owner already exists, otherwise as owner
+            user_group = get_security_group(SECURITY_GROUP_ORGANISATION_OWNER)
+            existing_owner = OrganisationUser.objects.filter(
+                organisation=organisation, security_group=user_group
+            ).exists()
+            if existing_owner:
+                user_group = get_security_group(SECURITY_GROUP_ORGANISATION_USER)
+            org_user = OrganisationUser.objects.assign_user(
+                organisation=organisation, user=user, security_group=user_group
+            )
+            if contact_object:
+                contact_object.organisation = organisation
+                contact_object.save()
+        return organisation
+
+
+    def user_organisation(self, user, organisation_id=None):
+        """
+        Return the organisation record behind the organisation id, if the user is a direct
+        user of that organisation.
+        If an organisation id is not provided, return the organisation associated with this user.
+        Raises a DoesNotExist if not found.
+        """
+        _kwargs = {"organisation__id": organisation_id} if organisation_id else {}
+        org_user = OrganisationUser.objects.get(user=user, **_kwargs)
+        return org_user.organisation
 
 
 class Organisation(BaseModel):
@@ -378,14 +371,6 @@ class Organisation(BaseModel):
     fraudulent = models.BooleanField(default=False)
     merged_from = models.ForeignKey(
         "self", null=True, blank=True, on_delete=models.PROTECT, related_name="merged_from_org"
-    )
-    merged_from_parent = models.ForeignKey(
-        "self", null=True, blank=True, on_delete=models.PROTECT,
-        related_name="merged_from_parent_org"
-    )
-    merged_from_child = models.ForeignKey(
-        "self", null=True, blank=True, on_delete=models.PROTECT,
-        related_name="merged_from_child_org"
     )
     json_data = models.JSONField(null=True, blank=True)
 
@@ -770,3 +755,16 @@ class OrganisationName(models.Model):
             if self.to_date
             else None,
         }
+
+
+class OrganisationMerge(BaseModel):
+    parent_organisation = models.ForeignKey(
+        Organisation,
+        related_name="organisation_merged_children",
+        on_delete=models.PROTECT
+    )
+    child_organisation = models.ForeignKey(
+        Organisation,
+        related_name="organisation_merged_into",
+        on_delete=models.PROTECT
+    )
