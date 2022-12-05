@@ -12,16 +12,9 @@ from cases.constants import (
     SUBMISSION_TYPE_APPLICATION,
     SUBMISSION_TYPE_REGISTER_INTEREST,
 )
-from cases.models import Submission, SubmissionStatus
-from config.test_bases import CaseSetupTestMixin
+from cases.models import Case, Submission, SubmissionStatus
 
 time_periods = [datetime.today().replace(day=1, month=i) for i in range(1, 7)]
-
-
-class TestTrsKpis(CaseSetupTestMixin):
-    @classmethod
-    def setUpClass(cls):
-        pass
 
 
 @pytest.fixture
@@ -48,11 +41,12 @@ def load_sample_data():
             submission=submission,
             downloads=10,
         )
-
+    case_object = Case.objects.first()
     for i in range(4):
         Submission.objects.create(
             type_id=SUBMISSION_TYPE_REGISTER_INTEREST,
             status_id=SUBMISSION_STATUS_REGISTER_INTEREST_RECEIVED,
+            case=case_object
         )
     for i in range(5):
         Submission.objects.create(
@@ -60,8 +54,15 @@ def load_sample_data():
             status=SubmissionStatus.objects.get(
                 type_id=SUBMISSION_TYPE_REGISTER_INTEREST, sufficient=True
             ),
+            case=case_object
         )
-    Submission.objects.create(type_id=SUBMISSION_TYPE_APPLICATION)
+    Submission.objects.create(
+        type_id=SUBMISSION_TYPE_APPLICATION,
+        case=case_object,
+        status=SubmissionStatus.objects.get(
+            type_id=SUBMISSION_TYPE_APPLICATION, received=True
+        )
+    )
 
 
 @pytest.mark.django_db
@@ -73,7 +74,7 @@ def test_get_all_kpis(load_sample_data):
     assert "Case registrations submitted: 4" in out.getvalue()
     assert "Case registrations accepted: 5" in out.getvalue()
     assert "Total case applications submitted: 1" in out.getvalue()
-    assert "Submissions count: 6" in out.getvalue()
+    assert "Submissions count: 16" in out.getvalue()
     assert "Files uploaded by public users count: 6" in out.getvalue()
     assert "Total files downloaded: 60" in out.getvalue()
 

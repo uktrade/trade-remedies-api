@@ -513,7 +513,10 @@ GECKOBOARD_ENV = env("GECKOBOARD_ENV", default="dev")
 TESTING = False
 
 # ------------------- DJANGO-FLAG -------------------
-conditions.register("PART_OF_GROUP", fn=is_user_part_of_group)
+try:
+    conditions.register("PART_OF_GROUP", fn=is_user_part_of_group)
+except conditions.DuplicateCondition:
+    pass
 FEATURE_FLAG_PREFIX = "FEATURE_FLAG"
 FLAGS = {
     f"{FEATURE_FLAG_PREFIX}_UAT_TEST": [
