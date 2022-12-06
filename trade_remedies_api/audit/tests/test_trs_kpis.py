@@ -1,22 +1,24 @@
-import pytest
-
-from unittest.mock import patch, mock_open
-
-from io import StringIO
-
 from datetime import datetime, timedelta
+from io import StringIO
+from unittest.mock import mock_open, patch
 
+import pytest
+from django.contrib.auth.models import Group
+from django.core.management import call_command
 from model_bakery import baker
 
-from django.core.management import call_command
-from django.contrib.auth.models import Group
+from cases.constants import (
+    SUBMISSION_STATUS_REGISTER_INTEREST_RECEIVED,
+    SUBMISSION_TYPE_APPLICATION,
+    SUBMISSION_TYPE_REGISTER_INTEREST,
+)
+from cases.models import Case, Submission, SubmissionStatus
 
 time_periods = [datetime.today().replace(day=1, month=i) for i in range(1, 7)]
 
 
 @pytest.fixture
 def load_sample_data():
-
     # create public group
     group = baker.make(Group, name="Organisation Owner")
 
@@ -39,6 +41,26 @@ def load_sample_data():
             submission=submission,
             downloads=10,
         )
+    case_object = Case.objects.first()
+    for i in range(4):
+        Submission.objects.create(
+            type_id=SUBMISSION_TYPE_REGISTER_INTEREST,
+            status_id=SUBMISSION_STATUS_REGISTER_INTEREST_RECEIVED,
+            case=case_object,
+        )
+    for i in range(5):
+        Submission.objects.create(
+            type_id=SUBMISSION_TYPE_REGISTER_INTEREST,
+            status=SubmissionStatus.objects.get(
+                type_id=SUBMISSION_TYPE_REGISTER_INTEREST, sufficient=True
+            ),
+            case=case_object,
+        )
+    Submission.objects.create(
+        type_id=SUBMISSION_TYPE_APPLICATION,
+        case=case_object,
+        status=SubmissionStatus.objects.get(type_id=SUBMISSION_TYPE_APPLICATION, received=True),
+    )
 
 
 @pytest.mark.django_db
@@ -47,9 +69,10 @@ def test_get_all_kpis(load_sample_data):
     call_command("trs_kpis", stdout=out)
 
     assert "Verified Public user count: 6" in out.getvalue()
-    assert "Case Registration request count: 12" in out.getvalue()
-    assert "Case applications accepted count: 6" in out.getvalue()
-    assert "Submissions count: 6" in out.getvalue()
+    assert "Case registrations submitted: 9" in out.getvalue()
+    assert "Case registrations accepted: 5" in out.getvalue()
+    assert "Total case applications submitted: 1" in out.getvalue()
+    assert "Submissions count: 16" in out.getvalue()
     assert "Files uploaded by public users count: 6" in out.getvalue()
     assert "Total files downloaded: 60" in out.getvalue()
 
