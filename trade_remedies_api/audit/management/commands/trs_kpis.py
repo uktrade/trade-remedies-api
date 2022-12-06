@@ -4,10 +4,14 @@ from typing import Any, Optional
 
 from django.core.management.base import BaseCommand, CommandParser
 
+from cases.constants import (
+    SUBMISSION_TYPE_APPLICATION,
+    SUBMISSION_TYPE_REGISTER_INTEREST,
+)
 from security.constants import SECURITY_GROUPS_PUBLIC
 
 from core.models import UserProfile
-from cases.models import Case, Submission, SubmissionDocument
+from cases.models import Submission, SubmissionDocument
 
 
 class Command(BaseCommand):
@@ -16,9 +20,10 @@ class Command(BaseCommand):
         "Produce report related to key metrics relating to the TRS"
         "Accounts: Email verified public user accounts"
         "Sessions: Successful public user log-ins (in period)"
-        "Case registrations requested"
-        "Submissions: Case Submissions"
-        "Files uploaded by public users"
+        "Case registrations submitted"
+        "Case registrations accepted"
+        "Total case applications submitted"
+        "Submissions count"
         "Files downloaded by public users"
     )
 
@@ -62,12 +67,20 @@ class Command(BaseCommand):
             user__groups__name__in=SECURITY_GROUPS_PUBLIC,
             **user_additional_filters,
         ).count()
-        case_accepted_count = Case.objects.filter(
-            initiated_at__isnull=False, **additional_filters
+
+        submitted_rois = Submission.objects.filter(
+            type_id=SUBMISSION_TYPE_REGISTER_INTEREST,
+            status__draft=False,
+            **additional_filters,
         ).count()
-        case_submitted_count = Case.objects.filter(
-            submitted_at__isnull=False, **additional_filters
+        accepted_rois = Submission.objects.filter(
+            type_id=SUBMISSION_TYPE_REGISTER_INTEREST, status__sufficient=True, **additional_filters
         ).count()
+
+        submitted_applications = Submission.objects.filter(
+            type_id=SUBMISSION_TYPE_APPLICATION, status__draft=False, **additional_filters
+        ).count()
+
         submission_count = Submission.objects.filter(**additional_filters).count()
         files_uploaded_by_public_user_count = (
             SubmissionDocument.objects.select_related("created_by")
@@ -82,8 +95,9 @@ class Command(BaseCommand):
 
         stats = {
             "Verified Public user count": public_users_count,
-            "Case Registration request count": case_submitted_count,
-            "Case applications accepted count": case_accepted_count,
+            "Case registrations submitted": submitted_rois,
+            "Case registrations accepted": accepted_rois,
+            "Total case applications submitted": submitted_applications,
             "Submissions count": submission_count,
             "Files uploaded by public users count": files_uploaded_by_public_user_count,
             "Total files downloaded": total_docs_download_count,
