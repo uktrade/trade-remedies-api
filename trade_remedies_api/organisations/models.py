@@ -15,7 +15,7 @@ from core.base import BaseModel
 from core.models import SystemParameter, User
 from core.notifier import notify_contact_email, notify_footer
 from core.tasks import send_mail
-from core.utils import (public_login_url, sql_get_list)
+from core.utils import public_login_url, sql_get_list
 from organisations.constants import NOT_IN_CASE_ORG_CASE_ROLES
 from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
 from security.models import OrganisationCaseRole, OrganisationUser, UserCase, get_security_group
@@ -39,11 +39,7 @@ def _(organisation):
 
 class OrganisationManager(models.Manager):
     @transaction.atomic
-    def merge_organisations(
-            self,
-            parent_organisation,
-            child_organisation
-    ):
+    def merge_organisations(self, parent_organisation, child_organisation):
         """
         Merges the child_organisation into the parent_organisation, deleting the former.
         Parameters
@@ -62,11 +58,11 @@ class OrganisationManager(models.Manager):
         parent_organisation_users = [each.user for each in parent_organisation.users]
         for org_user in child_organisation.users:
             if org_user.user not in parent_organisation_users:
-                parent_organisation.assign_user(
-                    user=org_user.user,
-                    security_group=org_user.security_group,
-                    confirmed=org_user.confirmed
-                )
+                org_user.organisation = parent_organisation
+                org_user.save()
+            else:
+                # the child org user is already a member of the parent org, delete
+                org_user.delete()
 
         # updating the UserCase objects of the child_org
         UserCase.objects.filter(organisation=child_organisation).update(
@@ -79,7 +75,8 @@ class OrganisationManager(models.Manager):
         )
 
         # updating all OrganisationCaseRole objects which are unique to the child organisation, and
-        # to cases which the parent_organisation doesn't have a corresponding OrganisationCaseRole object
+        # to cases which the parent_organisation doesn't have a corresponding
+        # OrganisationCaseRole object
         OrganisationCaseRole.objects.filter(organisation=child_organisation).exclude(
             case__organisation_case_role__organisation=parent_organisation
         ).update(organisation=parent_organisation)
@@ -95,11 +92,9 @@ class OrganisationManager(models.Manager):
         )
 
         OrganisationMerge.objects.create(
-            parent_organisation=parent_organisation,
-            child_organisation=child_organisation
+            parent_organisation=parent_organisation, child_organisation=child_organisation
         )
         child_organisation.delete()
-
 
     @transaction.atomic
     def find_similar_organisations(self, limit=None):
@@ -119,10 +114,9 @@ class OrganisationManager(models.Manager):
             rows = cursor.fetchall()
         return rows
 
-
     @transaction.atomic  # noqa: C901
     def merge_organisation_records(
-            self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
+        self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
     ):
         """
         Merge two organisations records into one.
@@ -187,8 +181,8 @@ class OrganisationManager(models.Manager):
             if clash:
                 if org_case.role.key not in NOT_IN_CASE_ORG_CASE_ROLES:
                     if (
-                            clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
-                            and org_case.role.key != clash.role.key
+                        clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
+                        and org_case.role.key != clash.role.key
                     ):
                         # Argh, both orgs are in the same case with different,
                         # non awaiting roles - blow up!
@@ -238,7 +232,6 @@ class OrganisationManager(models.Manager):
         merge_with.delete()
         return results
 
-
     def notify_owners(self, organisation, template_id, context, notified_by):
         audit_kwargs = {
             "audit_type": AUDIT_TYPE_NOTIFY,
@@ -255,25 +248,24 @@ class OrganisationManager(models.Manager):
             context["login_url"] = public_login_url()
             send_mail(user.contact.email, context, template_id, audit_kwargs=audit_kwargs)
 
-
     @transaction.atomic  # noqa: C901
     def create_or_update_organisation(
-            self,
-            user,
-            name,
-            trade_association=False,
-            companies_house_id=None,
-            datahub_id=None,
-            address=None,
-            post_code=None,
-            country=None,
-            organisation_id=None,
-            assign_user=False,
-            gov_body=False,
-            case=None,
-            json_data=None,
-            contact_object=None,
-            **kwargs,
+        self,
+        user,
+        name,
+        trade_association=False,
+        companies_house_id=None,
+        datahub_id=None,
+        address=None,
+        post_code=None,
+        country=None,
+        organisation_id=None,
+        assign_user=False,
+        gov_body=False,
+        case=None,
+        json_data=None,
+        contact_object=None,
+        **kwargs,
     ):
         """
         Create or update an organisation record.
@@ -340,7 +332,6 @@ class OrganisationManager(models.Manager):
                 contact_object.organisation = organisation
                 contact_object.save()
         return organisation
-
 
     def user_organisation(self, user, organisation_id=None):
         """
@@ -417,7 +408,7 @@ class Organisation(BaseModel):
         )
 
     def related_pending_registrations_of_interest(
-            self, requested_by, all_interests=True, archived=False
+        self, requested_by, all_interests=True, archived=False
     ):
         """
         Return all pending registrations of interest for this organisaion.
@@ -580,7 +571,7 @@ class Organisation(BaseModel):
         Return all contacts assosciated with the organisation for a specific case.
         These might be lawyers representing the organisation or direct employee.
         """
-        case_contacts = Contact.objects.select_related("userprofile", "organisation", ).filter(
+        case_contacts = Contact.objects.select_related("userprofile", "organisation",).filter(
             casecontact__case=case,
             casecontact__organisation=self,
             deleted_at__isnull=True,
@@ -594,10 +585,10 @@ class Organisation(BaseModel):
         case = case or self.case_context
         if case:
             return (
-                    case
-                    and Submission.objects.filter(
-                organisation=self, case=case, status__default=False
-            ).exists()
+                case
+                and Submission.objects.filter(
+                    organisation=self, case=case, status__default=False
+                ).exists()
             )
 
     @property
@@ -607,10 +598,10 @@ class Organisation(BaseModel):
             from cases.models import Submission
 
             return (
-                    case
-                    and Submission.objects.filter(
-                organisation=self, case=case, status__default=False, type__key="interest"
-            ).exists()
+                case
+                and Submission.objects.filter(
+                    organisation=self, case=case, status__default=False, type__key="interest"
+                ).exists()
             )
 
     @property
@@ -759,12 +750,8 @@ class OrganisationName(models.Model):
 
 class OrganisationMerge(BaseModel):
     parent_organisation = models.ForeignKey(
-        Organisation,
-        related_name="organisation_merged_children",
-        on_delete=models.PROTECT
+        Organisation, related_name="organisation_merged_children", on_delete=models.PROTECT
     )
     child_organisation = models.ForeignKey(
-        Organisation,
-        related_name="organisation_merged_into",
-        on_delete=models.PROTECT
+        Organisation, related_name="organisation_merged_into", on_delete=models.PROTECT
     )

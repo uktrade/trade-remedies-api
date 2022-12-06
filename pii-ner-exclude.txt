@@ -1,3 +1,6 @@
+organisation_merged_children
+organisation_merged_into
+BH3142134
 Trade Remedies Service'
 LITE
 "Testing that the smtp connection can be
