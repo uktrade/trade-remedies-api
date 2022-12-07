@@ -282,10 +282,7 @@ class InvitationViewSet(BaseModelViewSet):
         invitation and make the necessary changes depending on if it's approved or declined.
         """
         invitation_object = self.get_object()
-        if (
-            invitation_object.invitation_type == 2
-            and invitation_object.submission.status.review_ok
-        ):
+        if invitation_object.invitation_type == 2 and invitation_object.submission.status.review_ok:
             # Only proceed if the submission is marked as sufficient (been approved by TRA) and this
             # is a representative invite
             if request.data["approved"] == "yes":

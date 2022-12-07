@@ -708,11 +708,13 @@ class Invitation(BaseModel):
             # this is a representative invitation
             assign_cases = False
 
-            # First let's add the invitee as an admin user to their organisation
-            security_group = Group.objects.get(name=SECURITY_GROUP_ORGANISATION_OWNER)
-            self.contact.organisation.assign_user(
-                user=self.invited_user, security_group=security_group, confirmed=True
-            )
+            # First let's add the invitee as an admin user to their organisation if they're not
+            # already part of it
+            if not self.invited_user.is_member_of(self.contact.organisation):
+                security_group = Group.objects.get(name=SECURITY_GROUP_ORGANISATION_OWNER)
+                self.contact.organisation.assign_user(
+                    user=self.invited_user, security_group=security_group, confirmed=True
+                )
 
             # Then add them as a third party user of the inviting organisation
             security_group = Group.objects.get(name=SECURITY_GROUP_THIRD_PARTY_USER)
