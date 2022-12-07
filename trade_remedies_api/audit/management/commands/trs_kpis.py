@@ -22,9 +22,10 @@ class Command(BaseCommand):
         "Produce report related to key metrics relating to the TRS"
         "Accounts: Email verified public user accounts"
         "Sessions: Successful public user log-ins (in period)"
-        "Case registrations requested"
-        "Submissions: Case Submissions"
-        "Files uploaded by public users"
+        "Case registrations submitted"
+        "Case registrations accepted"
+        "Total case applications submitted"
+        "Submissions count"
         "Files downloaded by public users"
     )
 
@@ -69,12 +70,9 @@ class Command(BaseCommand):
             **user_additional_filters,
         ).count()
 
-        total_rois = Submission.objects.filter(
-            type_id=SUBMISSION_TYPE_REGISTER_INTEREST, **additional_filters
-        ).count()
         submitted_rois = Submission.objects.filter(
             type_id=SUBMISSION_TYPE_REGISTER_INTEREST,
-            status_id=SUBMISSION_STATUS_REGISTER_INTEREST_RECEIVED,
+            status__draft=False,
             **additional_filters,
         ).count()
         accepted_rois = Submission.objects.filter(
