@@ -125,8 +125,9 @@ class InvitationViewSet(BaseModelViewSet):
                 serializer.instance.user_cases_to_link.add(*user_case_objects)
                 serializer.save()
 
-        if updated_contact := serializer.validated_data.get("contact"):
-            # Let's create a CaseContact to link the contact to the case
+        if updated_contact := serializer.validated_data.get("contact") and serializer.instance.invitation_type != 2:
+            # Let's create a CaseContact to link the contact to the case if it's not a
+            # representative invite, in that case that is done when the submission is approved
 
             if original_contact := serializer.instance.contact:
                 # first let's delete the previous one if it exists
