@@ -10,6 +10,7 @@ from organisations.services.v2.serializers import OrganisationSerializer
 from security.services.v2.serializers import UserCaseSerializer
 from security.models import CaseRole
 from security.services.v2.serializers import CaseRoleSerializer, UserCaseSerializer
+from security.models import CaseRole
 
 
 class InvitationSerializer(CustomValidationModelSerializer):
