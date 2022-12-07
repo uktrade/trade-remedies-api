@@ -125,7 +125,10 @@ class InvitationViewSet(BaseModelViewSet):
                 serializer.instance.user_cases_to_link.add(*user_case_objects)
                 serializer.save()
 
-        if updated_contact := serializer.validated_data.get("contact") and serializer.instance.invitation_type != 2:
+        if (
+            updated_contact := serializer.validated_data.get("contact")
+            and serializer.instance.invitation_type != 2
+        ):
             # Let's create a CaseContact to link the contact to the case if it's not a
             # representative invite, in that case that is done when the submission is approved
 
@@ -281,7 +284,7 @@ class InvitationViewSet(BaseModelViewSet):
         invitation_object = self.get_object()
         if (
             invitation_object.invitation_type == 2
-            and invitation_object.submission.status.sufficient
+            and invitation_object.submission.status.review_ok
         ):
             # Only proceed if the submission is marked as sufficient (been approved by TRA) and this
             # is a representative invite
