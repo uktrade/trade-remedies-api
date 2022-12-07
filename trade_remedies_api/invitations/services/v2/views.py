@@ -12,20 +12,12 @@ from cases.models import Submission, get_submission_type
 from config.viewsets import BaseModelViewSet
 from contacts.models import CaseContact, Contact
 from core.models import User
-from contacts.models import Contact
-from core.models import User
 from core.services.v2.users.serializers import UserSerializer
 from core.utils import public_login_url
 from invitations.models import Invitation
 from invitations.services.v2.serializers import InvitationSerializer
 from security.constants import SECURITY_GROUP_THIRD_PARTY_USER
 from security.models import UserCase
-from security.constants import SECURITY_GROUP_THIRD_PARTY_USER
-from security.models import UserCase
-from security.constants import (
-    ROLE_AWAITING_APPROVAL,
-)
-from security.models import OrganisationCaseRole, CaseRole
 
 
 class InvitationViewSet(BaseModelViewSet):
