@@ -9,6 +9,7 @@ from contacts.models import CaseContact
 from contacts.services.v2.serializers import CaseContactSerializer
 from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
 from core.services.v2.users.serializers import UserSerializer
+from contacts.models import Contact
 from organisations.models import Organisation
 from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
 
@@ -61,6 +62,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     case_contacts = serializers.SerializerMethodField()
     representative_cases = serializers.SerializerMethodField()
     contacts = serializers.SerializerMethodField()
+    representative_contacts = serializers.SerializerMethodField()
 
     class Meta:
         model = Organisation
@@ -225,3 +227,11 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         from core.services.v2.users.serializers import ContactSerializer
 
         return ContactSerializer(instance.contacts.all(), many=True).data
+
+    @staticmethod
+    def get_representative_contacts(instance):
+        """Returns all contacts that are representing this organisation"""
+        from core.services.v2.users.serializers import ContactSerializer
+
+        contacts = Contact.objects.filter(casecontact__organisation=instance)
+        return ContactSerializer(instance=contacts, many=True).data
