@@ -691,11 +691,12 @@ class Invitation(BaseModel):
             )
         elif self.invitation_type == 3:
             # associate the user with the organisation
-            self.organisation.assign_user(
-                user=self.invited_user,
-                security_group=self.organisation_security_group,  # user or admin
-                confirmed=True,
-            )
+            if not self.invited_user.is_member_of(self.organisation):
+                self.organisation.assign_user(
+                    user=self.invited_user,
+                    security_group=self.organisation_security_group,  # user or admin
+                    confirmed=True,
+                )
 
             # this is a caseworker invite, create a draft ROI for the case in question
             self.create_registration_of_interest(
