@@ -210,10 +210,10 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 )
                 if response.status_code == 200:
                     if (
-                            response.json().get(
-                                "company_name",
-                            )
-                            == organisation_name
+                        response.json().get(
+                            "company_name",
+                        )
+                        == organisation_name
                     ):
                         return True
         return False
