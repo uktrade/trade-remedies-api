@@ -5,11 +5,10 @@ from rest_framework import serializers
 
 from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
 from config.serializers import CustomValidationModelSerializer
-from contacts.models import CaseContact
+from contacts.models import CaseContact, Contact
 from contacts.services.v2.serializers import CaseContactSerializer
 from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
 from core.services.v2.users.serializers import UserSerializer
-from contacts.models import Contact
 from organisations.models import Organisation
 from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
 
@@ -65,6 +64,11 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     representative_contacts = serializers.SerializerMethodField()
     country_name = serializers.ReadOnlyField(source="country.name")
     rejected_cases = serializers.SerializerMethodField()
+    json_data = serializers.JSONField(required=False, allow_null=True)
+
+    def to_representation(self, instance):
+        instance.json_data = {}
+        return super().to_representation(instance)
 
     class Meta:
         model = Organisation
@@ -206,10 +210,10 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 )
                 if response.status_code == 200:
                     if (
-                        response.json().get(
-                            "company_name",
-                        )
-                        == organisation_name
+                            response.json().get(
+                                "company_name",
+                            )
+                            == organisation_name
                     ):
                         return True
         return False
