@@ -309,6 +309,7 @@ class Organisation(BaseModel):
         "self", null=True, blank=True, on_delete=models.PROTECT, related_name="merged_from_org"
     )
     json_data = models.JSONField(null=True, blank=True)
+    draft = models.BooleanField(default=False)
 
     objects = OrganisationManager()
 

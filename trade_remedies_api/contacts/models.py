@@ -65,6 +65,7 @@ class Contact(BaseModel):
     address = models.TextField(null=True, blank=True)
     post_code = models.CharField(max_length=16, null=True, blank=True)
     country = CountryField(blank_label="Select Country", null=True, blank=True)
+    draft = models.BooleanField(default=False)
 
     objects = ContactManager()
 

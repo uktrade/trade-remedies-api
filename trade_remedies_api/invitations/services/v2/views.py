@@ -190,7 +190,13 @@ class InvitationViewSet(BaseModelViewSet):
                 # We also need to update the submission status to sent
                 invitation_object.submission.update_status("sent", request.user)
 
-            send_report = invitation_object.send(
+            # let's mark the invited contact and invited org as non-draft
+            invitation_object.contact.draft = False
+            invitation_object.contact.save()
+            invitation_object.contact.organisation.draft = False
+            invitation_object.contact.organisation.save()
+
+            invitation_object.send(
                 sent_by=request.user,
                 context={
                     "organisation_you_are_representing": invitation_object.organisation.name,
