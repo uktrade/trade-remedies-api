@@ -11,31 +11,80 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0032_delete_feedback'),
+        ("core", "0032_delete_feedback"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Feedback',
+            name="Feedback",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('last_modified', models.DateTimeField(auto_now=True, null=True)),
-                ('rating', models.PositiveSmallIntegerField(choices=[(1, 'Very dissatisfied'), (2, 'Dissatisfied'), (3, 'Neither satisfied or dissatisfied'), (4, 'Satisfied'), (5, 'Very satisfied')])),
-                ('what_didnt_work_so_well', models.JSONField(null=True)),
-                ('what_didnt_work_so_well_other', models.TextField(null=True)),
-                ('how_could_we_improve_service', models.TextField(null=True)),
-                ('url', models.CharField(max_length=300)),
-                ('url_name', models.CharField(max_length=100, null=True)),
-                ('form_placement', models.PositiveSmallIntegerField(choices=[(1, 'banner'), (2, 'footer')])),
-                ('journey', models.TextField(max_length=100, null=True)),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='feedback_created_by', to=settings.AUTH_USER_MODEL)),
-                ('modified_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='feedback_modified_by', to=settings.AUTH_USER_MODEL)),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("last_modified", models.DateTimeField(auto_now=True, null=True)),
+                (
+                    "rating",
+                    models.PositiveSmallIntegerField(
+                        choices=[
+                            (1, "Very dissatisfied"),
+                            (2, "Dissatisfied"),
+                            (3, "Neither satisfied or dissatisfied"),
+                            (4, "Satisfied"),
+                            (5, "Very satisfied"),
+                        ]
+                    ),
+                ),
+                ("what_didnt_work_so_well", models.JSONField(null=True)),
+                ("what_didnt_work_so_well_other", models.TextField(null=True)),
+                ("how_could_we_improve_service", models.TextField(null=True)),
+                ("url", models.CharField(max_length=300)),
+                ("url_name", models.CharField(max_length=100, null=True)),
+                (
+                    "form_placement",
+                    models.PositiveSmallIntegerField(choices=[(1, "banner"), (2, "footer")]),
+                ),
+                ("journey", models.TextField(max_length=100, null=True)),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="feedback_created_by",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "modified_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="feedback_modified_by",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
-            bases=(models.Model, dirtyfields.dirtyfields.DirtyFieldsMixin, audit.mixins.AuditableMixin),
+            bases=(
+                models.Model,
+                dirtyfields.dirtyfields.DirtyFieldsMixin,
+                audit.mixins.AuditableMixin,
+            ),
         ),
     ]

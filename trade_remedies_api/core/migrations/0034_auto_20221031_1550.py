@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0033_feedback'),
+        ("core", "0033_feedback"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='feedback',
-            name='user',
+            model_name="feedback",
+            name="user",
         ),
         migrations.AddField(
-            model_name='feedback',
-            name='logged_in',
+            model_name="feedback",
+            name="logged_in",
             field=models.BooleanField(default=False),
             preserve_default=False,
         ),
