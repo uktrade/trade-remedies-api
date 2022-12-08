@@ -1,9 +1,8 @@
 from django.test import TestCase
 
-from core.utils import remove_xlsx_injection_attack_chars
+from core.utils import remove_xlsx_injection_attack_chars, InvalidPhoneNumberFormatException
 
 from core.utils import convert_to_e164
-
 
 
 class CSVInjectionTests(TestCase):
@@ -24,11 +23,14 @@ class CSVInjectionTests(TestCase):
         assert output == ""
 
     def test_checks_phone_number_length_is_valid(self):
-
         valid_uk_mobile_number = "+447123456789"
 
         output = convert_to_e164(valid_uk_mobile_number)
 
         assert len(output) == 13
 
+    def test_displays_error_for_invalid_phone_number_length(self):
+        invalid_uk_mobile_number = "+4492593121"
 
+        with self.assertRaises(InvalidPhoneNumberFormatException):
+            convert_to_e164(invalid_uk_mobile_number)
