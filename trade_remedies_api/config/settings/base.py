@@ -8,6 +8,7 @@ import environ
 import sentry_sdk
 from django_log_formatter_ecs import ECSFormatter
 from flags import conditions
+from flags.conditions import DuplicateCondition
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -40,10 +41,11 @@ def strip_sensitive_data(event, hint):
     return event
 
 
+SENTRY_ENVIRONMENT = env.str("SENTRY_ENVIRONMENT", default="local")
 sentry_sdk.init(
     dsn=env("SENTRY_DSN", default=""),
     integrations=[DjangoIntegration(), CeleryIntegration()],
-    environment=env("SENTRY_ENVIRONMENT", default="uat"),
+    environment=SENTRY_ENVIRONMENT,
     before_send=strip_sensitive_data,
 )
 
@@ -117,7 +119,6 @@ MIDDLEWARE = [
     "axes.middleware.AxesMiddleware",
     "config.middleware.SentryContextMiddleware",
 ]
-
 
 if DJANGO_ADMIN:
     MIDDLEWARE = [
@@ -433,7 +434,7 @@ ORGANISATION_INITIALISM = env("ORGANISATION_INITIALISM", default="PLACEHOLDER")
 AWS_ACCESS_KEY_ID = AWS_S3_ACCESS_KEY_ID = env("S3_STORAGE_KEY", default=None)
 AWS_SECRET_ACCESS_KEY = AWS_S3_SECRET_ACCESS_KEY = env("S3_STORAGE_SECRET", default=None)
 AWS_STORAGE_BUCKET_NAME = env("S3_BUCKET_NAME", default=None)
-AWS_S3_REGION_NAME = env("AWS_REGION", default="eu-west-1")
+AWS_S3_REGION_NAME = env("AWS_REGION", default="eu-west-2")
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_ENCRYPTION = True
 # S3 client library to use
@@ -481,6 +482,7 @@ COMPANIES_HOUSE_API_KEY = env("COMPANIES_HOUSE_API_KEY", default=None)
 
 # GOV Notify
 GOV_NOTIFY_API_KEY = env("GOV_NOTIFY_API_KEY", default=None)
+GOV_NOTIFY_TESTING_KEY = env("GOV_NOTIFY_TESTING_KEY", default=None)
 
 # ------------------------------------------------------------------------------
 # The Crud Zone - things likely to be refactored out.
@@ -490,7 +492,7 @@ FRIENDLY_DATE_FORMAT = "%-d %B %Y"
 API_CACHE_TIMEOUT = 3  # Cache timeout in minutes
 DEFAULT_QUERYSET_PAGE_SIZE = 20
 TRUSTED_USER_EMAIL = env("HEALTH_CHECK_USER_EMAIL")
-RUN_ASYNC = True
+RUN_ASYNC = env.bool("RUN_ASYNC", default=True)
 # The ENVIRONMENT_KEY settings are superfluous (they sought to link Public/CW
 # portal calls to a "security group"), because we plan to use django-guardian
 # for object level permissions. In the new `authentication` package we will
@@ -512,10 +514,11 @@ GECKOBOARD_ENV = env("GECKOBOARD_ENV", default="dev")
 # Variable so we know if we're running in testing mode or not, this is True in the test.py settings
 TESTING = False
 
-# ------------------- DJANGO-FLAG -------------------
+# ------------------- FEATURE FLAGS -------------------
 try:
     conditions.register("PART_OF_GROUP", fn=is_user_part_of_group)
-except conditions.DuplicateCondition:
+except DuplicateCondition:
+    # During deployment, this can sometimes be ran twice causing a DuplicateCondition error
     pass
 FEATURE_FLAG_PREFIX = "FEATURE_FLAG"
 FLAGS = {
@@ -526,3 +529,20 @@ FLAGS = {
         {"condition": "PART_OF_GROUP", "value": True, "required": True},
     ],
 }
+
+# ------------------- GOV.NOTIFY AUDIT COPY EMAILS -------------------
+AUDIT_EMAIL_ENABLED = env.bool("AUDIT_EMAIL_ENABLED", False)
+AUDIT_EMAIL_GIVE_UP_SECONDS = env.int("AUDIT_EMAIL_GIVE_UP_SECONDS", default=259200)
+AUDIT_EMAIL_RETRY_COUNTDOWN = env.int("AUDIT_EMAIL_RETRY_COUNTDOWN", default=1200)
+AUDIT_EMAIL_FROM_ADDRESS = env.str(
+    "AUDIT_EMAIL_FROM_ADDRESS", default="notify.copy@traderemedies.gov.uk"  # /PS-IGNORE
+)
+AUDIT_EMAIL_FROM_NAME = env.str("AUDIT_EMAIL_FROM_NAME", default="TRS Notify Copy")
+AUDIT_EMAIL_IAM_USER = env.str("AUDIT_EMAIL_IAM_USER")
+AUDIT_EMAIL_SMTP_USERNAME = env.str("AUDIT_EMAIL_SMTP_USERNAME")
+AUDIT_EMAIL_SMTP_PASSWORD = env.str("AUDIT_EMAIL_SMTP_PASSWORD")
+AUDIT_EMAIL_SMTP_HOST = env.str(
+    "AUDIT_EMAIL_SMTP_HOST", default=f"email-smtp.{AWS_S3_REGION_NAME}.amazonaws.com"
+)
+AUDIT_EMAIL_SMTP_PORT = env.int("AUDIT_EMAIL_SMTP_PORT", default=587)
+AUDIT_EMAIL_TO_ADDRESS = env.str("AUDIT_EMAIL_TO_ADDRESS")
