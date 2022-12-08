@@ -105,7 +105,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                     "rejected_by": invitation.submission.deficiency_notice_params[
                         "contact_org_verify_by"
                     ],
-                    "invitation_id": invitation.id
+                    "invitation_id": invitation.id,
                 }
             )
 
