@@ -328,6 +328,20 @@ class TestTwoFactorAuthSerializers(UserSetupTestBase):
         self.assertTrue(serializer.is_valid())
         self.assertEqual(serializer.validated_data["delivery_type"], "email")
 
+    def test_two_factor_auth_request_valid_change_delivery_type_for_invalid_phone_number(self):
+        """Tests that the TwoFactorAuthRequestSerializer is valid and changes the delivery_type to EMAIL if the
+        user has an invalid phone number associated with them.
+        """
+        self.user.contact.phone = "+447"
+        self.user.contact.save()
+        serializer = TwoFactorAuthRequestSerializer(
+            instance=self.user.twofactorauth,
+            data={"delivery_type": "sms"},
+            context={"request": self.valid_mock_request}
+        )
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.validated_data["delivery_type"], "email")
+
     def test_two_factor_auth_request_invalid(self):
         """Tests that the TwoFactorAuthRequestSerializer is invalid when passed a random delivery_type"""
         serializer = TwoFactorAuthRequestSerializer(
