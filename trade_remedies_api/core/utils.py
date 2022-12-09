@@ -86,7 +86,6 @@ def convert_to_e164(raw_phone: str, country=None):
     :param raw_phone: Any phone number
     :return: E.164 phone number
     """
-    # write unit test to test convert_to_e164
     if not raw_phone:
         return
 

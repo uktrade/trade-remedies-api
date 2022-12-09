@@ -22,7 +22,10 @@ class CSVInjectionTests(TestCase):
         output = remove_xlsx_injection_attack_chars("@@=")
         assert output == ""
 
-    def test_checks_phone_number_length_is_valid(self):
+
+class ConvertPhoneNumberToE164StandardFormatTests(TestCase):
+    @staticmethod
+    def test_checks_phone_number_length_is_valid():
         valid_uk_mobile_number = "+447123456789"
 
         output = convert_to_e164(valid_uk_mobile_number)
