@@ -76,8 +76,6 @@ class NotifierTest(APITestCase):
     def test_send_sms(self, notifier_client):
         notifier_client().send_sms_notification.return_value = get_notify_sms_response()
 
-        # import pdb
-        # pdb.set_trace()
         report = send_sms(self.phone_number, self.context, self.template_id)
 
         self.assertEqual(report["content"]["from_number"], "+447123456789")
