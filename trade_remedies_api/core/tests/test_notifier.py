@@ -32,16 +32,13 @@ def get_notify_sms_response(**overrides):
     response = {
         "id": "740e5834-3a29-46b4-9a6f-16142fde533a",
         "reference": "STRING",
-        "content": {
-            "body": "MESSAGE TEXT",
-            "from_number": "+447123456789"
-        },
+        "content": {"body": "MESSAGE TEXT", "from_number": "+447123456789"},
         "uri": "https://api.notifications.service.gov.uk/v2/notifications/740e5834-3a29-46b4-9a6f-16142fde533a",
         "template": {
             "id": "f33517ff-2a88-4f6e-b855-c550268ce08a",
             "version": 1,
-            "uri": "https://api.notifications.service.gov.uk/v2/template/ceb50d92-100d-4b8b-b559-14fa3b091cd"
-        }
+            "uri": "https://api.notifications.service.gov.uk/v2/template/ceb50d92-100d-4b8b-b559-14fa3b091cd",
+        },
     }
 
     response.update(overrides)
@@ -54,7 +51,7 @@ class NotifierTest(APITestCase):
         self.context = {"full_name": "Mr Chips"}
         self.email = "test@trade.gov.uk"  # /PS-IGNORE
         self.template_id = "template-id"
-        self.phone_number = "+447987654321" # /PS-IGNORE
+        self.phone_number = "+447987654321"
 
     @patch("core.notifier.NotificationsAPIClient")
     def test_send_mail(self, notifier_client):
