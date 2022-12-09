@@ -100,7 +100,7 @@ def convert_to_e164(raw_phone: str, country=None):
         e164_phone = phonenumbers.format_number(
             phone_representation, phonenumbers.PhoneNumberFormat.E164
         )
-        if len(e164_phone) != 13:
+        if country == "GB" and len(e164_phone) != 13:
             logger.debug(f"Invalid phone number length: {raw_phone} / {country}")
             raise InvalidPhoneNumberFormatException
     except Exception:

@@ -25,15 +25,15 @@ class CSVInjectionTests(TestCase):
 
 class ConvertPhoneNumberToE164StandardFormatTests(TestCase):
     @staticmethod
-    def test_checks_phone_number_length_is_valid():
+    def test_checks_uk_phone_number_length_is_valid():
         valid_uk_mobile_number = "+447123456789"
 
-        output = convert_to_e164(valid_uk_mobile_number)
+        output = convert_to_e164(valid_uk_mobile_number, country="GB")
 
         assert len(output) == 13
 
-    def test_displays_error_for_invalid_phone_number_length(self):
+    def test_displays_error_for_invalid_uk_phone_number_length(self):
         invalid_uk_mobile_number = "+4492593121"
 
         with self.assertRaises(InvalidPhoneNumberFormatException):
-            convert_to_e164(invalid_uk_mobile_number)
+            convert_to_e164(invalid_uk_mobile_number, country="GB")

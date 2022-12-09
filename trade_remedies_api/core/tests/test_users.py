@@ -29,12 +29,12 @@ class UserTest(TestCase):
             groups=["Administrator"],
             country="GB",
             timezone="Europe/London",
-            contact_phone="077931231234",
+            contact_phone="07793123123",
         )
         user = User.objects.get(id=user.id)
         group = Group.objects.get(name="Administrator")
         assert user.email == "test@example.com"  # /PS-IGNORE
-        assert user.phone == "+4477931231234"
+        assert user.phone == "+447793123123"
         assert group.user_set.filter(id=user.id).exists()
 
     def test_user_update(self):
