@@ -20,7 +20,6 @@ from core.utils import (
 from django_countries.fields import CountryField
 from django.utils import timezone
 from cases.constants import TRA_ORGANISATION_ID
-from django.contrib.postgres import fields
 
 
 logger = logging.getLogger(__name__)
@@ -312,9 +311,6 @@ class Organisation(BaseModel):
 
     objects = OrganisationManager()
 
-    # class Meta:
-    #     unique_together = ['name', 'country']
-
     class Meta:
         permissions = (("merge_organisations", "Can merge organisations"),)
 
@@ -404,7 +400,6 @@ class Organisation(BaseModel):
             cases = cases.filter(user=requested_by)
         if initiated_only:
             cases = cases.filter(case__initiated_at__isnull=False)
-        # cases = cases.order_by(order_by)
         cases = cases.values("organisation_id", "case_id").distinct()
         _cache = {}
         related_cases = []
@@ -462,7 +457,7 @@ class Organisation(BaseModel):
 
     @property
     def user_count(self):
-        return len(self.users)
+        return self.users.count()
 
     def _to_dict(self, case=None, with_contacts=True):
         contacts = []
