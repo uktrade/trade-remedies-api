@@ -10,4 +10,4 @@ class CaseContactSerializer(CustomValidationModelSerializer):
         model = CaseContact
         fields = "__all__"
 
-    contact = NestedField(serializer_class=ContactSerializer, required=False)
+    contact = NestedField(serializer_class=ContactSerializer, required=False, accept_pk=True)

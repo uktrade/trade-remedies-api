@@ -345,6 +345,26 @@ validation_errors = {
         "error_text": "Error text",
         "error_summary": "Error summary",
     },
+    "caseworker_review_invite_no_contact_selected": {
+        "field": "name",
+        "error_text": "Select a contact",
+        "error_summary": "You need to select a radio button",
+    },
+    "caseworker_review_invite_new_contact_no_name": {
+        "field": "name",
+        "error_text": "Enter the contact's name",
+        "error_summary": "You need to enter the contact's name",
+    },
+    "caseworker_review_invite_new_contact_no_email": {
+        "field": "email",
+        "error_text": "Enter the contact's email address",
+        "error_summary": "You need to enter the contact's email address",
+    },
+    "caseworker_review_invite_new_contact_incorrect_email": {
+        "field": "email",
+        "error_text": "Enter the email address in the correct format. Eg. name@example.com",
+        "error_summary": "The contact's email address needs to be in the correct format. Eg. name@example.com",
+    },
     "invite_contact_no_organisation_name": {
         "field": "organisation_name",
         "error_text": "Enter the organisation's name",
