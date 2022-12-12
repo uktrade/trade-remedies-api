@@ -58,6 +58,8 @@ class InvitationViewSet(BaseModelViewSet):
                 case=invitation_object.case,
                 created_by=self.request.user,
                 contact=self.request.user.contact,
+                received_from=self.request.user,
+                received_at=timezone.now()
             )
             invitation_object.submission = submission_object
             invitation_object.organisation_security_group = Group.objects.get(
