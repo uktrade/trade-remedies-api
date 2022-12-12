@@ -11,8 +11,9 @@ from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
 from cases.models import Submission, get_submission_type
 from config.viewsets import BaseModelViewSet
 from contacts.models import CaseContact, Contact
-from core.models import User
+from core.models import SystemParameter, User
 from core.services.v2.users.serializers import UserSerializer
+from core.tasks import send_mail
 from core.utils import public_login_url
 from invitations.models import Invitation
 from invitations.services.v2.serializers import InvitationSerializer
@@ -284,10 +285,14 @@ class InvitationViewSet(BaseModelViewSet):
         invitation and make the necessary changes depending on if it's approved or declined.
         """
         invitation_object = self.get_object()
-        if invitation_object.invitation_type == 2 and invitation_object.submission.status.review_ok:
+        if invitation_object.invitation_type == 2:
             # Only proceed if the submission is marked as sufficient (been approved by TRA) and this
             # is a representative invite
             if request.data["approved"] == "yes":
+                invitation_object.approved_by = request.user
+                invitation_object.approved_at = timezone.now()
+                invitation_object.save()
+
                 for user_case_object in invitation_object.user_cases_to_link.all():
                     # Creating the UserCase object
                     user_case_object.case.assign_user(
@@ -300,9 +305,45 @@ class InvitationViewSet(BaseModelViewSet):
                     )
 
                     # creating the CaseContact
-                    CaseContact.objects.create(
+                    CaseContact.objects.get_or_create(
                         contact=invitation_object.contact,
                         case=user_case_object.case,
                         organisation=user_case_object.organisation,  # who they are representing
                     )
+
+                interested_party_email_template = "NOTIFY_INVITE_APPROVED_INTERESTED_PARTY"
+                representative_email_template = "NOTIFY_INVITE_APPROVED_REPRESENTATIVE"
+
+            else:
+                invitation_object.rejected_by = request.user
+                invitation_object.rejected_at = timezone.now()
+                invitation_object.save()
+
+                interested_party_email_template = "NOTIFY_INVITE_REJECTED_INTERESTED_PARTY"
+                representative_email_template = "NOTIFY_INVITE_REJECTED_REPRESENTATIVE"
+
+            # now let's send our emails
+            # first to the interested party
+            send_mail(
+                invitation_object.user.email,
+                {
+                    "representative_company_name": invitation_object.contact.organisation.name,
+                    "case_number": invitation_object.case.reference,
+                    "case_name": invitation_object.case.name,
+                    "full_name": invitation_object.user.name,
+                },
+                SystemParameter.get(interested_party_email_template),
+            )
+
+            # then to the representative
+            send_mail(
+                invitation_object.user.email,
+                {
+                    "company_name": invitation_object.organisation.name,
+                    "case_number": invitation_object.case.reference,
+                    "case_name": invitation_object.case.name,
+                    "full_name": invitation_object.user.name,
+                },
+                SystemParameter.get(representative_email_template),
+            )
         return self.retrieve(request)

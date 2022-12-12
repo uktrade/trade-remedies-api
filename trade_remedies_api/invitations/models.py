@@ -21,10 +21,8 @@ from security.constants import (
     ROLE_PREPARING,
     SECURITY_GROUP_ORGANISATION_OWNER,
     SECURITY_GROUP_ORGANISATION_USER,
-    SECURITY_GROUP_THIRD_PARTY_USER,
 )
-from security.models import OrganisationCaseRole, UserCase
-from security.models import CaseRole, OrganisationCaseRole, UserCase
+from security.models import CaseRole, OrganisationCaseRole, OrganisationCaseRole, UserCase, UserCase
 from .exceptions import InvitationFailure, InviteAlreadyAccepted
 
 
@@ -299,6 +297,15 @@ class Invitation(BaseModel):
         on_delete=models.PROTECT,
         related_name="approved",
     )
+    approved_at = models.DateTimeField(null=True, blank=True)
+    rejected_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="rejected_invitations",
+    )
+    rejected_at = models.DateTimeField(null=True, blank=True)
     meta = models.JSONField(default=dict)
 
     draft = models.BooleanField(default=False)
@@ -345,6 +352,13 @@ class Invitation(BaseModel):
             if self.sent_at
             else None,
             "approved_by": self.approved_by.to_embedded_dict() if self.approved_by else None,
+            "approved_at": self.accepted_at.strftime(settings.API_DATETIME_FORMAT)
+            if self.accepted_at
+            else None,
+            "rejected_by": self.rejected_by.to_embedded_dict() if self.rejected_by else None,
+            "rejected_at": self.rejected_at.strftime(settings.API_DATETIME_FORMAT)
+            if self.rejected_at
+            else None,
             "meta": self.meta,
         }
         if self.submission:
@@ -702,24 +716,6 @@ class Invitation(BaseModel):
                 user=self.invited_user,
                 security_group=self.organisation_security_group,  # user or admin
                 confirmed=True,
-            )
-
-        elif self.invitation_type == 2:
-            # this is a representative invitation
-            assign_cases = False
-
-            # First let's add the invitee as an admin user to their organisation if they're not
-            # already part of it
-            if not self.invited_user.is_member_of(self.contact.organisation):
-                security_group = Group.objects.get(name=SECURITY_GROUP_ORGANISATION_OWNER)
-                self.contact.organisation.assign_user(
-                    user=self.invited_user, security_group=security_group, confirmed=True
-                )
-
-            # Then add them as a third party user of the inviting organisation
-            security_group = Group.objects.get(name=SECURITY_GROUP_THIRD_PARTY_USER)
-            self.organisation.assign_user(
-                user=self.invited_user, security_group=security_group, confirmed=True
             )
 
         elif self.invitation_type == 3:

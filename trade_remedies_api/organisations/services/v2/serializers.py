@@ -85,12 +85,8 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         # finding the rep invitations for this org which have been rejected
         rejected_invitations = Invitation.objects.filter(
             contact__organisation=instance,
-            # only get those invitations which have bene fully reviewed by caseworkers
-            # and marked as deficient
-            submission__status__version=True,
-            submission__deficiency_notice_params__contact_org_verify=False,
-            submission__deficiency_notice_params__contact_org_verify_at__isnull=False,
-            submission__deficiency_notice_params__contact_org_verify_by__isnull=False,
+            rejected_by__isnull=False,
+            rejected_at__isnull=False,
             invitation_type=2,  # only rep invites
         )
         for invitation in rejected_invitations:
@@ -99,15 +95,11 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                     "case": CaseSerializer(
                         invitation.submission.case, fields=["name", "reference"]
                     ).data,
-                    "date_rejected": invitation.submission.deficiency_notice_params[
-                        "contact_org_verify_at"
-                    ],
+                    "date_rejected": invitation.rejected_at,
                     "rejected_reason": invitation.submission.deficiency_notice_params.get(
                         "explain_why_contact_org_not_verified", ""
                     ),
-                    "rejected_by": invitation.submission.deficiency_notice_params[
-                        "contact_org_verify_by"
-                    ],
+                    "rejected_by": invitation.rejected_by,
                     "invitation_id": invitation.id,
                 }
             )
