@@ -293,6 +293,14 @@ class InvitationViewSet(BaseModelViewSet):
                 invitation_object.approved_at = timezone.now()
                 invitation_object.save()
 
+                # Then add them as a third party user of the inviting organisation, this was also
+                # add them to the required group
+                invitation_object.organisation.assign_user(
+                    user=invitation_object.invited_user,
+                    security_group=SECURITY_GROUP_THIRD_PARTY_USER,
+                    confirmed=True,
+                )
+
                 for user_case_object in invitation_object.user_cases_to_link.all():
                     # Creating the UserCase object
                     user_case_object.case.assign_user(
