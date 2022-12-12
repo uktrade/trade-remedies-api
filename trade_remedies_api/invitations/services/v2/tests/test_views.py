@@ -125,19 +125,3 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
         self.invitation_object.refresh_from_db()
         self.assertTrue(self.invitation_object.invited_user)
         self.assertEqual(self.invitation_object.invited_user, user_object)
-
-    """def test_user_cases_to_link_deleted(self):
-        Checks that user_cases_to_link is cleared when we perform an update and choose later
-        user_case_object = UserCase.objects.create(
-            user=self.user, case=self.case_object, organisation=self.organisation
-        )
-        self.invitation_object.user_cases_to_link.add(user_case_object)
-        assert user_case_object in self.invitation_object.user_cases_to_link.all()
-        self.client.patch(
-            f"/api/v2/invitations/{self.invitation_object.pk}/",
-            data={"name": "new NEW name", "user_cases_to_link": "choose_user_case_later"},
-            content_type="application/x-www-form-urlencoded",
-        )
-        self.invitation_object.refresh_from_db()
-        assert user_case_object not in self.invitation_object.user_cases_to_link.all()
-    """
