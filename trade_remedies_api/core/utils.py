@@ -1,13 +1,13 @@
 import logging
-import hashlib
-import phonenumbers
-import dpath
-import gevent
-from django.conf import settings
-from django.db import connection
-from django.contrib.contenttypes.models import ContentType
-from core.constants import STATE_INCOMPLETE
 
+import dpath
+import phonenumbers
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.db import connection
+
+from core.constants import STATE_INCOMPLETE
+from core.exceptions import InvalidPhoneNumberFormatException
 
 logger = logging.getLogger(__name__)
 
@@ -74,10 +74,6 @@ def rekey(item, key, rekey_as=None):
             item[k][rekey_as] = k
         rekeyed[item[k][key]] = item[k]
     return rekeyed
-
-
-class InvalidPhoneNumberFormatException(Exception):
-    pass
 
 
 def convert_to_e164(raw_phone: str, country=None):
