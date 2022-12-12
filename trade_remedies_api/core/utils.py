@@ -84,6 +84,7 @@ def convert_to_e164(raw_phone: str, country=None):
     """
     Convert a phone number to E.164 standard format.
     :param raw_phone: Any phone number
+    :param country: Country code
     :return: E.164 phone number
     """
     if not raw_phone:
@@ -97,12 +98,14 @@ def convert_to_e164(raw_phone: str, country=None):
         parse_type = country.upper() if country else "GB"
     try:
         phone_representation = phonenumbers.parse(raw_phone, parse_type)
+
+        if not phonenumbers.is_valid_number(phone_representation):
+            logger.debug(f"Invalid phone number format: {raw_phone} / {country}")
+            raise InvalidPhoneNumberFormatException
+
         e164_phone = phonenumbers.format_number(
             phone_representation, phonenumbers.PhoneNumberFormat.E164
         )
-        if country == "GB" and len(e164_phone) != 13:
-            logger.debug(f"Invalid phone number length: {raw_phone} / {country}")
-            raise InvalidPhoneNumberFormatException
     except Exception:
         logger.debug(f"Invalid phone number: {raw_phone} / {country}")
         raise
