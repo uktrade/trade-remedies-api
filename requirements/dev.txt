@@ -96,7 +96,7 @@ distlib==0.3.3
     # via virtualenv
 dj-database-url==0.5.0
     # via -r requirements.in/../requirements/base.txt
-django==3.2.15
+django==3.2.16
     # via
     #   -r requirements.in/../requirements/base.txt
     #   django-appconf
@@ -223,8 +223,6 @@ jmespath==0.10.0
     #   -r requirements.in/../requirements/base.txt
     #   boto3
     #   botocore
-joblib==1.1.0
-    # via scikit-learn
 kiwisolver==1.4.0
     # via matplotlib
 kombu==5.2.3
@@ -265,10 +263,7 @@ nodeenv==1.6.0
 notifications-python-client==6.3.0
     # via -r requirements.in/../requirements/base.txt
 numpy==1.22.3
-    # via
-    #   matplotlib
-    #   scikit-learn
-    #   scipy
+    # via matplotlib
 odfpy==1.4.1
     # via -r requirements.in/../requirements/base.txt
 openpyxl==3.0.6
@@ -293,7 +288,7 @@ phonenumbers==8.12.38
     # via -r requirements.in/../requirements/base.txt
 pickleshare==0.7.5
     # via ipython
-pillow==9.0.1
+pillow==9.3.0
     # via
     #   -r requirements.in/../requirements/base.txt
     #   matplotlib
@@ -408,10 +403,6 @@ s3transfer==0.4.2
     # via
     #   -r requirements.in/../requirements/base.txt
     #   boto3
-scikit-learn==1.0.2
-    # via sklearn
-scipy==1.8.0
-    # via scikit-learn
 sentry-sdk==0.13.1
     # via -r requirements.in/../requirements/base.txt
 six==1.16.0
@@ -422,8 +413,6 @@ six==1.16.0
     #   python-dateutil
     #   traitlets
     #   virtualenv
-sklearn==0.0
-    # via -r requirements.in/dev.in
 smmap==5.0.0
     # via gitdb
 sqlparse==0.4.2
@@ -433,8 +422,6 @@ sqlparse==0.4.2
     #   django-debug-toolbar
 striprtf==0.0.10
     # via -r requirements.in/../requirements/base.txt
-threadpoolctl==3.1.0
-    # via scikit-learn
 titlecase==0.12.0
     # via -r requirements.in/../requirements/base.txt
 toml==0.10.2

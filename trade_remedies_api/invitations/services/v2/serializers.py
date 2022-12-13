@@ -3,12 +3,11 @@ from django_restql.fields import NestedField
 from rest_framework import serializers
 
 from cases.services.v2.serializers import CaseSerializer, SubmissionSerializer
-from config.serializers import CustomValidationModelSerializer, NestedKeyField
-from contacts.models import Contact
+from config.serializers import CustomValidationModelSerializer
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from invitations.models import Invitation
-from organisations.models import Organisation
 from organisations.services.v2.serializers import OrganisationSerializer
+from security.services.v2.serializers import UserCaseSerializer
 
 
 class InvitationSerializer(CustomValidationModelSerializer):
@@ -35,6 +34,7 @@ class InvitationSerializer(CustomValidationModelSerializer):
         required=False,
     )
     invited_user = NestedField(
-        serializer_class=UserSerializer, read_only=True, required=False, exclude=["organisation"]
+        serializer_class=UserSerializer, required=False, exclude=["organisation"], accept_pk=True
     )
     cases_to_link = NestedField(serializer_class=CaseSerializer, many=True, required=False)
+    user_cases_to_link = NestedField(serializer_class=UserCaseSerializer, many=True, required=False)
