@@ -56,20 +56,12 @@ class OrganisationViewSet(BaseModelViewSet):
     def search_by_company_name(self, request, *args, **kwargs):
         search_string = request.GET["company_name"]
 
-        matching_organisations_by_name = (
-            Organisation.objects.annotate(
-                similarity=TrigramSimilarity("name", search_string),
-            )
-            .filter(similarity__gt=0.1)
-            .order_by("-similarity")
-        )
+        # get organisations by name
+        matching_organisations_by_name = self.queryset.filter(name__icontains=search_string)
 
-        matching_organisations_by_number = (
-            Organisation.objects.annotate(
-                similarity=TrigramSimilarity("companies_house_id", search_string),
-            )
-            .filter(similarity__gt=0.1)
-            .order_by("-similarity")
+        # get organisations by companies_house_id
+        matching_organisations_by_number = self.queryset.filter(
+            companies_house_id__icontains=search_string
         )
 
         # merge the two querysets into one and then return
