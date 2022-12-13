@@ -60,7 +60,9 @@ class OrganisationViewSet(BaseModelViewSet):
         matching_organisations_by_name = self.queryset.filter(name__icontains=search_string)
 
         # get organisations by companies_house_id
-        matching_organisations_by_number = self.queryset.filter(companies_house_id__icontains=search_string)
+        matching_organisations_by_number = self.queryset.filter(
+            companies_house_id__icontains=search_string
+        )
 
         # merge the two querysets into one and then return
         matching_organisations = matching_organisations_by_name | matching_organisations_by_number
