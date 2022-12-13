@@ -5,13 +5,15 @@ from typing import Any, Optional
 from django.core.management.base import BaseCommand, CommandParser
 
 from cases.constants import (
+    SUBMISSION_STATUS_REGISTER_INTEREST_DRAFT,
+    SUBMISSION_STATUS_REGISTER_INTEREST_RECEIVED,
     SUBMISSION_TYPE_APPLICATION,
     SUBMISSION_TYPE_REGISTER_INTEREST,
 )
 from security.constants import SECURITY_GROUPS_PUBLIC
 
 from core.models import UserProfile
-from cases.models import Submission, SubmissionDocument
+from cases.models import Case, Submission, SubmissionDocument
 
 
 class Command(BaseCommand):

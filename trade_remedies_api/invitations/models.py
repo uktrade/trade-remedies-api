@@ -17,13 +17,10 @@ from core.tasks import send_mail
 from core.utils import convert_to_e164
 from organisations.models import Organisation, get_organisation
 from security.constants import (
-    ROLE_AWAITING_APPROVAL,
     ROLE_PREPARING,
     SECURITY_GROUP_ORGANISATION_OWNER,
     SECURITY_GROUP_ORGANISATION_USER,
-    SECURITY_GROUP_THIRD_PARTY_USER,
 )
-from security.models import OrganisationCaseRole, UserCase
 from .exceptions import InvitationFailure, InviteAlreadyAccepted
 
 
@@ -304,9 +301,6 @@ class Invitation(BaseModel):
         null=True, blank=True, choices=invitation_type_choices
     )
     cases_to_link = models.ManyToManyField(Case, related_name="cases_to_link", blank=True)
-    user_cases_to_link = models.ManyToManyField(
-        UserCase, related_name="user_cases_to_link", blank=True
-    )
 
     objects = InvitationManager()
 
@@ -373,7 +367,7 @@ class Invitation(BaseModel):
         self.short_code = crypto.get_random_string(8)
         self.code = str(uuid.uuid4())
 
-    def send(self, sent_by, context=None, direct=False, template_key=None, footer_case_email=True):
+    def send(self, sent_by, context=None, direct=False, template_key=None):
         """Send the invite email via notify
 
         Arguments:
@@ -383,7 +377,6 @@ class Invitation(BaseModel):
             context {dict} -- extra context dict (default: {None})
             direct {bool} -- include a direct login link with the invite codes (default: {False})
             template_key {str} -- The system param pointing to the template id (default: {None})
-            no_case_email {str} -- True you want to include the case email in the footer (default: {True})
 
         Raises:
             InvitationFailure: raises if the invite is lacking a contact reference
@@ -422,9 +415,7 @@ class Invitation(BaseModel):
             )
         # Set email and footer appropriate to case context
         email = notify_contact_email(_context.get("case_number"))
-        _context.update({"email": email})
-        if footer_case_email:
-            _context.update({"footer": notify_footer(email)})
+        _context.update({"email": email, "footer": notify_footer(email)})
         if direct is True:
             _context[
                 "login_url"
@@ -666,48 +657,24 @@ class Invitation(BaseModel):
     @transaction.atomic()
     def accept_invitation(self):
         """Accepting and processing the invitation when the invited user logs in"""
-        if self.invitation_type == 1:
-            # this is an own-org invitation
-            self.contact.organisation.assign_user(
-                user=self.invited_user,
-                security_group=self.organisation_security_group,  # user or admin
-                confirmed=True,
-            )
 
-        elif self.invitation_type == 2:
-            # this is a representative invitation
-            # First let's add the invitee as an admin user to their organisation
-            security_group = Group.objects.get(name=SECURITY_GROUP_ORGANISATION_OWNER)
-            self.contact.organisation.assign_user(
-                user=self.invited_user, security_group=security_group, confirmed=True
-            )
-
-            # Then add them as a third party user of the inviting organisation
-            security_group = Group.objects.get(name=SECURITY_GROUP_THIRD_PARTY_USER)
-            self.organisation.assign_user(
-                user=self.invited_user, security_group=security_group, confirmed=True
-            )
+        # First let's add the user to the organisation
+        self.contact.organisation.assign_user(
+            user=self.invited_user, security_group=self.organisation_security_group, confirmed=True
+        )
 
         # Let's add the user to the cases associated with this invitation
-        for user_case_object in self.user_cases_to_link.all():
-            # Creating the UserCase object
-            # todo - maybe we do this when the LOA is approved instead???
-            user_case_object.case.assign_user(
+        for case_object in self.cases_to_link.all():
+            case_object.assign_user(
                 user=self.invited_user,
                 created_by=self.user,
-                # We want the UserCase object to maintain the relationship between
-                # interested party and representative
-                organisation=user_case_object.organisation,
+                organisation=self.contact.organisation,
                 relax_security=True,
             )
 
-            # Creating an OrganisationCaseRole object with status awaiting_approval
-            OrganisationCaseRole.objects.assign_organisation_case_role(
-                organisation=self.contact.organisation,
-                case=user_case_object.case,
-                role=ROLE_AWAITING_APPROVAL,
-                approved_at=None,  # approval done later
-                approved_by=None,  # approval done later
+            # todo - check this is necessary
+            case_object.confirm_user_case(
+                user=self.invited_user, created_by=self.user, organisation=self.contact.organisation
             )
 
         # Now we mark the invitation as accepted

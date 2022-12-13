@@ -1,22 +1,8 @@
-ENV
+f"{outpath}outfile.txt
 date_to
-verbose_rating_name
-verbose_what_didnt_go_so_well
-DuplicateCondition
-Trade Remedies Service'
-LITE
-"Testing that the smtp connection can be
-AUDIT_EMAIL_SMTP_PASSWORD
-AUDIT_EMAIL_SMTP_PORT
-MIME
-Amazon SES
-AUDIT_EMAIL_RETRY_COUNTDOWN
-Amazon
-new_testpassword123!DD
-NEW
-new_NEW_email@example.com
-is_active Returns
-PUBLIC_ROOT_URL}/case/accept_representative_invite/
+Suspension Review
+Suspension Application
+SA
 django-restql==0.15.2
 the rep organisation is
 add_user

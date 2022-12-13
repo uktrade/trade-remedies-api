@@ -320,9 +320,4 @@ validation_errors = {
         "error_text": "Select an option",
         "error_summary": "Select 'No cases' or one or more cases",
     },
-    "invite_representative_who_is_registering_missing": {
-        "who_is_registering": "which_case",
-        "error_text": "Select who is registering",
-        "error_summary": "You need to select who is registering",
-    },
 }

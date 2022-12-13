@@ -82,7 +82,7 @@ class CaseAction(models.Model):
 
 class CaseRole(models.Model):
     """
-    A user's role within a case, which encapsulate a set of
+    A user's role within a case, which encapulate a set of
     allowed actions, on the specific case.
     Roles can be identified by id or unique key
     """

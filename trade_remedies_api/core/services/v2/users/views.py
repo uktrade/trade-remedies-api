@@ -1,7 +1,6 @@
 from django.contrib.auth.models import Group
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from contacts.models import Contact
@@ -91,23 +90,6 @@ class ContactViewSet(viewsets.ModelViewSet):
 
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
-
-    @action(
-        detail=True,
-        methods=["patch"],
-        url_name="change_organisation",
-        url_path="change_organisation",
-    )
-    def change_organisation(self, request, *args, **kwargs):
-        """Changes the organisation of the contact."""
-        from organisations.models import Organisation
-
-        organisation_object = get_object_or_404(Organisation, pk=request.data["organisation_id"])
-        contact_object = self.get_object()
-        contact_object.organisation = organisation_object
-        contact_object.save()
-
-        return self.retrieve(request)
 
 
 class TwoFactorAuthViewSet(viewsets.ModelViewSet):

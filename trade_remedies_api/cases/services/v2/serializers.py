@@ -15,7 +15,6 @@ from config.serializers import CustomValidationModelSerializer
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from documents.services.v2.serializers import DocumentSerializer
 from organisations.services.v2.serializers import OrganisationSerializer
-from security.models import UserCase
 
 
 class CaseTypeSerializer(CustomValidationModelSerializer):
