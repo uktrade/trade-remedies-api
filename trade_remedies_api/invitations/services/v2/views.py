@@ -350,7 +350,7 @@ class InvitationViewSet(BaseModelViewSet):
                     "company_name": invitation_object.organisation.name,
                     "case_number": invitation_object.case.reference,
                     "case_name": invitation_object.case.name,
-                    "full_name": invitation_object.user.name,
+                    "full_name": invitation_object.contact.name,
                 },
                 SystemParameter.get(representative_email_template),
             )
