@@ -1,6 +1,3 @@
-import base64
-import json
-
 from django.http import Http404
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -10,15 +7,6 @@ class BaseModelViewSet(viewsets.ModelViewSet):
     """
     Base class for ModelViewSets to share commonly overriden methods
     """
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if filter_parameters := self.request.query_params.get("filter_parameters"):
-            # there are some additional query parameters in this request, let's get the dictionary
-            # and filter the queryset accordingly.
-            filter_parameters = json.loads(base64.b64decode(filter_parameters))  # /PS-IGNORE
-            queryset = queryset.filter(**filter_parameters)
-        return queryset
 
     def perform_create(self, serializer):
         # Overriding perform_create to return the instance, not just do it silently

@@ -239,7 +239,7 @@ class TwoFactorRequestAPI(TradeRemediesApiView):
         Returns:
             ResponseSuccess response with the user.to_dict() if the 2fa code is valid
         Raises:
-            InvalidRequestParams if the code could not be validated
+            InvalidRequestParams if the code could could not be validated
         """
         twofactorauth_object = request.user.twofactorauth
         serializer = TwoFactorAuthVerifySerializer(

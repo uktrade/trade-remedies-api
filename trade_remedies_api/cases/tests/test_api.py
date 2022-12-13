@@ -6,7 +6,6 @@ from rest_framework.test import APITestCase, APIClient, APIRequestFactory
 from rest_framework import status
 from django.contrib.auth.models import Group
 from core.models import User, SystemParameter
-from core.notifier import notify_contact_email, notify_footer
 from core.utils import public_login_url
 from organisations.models import Organisation
 from cases.models import Case, CaseType, SubmissionType, Submission, CaseWorkflow
@@ -220,13 +219,15 @@ class SubmissionStatusAPITest(APITestCase, APISetUpMixin):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Build footer
-        email = notify_contact_email(self.case.reference)
-        footer = notify_footer(email=email)
+        base_footer = SystemParameter.get("NOTIFY_BLOCK_FOOTER")
+        email = f"{self.case.reference}@{SystemParameter.get('TRADE_REMEDIES_EMAIL_DOMAIN')}"
+        footer = "\n".join([base_footer, f"Contact: {email}"])
         notify_data = {
             "company": self.organisation.name,
             "case_name": self.case.name,
             "case_title": self.case.name,
             "case_number": self.case.reference,
+            "case_type": self.case.type.name,
             "investigation_type": self.case.type.name,
             "dumped_or_subsidised": self.case.dumped_or_subsidised(),
             "product": "",

@@ -12,7 +12,6 @@ from rest_framework import status
 from rest_framework.parsers import JSONParser, FormParser
 
 from audit import AUDIT_TYPE_ATTACH
-from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
 from cases.models import (
     Case,
     Submission,

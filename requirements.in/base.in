@@ -15,7 +15,7 @@ django-storages==1.9.1
 django-timezone-field==4.2.3
 django-log-formatter-ecs==0.0.5
 django-audit-log-middleware==0.0.4
-django==3.2.16
+Django==3.2.15
 djangorestframework==3.12.4
 django-flags==5.0.11
 dpath==1.4.2
@@ -29,7 +29,7 @@ Markdown==3.1.1
 notifications-python-client==6.3.0
 openpyxl==3.0.6
 odfpy==1.4.1
-pillow>=9.2.0
+pillow==9.0.1
 phonenumbers==8.12.38
 psycopg2-binary==2.9.1
 python-docx==0.8.10

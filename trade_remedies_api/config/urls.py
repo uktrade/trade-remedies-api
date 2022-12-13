@@ -25,7 +25,6 @@ from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, Submissi
 from core.services import api as core_api
 from core.services.auth import views as auth_api
 from core.services.v2.feature_flags.views import FlagViewSet
-from core.services.v2.feedback.views import FeedbackViewSet
 from core.services.v2.registration import views as registration_api
 from core.services.v2.users.views import ContactViewSet, TwoFactorAuthViewSet, UserViewSet
 from documents.services.v2.views import DocumentBundleViewSet, DocumentViewSet
@@ -197,7 +196,6 @@ router.register(
 router.register(
     f"{settings.API_V2_PREFIX}/django-feature-flags", FlagViewSet, basename="django-feature-flags"
 )
-router.register(f"{settings.API_V2_PREFIX}/feedback", FeedbackViewSet, basename="feedback")
 urlpatterns += router.urls
 
 if settings.DEBUG:
