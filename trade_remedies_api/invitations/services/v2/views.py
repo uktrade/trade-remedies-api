@@ -345,7 +345,7 @@ class InvitationViewSet(BaseModelViewSet):
 
             # then to the representative
             send_mail(
-                invitation_object.user.email,
+                invitation_object.contact.email,
                 {
                     "company_name": invitation_object.organisation.name,
                     "case_number": invitation_object.case.reference,
