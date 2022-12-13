@@ -9,6 +9,7 @@ from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, Us
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
     case = serializers.SerializerMethodField()
+    case_role_key = serializers.SerializerMethodField()
 
     class Meta:
         model = OrganisationCaseRole
@@ -29,6 +30,10 @@ class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
         from cases.services.v2.serializers import CaseSerializer
 
         return CaseSerializer(instance=instance.case).data
+
+    @staticmethod
+    def get_case_role_key(instance):
+        return instance.role.key
 
 
 class OrganisationUserSerializer(CustomValidationModelSerializer):
