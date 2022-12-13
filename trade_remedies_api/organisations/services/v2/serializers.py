@@ -99,7 +99,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                     "rejected_reason": invitation.submission.deficiency_notice_params.get(
                         "explain_why_contact_org_not_verified", ""
                     ),
-                    "rejected_by": invitation.rejected_by,
+                    "rejected_by": UserSerializer(invitation.rejected_by, fields=["name", "email"]).data,
                     "invitation_id": invitation.id,
                 }
             )
