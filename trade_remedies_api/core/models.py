@@ -5,6 +5,7 @@ import os
 import uuid
 from functools import singledispatch
 from random import randint
+from typing import Union
 
 import pytz
 import sentry_sdk
@@ -14,6 +15,7 @@ from django.contrib.auth.models import Group, Permission, PermissionsMixin
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
 from django.utils import crypto, timezone
 from phonenumbers.phonenumberutil import NumberParseException
@@ -34,6 +36,7 @@ from security.constants import (
     SOS_SECURITY_GROUPS,
 )
 from security.models import CaseSecurityMixin, OrganisationUser, UserCase
+from .base import SimpleBaseModel
 from .constants import DEFAULT_USER_COLOUR, SAFE_COLOURS, TRUTHFUL_INPUT_VALUES
 from .decorators import method_cache
 from .exceptions import UserExists
@@ -62,6 +65,64 @@ class JobTitle(models.Model):
 
 
 class UserManager(BaseUserManager):
+    @transaction.atomic
+    def create_new_user(
+        self,
+        email: str,
+        name: str,
+        password: Union[str, None] = None,
+        contact=None,
+        raise_exception: bool = True,
+        **kwargs,
+    ):
+        """
+        Creates a new user object and all the relevant satellite objects (UserProfile, 2FA...etc.).
+
+        Parameters
+        ----------
+        email : email of the user
+        password : cleartext (raw) password of the new user
+        name : name of the new user
+        contact : optional Contact object you want to use for this user
+        raise_exception : True if you want to raise an exception if the user already exists
+        kwargs: extra keywords/values to pass to the User.objects.create(), e.g. is_active
+
+        Returns
+        -------
+        The newly created User object
+        """
+        from contacts.models import Contact
+
+        # Creating the User object
+        email = self.normalize_email(email)
+        new_user, created = self.get_or_create(email=email, defaults={"name": name, **kwargs})
+        if raise_exception and not created:
+            # If the user was not created (i.e. the email already exists in the DB) and we want to
+            # throw an exception, then do so, what are you waiting for!
+            raise Exception(f"User with email {email} already exists")
+
+        if password:
+            # we only want to validate the password if it has been provided
+            validate_password(password)
+        # a None password here will generate an unusable password
+        new_user.set_password(password)
+        TwoFactorAuth.objects.get_or_create(user=new_user)
+        contact = contact or Contact.objects.create(
+            name=name,
+            email=email,
+        )
+        UserProfile.objects.get_or_create(
+            user=new_user,
+            defaults={
+                "contact": contact,
+                "colour": "black",
+            },
+        )
+        Token.objects.get_or_create(user=new_user)
+
+        new_user.save()
+        return new_user
+
     def create_base_user_model(self, email, **kwargs):
         """
         Generate a base user record.
@@ -1299,7 +1360,6 @@ class PasswordResetRequest(models.Model):
         template_id = SystemParameter.get("NOTIFY_RESET_PASSWORD_V2")
         context = {
             "password_reset_link": self.get_link(),
-            "footer": "The Investigations Team,\r\nTrade Remedies Authority\r\n",  # /PS-IGNORE
         }
         send_mail(self.user.email, context, template_id)
         return True
@@ -1465,3 +1525,38 @@ class SystemParameter(models.Model):
                     this_object.editable = load_object["editable"]
                     this_object.save()
         return count_created, count_updated, count_removed
+
+
+class Feedback(SimpleBaseModel):
+    rating_choices = (
+        (1, "Very dissatisfied"),
+        (2, "Dissatisfied"),
+        (3, "Neither satisfied or dissatisfied"),
+        (4, "Satisfied"),
+        (5, "Very satisfied"),
+    )
+
+    form_placement_choices = (
+        (1, "banner"),
+        (2, "footer"),
+    )
+
+    what_didnt_work_so_well_choices = (
+        ("process_not_clear", "Process is not clear"),
+        ("not_enough_guidance", "Not enough guidance"),
+        ("asked_for_info_didnt_have", "I was asked for information I don’t have"),
+        ("didnt_get_information_i_expected", "I couldn’t find the information I wanted"),
+        ("other_issue", "Other issue"),
+    )
+
+    logged_in = models.BooleanField()
+    rating = models.PositiveSmallIntegerField(choices=rating_choices)
+    what_didnt_work_so_well = ArrayField(
+        null=True, base_field=models.CharField(max_length=50, null=True)
+    )
+    what_didnt_work_so_well_other = models.TextField(null=True)
+    how_could_we_improve_service = models.TextField(null=True)
+    url = models.CharField(max_length=300)
+    url_name = models.CharField(max_length=100, null=True)
+    form_placement = models.PositiveSmallIntegerField(choices=form_placement_choices, null=True)
+    journey = models.TextField(max_length=100, null=True)
