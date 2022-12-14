@@ -1,3 +1,4 @@
+"Returns the URL of the org's
 0020_invitation_rejected_by
 Own Organisation'
 Invite Third Party'

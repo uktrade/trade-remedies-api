@@ -65,7 +65,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     country_name = serializers.ReadOnlyField(source="country.name")
     rejected_cases = serializers.SerializerMethodField()
     json_data = serializers.JSONField(required=False, allow_null=True)
-    organisation_website=serializers.SerializerMethodField()
+    a_tag_website_url = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
         instance.json_data = {}
@@ -75,7 +75,12 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         model = Organisation
         fields = "__all__"
 
-
+    @staticmethod
+    def get_a_tag_website_url(instance):
+        """Returns the URL of the org's website with http:// prepended so it can be used in a tag"""
+        if not instance.organisation_website.startswith("http"):
+            return f"http://{instance.organisation_website}"
+        return instance.organisation_website
 
     @staticmethod
     def get_rejected_cases(instance):
