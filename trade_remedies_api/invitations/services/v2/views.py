@@ -319,6 +319,9 @@ class InvitationViewSet(BaseModelViewSet):
                         organisation=user_case_object.organisation,  # who they are representing
                     )
 
+                # marking the submission as review_ok
+                invitation_object.submission.update_status("review_ok", request.user)
+
                 interested_party_email_template = "NOTIFY_INVITE_APPROVED_INTERESTED_PARTY"
                 representative_email_template = "NOTIFY_INVITE_APPROVED_REPRESENTATIVE"
 
