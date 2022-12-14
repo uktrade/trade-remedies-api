@@ -8,24 +8,51 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0029_alter_userprofile_settings'),
+        ("core", "0029_alter_userprofile_settings"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Feedback',
+            name="Feedback",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('rating', models.PositiveSmallIntegerField(choices=[(1, 'Very dissatisfied'), (2, 'Dissatisfied'), (3, 'Neither satisfied or dissatisfied'), (4, 'Satisfied'), (5, 'Very satisfied')])),
-                ('what_didnt_work_so_well', models.JSONField(null=True)),
-                ('what_didnt_work_so_well_other', models.TextField(null=True)),
-                ('how_could_we_improve_service', models.TextField(null=True)),
-                ('url', models.CharField(max_length=300)),
-                ('url_name', models.CharField(max_length=100, null=True)),
-                ('date_time_created', models.DateTimeField()),
-                ('form_placement', models.PositiveSmallIntegerField(choices=[(1, 'banner'), (2, 'footer')])),
-                ('journey', models.TextField(max_length=100, null=True)),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "rating",
+                    models.PositiveSmallIntegerField(
+                        choices=[
+                            (1, "Very dissatisfied"),
+                            (2, "Dissatisfied"),
+                            (3, "Neither satisfied or dissatisfied"),
+                            (4, "Satisfied"),
+                            (5, "Very satisfied"),
+                        ]
+                    ),
+                ),
+                ("what_didnt_work_so_well", models.JSONField(null=True)),
+                ("what_didnt_work_so_well_other", models.TextField(null=True)),
+                ("how_could_we_improve_service", models.TextField(null=True)),
+                ("url", models.CharField(max_length=300)),
+                ("url_name", models.CharField(max_length=100, null=True)),
+                ("date_time_created", models.DateTimeField()),
+                (
+                    "form_placement",
+                    models.PositiveSmallIntegerField(choices=[(1, "banner"), (2, "footer")]),
+                ),
+                ("journey", models.TextField(max_length=100, null=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

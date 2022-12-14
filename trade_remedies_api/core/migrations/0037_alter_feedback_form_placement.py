@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0036_feedback_what_didnt_work_so_well'),
+        ("core", "0036_feedback_what_didnt_work_so_well"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='feedback',
-            name='form_placement',
-            field=models.PositiveSmallIntegerField(choices=[(1, 'banner'), (2, 'footer')], null=True),
+            model_name="feedback",
+            name="form_placement",
+            field=models.PositiveSmallIntegerField(
+                choices=[(1, "banner"), (2, "footer")], null=True
+            ),
         ),
     ]
