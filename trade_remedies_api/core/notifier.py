@@ -1,7 +1,6 @@
 import os
 import re
 
-from django.conf import settings
 from notifications_python_client.notifications import NotificationsAPIClient
 
 from .utils import convert_to_e164
@@ -11,7 +10,7 @@ def get_client():
     """
     Return a Notification client
     """
-    return NotificationsAPIClient(settings.GOV_NOTIFY_API_KEY)
+    return NotificationsAPIClient(os.environ["GOV_NOTIFY_API_KEY"])
 
 
 def send_mail(email, context, template_id, reference=None):
