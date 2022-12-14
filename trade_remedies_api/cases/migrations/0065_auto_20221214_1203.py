@@ -2,26 +2,19 @@
 
 from django.db import migrations
 
+
 def alter_invite_submission_types(apps, schema_editor):
     # We get the model from the versioned app registry;
     # if we directly import it, it'll be the wrong version
     SubmissionStatus = apps.get_model("cases", "SubmissionStatus")
     db_alias = schema_editor.connection.alias
 
-
-
-    SubmissionStatus.objects.using(db_alias).filter(
-        id=69
-    ).update(
+    SubmissionStatus.objects.using(db_alias).filter(id=69).update(
         name="Draft",
         public_name="Draft",
-
     )
 
-
-    SubmissionStatus.objects.using(db_alias).filter(
-        id=70
-    ).update(
+    SubmissionStatus.objects.using(db_alias).filter(id=70).update(
         name="Waiting TRA review",
         public_name="Waiting TRA review",
         locking=True,
@@ -32,12 +25,10 @@ def alter_invite_submission_types(apps, schema_editor):
         sufficient=False,
         review=False,
         draft=False,
-        review_ok=False
+        review_ok=False,
     )
 
-    SubmissionStatus.objects.using(db_alias).filter(
-        id=92
-    ).update(
+    SubmissionStatus.objects.using(db_alias).filter(id=92).update(
         name="Deficient",
         public_name="Deficient",
         locking=False,
@@ -48,12 +39,10 @@ def alter_invite_submission_types(apps, schema_editor):
         sufficient=False,
         review=False,
         draft=False,
-        review_ok=False
+        review_ok=False,
     )
 
-    SubmissionStatus.objects.using(db_alias).filter(
-        id=72
-    ).update(
+    SubmissionStatus.objects.using(db_alias).filter(id=72).update(
         name="Invitation sent",
         public_name="Invitation sent",
         locking=True,
@@ -64,12 +53,10 @@ def alter_invite_submission_types(apps, schema_editor):
         sufficient=False,
         review=False,
         draft=False,
-        review_ok=False
+        review_ok=False,
     )
 
-    SubmissionStatus.objects.using(db_alias).filter(
-        id=71
-    ).update(
+    SubmissionStatus.objects.using(db_alias).filter(id=71).update(
         name="Waiting approval",
         public_name="Waiting TRA review",
         locking=True,
@@ -80,12 +67,10 @@ def alter_invite_submission_types(apps, schema_editor):
         sufficient=True,
         review=False,
         draft=False,
-        review_ok=False
+        review_ok=False,
     )
 
-    SubmissionStatus.objects.using(db_alias).filter(
-        id=159
-    ).update(
+    SubmissionStatus.objects.using(db_alias).filter(id=159).update(
         name="Approved",
         public_name="Approved",
         locking=True,
@@ -96,15 +81,14 @@ def alter_invite_submission_types(apps, schema_editor):
         sufficient=False,
         review=False,
         draft=False,
-        review_ok=True
+        review_ok=True,
     )
+
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0063_auto_20221128_1519'),
+        ("cases", "0063_auto_20221128_1519"),
     ]
 
-    operations = [
-        migrations.RunPython(alter_invite_submission_types)
-    ]
+    operations = [migrations.RunPython(alter_invite_submission_types)]

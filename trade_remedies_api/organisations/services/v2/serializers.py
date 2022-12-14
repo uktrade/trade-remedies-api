@@ -65,6 +65,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     country_name = serializers.ReadOnlyField(source="country.name")
     rejected_cases = serializers.SerializerMethodField()
     json_data = serializers.JSONField(required=False, allow_null=True)
+    organisation_website=serializers.SerializerMethodField()
 
     def to_representation(self, instance):
         instance.json_data = {}
@@ -73,6 +74,8 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     class Meta:
         model = Organisation
         fields = "__all__"
+
+
 
     @staticmethod
     def get_rejected_cases(instance):
