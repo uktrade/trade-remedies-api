@@ -53,6 +53,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     validated = serializers.SerializerMethodField()
     organisationcaserole_set = OrganisationCaseRoleSerializer(many=True, required=False)
     user_cases = serializers.SerializerMethodField()
+    full_country_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Organisation
@@ -102,3 +103,8 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     def get_validated(self, instance):
         """Returns true if the organisation has been validated on the TRS at some point"""
         return instance.organisationcaserole_set.filter(validated_at__isnull=False).exists()
+
+    @staticmethod
+    def get_full_country_name(instance):
+        """Return the full country name of the Organisation, e.g. GB --> Great Britain"""
+        return instance.country.name if instance.country else None
