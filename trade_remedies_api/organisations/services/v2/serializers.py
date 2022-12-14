@@ -78,7 +78,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     @staticmethod
     def get_a_tag_website_url(instance):
         """Returns the URL of the org's website with http:// prepended so it can be used in a tag"""
-        if not instance.organisation_website.startswith("http"):
+        if instance.organisation_website and not instance.organisation_website.startswith("http"):
             return f"http://{instance.organisation_website}"
         return instance.organisation_website
 
