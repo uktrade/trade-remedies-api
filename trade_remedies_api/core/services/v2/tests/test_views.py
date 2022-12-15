@@ -1,4 +1,5 @@
 from config.test_bases import CaseSetupTestMixin
+from contacts.models import CaseContact
 from core.services.v2.users.serializers import UserSerializer
 from organisations.models import Organisation
 from test_functional import FunctionalTestBase
@@ -13,3 +14,19 @@ class TestContactViewSet(CaseSetupTestMixin, FunctionalTestBase):
         )
         self.contact_object.refresh_from_db()
         assert self.contact_object.organisation_id == new_organisation.id
+
+    def test_add_to_case(self):
+        assert not CaseContact.objects.filter(
+            case=self.case_object,
+            contact=self.contact_object,
+            organisation=self.organisation
+        )
+        self.client.patch(
+            f"/api/v2/contacts/{self.contact_object.pk}/add_to_case/",
+            data={"organisation_id": self.organisation.id},
+        )
+        assert CaseContact.objects.filter(
+            case=self.case_object,
+            contact=self.contact_object,
+            organisation=self.organisation
+        )
