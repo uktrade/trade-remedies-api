@@ -1,6 +1,7 @@
 import os
 import re
 
+from django.conf import settings
 from notifications_python_client.notifications import NotificationsAPIClient
 
 from .utils import convert_to_e164
@@ -102,17 +103,13 @@ def is_whitelisted(email):
     Temporary measure to restrict notify emails to certain domains.
     disabled on production.
     """
-    if os.environ.get("DJANGO_SETTINGS_MODULE", "").endswith("prod") or os.environ.get(
-        "DISABLE_NOTIFY_WHITELIST"
+    if (
+        os.environ.get("DJANGO_SETTINGS_MODULE", "").endswith("prod")
+        or settings.DISABLE_NOTIFY_WHITELIST
     ):
         return True
-    whitelist = set(
-        [
-            "gov.uk",
-            "trade.gov.uk",
-            "digital.trade.gov.uk",
-        ]
-    )
+
+    whitelist = {"gov.uk", "trade.gov.uk", "digital.trade.gov.uk"}
     regex_whitelist = []
     _, domain = email.split("@")
     in_whitelist = domain in whitelist or email in whitelist
