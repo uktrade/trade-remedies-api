@@ -8,15 +8,16 @@ from config.serializers import CustomValidationModelSerializer
 from contacts.models import CaseContact, Contact
 from contacts.services.v2.serializers import CaseContactSerializer
 from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
-from core.services.v2.users.serializers import UserSerializer
+from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from organisations.models import Organisation
 from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
-
+from django_restql.fields import NestedField
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
     case = serializers.SerializerMethodField()
     validated_by = UserSerializer(fields=["name", "email"])
     role_name = serializers.CharField(source="role.name")
+    auth_contact = NestedField(serializer_class=ContactSerializer, required=False, accept_pk=True)
 
     class Meta:
         model = OrganisationCaseRole
