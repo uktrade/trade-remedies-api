@@ -11,7 +11,7 @@ def get_client():
     """
     Return a Notification client
     """
-    return NotificationsAPIClient(settings.GOV_NOTIFY_API_KEY)
+    return NotificationsAPIClient(os.environ["GOV_NOTIFY_API_KEY"])
 
 
 def send_mail(email, context, template_id, reference=None):
@@ -103,17 +103,13 @@ def is_whitelisted(email):
     Temporary measure to restrict notify emails to certain domains.
     disabled on production.
     """
-    if os.environ.get("DJANGO_SETTINGS_MODULE", "").endswith("prod") or os.environ.get(
-        "DISABLE_NOTIFY_WHITELIST"
+    if (
+        os.environ.get("DJANGO_SETTINGS_MODULE", "").endswith("prod")
+        or settings.DISABLE_NOTIFY_WHITELIST
     ):
         return True
-    whitelist = set(
-        [
-            "gov.uk",
-            "trade.gov.uk",
-            "digital.trade.gov.uk",
-        ]
-    )
+
+    whitelist = {"gov.uk", "trade.gov.uk", "digital.trade.gov.uk"}
     regex_whitelist = []
     _, domain = email.split("@")
     in_whitelist = domain in whitelist or email in whitelist

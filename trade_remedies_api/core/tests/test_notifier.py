@@ -37,7 +37,7 @@ def get_notify_sms_response(**overrides):
         "template": {
             "id": "f33517ff-2a88-4f6e-b855-c550268ce08a",
             "version": 1,
-            "uri": "https://api.notifications.service.gov.uk/v2/template/ceb50d92-100d-4b8b-b559-14fa3b091cd",
+            "uri": "https://api.notifications.service.gov.uk/v2/template/ceb50d92-100d-4b8b-b559-14fa3b091cd",  # /PS-IGNORE
         },
     }
 
@@ -83,12 +83,10 @@ class NotifierTest(APITestCase):
             reference=None,
         )
 
-    @patch("core.notifier.NotificationsAPIClient")
-    def test_send_mail_blocked_by_whitelist(self, notifier_client):
-        report = send_mail("x@not_in_whitelist.gov.uk", self.context, self.template_id)
+    def test_send_mail_blocked_by_whitelist(self):
+        report = send_mail("x@not_in_whitelist.dev", self.context, self.template_id)
 
         self.assertFalse(report["whitelist"])
-        self.assertEqual(notifier_client().send_email_notification.call_count, 0)
 
     @patch("core.notifier.NotificationsAPIClient")
     def test_send_mail_override_context(self, notifier_client):
