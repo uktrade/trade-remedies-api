@@ -28,8 +28,7 @@ class TestInvitationSerializer(OrganisationSetupTestMixin):
     def test_case_role_key(self):
         applicant_case_role = CaseRole.objects.create(name="Applicant", key="applicant")
         serializer = InvitationSerializer(
-            instance=self.invitation_object,
-            data={"case_role_key": "applicant"}
+            instance=self.invitation_object, data={"case_role_key": "applicant"}
         )
         assert serializer.is_valid()
         assert serializer.data["case_role"]["key"] == "applicant"

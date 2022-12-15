@@ -1,3 +1,4 @@
+assert send_mail.called_with
 ENV
 date_to
 verbose_rating_name

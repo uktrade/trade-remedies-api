@@ -17,16 +17,12 @@ class TestContactViewSet(CaseSetupTestMixin, FunctionalTestBase):
 
     def test_add_to_case(self):
         assert not CaseContact.objects.filter(
-            case=self.case_object,
-            contact=self.contact_object,
-            organisation=self.organisation
+            case=self.case_object, contact=self.contact_object, organisation=self.organisation
         )
         self.client.patch(
             f"/api/v2/contacts/{self.contact_object.pk}/add_to_case/",
-            data={"organisation_id": self.organisation.id},
+            data={"organisation_id": self.organisation.id, "case_id": self.case_object.id},
         )
         assert CaseContact.objects.filter(
-            case=self.case_object,
-            contact=self.contact_object,
-            organisation=self.organisation
+            case=self.case_object, contact=self.contact_object, organisation=self.organisation
         )
