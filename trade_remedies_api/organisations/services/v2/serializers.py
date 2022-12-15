@@ -13,6 +13,7 @@ from organisations.models import Organisation
 from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
 from django_restql.fields import NestedField
 
+
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
     case = serializers.SerializerMethodField()
     validated_by = UserSerializer(fields=["name", "email"])
