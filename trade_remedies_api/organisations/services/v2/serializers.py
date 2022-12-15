@@ -16,7 +16,7 @@ from django_restql.fields import NestedField
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
     case = serializers.SerializerMethodField()
-    validated_by = UserSerializer(fields=["name", "email"])
+    validated_by = UserSerializer(fields=["name", "email"], required=False)
     role_name = serializers.CharField(source="role.name")
     auth_contact = NestedField(serializer_class=ContactSerializer, required=False, accept_pk=True)
 

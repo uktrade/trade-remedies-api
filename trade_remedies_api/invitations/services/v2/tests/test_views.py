@@ -78,7 +78,11 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
         self.invitation_object.save()
         self.assertFalse(self.invitation_object.sent_at)
 
-        new_contact = Contact.objects.create(email=new_email, name=new_name)
+        new_contact = Contact.objects.create(
+            email=new_email,
+            name=new_name,
+            organisation=self.organisation
+        )
         self.invitation_object.contact = new_contact
         self.invitation_object.created_by = self.user
 
@@ -95,7 +99,11 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
             name="test1",
             email="test1@example.com",  # /PS-IGNORE
         )
-        new_contact = Contact.objects.create(email="test1@example.com", name="test1")  # /PS-IGNORE
+        new_contact = Contact.objects.create(
+            email="test1@example.com",  # /PS-IGNORE
+            name="test1",
+            organisation=self.organisation,
+        )
         self.invitation_object.contact = new_contact
         self.invitation_object.created_by = self.user
 

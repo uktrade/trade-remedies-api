@@ -24,6 +24,11 @@ class TestOrganisationSerializer(CaseSetupTestMixin):
         assert serializer.data["organisationuser_set"][0]["id"] == str(self.organisation_user.id)
 
     def test_cases(self):
+        OrganisationCaseRole.objects.create(
+            organisation=self.organisation,
+            case=self.case_object,
+            role=CaseRole.objects.get(key="applicant")
+        )
         self.organisation.assign_user(user=self.user, security_group=self.owner_group)
         self.case_object.assign_user(
             self.user, created_by=self.user, organisation=self.organisation, relax_security=True
@@ -49,12 +54,6 @@ class TestOrganisationSerializer(CaseSetupTestMixin):
 
 
 class TestOrganisationCaseRoleSerializer(CaseSetupTestMixin):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.applicant_case_role = CaseRole.objects.create(key="applicant", name="Applicant")
-        cls.contributor_case_role = CaseRole.objects.create(key="contributor", name="Contributor")
-
     def test_role_key_conversion(self):
         """Tests that passing role_key in post data gets converted to CaseRole object"""
         new_org_case_role, _ = OrganisationCaseRole.objects.assign_organisation_case_role(
