@@ -79,9 +79,7 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
         self.assertFalse(self.invitation_object.sent_at)
 
         new_contact = Contact.objects.create(
-            email=new_email,
-            name=new_name,
-            organisation=self.organisation
+            email=new_email, name=new_name, organisation=self.organisation
         )
         self.invitation_object.contact = new_contact
         self.invitation_object.created_by = self.user

@@ -27,7 +27,7 @@ class TestOrganisationSerializer(CaseSetupTestMixin):
         OrganisationCaseRole.objects.create(
             organisation=self.organisation,
             case=self.case_object,
-            role=CaseRole.objects.get(key="applicant")
+            role=CaseRole.objects.get(key="applicant"),
         )
         self.organisation.assign_user(user=self.user, security_group=self.owner_group)
         self.case_object.assign_user(
