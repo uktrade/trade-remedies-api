@@ -31,4 +31,4 @@ class TestInvitationSerializer(OrganisationSetupTestMixin):
             instance=self.invitation_object, data={"case_role_key": "applicant"}
         )
         assert serializer.is_valid()
-        assert serializer.data["case_role"]["key"] == "applicant"
+        assert serializer.validated_data["case_role"] == applicant_case_role

@@ -198,6 +198,7 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
             organisation=self.organisation,
         ).exists()
 
+        self.invitation_object.submission.refresh_from_db()
         assert self.invitation_object.submission.status.review_ok
 
     @patch("core.tasks.send_mail")
