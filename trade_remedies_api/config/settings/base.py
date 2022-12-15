@@ -70,6 +70,7 @@ DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.contenttypes",
     "django.contrib.messages",
+    "django.contrib.postgres",
     "django.contrib.sessions",
     "django.contrib.staticfiles",
     "django_countries",

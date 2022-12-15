@@ -31,6 +31,13 @@ class Command(BaseCommand):
                         sysparam.value = template_id
                         sysparam.save()
                 except SystemParameter.DoesNotExist:
-                    logger.info(f"    {sys_param_name} does not already exist.")
+                    logger.info(f"    {sys_param_name} does not already exist. Creating it now.")
+                    SystemParameter.objects.create(
+                        key=sys_param_name,
+                        data_type="str",
+                        value=f'"{template_id}"',
+                        editable=False,
+                    )
+                    logger.info(f"{sys_param_name} has been created.")
             else:
                 logger.info(f"Template {template_name} deviates from TR_ naming convention")
