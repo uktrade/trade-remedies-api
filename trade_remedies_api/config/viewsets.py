@@ -16,7 +16,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
         if filter_parameters := self.request.query_params.get("filter_parameters"):
             # there are some additional query parameters in this request, let's get the dictionary
             # and filter the queryset accordingly.
-            filter_parameters = json.loads(base64.b64decode(filter_parameters))
+            filter_parameters = json.loads(base64.b64decode(filter_parameters))  # /PS-IGNORE
             queryset = queryset.filter(**filter_parameters)
         return queryset
 

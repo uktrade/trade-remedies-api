@@ -18,13 +18,17 @@ class CaseAPITest(CaseSetupTestMixin, FunctionalTestBase):
 
         # now lets filter
         organisations = self.client.get(
-            f"/api/v2/organisations/?filter_parameters={base64.urlsafe_b64encode(json.dumps({'name': 'filter_1'}).encode()).decode()}"
+            f"""/api/v2/organisations/?filter_parameters={base64.urlsafe_b64encode(json.dumps({
+                "name": "filter_1"
+            }).encode()).decode()}"""
         ).json()
         assert len(organisations) == 1
         assert organisations[0]["name"] == "filter_1"
 
         # try filtering with a non-existent company
         organisations = self.client.get(
-            f"/api/v2/organisations/?filter_parameters={base64.urlsafe_b64encode(json.dumps({'name': 'dont exist'}).encode()).decode()}"
+            f"""/api/v2/organisations/?filter_parameters={base64.urlsafe_b64encode(json.dumps({
+                "name": "dont exist"
+            }).encode()).decode()}"""
         ).json()
         assert len(organisations) == 0

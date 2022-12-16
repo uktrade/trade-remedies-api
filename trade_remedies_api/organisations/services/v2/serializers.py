@@ -3,13 +3,12 @@ from django.contrib.auth.models import Group
 from django.db.models import F
 from rest_framework import serializers
 
-from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY, SUBMISSION_TYPE_REGISTER_INTEREST
+from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
 from config.serializers import CustomValidationModelSerializer
-from contacts.models import CaseContact
+from contacts.models import CaseContact, Contact
 from contacts.services.v2.serializers import CaseContactSerializer
 from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
 from core.services.v2.users.serializers import UserSerializer
-from contacts.models import Contact
 from organisations.models import Organisation
 from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
 
@@ -64,10 +63,49 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     contacts = serializers.SerializerMethodField()
     representative_contacts = serializers.SerializerMethodField()
     case_count = serializers.IntegerField()
+    country_name = serializers.ReadOnlyField(source="country.name")
+    rejected_cases = serializers.SerializerMethodField()
+    json_data = serializers.JSONField(required=False, allow_null=True)
+
+    def to_representation(self, instance):
+        instance.json_data = {}
+        return super().to_representation(instance)
 
     class Meta:
         model = Organisation
         fields = "__all__"
+
+    @staticmethod
+    def get_rejected_cases(instance):
+        """Return all instances when this organisation was rejected from a case"""
+        from invitations.models import Invitation
+        from cases.services.v2.serializers import CaseSerializer
+
+        rejections = []
+
+        # finding the rep invitations for this org which have been rejected
+        rejected_invitations = Invitation.objects.filter(
+            contact__organisation=instance,
+            rejected_by__isnull=False,
+            rejected_at__isnull=False,
+            invitation_type=2,  # only rep invites
+        )
+        for invitation in rejected_invitations:
+            rejections.append(
+                {
+                    "case": CaseSerializer(
+                        invitation.submission.case, fields=["name", "reference"]
+                    ).data,
+                    "date_rejected": invitation.rejected_at,
+                    "rejected_reason": invitation.submission.deficiency_notice_params.get(
+                        "explain_why_contact_org_not_verified", ""
+                    ),
+                    "rejected_by": invitation.rejected_by,
+                    "invitation_id": invitation.id,
+                }
+            )
+
+        return rejections
 
     def get_representative_cases(self, instance):
         """Return all cases where this Organisation is acting as a representative"""
@@ -85,9 +123,12 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             .distinct("case")
         )
         for case_contact in representative_case_contacts:
-            corresponding_org_case_role = OrganisationCaseRole.objects.get(
-                organisation=case_contact.organisation, case=case_contact.case
-            )
+            try:
+                corresponding_org_case_role = OrganisationCaseRole.objects.get(
+                    organisation=case_contact.organisation, case=case_contact.case
+                )
+            except OrganisationCaseRole.DoesNotExist:
+                continue
             representation = {
                 "on_behalf_of": case_contact.organisation.name,
                 "case": CaseSerializer(case_contact.case).data,
@@ -122,12 +163,16 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             else:
                 # maybe it's an ROI that got them here
                 try:
-                    Submission.objects.filter(
-                        type_id=SUBMISSION_TYPE_REGISTER_INTEREST,
-                        contact__organisation=instance,
-                        case=case_contact.case,
-                        organisation=case_contact.organisation,
-                    ).first()
+                    (
+                        Submission.objects.filter(
+                            type_id=SUBMISSION_TYPE_REGISTER_INTEREST,
+                            contact__organisation=instance,
+                            case=case_contact.case,
+                            organisation=case_contact.organisation,
+                        )
+                        .order_by("-last_modified")
+                        .first()
+                    )
                     representation.update(
                         {
                             "validated": bool(corresponding_org_case_role.validated_at),

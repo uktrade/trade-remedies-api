@@ -11,8 +11,9 @@ from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
 from cases.models import Submission, get_submission_type
 from config.viewsets import BaseModelViewSet
 from contacts.models import CaseContact, Contact
-from core.models import User
+from core.models import SystemParameter, User
 from core.services.v2.users.serializers import UserSerializer
+from core.tasks import send_mail
 from core.utils import public_login_url
 from invitations.models import Invitation
 from invitations.services.v2.serializers import InvitationSerializer
@@ -58,6 +59,8 @@ class InvitationViewSet(BaseModelViewSet):
                 case=invitation_object.case,
                 created_by=self.request.user,
                 contact=self.request.user.contact,
+                received_from=self.request.user,
+                received_at=timezone.now(),
             )
             invitation_object.submission = submission_object
             invitation_object.organisation_security_group = Group.objects.get(
@@ -68,10 +71,15 @@ class InvitationViewSet(BaseModelViewSet):
         return invitation_object
 
     def perform_update(self, serializer):
-        if "name" in serializer.validated_data and "email" in serializer.validated_data:
+        if (
+            "name" in serializer.validated_data
+            and "email" in serializer.validated_data
+            and "contact" not in serializer.validated_data
+        ):
             # We want to create a new Contact object to associate with this Invitation, only if the
             # invitation object doesn't already have a contact or the contact associated with the
-            # invitation has different name/email to the submitted
+            # invitation has different name/email to the submitted. And only if a contact object
+            # is NOT passed along with this request, in that case we want to use that one instead.
             if (
                 serializer.instance.contact
                 and (
@@ -83,7 +91,7 @@ class InvitationViewSet(BaseModelViewSet):
                 contact_object = Contact.objects.create(
                     created_by=self.request.user,
                     name=serializer.validated_data["name"],
-                    email=serializer.validated_data["email"],
+                    email=serializer.validated_data["email"].lower(),
                     user_context=self.request.user,
                     country=serializer.instance.organisation.country,
                     post_code=serializer.instance.organisation.post_code,
@@ -120,8 +128,12 @@ class InvitationViewSet(BaseModelViewSet):
                 serializer.instance.user_cases_to_link.add(*user_case_objects)
                 serializer.save()
 
-        if updated_contact := serializer.validated_data.get("contact"):
-            # Let's create a CaseContact to link the contact to the case
+        if (
+            updated_contact := serializer.validated_data.get("contact")
+            and serializer.instance.invitation_type != 2
+        ):
+            # Let's create a CaseContact to link the contact to the case if it's not a
+            # representative invite, in that case that is done when the submission is approved
 
             if original_contact := serializer.instance.contact:
                 # first let's delete the previous one if it exists
@@ -132,7 +144,7 @@ class InvitationViewSet(BaseModelViewSet):
                 ).delete()
 
             # creating the new one with the updated contact
-            CaseContact.objects.filter(
+            CaseContact.objects.create(
                 contact=updated_contact,
                 case=serializer.instance.case,
                 organisation=serializer.instance.organisation,  # the inviting organisation
@@ -159,6 +171,7 @@ class InvitationViewSet(BaseModelViewSet):
                     f"{invitation_object.id}/start/"
                 },
             )
+
         elif invitation_object.invitation_type == 2:
             # This is a representative invite, send the appropriate email
 
@@ -171,6 +184,9 @@ class InvitationViewSet(BaseModelViewSet):
                 # we want to associate the invitation with them so it is processed on next login
                 invitation_object.invited_user = user_query.get()
                 invitation_object.save()
+
+                # now we want to mark the submission as received
+                invitation_object.submission.update_status("received", request.user)
             else:
                 # The user does not exist
                 template_name = "NOTIFY_NEW_THIRD_PARTY_INVITE"
@@ -178,8 +194,16 @@ class InvitationViewSet(BaseModelViewSet):
                     f"{settings.PUBLIC_ROOT_URL}/case/accept_representative_invite/"
                     f"{invitation_object.id}/start/"
                 )
+                # We also need to update the submission status to sent
+                invitation_object.submission.update_status("sent", request.user)
 
-            send_report = invitation_object.send(
+            # let's mark the invited contact and invited org as non-draft
+            invitation_object.contact.draft = False
+            invitation_object.contact.save()
+            invitation_object.contact.organisation.draft = False
+            invitation_object.contact.organisation.save()
+
+            invitation_object.send(
                 sent_by=request.user,
                 context={
                     "organisation_you_are_representing": invitation_object.organisation.name,
@@ -192,9 +216,6 @@ class InvitationViewSet(BaseModelViewSet):
                 template_key=template_name,
                 footer_case_email=False,
             )
-
-            # We also need to update the submission status to sent
-            invitation_object.submission.update_status("sufficient", request.user)
 
         elif invitation_object.invitation_type == 3:
             # determine if deadline passed or not
@@ -213,9 +234,7 @@ class InvitationViewSet(BaseModelViewSet):
                 invitation_object.invited_user = invitation_object.contact.userprofile.user
             else:
                 new_user = True
-                login_url = (
-                    f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/{invitation_object.id}/start/"
-                )
+                login_url = f"{settings.PUBLIC_ROOT_URL}?invitation={invitation_object.pk}"
 
             # This is an invitation sent by the TRA
             invitation_object.send(
@@ -253,3 +272,86 @@ class InvitationViewSet(BaseModelViewSet):
         invitation_object.save()
 
         return Response(UserSerializer(new_user).data)
+
+    @transaction.atomic
+    @action(
+        detail=True,
+        methods=["patch"],
+        url_name="process_representative_invitation",
+        url_path="process_representative_invitation",
+    )
+    def process_representative_invitation(self, request, *args, **kwargs):
+        """Once a 3rd party invitation has been approved/declined by a caseworker, we can process
+        invitation and make the necessary changes depending on if it's approved or declined.
+        """
+        invitation_object = self.get_object()
+        if invitation_object.invitation_type == 2:
+            # Only proceed if the submission is marked as sufficient (been approved by TRA) and this
+            # is a representative invite
+            if request.data["approved"] == "yes":
+                invitation_object.approved_by = request.user
+                invitation_object.approved_at = timezone.now()
+                invitation_object.save()
+
+                # Then add them as a third party user of the inviting organisation, this was also
+                # add them to the required group
+                invitation_object.organisation.assign_user(
+                    user=invitation_object.invited_user,
+                    security_group=SECURITY_GROUP_THIRD_PARTY_USER,
+                    confirmed=True,
+                )
+
+                for user_case_object in invitation_object.user_cases_to_link.all():
+                    # Creating the UserCase object
+                    user_case_object.case.assign_user(
+                        user=invitation_object.invited_user,
+                        created_by=invitation_object.user,
+                        # We want the UserCase object to maintain the relationship between
+                        # interested party and representative
+                        organisation=user_case_object.organisation,
+                        relax_security=True,
+                    )
+
+                    # creating the CaseContact
+                    CaseContact.objects.get_or_create(
+                        contact=invitation_object.contact,
+                        case=user_case_object.case,
+                        organisation=user_case_object.organisation,  # who they are representing
+                    )
+
+                interested_party_email_template = "NOTIFY_INVITE_APPROVED_INTERESTED_PARTY"
+                representative_email_template = "NOTIFY_INVITE_APPROVED_REPRESENTATIVE"
+
+            else:
+                invitation_object.rejected_by = request.user
+                invitation_object.rejected_at = timezone.now()
+                invitation_object.save()
+
+                interested_party_email_template = "NOTIFY_INVITE_REJECTED_INTERESTED_PARTY"
+                representative_email_template = "NOTIFY_INVITE_REJECTED_REPRESENTATIVE"
+
+            # now let's send our emails
+            # first to the interested party
+            send_mail(
+                invitation_object.user.email,
+                {
+                    "representative_company_name": invitation_object.contact.organisation.name,
+                    "case_number": invitation_object.case.reference,
+                    "case_name": invitation_object.case.name,
+                    "full_name": invitation_object.user.name,
+                },
+                SystemParameter.get(interested_party_email_template),
+            )
+
+            # then to the representative
+            send_mail(
+                invitation_object.user.email,
+                {
+                    "company_name": invitation_object.organisation.name,
+                    "case_number": invitation_object.case.reference,
+                    "case_name": invitation_object.case.name,
+                    "full_name": invitation_object.user.name,
+                },
+                SystemParameter.get(representative_email_template),
+            )
+        return self.retrieve(request)

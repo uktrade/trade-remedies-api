@@ -83,6 +83,7 @@ django==3.2.16
     #   django-timezone-field
     #   djangorestframework
     #   feed-gov-back
+    #   model-bakery
 django-appconf==1.0.4
     # via
     #   -r requirements.in/../requirements/base.txt
@@ -188,6 +189,8 @@ marshmallow==3.6.1
     #   kubi-ecs-logger
 minio==4.0.11
     # via -r requirements.in/../requirements/base.txt
+model-bakery==1.9.0
+    # via -r requirements.in/../requirements/base.txt
 notifications-python-client==6.3.0
     # via -r requirements.in/../requirements/base.txt
 odfpy==1.4.1
@@ -202,7 +205,7 @@ packaging==21.3
     #   redis
 phonenumbers==8.12.38
     # via -r requirements.in/../requirements/base.txt
-pillow==9.0.1
+pillow==9.3.0
     # via
     #   -r requirements.in/../requirements/base.txt
     #   python-pptx

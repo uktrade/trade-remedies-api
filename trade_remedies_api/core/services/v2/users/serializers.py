@@ -7,6 +7,7 @@ from cases.models import Case
 from config.serializers import CustomValidationModelSerializer
 from contacts.models import Contact
 from core.models import TwoFactorAuth, User
+from core.services.auth.serializers import EmailSerializer
 from core.utils import convert_to_e164
 
 
@@ -18,7 +19,7 @@ class TwoFactorAuthSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source="user.id")  # One-to-One field which is also PK
 
 
-class ContactSerializer(CustomValidationModelSerializer):
+class ContactSerializer(CustomValidationModelSerializer, EmailSerializer):
     class Meta:
         model = Contact
         fields = "__all__"
@@ -27,6 +28,12 @@ class ContactSerializer(CustomValidationModelSerializer):
     country = serializers.CharField(source="country.alpha3", required=False)
     organisation_name = serializers.ReadOnlyField(source="organisation.name")
     has_user = serializers.ReadOnlyField()
+    user_id = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_user_id(instance):
+        if user := instance.user:
+            return user.id
 
     def save(self, **kwargs):
         # If the 'country' is present in changed data, we need to fetch the true value from the dic
