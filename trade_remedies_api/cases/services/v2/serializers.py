@@ -92,8 +92,17 @@ class SubmissionSerializer(CustomValidationModelSerializer):
         return Submission.objects.create(
             status=validated_data["type"].default_status,
             name=validated_data["type"].name,
-            **validated_data
+            **validated_data,
         )
+
+    def update(self, instance, validated_data):
+        if deficiency_notice_params := validated_data.pop("deficiency_notice_params", None):
+            # we're updating the deficiency_notice_params field, it's a JSONField so let's update,
+            # rather than overwrite
+            if not instance.deficiency_notice_params:
+                instance.deficiency_notice_params = {}
+            instance.deficiency_notice_params.update(deficiency_notice_params)
+        return super().update(instance, validated_data)
 
     def get_paired_documents(self, instance):
         # We need to order the documents, so they come in pairs (confidential, non_confidential)

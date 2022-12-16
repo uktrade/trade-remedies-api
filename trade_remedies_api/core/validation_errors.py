@@ -95,6 +95,11 @@ validation_errors = {
         "error_text": "Select who you want to represent",
         "error_summary": "You need to select who you want to represent in this case",
     },
+    "no_contact_selected": {
+        "field": "which_contact",
+        "error_text": "Select a contact",
+        "error_summary": "You need to select 1 or more contacts",
+    },
     "no_email_entered": {
         "field": "email",
         "error_text": "Enter your email address",
@@ -149,6 +154,16 @@ validation_errors = {
         "field": "input-autocomplete",
         "error_text": "Select your company",
         "error_summary": "You need to select your company",
+    },
+    "organisation_not_searched": {
+        "field": "input-autocomplete",
+        "error_text": "Enter a organisation name or number",
+        "error_summary": "You need to enter an organisation name or number",
+    },
+    "organisation_not_selected": {
+        "field": "input-autocomplete",
+        "error_text": "Select an organisation",
+        "error_summary": "Select an organisation",
     },
     "no_company_name_entered": {
         "field": "organisation_name",
@@ -321,8 +336,53 @@ validation_errors = {
         "error_summary": "Select 'No cases' or one or more cases",
     },
     "invite_representative_who_is_registering_missing": {
-        "who_is_registering": "which_case",
+        "field": "who_is_registering",
         "error_text": "Select who is registering",
         "error_summary": "You need to select who is registering",
+    },
+    "verify_invite_no_option_selected": {
+        "field": "been_able_to_verify_representative",
+        "error_text": "Select a verification option",
+        "error_summary": "You need to select one of the verification options",
+    },
+    "caseworker_review_invite_no_contact_selected": {
+        "field": "name",
+        "error_text": "Select a contact",
+        "error_summary": "You need to select a radio button",
+    },
+    "caseworker_review_invite_new_contact_no_name": {
+        "field": "name",
+        "error_text": "Enter the contact's name",
+        "error_summary": "You need to enter the contact's name",
+    },
+    "caseworker_review_invite_new_contact_no_email": {
+        "field": "email",
+        "error_text": "Enter the contact's email address",
+        "error_summary": "You need to enter the contact's email address",
+    },
+    "caseworker_review_invite_new_contact_incorrect_email": {
+        "field": "email",
+        "error_text": "Enter the email address in the correct format. Eg. name@example.com",
+        "error_summary": "The contact's email address needs to be in the correct format. Eg. name@example.com",
+    },
+    "invite_contact_no_organisation_name": {
+        "field": "organisation_name",
+        "error_text": "Enter the organisation's name",
+        "error_summary": "You need to enter the organisation's name",
+    },
+    "invite_contact_no_name": {
+        "field": "contact_name",
+        "error_text": "Enter the contact's name",
+        "error_summary": "You need to enter the contact's name",
+    },
+    "invite_contact_no_email": {
+        "field": "contact_email",
+        "error_text": "Enter the contact's email address",
+        "error_summary": "You need to enter the contact's email address",
+    },
+    "invite_contact_invalid_email": {
+        "field": "contact_email",
+        "error_text": "Enter the email address in the correct format. Eg. name@example.com",
+        "error_summary": "The contact's email address needs to be in the correct format. Eg. name@example.com",
     },
 }

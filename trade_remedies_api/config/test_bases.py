@@ -10,6 +10,7 @@ from security.constants import (
     SECURITY_GROUP_ORGANISATION_USER,
     SECURITY_GROUP_THIRD_PARTY_USER,
 )
+from security.models import CaseRole
 
 email = "test@example.com"  # /PS-IGNORE
 password = "F734!2jcjfdka-"  # /PS-IGNORE
@@ -53,6 +54,9 @@ class OrganisationSetupTestMixin(UserSetupTestBase):
 class CaseSetupTestMixin(OrganisationSetupTestMixin):
     def setUp(self) -> None:
         super().setUp()
+
+        self.applicant_case_role = CaseRole.objects.create(key="applicant", name="Applicant")
+        self.contributor_case_role = CaseRole.objects.create(key="contributor", name="Contributor")
 
         self.case_type_object = CaseType.objects.create(name="")
         self.case_object = Case.objects.create(

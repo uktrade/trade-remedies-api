@@ -9,5 +9,5 @@ class JsonEncoder(encoders.JSONEncoder):
 
     def default(self, obj):
         if isinstance(obj, Country):
-            return obj.alpha3 or "GB"
+            return obj.alpha3 or ""
         return super().default(obj)

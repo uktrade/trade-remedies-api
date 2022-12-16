@@ -27,6 +27,13 @@ class ContactSerializer(CustomValidationModelSerializer, EmailSerializer):
     name = serializers.CharField(required=False)
     country = serializers.CharField(source="country.alpha3", required=False)
     organisation_name = serializers.ReadOnlyField(source="organisation.name")
+    has_user = serializers.ReadOnlyField()
+    user_id = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_user_id(instance):
+        if user := instance.user:
+            return user.id
 
     def save(self, **kwargs):
         # If the 'country' is present in changed data, we need to fetch the true value from the dic
