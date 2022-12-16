@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group
-from django.contrib.postgres.search import TrigramSimilarity
+from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -55,22 +55,24 @@ class OrganisationViewSet(BaseModelViewSet):
     )
     def search_by_company_name(self, request, *args, **kwargs):
         search_string = request.GET["company_name"]
+        case_id = request.GET.get("case_id")
 
         # get organisations by name
-        matching_organisations_by_name = self.queryset.filter(name__icontains=search_string)
-
-        # get organisations by companies_house_id
-        matching_organisations_by_number = self.queryset.filter(
-            companies_house_id__icontains=search_string
+        matching_organisations = self.queryset.filter(
+             Q(name__icontains=search_string) | Q(companies_house_id__icontains=search_string)
         )
 
-        # merge the two querysets into one and then return
-        matching_organisations = matching_organisations_by_name | matching_organisations_by_number
+        # if we recieve a case_id, then exclude if organisation is already associated with the case
+        if case_id:
+            matching_organisations = matching_organisations.exclude(
+                organisation__organisationcaserole__case=case_id,
+            )
+
         return Response(
             OrganisationSerializer(
                 instance=matching_organisations,
                 many=True,
-                fields=["name", "address", "post_code", "companies_house_id", "id"],
+                fields=["name", "address", "post_code", "companies_house_id", "id", "case_count"],
             ).data
         )
 

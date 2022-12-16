@@ -63,6 +63,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     representative_cases = serializers.SerializerMethodField()
     contacts = serializers.SerializerMethodField()
     representative_contacts = serializers.SerializerMethodField()
+    case_count = serializers.IntegerField()
 
     class Meta:
         model = Organisation
