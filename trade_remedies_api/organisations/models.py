@@ -290,71 +290,6 @@ class OrganisationManager(models.Manager):
         org_user = OrganisationUser.objects.get(user=user, **_kwargs)
         return org_user.organisation
 
-    def __is_potential_duplicate_organisation(
-        self, target_org: "Organisation", potential_dup_org: "Organisation"
-    ):
-
-        DIGITS_PATTERN = re.compile(r"[^0-9]+")
-        DIGITS_ALPHA_PATTERN = re.compile(r"[^0-9a-zA-Z]+")
-
-        target_post_code = re.sub(DIGITS_ALPHA_PATTERN, "", target_org.post_code).lower()
-        potential_post_code = re.sub(DIGITS_ALPHA_PATTERN, "", potential_dup_org.post_code).lower()
-
-        if target_post_code == potential_post_code:
-            return True
-
-        target_vat_number = re.sub(DIGITS_PATTERN, "", target_org.vat_number)
-        potential_vat_number = re.sub(DIGITS_PATTERN, "", potential_dup_org.vat_number)
-
-        if target_vat_number == potential_vat_number:
-            return True
-
-        target_duns_number = re.sub(DIGITS_ALPHA_PATTERN, "", target_org.duns_number).lower()
-        potential_duns_number = re.sub(
-            DIGITS_ALPHA_PATTERN, "", potential_dup_org.duns_number
-        ).lower()
-
-        if target_duns_number == potential_duns_number:
-            return True
-
-        target_eori_number = re.sub(DIGITS_PATTERN, "", target_org.eori_number)
-        potential_eori_number = re.sub(DIGITS_PATTERN, "", potential_dup_org.eori_number)
-
-        if target_eori_number == potential_eori_number:
-            return True
-
-        return False
-
-    @transaction.atomic
-    def potential_duplicate_organisations(
-        self, organisation: "Organisation"
-    ) -> typing.List["Organisation"]:
-        """
-        Returns potential identical or similar organisations simialr to
-        the given organisation
-        """
-        # first we check which organisations contain our lookup values
-        potential_dup_orgs = Organisation.objects.filter(
-            models.Q(name__exact=organisation.name)
-            | models.Q(address__exact=organisation.address)
-            | models.Q(post_code__icontains=organisation.post_code)
-            | models.Q(vat_number__icontains=organisation.vat_number)
-            | models.Q(eori_number__icontains=organisation.eori_number)
-            | models.Q(duns_number__icontains=organisation.duns_number)
-            | models.Q(organisation_website__icontains=organisation.organisation_website)
-        )
-        if not potential_dup_orgs:
-            return potential_dup_orgs
-        result = []
-        # we iterate through each organisation and do
-        # a granular check, then eliminate non serious potential duplicates
-        # then we return serious potential duplicate organisations
-
-        for potential_dup_org in potential_dup_orgs:
-            if self.__is_potential_duplicate_organisation(organisation, potential_dup_org):
-                result += [potential_dup_org]
-        return result
-
 
 class Organisation(BaseModel):
     name = models.CharField(max_length=500, null=False, blank=True)
@@ -386,6 +321,75 @@ class Organisation(BaseModel):
             return f"{self.name} (TA)"
         else:
             return self.name
+
+    @staticmethod
+    def __is_potential_duplicate_organisation(
+        target_org: "Organisation", potential_dup_org: "Organisation"
+    ):
+
+        DIGITS_PATTERN = re.compile(r"[^0-9]+")
+        DIGITS_ALPHA_PATTERN = re.compile(r"[^0-9a-zA-Z]+")
+
+        target_post_code = re.sub(DIGITS_ALPHA_PATTERN, "", target_org.post_code).lower()
+        potential_post_code = re.sub(DIGITS_ALPHA_PATTERN, "", potential_dup_org.post_code).lower()
+
+        if target_post_code == potential_post_code:
+            return True
+
+        target_vat_number = re.sub(DIGITS_PATTERN, "", target_org.vat_number)
+        potential_vat_number = re.sub(DIGITS_PATTERN, "", potential_dup_org.vat_number)
+
+        if target_vat_number == potential_vat_number:
+            return True
+
+        target_duns_number = re.sub(DIGITS_ALPHA_PATTERN, "", target_org.duns_number).lower()
+        potential_duns_number = re.sub(
+            DIGITS_ALPHA_PATTERN, "", potential_dup_org.duns_number
+        ).lower()
+
+        if target_duns_number == potential_duns_number:
+            return True
+
+        target_eori_number = re.sub(DIGITS_PATTERN, "", target_org.eori_number)
+        potential_eori_number = re.sub(DIGITS_PATTERN, "", potential_dup_org.eori_number)
+
+        if target_eori_number == potential_eori_number:
+            return True
+
+        return (
+            target_org.name == potential_dup_org.name
+            or target_org.address == potential_dup_org.address
+        )
+
+    @transaction.atomic
+    def potential_duplicate_organisations(self) -> typing.List["Organisation"]:
+        """
+        Returns potential identical or similar organisations simialr to
+        the given organisation
+        """
+        # first we check which organisations contain our lookup values
+        # A fuzzy search, because we can't do much manipulation of the db field values
+        # until it gets to be a python object after the db query
+        potential_dup_orgs = Organisation.objects.filter(
+            models.Q(name__exact=self.name)
+            | models.Q(address__exact=self.address)
+            | models.Q(post_code__icontains=self.post_code)
+            | models.Q(vat_number__icontains=self.vat_number)
+            | models.Q(eori_number__icontains=self.eori_number)
+            | models.Q(duns_number__icontains=self.duns_number)
+            | models.Q(organisation_website__icontains=self.organisation_website)
+        )
+        if not potential_dup_orgs:
+            return potential_dup_orgs
+        result = []
+
+        # we iterate through each organisation and do
+        # a granular check, then eliminate non serious potential duplicates
+        # then we return serious potential duplicate organisations
+        for potential_dup_org in potential_dup_orgs:
+            if self.__is_potential_duplicate_organisation(self, potential_dup_org):
+                result += [potential_dup_org]
+        return result
 
     def has_role_in_case(self, case, role):
         """
