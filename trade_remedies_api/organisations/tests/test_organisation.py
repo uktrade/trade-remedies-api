@@ -1,11 +1,11 @@
 import pytest
 
-from django.test import SimpleTestCase
+import unittest
 
 from model_bakery import baker
 
 
-class OrganisationTest(SimpleTestCase):
+class OrganisationTest(unittest.TestCase):
     @pytest.mark.django_db
     def test_potential_duplicate_organisations(self):
 

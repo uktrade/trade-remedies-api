@@ -331,28 +331,30 @@ class Organisation(BaseModel):
         DIGITS_PATTERN = re.compile(r"[^0-9]+")
         DIGITS_ALPHA_PATTERN = re.compile(r"[^0-9a-zA-Z]+")
 
-        target_post_code = re.sub(DIGITS_ALPHA_PATTERN, "", target_org.post_code).lower()
-        potential_post_code = re.sub(DIGITS_ALPHA_PATTERN, "", potential_dup_org.post_code).lower()
+        target_post_code = re.sub(DIGITS_ALPHA_PATTERN, "", target_org.post_code or "").lower()
+        potential_post_code = re.sub(
+            DIGITS_ALPHA_PATTERN, "", potential_dup_org.post_code or ""
+        ).lower()
 
         if target_post_code == potential_post_code:
             return True
 
-        target_vat_number = re.sub(DIGITS_PATTERN, "", target_org.vat_number)
-        potential_vat_number = re.sub(DIGITS_PATTERN, "", potential_dup_org.vat_number)
+        target_vat_number = re.sub(DIGITS_PATTERN, "", target_org.vat_number or "")
+        potential_vat_number = re.sub(DIGITS_PATTERN, "", potential_dup_org.vat_number or "")
 
         if target_vat_number == potential_vat_number:
             return True
 
         target_duns_number = re.sub(DIGITS_ALPHA_PATTERN, "", target_org.duns_number).lower()
         potential_duns_number = re.sub(
-            DIGITS_ALPHA_PATTERN, "", potential_dup_org.duns_number
+            DIGITS_ALPHA_PATTERN, "", potential_dup_org.duns_number or ""
         ).lower()
 
         if target_duns_number == potential_duns_number:
             return True
 
-        target_eori_number = re.sub(DIGITS_PATTERN, "", target_org.eori_number)
-        potential_eori_number = re.sub(DIGITS_PATTERN, "", potential_dup_org.eori_number)
+        target_eori_number = re.sub(DIGITS_PATTERN, "", target_org.eori_number or "")
+        potential_eori_number = re.sub(DIGITS_PATTERN, "", potential_dup_org.eori_number or "")
 
         if target_eori_number == potential_eori_number:
             return True
@@ -371,7 +373,7 @@ class Organisation(BaseModel):
         # first we check which organisations contain our lookup values
         # A fuzzy search, because we can't do much manipulation of the db field values
         # until it gets to be a python object after the db query
-        potential_dup_orgs = Organisation.objects.filter(
+        potential_dup_orgs = Organisation.objects.exclude(id=self.id).filter(
             models.Q(name__exact=self.name)
             | models.Q(address__exact=self.address)
             | models.Q(post_code__icontains=self.post_code)
@@ -380,6 +382,7 @@ class Organisation(BaseModel):
             | models.Q(duns_number__icontains=self.duns_number)
             | models.Q(organisation_website__icontains=self.organisation_website)
         )
+
         if not potential_dup_orgs:
             return potential_dup_orgs
         result = []
