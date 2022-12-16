@@ -316,6 +316,13 @@ class Invitation(BaseModel):
     user_cases_to_link = models.ManyToManyField(
         UserCase, related_name="user_cases_to_link", blank=True
     )
+    authorised_signatory = models.ForeignKey(
+        Contact,
+        on_delete=models.PROTECT,
+        related_name="authorised_signatory_invitations",
+        null=True,
+        blank=True
+    )
 
     objects = InvitationManager()
 
