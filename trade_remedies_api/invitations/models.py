@@ -321,7 +321,7 @@ class Invitation(BaseModel):
         on_delete=models.PROTECT,
         related_name="authorised_signatory_invitations",
         null=True,
-        blank=True
+        blank=True,
     )
 
     objects = InvitationManager()

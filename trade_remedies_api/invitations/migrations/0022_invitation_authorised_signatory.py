@@ -7,14 +7,20 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contacts', '0007_contact_draft'),
-        ('invitations', '0021_auto_20221212_1537'),
+        ("contacts", "0007_contact_draft"),
+        ("invitations", "0021_auto_20221212_1537"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='invitation',
-            name='authorised_signatory',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='authorised_signatory_invitations', to='contacts.contact'),
+            model_name="invitation",
+            name="authorised_signatory",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="authorised_signatory_invitations",
+                to="contacts.contact",
+            ),
         ),
     ]

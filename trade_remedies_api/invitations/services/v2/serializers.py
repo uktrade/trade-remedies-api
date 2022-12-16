@@ -42,9 +42,7 @@ class InvitationSerializer(CustomValidationModelSerializer):
     user_cases_to_link = NestedField(serializer_class=UserCaseSerializer, many=True, required=False)
     case = NestedField(required=False, serializer_class=CaseSerializer, accept_pk=True)
     authorised_signatory = NestedField(
-        required=False,
-        serializer_class=ContactSerializer,
-        accept_pk=True
+        required=False, serializer_class=ContactSerializer, accept_pk=True
     )
 
     def to_internal_value(self, data):
