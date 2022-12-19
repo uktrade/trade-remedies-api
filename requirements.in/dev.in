@@ -19,7 +19,6 @@ pytest-mock
 pytest-pythonpath
 pytest-xdist
 traitlets==4.3.3
-trufflehog
 
 git+https://github.com/uktrade/modification-pre-commit
 git+https://github.com/uktrade/fitness-functions
