@@ -68,6 +68,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     representative_cases = serializers.SerializerMethodField()
     contacts = serializers.SerializerMethodField()
     representative_contacts = serializers.SerializerMethodField()
+    case_count = serializers.IntegerField()
     country_name = serializers.ReadOnlyField(source="country.name")
     rejected_cases = serializers.SerializerMethodField()
     json_data = serializers.JSONField(required=False, allow_null=True)
