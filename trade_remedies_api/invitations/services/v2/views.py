@@ -66,6 +66,25 @@ class InvitationViewSet(BaseModelViewSet):
             invitation_object.organisation_security_group = Group.objects.get(
                 name=SECURITY_GROUP_THIRD_PARTY_USER
             )
+
+        if invitation_object.invitation_type == 3:
+            # this is a caseworker invite, if the contact passed already exists as a user,
+            # then let's just use that contact instead
+            try:
+                existing_user = User.objects.get(email__iexact=invitation_object.contact.email)
+                # a user with that email already exists, it could be intentional
+                if existing_user.contact != invitation_object.contact:
+                    # the contacts don't match up, let's use the existing user's contact
+                    if invitation_object.contact.organisation.draft:
+                        # if it's a draft org (hasn't been used yet), just delete it here
+                        invitation_object.contact.organisation.delete()
+
+                    invitation_object.organisation = existing_user.contact.organisation
+                    invitation_object.contact = existing_user.contact
+            except User.DoesNotExist:
+                # a user with that email does not exist, let's carry on with the original contact
+                pass
+
         invitation_object.save()
 
         return invitation_object
