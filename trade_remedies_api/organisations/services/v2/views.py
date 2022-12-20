@@ -59,7 +59,7 @@ class OrganisationViewSet(BaseModelViewSet):
 
         # get organisations by name
         matching_organisations = self.queryset.filter(
-             Q(name__icontains=search_string) | Q(companies_house_id__icontains=search_string)
+            Q(name__icontains=search_string) | Q(companies_house_id__icontains=search_string)
         )
 
         # if we recieve a case_id, then exclude if organisation is already associated with the case
