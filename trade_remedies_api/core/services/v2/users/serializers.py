@@ -107,7 +107,7 @@ class UserSerializer(CustomValidationModelSerializer):
         return User.objects.create_new_user(
             email=validated_data.pop("email"),
             name=validated_data.pop("name"),
-            raise_exception=False,
+            raise_exception=True,
             password=validated_data.pop(
                 "password", None
             ),  # None will generate an unusable password
