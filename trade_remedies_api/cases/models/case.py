@@ -379,10 +379,12 @@ class CaseManager(models.Manager):
         Return all publicly available cases.
         Only initiated cases are returned.
         """
-        return self.filter(
-            deleted_at__isnull=True, archived_at__isnull=True, initiated_at__isnull=False
-        ).order_by("sequence", "created_at")
-
+        try:
+            return self.filter(
+                deleted_at__isnull=True, archived_at__isnull=True, initiated_at__isnull=False
+            ).order_by("sequence", "created_at")
+        except:
+            pass
     def available_for_regisration_of_intestest(self, requested_by=None):
         """
         Return available cases for registration of interest.
