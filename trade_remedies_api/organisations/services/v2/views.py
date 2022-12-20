@@ -1,5 +1,4 @@
 from django.contrib.auth.models import Group
-from django.contrib.postgres.search import TrigramSimilarity
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404

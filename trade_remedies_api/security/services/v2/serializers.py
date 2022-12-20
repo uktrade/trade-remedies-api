@@ -22,10 +22,13 @@ class UserCaseSerializer(CustomValidationModelSerializer):
     @staticmethod
     def get_organisation_case_role(instance):
         # Returns the OrganisationCaseRole associated with this UserCase
-        org_case_role = OrganisationCaseRole.objects.get(
-            case=instance.case, organisation=instance.organisation
-        )
-        return OrganisationCaseRoleSerializer(org_case_role).data
+        try:
+            org_case_role = OrganisationCaseRole.objects.get(
+                case=instance.case, organisation=instance.organisation
+            )
+            return OrganisationCaseRoleSerializer(org_case_role).data
+        except OrganisationCaseRole.DoesNotExist:
+            return None
 
 
 class CaseRoleSerializer(CustomValidationModelSerializer):

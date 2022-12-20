@@ -7,13 +7,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0035_remove_feedback_what_didnt_work_so_well'),
+        ("core", "0035_remove_feedback_what_didnt_work_so_well"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='feedback',
-            name='what_didnt_work_so_well',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=50, null=True), null=True, size=None),
+            model_name="feedback",
+            name="what_didnt_work_so_well",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(max_length=50, null=True), null=True, size=None
+            ),
         ),
     ]

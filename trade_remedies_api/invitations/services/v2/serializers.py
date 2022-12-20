@@ -7,6 +7,7 @@ from config.serializers import CustomValidationModelSerializer
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from invitations.models import Invitation
 from organisations.services.v2.serializers import OrganisationSerializer
+from security.models import CaseRole
 from security.services.v2.serializers import UserCaseSerializer
 from security.models import CaseRole
 from security.services.v2.serializers import CaseRoleSerializer, UserCaseSerializer

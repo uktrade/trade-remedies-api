@@ -99,3 +99,7 @@ class CustomValidationError(serializers.ValidationError):
             self.error_text = error_text
             self.error_key = error_key
             self.additional_information = additional_information
+
+
+class InvalidPhoneNumberFormatException(Exception):
+    pass

@@ -8,15 +8,21 @@ from config.serializers import CustomValidationModelSerializer
 from contacts.models import CaseContact, Contact
 from contacts.services.v2.serializers import CaseContactSerializer
 from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
+from core.services.v2.users.serializers import ContactSerializer, UserSerializer
+from contacts.models import CaseContact, Contact
+from contacts.services.v2.serializers import CaseContactSerializer
+from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
 from core.services.v2.users.serializers import UserSerializer
 from organisations.models import Organisation
 from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
+from django_restql.fields import NestedField
 
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
     case = serializers.SerializerMethodField()
-    validated_by = UserSerializer(fields=["name", "email"])
-    role_name = serializers.CharField(source="role.name")
+    validated_by = UserSerializer(fields=["name", "email"], required=False)
+    role_name = serializers.CharField(source="role.name", required=False)
+    auth_contact = NestedField(serializer_class=ContactSerializer, required=False, accept_pk=True)
 
     class Meta:
         model = OrganisationCaseRole
@@ -65,6 +71,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     country_name = serializers.ReadOnlyField(source="country.name")
     rejected_cases = serializers.SerializerMethodField()
     json_data = serializers.JSONField(required=False, allow_null=True)
+    a_tag_website_url = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
         instance.json_data = {}
@@ -73,6 +80,13 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     class Meta:
         model = Organisation
         fields = "__all__"
+
+    @staticmethod
+    def get_a_tag_website_url(instance):
+        """Returns the URL of the org's website with http:// prepended so it can be used in a tag"""
+        if instance.organisation_website and not instance.organisation_website.startswith("http"):
+            return f"http://{instance.organisation_website}"
+        return instance.organisation_website
 
     @staticmethod
     def get_rejected_cases(instance):
@@ -99,7 +113,9 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                     "rejected_reason": invitation.submission.deficiency_notice_params.get(
                         "explain_why_contact_org_not_verified", ""
                     ),
-                    "rejected_by": invitation.rejected_by,
+                    "rejected_by": UserSerializer(
+                        invitation.rejected_by, fields=["name", "email"]
+                    ).data,
                     "invitation_id": invitation.id,
                 }
             )

@@ -482,8 +482,9 @@ SECRETARY_OF_STATE_ORGANISATION_ID = "8850d091-e119-4ab5-9e21-ede5f0112bef"
 COMPANIES_HOUSE_API_KEY = env("COMPANIES_HOUSE_API_KEY", default=None)
 
 # GOV Notify
-GOV_NOTIFY_API_KEY = env("GOV_NOTIFY_API_KEY", default=None)
-GOV_NOTIFY_TESTING_KEY = env("GOV_NOTIFY_TESTING_KEY", default=None)
+GOV_NOTIFY_API_KEY = env.str("GOV_NOTIFY_API_KEY", default=None)
+GOV_NOTIFY_TESTING_KEY = env.str("GOV_NOTIFY_TESTING_KEY", default=None)
+DISABLE_NOTIFY_WHITELIST = env.bool("DISABLE_NOTIFY_WHITELIST", default=False)
 
 # ------------------------------------------------------------------------------
 # The Crud Zone - things likely to be refactored out.
