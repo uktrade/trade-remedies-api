@@ -387,7 +387,7 @@ validation_errors = {
     },
     "feedback_no_rating": {
         "field": "feedback",
-        "error_text": "You need to select a rating of between 1 to 5 stars",
-        "error_summary": "Select a rating of between 1 to 5 stars",
+        "error_text": "Select a rating of between 1 to 5 stars",
+        "error_summary": "You need to select a rating of between 1 to 5 stars",
     },
 }
