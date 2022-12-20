@@ -178,7 +178,7 @@ class InvitationViewSet(BaseModelViewSet):
             password=request.data.get("password", None),
             contact=contact_object,
             is_active=False,
-            raise_exception=False,
+            raise_exception=True,
         )
         invitation_object.invited_user = new_user
         invitation_object.save()
