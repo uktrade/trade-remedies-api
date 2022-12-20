@@ -9,6 +9,11 @@ from contacts.models import CaseContact, Contact
 from contacts.services.v2.serializers import CaseContactSerializer
 from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
+from contacts.models import CaseContact, Contact
+from contacts.services.v2.serializers import CaseContactSerializer
+from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
+from core.services.v2.users.serializers import UserSerializer
+from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from organisations.models import Organisation
 from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
 from django_restql.fields import NestedField
@@ -64,6 +69,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     representative_cases = serializers.SerializerMethodField()
     contacts = serializers.SerializerMethodField()
     representative_contacts = serializers.SerializerMethodField()
+    case_count = serializers.IntegerField(required=False)
     country_name = serializers.ReadOnlyField(source="country.name")
     rejected_cases = serializers.SerializerMethodField()
     json_data = serializers.JSONField(required=False, allow_null=True)

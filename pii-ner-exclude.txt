@@ -12,6 +12,15 @@ NOTIFY_INFORM_INTERESTED_PARTIES_V2
 new_user
 NOTIFY_INFORM_INTERESTED_PARTIES_V2
 new_user
+0020_invitation_rejected_by
+Own Organisation'
+Invite Third Party'
+NOTIFY_INFORM_INTERESTED_PARTIES_V2
+new_user
+Own Organisation'
+accept_invite/{invitation_object.id}/start/
+NOTIFY_INFORM_INTERESTED_PARTIES_V2
+new_user
 Trade Remedies Service'
 LITE
 "Testing that the smtp connection can be
