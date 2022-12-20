@@ -2,11 +2,12 @@ from rest_framework import status, viewsets
 from rest_framework.response import Response
 
 from cases.models import Submission, SubmissionDocumentType
+from config.viewsets import BaseModelViewSet
 from documents.models import Document, DocumentBundle
 from documents.services.v2.serializers import DocumentBundleSerializer, DocumentSerializer
 
 
-class DocumentViewSet(viewsets.ModelViewSet):
+class DocumentViewSet(BaseModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
 
