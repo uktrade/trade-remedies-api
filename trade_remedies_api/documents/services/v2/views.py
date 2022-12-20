@@ -48,6 +48,24 @@ class DocumentViewSet(BaseModelViewSet):
             issued=False,
             issued_by=request.user,
         )
+
+        # if this file is replacing another, let's delete the replacement
+        if replace_document_id := request.POST.get("replace_document_id"):
+            original_document = Document.objects.get(id=replace_document_id)
+
+            # first let's re-associate any children of the original one to point to the new one
+            Document.objects.filter(parent=original_document).update(parent=document.id)
+
+            # let's associate the current doc with the parent if it exists
+            if original_document.parent:
+                document.parent = original_document.parent
+                document.save()
+
+            # and the submission documents
+            original_document.submissiondocument_set.all().delete()
+            # now let's delete the replacement
+            original_document.delete()
+
         serializer = self.serializer_class(instance=document)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

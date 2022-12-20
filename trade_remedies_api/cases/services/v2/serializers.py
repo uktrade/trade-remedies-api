@@ -83,7 +83,7 @@ class SubmissionSerializer(CustomValidationModelSerializer):
         serializer_class=ContactSerializer, required=False, accept_pk=True
     )
     parent = serializers.SerializerMethodField()
-    deficiency_notice = serializers.SerializerMethodField()
+    deficiency_notices = serializers.SerializerMethodField()
 
     class Meta:
         model = Submission
@@ -95,13 +95,11 @@ class SubmissionSerializer(CustomValidationModelSerializer):
             return SubmissionSerializer(parent).data
 
     @staticmethod
-    def get_deficiency_notice(instance):
-        if parent := instance.parent:
-            try:
-                deficiency_document = SubmissionDocument.objects.get(submission=parent, type_id=3)
-                return SubmissionDocumentSerializer(deficiency_document).data
-            except SubmissionDocument.DoesNotExist:
-                pass
+    def get_deficiency_notices(instance):
+        parent_deficiency_documents = instance.get_parent_deficiency_documents()
+        if parent_deficiency_documents:
+            return SubmissionDocumentSerializer(parent_deficiency_documents, many=True).data
+        return None
 
     def create(self, validated_data):
         return Submission.objects.create(
