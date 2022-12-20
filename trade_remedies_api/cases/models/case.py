@@ -385,6 +385,7 @@ class CaseManager(models.Manager):
             ).order_by("sequence", "created_at")
         except:
             pass
+
     def available_for_regisration_of_intestest(self, requested_by=None):
         """
         Return available cases for registration of interest.
