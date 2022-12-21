@@ -11,7 +11,6 @@ from test_functional import FunctionalTestBase
 
 @override_settings(RUN_ASYNC=False)
 class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
-
     @patch("documents.fields.S3FileField")
     def setUp(self, patched_s3_file_field) -> None:
         super().setUp()
