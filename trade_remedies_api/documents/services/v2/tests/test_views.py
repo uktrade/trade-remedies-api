@@ -28,6 +28,7 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
             size=123,
             confidential=True,
             system=False,
+            created_by=self.user
         )
         self.non_confidential_document = Document.objects.create(
             name="non_confidential.pdf",
@@ -35,6 +36,8 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
             size=123,
             confidential=False,
             system=False,
+            parent=self.confidential_document,
+            created_by=self.user
         )
 
         # creating submission documents
@@ -70,7 +73,7 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
             self.confidential_submission_document.refresh_from_db()
 
         self.non_confidential_document.refresh_from_db()
-        assert self.non_confidential_document.parent == new_document["id"]
+        assert str(self.non_confidential_document.parent.id) == new_document["id"]
 
     def test_replace_child_document(self):
         response = self.client.post(
