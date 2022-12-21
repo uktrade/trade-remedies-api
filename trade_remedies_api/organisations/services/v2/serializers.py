@@ -21,6 +21,7 @@ from django_restql.fields import NestedField
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
     case = serializers.SerializerMethodField()
+    case_role_key = serializers.SerializerMethodField()
     validated_by = UserSerializer(fields=["name", "email"], required=False)
     role_name = serializers.CharField(source="role.name", required=False)
     auth_contact = NestedField(serializer_class=ContactSerializer, required=False, accept_pk=True)
@@ -44,6 +45,10 @@ class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
         from cases.services.v2.serializers import CaseSerializer
 
         return CaseSerializer(instance=instance.case).data
+
+    @staticmethod
+    def get_case_role_key(instance):
+        return instance.role.key
 
 
 class OrganisationUserSerializer(CustomValidationModelSerializer):
@@ -74,6 +79,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     rejected_cases = serializers.SerializerMethodField()
     json_data = serializers.JSONField(required=False, allow_null=True)
     a_tag_website_url = serializers.SerializerMethodField()
+    full_country_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Organisation
@@ -284,6 +290,11 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     def get_validated(self, instance):
         """Returns true if the organisation has been validated on the TRS at some point"""
         return instance.organisationcaserole_set.filter(validated_at__isnull=False).exists()
+
+    @staticmethod
+    def get_full_country_name(instance):
+        """Return the full country name of the Organisation, e.g. GB --> Great Britain"""
+        return instance.country.name if instance.country else None
 
     @staticmethod
     def get_contacts(instance):
