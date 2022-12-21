@@ -22,28 +22,19 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
             contact=self.contact_object,
             organisation=self.organisation,
         )
-        self.confidential_document = Document.objects.create_document(
-            file={
-                "name": "confidential.pdf",
-                "size": "123",
-                "document_name": "confidential.pdf",
-            },
-            user=self.user,
+        self.confidential_document = Document.objects.create(
+            name="confidential.pdf",
+            file="confidential.pdf",
+            size=123,
             confidential=True,
             system=False,
-            case=self.case_object,
         )
-        self.non_confidential_document = Document.objects.create_document(
-            file={
-                "name": "non_confidential.pdf",
-                "size": "123",
-                "document_name": "non_confidential.pdf",
-            },
-            user=self.user,
+        self.non_confidential_document = Document.objects.create(
+            name="non_confidential.pdf",
+            file="non_confidential.pdf",
+            size=123,
             confidential=False,
             system=False,
-            case=self.case_object,
-            parent=self.confidential_document,
         )
 
         # creating submission documents
