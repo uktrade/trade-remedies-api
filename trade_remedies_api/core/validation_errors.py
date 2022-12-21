@@ -385,4 +385,9 @@ validation_errors = {
         "error_text": "Enter the email address in the correct format. Eg. name@example.com",
         "error_summary": "The contact's email address needs to be in the correct format. Eg. name@example.com",
     },
+    "feedback_no_rating": {
+        "field": "feedback",
+        "error_text": "Select a rating of between 1 to 5 stars",
+        "error_summary": "You need to select a rating of between 1 to 5 stars",
+    },
 }
