@@ -28,7 +28,7 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
             size=123,
             confidential=True,
             system=False,
-            created_by=self.user
+            created_by=self.user,
         )
         self.non_confidential_document = Document.objects.create(
             name="non_confidential.pdf",
@@ -37,7 +37,7 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
             confidential=False,
             system=False,
             parent=self.confidential_document,
-            created_by=self.user
+            created_by=self.user,
         )
 
         # creating submission documents
@@ -95,4 +95,4 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
         with self.assertRaises(SubmissionDocument.DoesNotExist):
             self.non_confidential_submission_document.refresh_from_db()
 
-        assert new_document["parent"]["id"] == self.confidential_document.id
+        assert new_document["parent"] == str(self.confidential_document.id)
