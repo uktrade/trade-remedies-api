@@ -325,4 +325,9 @@ validation_errors = {
         "error_text": "Select who is registering",
         "error_summary": "You need to select who is registering",
     },
+    "feedback_no_rating": {
+        "field": "feedback",
+        "error_text": "Select a rating of between 1 to 5 stars",
+        "error_summary": "You need to select a rating of between 1 to 5 stars",
+    },
 }
