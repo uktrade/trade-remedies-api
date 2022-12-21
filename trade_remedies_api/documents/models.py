@@ -148,6 +148,7 @@ class DocumentManager(models.Manager):
         document=None,
         parent=None,
         case=None,
+        index_and_checksum=True,
     ):
         """
         Create a document record from a file.
@@ -167,12 +168,13 @@ class DocumentManager(models.Manager):
         if parent:
             document.parent = parent
         document.save()
-        if settings.RUN_ASYNC:
-            index_document.delay(str(document.id), case_id=case.id if case else None)
-            checksum_document.delay(str(document.id))
-        else:
-            index_document(str(document.id), case_id=case.id if case else None)
-            checksum_document(str(document.id))
+        if index_and_checksum:
+            if settings.RUN_ASYNC:
+                index_document.delay(str(document.id), case_id=case.id if case else None)
+                checksum_document.delay(str(document.id))
+            else:
+                index_document(str(document.id), case_id=case.id if case else None)
+                checksum_document(str(document.id))
         return document
 
 
