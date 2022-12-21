@@ -72,7 +72,14 @@ class OrganisationViewSet(BaseModelViewSet):
             OrganisationSerializer(
                 instance=matching_organisations,
                 many=True,
-                fields=["name", "address", "post_code", "companies_house_id", "id", "case_count"],
+                fields=[
+                    "name",
+                    "address",
+                    "post_code",
+                    "companies_house_id",
+                    "id",
+                    "case_count",
+                ],
             ).data
         )
 
