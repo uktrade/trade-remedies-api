@@ -54,7 +54,6 @@ class OrganisationUserSerializer(CustomValidationModelSerializer):
     user = UserSerializer()
     security_group = serializers.SlugRelatedField(slug_field="name", queryset=Group.objects.all())
 
-
 class OrganisationSerializer(CustomValidationModelSerializer):
     country = serializers.CharField(source="country.alpha3", required=False)
     country_code = serializers.ReadOnlyField(source="country.code")
@@ -75,13 +74,19 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     json_data = serializers.JSONField(required=False, allow_null=True)
     a_tag_website_url = serializers.SerializerMethodField()
 
+    class Meta:
+        model = Organisation
+        fields = "__all__"
+
     def to_representation(self, instance):
         instance.json_data = {}
         return super().to_representation(instance)
 
-    class Meta:
-        model = Organisation
-        fields = "__all__"
+    def to_internal_value(self, data):
+        data = super().to_internal_value(data)
+        if "country" in data and isinstance(data["country"], dict):
+            data["country"] = data["country"]["alpha3"]
+        return data
 
     @staticmethod
     def get_a_tag_website_url(instance):
@@ -278,12 +283,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     def get_validated(self, instance):
         """Returns true if the organisation has been validated on the TRS at some point"""
         return instance.organisationcaserole_set.filter(validated_at__isnull=False).exists()
-
-    def to_internal_value(self, data):
-        data = super().to_internal_value(data)
-        if "country" in data and isinstance(data["country"], dict):
-            data["country"] = data["country"]["alpha3"]
-        return data
 
     @staticmethod
     def get_contacts(instance):
