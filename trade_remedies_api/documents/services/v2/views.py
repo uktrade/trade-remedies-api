@@ -36,7 +36,7 @@ class DocumentViewSet(BaseModelViewSet):
             system=False,
             parent=parent_document_object,
             case=submission_object.case,
-            index_and_checksum=index_and_checksum
+            index_and_checksum=index_and_checksum,
         )
 
         # Adding the document to the submission
