@@ -1,5 +1,5 @@
 from cases.constants import SUBMISSION_DOCUMENT_TYPE_CUSTOMER, SUBMISSION_TYPE_INVITE_3RD_PARTY
-from cases.models import Submission, SubmissionDocumentType, get_submission_type
+from cases.models import Submission, SubmissionDocument, SubmissionDocumentType, get_submission_type
 from config.test_bases import CaseSetupTestMixin
 from documents.models import Document
 from test_functional import FunctionalTestBase
@@ -52,7 +52,7 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
 
     def test_replace_parent_document(self):
         response = self.client.post(
-            "api/v2/documents/",
+            "/api/v2/documents/",
             data={
                 "type": "confidential",
                 "stored_name": "replace confidential.pdf",
@@ -66,15 +66,15 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
 
         self.confidential_document.refresh_from_db()
         assert self.confidential_document.deleted_at
-        self.confidential_submission_document.refresh_from_db()
-        assert self.confidential_submission_document.deleted_at
+        with self.assertRaises(SubmissionDocument.DoesNotExist):
+            self.confidential_submission_document.refresh_from_db()
 
         self.non_confidential_document.refresh_from_db()
         assert self.non_confidential_document.parent == new_document["id"]
 
     def test_replace_child_document(self):
         response = self.client.post(
-            "api/v2/documents/",
+            "/api/v2/documents/",
             data={
                 "type": "non_confidential",
                 "stored_name": "replace non_confidential.pdf",
@@ -88,7 +88,8 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
 
         self.non_confidential_document.refresh_from_db()
         assert self.non_confidential_document.deleted_at
-        self.non_confidential_document.refresh_from_db()
-        assert self.non_confidential_submission_document.deleted_at
+
+        with self.assertRaises(SubmissionDocument.DoesNotExist):
+            self.non_confidential_submission_document.refresh_from_db()
 
         assert new_document["parent"]["id"] == self.confidential_document.id
