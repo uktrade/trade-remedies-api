@@ -1,3 +1,7 @@
+self.confidential_document.refresh_from_db
+self.confidential_submission_document.refresh_from_db
+self.non_confidential_document.refresh_from_db
+assert str(self.non_confidential_document.parent.id
 DB
 assert send_mail.called_with
 ENV
