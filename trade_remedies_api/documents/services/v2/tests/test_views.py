@@ -9,9 +9,7 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
     def setUp(self) -> None:
         super().setUp()
         SubmissionDocumentType.objects.create(
-            id=SUBMISSION_DOCUMENT_TYPE_CUSTOMER,
-            key="respondent",
-            name="Customer Document"
+            id=SUBMISSION_DOCUMENT_TYPE_CUSTOMER, key="respondent", name="Customer Document"
         )
 
         submission_type = get_submission_type(SUBMISSION_TYPE_INVITE_3RD_PARTY)
@@ -45,7 +43,7 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
             confidential=False,
             system=False,
             case=self.case_object,
-            parent=self.confidential_document
+            parent=self.confidential_document,
         )
 
         # creating submission documents
@@ -71,7 +69,7 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
                 "file_size": "234",
                 "submission_id": self.submission_object.id,
                 "replace_document_id": self.confidential_document.id,
-            }
+            },
         )
         new_document = response.json()
 
@@ -93,7 +91,7 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
                 "file_size": "234",
                 "submission_id": self.submission_object.id,
                 "replace_document_id": self.non_confidential_document.id,
-            }
+            },
         )
         new_document = response.json()
 
