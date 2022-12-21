@@ -79,7 +79,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         instance.json_data = {}
         return super().to_representation(instance)
 
-
     class Meta:
         model = Organisation
         fields = "__all__"
