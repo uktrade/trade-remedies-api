@@ -254,8 +254,8 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
         assert new_invitation["contact"]["id"] == str(self.contact_object.id)
 
         # now checking the org has been deleted
-        with self.assertRaises(Organisation.DoesNotExist):
-            Organisation.objects.get(id=org.id)
+        org.refresh_from_db()
+        assert org.deleted_at
 
     def test_caseworker_invite_new_contact_used(self):
         # tests that the caseworker invite creation reuses existing contacts
