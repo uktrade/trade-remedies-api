@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.test import override_settings
 
 from cases.constants import SUBMISSION_DOCUMENT_TYPE_CUSTOMER, SUBMISSION_TYPE_INVITE_3RD_PARTY
@@ -9,7 +11,9 @@ from test_functional import FunctionalTestBase
 
 @override_settings(RUN_ASYNC=False)
 class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
-    def setUp(self) -> None:
+
+    @patch("documents.fields.S3FileField")
+    def setUp(self, patched_s3_file_field) -> None:
         super().setUp()
         SubmissionDocumentType.objects.create(
             id=SUBMISSION_DOCUMENT_TYPE_CUSTOMER, key="respondent", name="Customer Document"
