@@ -1,3 +1,5 @@
+from django.test import override_settings
+
 from cases.constants import SUBMISSION_DOCUMENT_TYPE_CUSTOMER, SUBMISSION_TYPE_INVITE_3RD_PARTY
 from cases.models import Submission, SubmissionDocument, SubmissionDocumentType, get_submission_type
 from config.test_bases import CaseSetupTestMixin
@@ -5,6 +7,7 @@ from documents.models import Document
 from test_functional import FunctionalTestBase
 
 
+@override_settings(RUN_ASYNC=False)
 class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
     def setUp(self) -> None:
         super().setUp()
@@ -63,6 +66,7 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
                 "file_size": "234",
                 "submission_id": self.submission_object.id,
                 "replace_document_id": self.confidential_document.id,
+                "index_and_checksum": "no",
             },
         )
         new_document = response.json()
@@ -85,6 +89,7 @@ class TestDocumentViewSet(CaseSetupTestMixin, FunctionalTestBase):
                 "file_size": "234",
                 "submission_id": self.submission_object.id,
                 "replace_document_id": self.non_confidential_document.id,
+                "index_and_checksum": "no",
             },
         )
         new_document = response.json()

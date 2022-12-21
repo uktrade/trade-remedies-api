@@ -20,6 +20,10 @@ class DocumentViewSet(BaseModelViewSet):
         if parent_document_id := request.data.get("parent"):
             parent_document_object = Document.objects.get(id=parent_document_id)
 
+        index_and_checksum = True
+        if request_index_and_checksum := request.data.get("index_and_checksum"):
+            index_and_checksum = False if request_index_and_checksum == "no" else True
+
         # Creating the Document object
         document = Document.objects.create_document(
             file={
@@ -32,6 +36,7 @@ class DocumentViewSet(BaseModelViewSet):
             system=False,
             parent=parent_document_object,
             case=submission_object.case,
+            index_and_checksum=index_and_checksum
         )
 
         # Adding the document to the submission
