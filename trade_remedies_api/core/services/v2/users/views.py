@@ -4,13 +4,15 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from contacts.models import Contact
+from config.viewsets import BaseModelViewSet
+from contacts.models import CaseContact, Contact
 from core.models import TwoFactorAuth, User
 from core.services.v2.users.serializers import (
     ContactSerializer,
     TwoFactorAuthSerializer,
     UserSerializer,
 )
+from organisations.models import Organisation
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -84,13 +86,42 @@ class UserViewSet(viewsets.ModelViewSet):
         return self.retrieve(request)
 
 
-class ContactViewSet(viewsets.ModelViewSet):
+class ContactViewSet(BaseModelViewSet):
     """
     ModelViewSet for interacting with contact objects via the API.
     """
 
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
+
+    @action(
+        detail=True,
+        methods=["patch"],
+        url_name="add_to_case",
+        url_path="add_to_case",
+    )
+    def add_to_case(self, request, *args, **kwargs):
+        """Adds this contact to a case by creating a CaseContact object."""
+
+        from cases.models import Case
+
+        case_object = get_object_or_404(Case, pk=request.data["case_id"])
+        contact_object = self.get_object()
+
+        organisation_object = contact_object.organisation
+        if organisation_id := request.data.get("organisation_id"):
+            # we will use the contact organisation by default (they are representing themselves)
+            # unless we get an organisation_id in the request
+            organisation_object = get_object_or_404(Organisation, pk=organisation_id)
+
+        CaseContact.objects.get_or_create(
+            case=case_object,
+            contact=contact_object,
+            organisation=organisation_object,
+            primary=request.data.get("primary", False),
+        )
+
+        return self.retrieve(request)
 
     @action(
         detail=True,

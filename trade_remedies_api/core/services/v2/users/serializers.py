@@ -27,6 +27,13 @@ class ContactSerializer(CustomValidationModelSerializer, EmailSerializer):
     name = serializers.CharField(required=False)
     country = serializers.CharField(source="country.alpha3", required=False)
     organisation_name = serializers.ReadOnlyField(source="organisation.name")
+    has_user = serializers.ReadOnlyField()
+    user_id = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_user_id(instance):
+        if user := instance.user:
+            return user.id
 
     def save(self, **kwargs):
         # If the 'country' is present in changed data, we need to fetch the true value from the dic
@@ -100,7 +107,7 @@ class UserSerializer(CustomValidationModelSerializer):
         return User.objects.create_new_user(
             email=validated_data.pop("email"),
             name=validated_data.pop("name"),
-            raise_exception=False,
+            raise_exception=True,
             password=validated_data.pop(
                 "password", None
             ),  # None will generate an unusable password
