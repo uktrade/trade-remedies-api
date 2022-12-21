@@ -253,7 +253,9 @@ class InvitationViewSet(BaseModelViewSet):
                 invitation_object.invited_user = invitation_object.contact.userprofile.user
             else:
                 new_user = True
-                login_url = f"{settings.PUBLIC_ROOT_URL}?invitation={invitation_object.pk}"
+                login_url = (
+                    f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/{invitation_object.id}/start/"
+                )
 
             # This is an invitation sent by the TRA
             invitation_object.send(
