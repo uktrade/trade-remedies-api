@@ -384,5 +384,9 @@ validation_errors = {
         "field": "been_able_to_verify_representative",
         "error_text": "Select a verification option",
         "error_summary": "You need to select one of the verification options",
+    "feedback_no_rating": {
+        "field": "feedback",
+        "error_text": "Select a rating of between 1 to 5 stars",
+        "error_summary": "You need to select a rating of between 1 to 5 stars",
     },
 }
