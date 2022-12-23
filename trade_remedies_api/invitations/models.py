@@ -751,6 +751,10 @@ class Invitation(BaseModel):
                 },
             )
 
+        elif self.invitation_type == 2:
+            # this is a rep invite, don't assign cases as this is done on Caseworker approval
+            assign_cases = False
+
         # Let's add the user to the cases associated with this invitation
         if assign_cases:
             self.assign_cases()
