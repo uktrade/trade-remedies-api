@@ -39,6 +39,7 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
             user=self.user,
             submission=self.submission_object,
             contact=self.contact_object,
+            created_by=self.user
         )
 
     def test_update_contact_creation(self):
@@ -305,13 +306,14 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
         """tests that when an existing user is sent a rep invite, the submission is marked as
         received and the invitation as accepted
         """
-        new_contact = Contact.objects.create(email=new_email, name=new_name)
+        new_contact = Contact.objects.create(
+            email=new_email,
+            name=new_name,
+            organisation=self.organisation
+        )
         self.invitation_object.contact = new_contact
         self.invitation_object.invitation_type = 2
         self.invitation_object.save()
-
-        self.contact_object.organisation = self.organisation
-        self.contact_object.save()
 
         assert not self.invitation_object.submission.status.sent
 
