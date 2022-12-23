@@ -297,7 +297,7 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
         assert self.invitation_object.accepted_at
         assert self.invitation_object.invited_user == self.user
 
-    def test_send_representative_invitation_existing_user(self):
+    def test_send_representative_invitation_new_user(self):
         """tests that when an existing user is sent a rep invite, the submission is marked as
         received and the invitation as accepted
         """
