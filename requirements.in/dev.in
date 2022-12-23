@@ -1,28 +1,24 @@
 # Constrain to base requirements
 -r ../requirements/base.txt
 
-# Development tools
 black==21.11b1
-coverage
 codecov
+coverage
+django-debug-toolbar
 flake8
 ipython==7.31.1
 matplotlib
 pip-tools>=6.5.0
+pygments==2.8.1
 pyproject-flake8==5.0.4.post1
 pytest
 pytest-cov
 pytest-django
 pytest-mock
-pytest-xdist
-pytest-pythonpath
 pytest-mock
+pytest-pythonpath
+pytest-xdist
 traitlets==4.3.3
-trufflehog
-django-debug-toolbar
-
-# ipython dep - for CVE-2021-27291
-pygments==2.8.1
 
 git+https://github.com/uktrade/modification-pre-commit
 git+https://github.com/uktrade/fitness-functions

@@ -15,7 +15,6 @@ from config.serializers import CustomValidationModelSerializer
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from documents.services.v2.serializers import DocumentSerializer
 from organisations.services.v2.serializers import OrganisationSerializer
-from security.models import UserCase
 
 
 class CaseTypeSerializer(CustomValidationModelSerializer):
@@ -83,30 +82,82 @@ class SubmissionSerializer(CustomValidationModelSerializer):
     primary_contact = NestedField(
         serializer_class=ContactSerializer, required=False, accept_pk=True
     )
+    parent = serializers.SerializerMethodField()
+    deficiency_notices = serializers.SerializerMethodField()
 
     class Meta:
         model = Submission
         fields = "__all__"
 
+    @staticmethod
+    def get_parent(instance):
+        if parent := instance.parent:
+            return SubmissionSerializer(parent).data
+
+    @staticmethod
+    def get_deficiency_notices(instance):
+        parent_deficiency_documents = instance.get_parent_deficiency_documents()
+        if parent_deficiency_documents:
+            return SubmissionDocumentSerializer(parent_deficiency_documents, many=True).data
+        return None
+
     def create(self, validated_data):
         return Submission.objects.create(
             status=validated_data["type"].default_status,
             name=validated_data["type"].name,
-            **validated_data
+            **validated_data,
         )
+
+    def update(self, instance, validated_data):
+        if deficiency_notice_params := validated_data.pop("deficiency_notice_params", None):
+            # we're updating the deficiency_notice_params field, it's a JSONField so let's update,
+            # rather than overwrite
+            if not instance.deficiency_notice_params:
+                instance.deficiency_notice_params = {}
+            instance.deficiency_notice_params.update(deficiency_notice_params)
+        return super().update(instance, validated_data)
 
     def get_paired_documents(self, instance):
         # We need to order the documents, so they come in pairs (confidential, non_confidential)
         paired_documents = []
-        for submission_document in instance.submissiondocument_set.filter(type__key="respondent"):
+        for submission_document in instance.submissiondocument_set.filter(
+            type__key="respondent", deleted_at__isnull=True
+        ):
             document = submission_document.document
             if document.parent:
                 self_key = "confidential" if document.confidential else "non_confidential"
                 other_key = "non_confidential" if document.confidential else "confidential"
+
+                try:
+                    self_submission_document = document.submissiondocument_set.get(
+                        submission=instance
+                    )
+                    other_submission_document = document.parent.submissiondocument_set.get(
+                        submission=instance
+                    )
+                except SubmissionDocument.DoesNotExist:
+                    # something has gone quite wrong, let's skip
+                    continue
+                self_dict = DocumentSerializer(document).data
+                self_dict.update(
+                    {
+                        "sufficient": self_submission_document.sufficient,
+                        "deficient": self_submission_document.deficient,
+                    }
+                )
+
+                other_dict = DocumentSerializer(document.parent).data
+                other_dict.update(
+                    {
+                        "sufficient": other_submission_document.sufficient,
+                        "deficient": other_submission_document.deficient,
+                    }
+                )
+
                 paired_documents.append(
                     {
-                        self_key: DocumentSerializer(document).data,
-                        other_key: DocumentSerializer(document.parent).data,
+                        self_key: self_dict,
+                        other_key: other_dict,
                         "orphan": False,
                     }
                 )
@@ -123,7 +174,13 @@ class SubmissionSerializer(CustomValidationModelSerializer):
                 self_key = "confidential" if document.confidential else "non_confidential"
                 other_key = "non_confidential" if document.confidential else "confidential"
                 orphaned_documents.append(
-                    {self_key: DocumentSerializer(document).data, other_key: {}, "orphan": True}
+                    {
+                        self_key: DocumentSerializer(document).data,
+                        other_key: {},
+                        "orphan": True,
+                        "deficient": submission_document.deficient,
+                        "sufficient": submission_document.sufficient,
+                    }
                 )
 
         return orphaned_documents

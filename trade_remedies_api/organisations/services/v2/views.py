@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group
-from rest_framework import viewsets
+from django.contrib.postgres.search import TrigramSimilarity
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -47,16 +47,53 @@ class OrganisationViewSet(BaseModelViewSet):
             ).data
         )
 
+    @action(
+        detail=False,
+        methods=["get"],
+        url_name="search_by_company_name",
+    )
+    def search_by_company_name(self, request, *args, **kwargs):
+        search_string = request.GET["company_name"]
 
-class OrganisationCaseRoleViewSet(viewsets.ModelViewSet):
+        matching_organisations_by_name = (
+            Organisation.objects.annotate(
+                similarity=TrigramSimilarity("name", search_string),
+            )
+            .filter(similarity__gt=0.1)
+            .order_by("-similarity")
+        )
+
+        matching_organisations_by_number = (
+            Organisation.objects.annotate(
+                similarity=TrigramSimilarity("companies_house_id", search_string),
+            )
+            .filter(similarity__gt=0.1)
+            .order_by("-similarity")
+        )
+
+        # merge the two querysets into one and then return
+        matching_organisations = matching_organisations_by_name | matching_organisations_by_number
+        return Response(
+            OrganisationSerializer(
+                instance=matching_organisations,
+                many=True,
+                fields=["name", "address", "post_code", "companies_house_id", "id"],
+            ).data
+        )
+
+
+class OrganisationCaseRoleViewSet(BaseModelViewSet):
     queryset = OrganisationCaseRole.objects.all()
     serializer_class = OrganisationCaseRoleSerializer
 
     def get_queryset(self):
+        queryset = super().get_queryset()
         filter_kwargs = {}
         if case_id := self.request.query_params.get("case_id"):
             filter_kwargs["case_id"] = case_id
         if organisation_id := self.request.query_params.get("organisation_id"):
             filter_kwargs["organisation_id"] = organisation_id
 
-        return self.queryset.filter(**filter_kwargs)
+        if filter_kwargs:
+            return queryset.filter(**filter_kwargs)
+        return queryset

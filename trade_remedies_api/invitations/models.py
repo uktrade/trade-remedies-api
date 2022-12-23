@@ -21,9 +21,8 @@ from security.constants import (
     ROLE_PREPARING,
     SECURITY_GROUP_ORGANISATION_OWNER,
     SECURITY_GROUP_ORGANISATION_USER,
-    SECURITY_GROUP_THIRD_PARTY_USER,
 )
-from security.models import OrganisationCaseRole, UserCase
+from security.models import CaseRole, OrganisationCaseRole, OrganisationCaseRole, UserCase, UserCase
 from .exceptions import InvitationFailure, InviteAlreadyAccepted
 
 
@@ -252,6 +251,7 @@ class Invitation(BaseModel):
     invitation_type_choices = (
         (1, "Own Organisation"),
         (2, "Representative"),
+        (3, "Caseworker"),
     )
 
     organisation = models.ForeignKey(
@@ -297,6 +297,15 @@ class Invitation(BaseModel):
         on_delete=models.PROTECT,
         related_name="approved",
     )
+    approved_at = models.DateTimeField(null=True, blank=True)
+    rejected_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="rejected_invitations",
+    )
+    rejected_at = models.DateTimeField(null=True, blank=True)
     meta = models.JSONField(default=dict)
 
     draft = models.BooleanField(default=False)
@@ -343,6 +352,13 @@ class Invitation(BaseModel):
             if self.sent_at
             else None,
             "approved_by": self.approved_by.to_embedded_dict() if self.approved_by else None,
+            "approved_at": self.accepted_at.strftime(settings.API_DATETIME_FORMAT)
+            if self.accepted_at
+            else None,
+            "rejected_by": self.rejected_by.to_embedded_dict() if self.rejected_by else None,
+            "rejected_at": self.rejected_at.strftime(settings.API_DATETIME_FORMAT)
+            if self.rejected_at
+            else None,
             "meta": self.meta,
         }
         if self.submission:
@@ -664,34 +680,10 @@ class Invitation(BaseModel):
         return assigned
 
     @transaction.atomic()
-    def accept_invitation(self):
-        """Accepting and processing the invitation when the invited user logs in"""
-        if self.invitation_type == 1:
-            # this is an own-org invitation
-            self.contact.organisation.assign_user(
-                user=self.invited_user,
-                security_group=self.organisation_security_group,  # user or admin
-                confirmed=True,
-            )
-
-        elif self.invitation_type == 2:
-            # this is a representative invitation
-            # First let's add the invitee as an admin user to their organisation
-            security_group = Group.objects.get(name=SECURITY_GROUP_ORGANISATION_OWNER)
-            self.contact.organisation.assign_user(
-                user=self.invited_user, security_group=security_group, confirmed=True
-            )
-
-            # Then add them as a third party user of the inviting organisation
-            security_group = Group.objects.get(name=SECURITY_GROUP_THIRD_PARTY_USER)
-            self.organisation.assign_user(
-                user=self.invited_user, security_group=security_group, confirmed=True
-            )
-
-        # Let's add the user to the cases associated with this invitation
+    def assign_cases(self):
+        """Assign the invitee to the cases associated with this invitation"""
         for user_case_object in self.user_cases_to_link.all():
             # Creating the UserCase object
-            # todo - maybe we do this when the LOA is approved instead???
             user_case_object.case.assign_user(
                 user=self.invited_user,
                 created_by=self.user,
@@ -701,17 +693,65 @@ class Invitation(BaseModel):
                 relax_security=True,
             )
 
-            # Creating an OrganisationCaseRole object with status awaiting_approval
-            OrganisationCaseRole.objects.assign_organisation_case_role(
-                organisation=self.contact.organisation,
-                case=user_case_object.case,
-                role=ROLE_AWAITING_APPROVAL,
-                approved_at=None,  # approval done later
-                approved_by=None,  # approval done later
+            # Creating an OrganisationCaseRole object with status case_role
+            if self.case_role:
+                OrganisationCaseRole.objects.assign_organisation_case_role(
+                    organisation=self.contact.organisation,
+                    case=user_case_object.case,
+                    role=ROLE_AWAITING_APPROVAL,
+                    approved_at=None,  # approval done later
+                    approved_by=None,  # approval done later
+                )
+
+    @transaction.atomic()
+    def accept_invitation(self):
+        """Accepting and processing the invitation when the invited user logs in"""
+
+        assign_cases = True  # True if we want to assign cases to this user now
+        accept = True  # True if we want the invitation to be marked as accepted
+
+        if self.invitation_type == 1:
+            # this is an own-org invitation
+            self.contact.organisation.assign_user(
+                user=self.invited_user,
+                security_group=self.organisation_security_group,  # user or admin
+                confirmed=True,
             )
 
-        # Now we mark the invitation as accepted
-        self.accepted()
+        elif self.invitation_type == 3:
+            # associate the user with the organisation
+            if not self.invited_user.is_member_of(self.organisation):
+                self.organisation.assign_user(
+                    user=self.invited_user,
+                    security_group=self.organisation_security_group,  # user or admin
+                    confirmed=True,
+                )
+
+            # this is a caseworker invite, create a draft ROI for the case in question
+            self.create_registration_of_interest(
+                user=self.contact.user, organisation=self.organisation
+            )
+
+            # now associate the user with the case
+            # Associating the organisation with the case
+            OrganisationCaseRole.objects.get_or_create(
+                organisation=self.organisation,
+                case=self.case,
+                defaults={
+                    "role": self.case_role,
+                    "sampled": True,
+                    "created_by": self.user,
+                },
+            )
+
+        # Let's add the user to the cases associated with this invitation
+        if assign_cases:
+            self.assign_cases()
+
+        # Now we mark the invitation as accepted if accept is True
+        if accept:
+            self.accepted_at = timezone.now()
+            self.save()
 
     def compare_user_contact(self):
         """

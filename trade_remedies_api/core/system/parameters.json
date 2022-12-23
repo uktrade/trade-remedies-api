@@ -151,6 +151,11 @@
         "default": "671c3643-0fa1-4c1c-97de-e15b0c7c9739"
     },
     {
+        "key": "NOTIFY_INFORM_INTERESTED_PARTIES_V2",
+        "data_type": "str",
+        "default": "c28123ea-8a75-42e9-a077-cbd447c544ee"
+    },
+    {
         "key": "2FA_CODE_MESSAGE",
         "data_type": "str",
         "default": "580f86cc-e8ca-4b85-8a61-68df3ab27776",
