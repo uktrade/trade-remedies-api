@@ -290,7 +290,7 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
         """
         self.invitation_object.invitation_type = 2
         self.invitation_object.save()
-        self.contact_object = self.organisation
+        self.contact_object.organisation = self.organisation
         self.contact_object.save()
         assert not self.invitation_object.submission.status.received
         assert not self.invitation_object.accepted_at
@@ -310,7 +310,7 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
         self.invitation_object.invitation_type = 2
         self.invitation_object.save()
 
-        self.contact_object = self.organisation
+        self.contact_object.organisation = self.organisation
         self.contact_object.save()
 
         assert not self.invitation_object.submission.status.sent
