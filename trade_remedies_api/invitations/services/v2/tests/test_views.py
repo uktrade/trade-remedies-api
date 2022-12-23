@@ -283,3 +283,31 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
         new_invitation = response.json()
         assert new_invitation["contact"]["id"] == str(duplicate_contact.id)
         assert new_invitation["contact"]["id"] != str(self.contact_object.id)
+
+    def test_send_representative_invitation_existing_user(self):
+        """tests that when an existing user is sent a rep invite, the submission is marked as
+        received and the invitation as accepted
+        """
+        assert not self.invitation_object.submission.status.received
+        assert not self.invitation_object.accepted_at
+        assert not self.invitation_object.invited_user
+        self.client.post(f"/api/v2/invitations/{self.invitation_object.pk}/send_invitation/")
+        self.invitation_object.refresh_from_db()
+        assert self.invitation_object.submission.status.received
+        assert self.invitation_object.accepted_at
+        assert self.invitation_object.invited_user == self.user
+
+    def test_send_representative_invitation_existing_user(self):
+        """tests that when an existing user is sent a rep invite, the submission is marked as
+        received and the invitation as accepted
+        """
+        new_contact = Contact.objects.create(email=new_email, name=new_name)
+        self.invitation_object.contact = new_contact
+        self.invitation_object.save()
+
+        assert not self.invitation_object.submission.status.sent
+
+        self.client.post(f"/api/v2/invitations/{self.invitation_object.pk}/send_invitation/")
+        self.invitation_object.refresh_from_db()
+        assert self.invitation_object.submission.status.sent
+        assert not self.invitation_object.accepted_at
