@@ -39,7 +39,7 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
             user=self.user,
             submission=self.submission_object,
             contact=self.contact_object,
-            created_by=self.user
+            created_by=self.user,
         )
 
     def test_update_contact_creation(self):
@@ -307,9 +307,7 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
         received and the invitation as accepted
         """
         new_contact = Contact.objects.create(
-            email=new_email,
-            name=new_name,
-            organisation=self.organisation
+            email=new_email, name=new_name, organisation=self.organisation
         )
         self.invitation_object.contact = new_contact
         self.invitation_object.invitation_type = 2
