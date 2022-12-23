@@ -1,6 +1,7 @@
 import requests
 from django.contrib.auth.models import Group
 from django.db.models import F
+from django_restql.fields import NestedField
 from rest_framework import serializers
 
 from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
@@ -9,14 +10,8 @@ from contacts.models import CaseContact, Contact
 from contacts.services.v2.serializers import CaseContactSerializer
 from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
-from contacts.models import CaseContact, Contact
-from contacts.services.v2.serializers import CaseContactSerializer
-from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
-from core.services.v2.users.serializers import UserSerializer
-from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from organisations.models import Organisation
 from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
-from django_restql.fields import NestedField
 
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
@@ -130,7 +125,26 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                     "rejected_by": UserSerializer(
                         invitation.rejected_by, fields=["name", "email"]
                     ).data,
-                    "invitation_id": invitation.id,
+                    "type": "representative",
+                }
+            )
+
+        # finding the interested party cases for this org which have been rejected
+        rejected_org_case_roles = OrganisationCaseRole.objects.filter(
+            organisation=instance, role__key="rejected"
+        )
+        for rejected_org_case_role in rejected_org_case_roles:
+            rejections.append(
+                {
+                    "case": CaseSerializer(
+                        rejected_org_case_role.case, fields=["name", "reference"]
+                    ).data,
+                    "date_rejected": rejected_org_case_role.validated_at,
+                    "rejected_reason": "N/A",
+                    "rejected_by": UserSerializer(
+                        rejected_org_case_role.validated_by, fields=["name", "email"]
+                    ).data,
+                    "type": "interested_party",
                 }
             )
 
@@ -169,24 +183,15 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                     contact__organisation=instance,
                     case=case_contact.case,
                     organisation=case_contact.organisation,
+                    invitation_type=2,
+                    approved_at__isnull=False,
                 )
                 .order_by("-last_modified")
                 .first()
             )
             if invitation:
                 representation.update(
-                    {
-                        "validated": invitation.submission.deficiency_notice_params.get(
-                            "contact_org_verify", False
-                        )
-                        if invitation.submission.deficiency_notice_params
-                        else False,
-                        "validated_at": invitation.submission.deficiency_notice_params.get(
-                            "contact_org_verify_at", None
-                        )
-                        if invitation.submission.deficiency_notice_params
-                        else None,
-                    }
+                    {"validated": invitation.approved_at, "validated_at": invitation.approved_at}
                 )
                 representations.append(representation)
             else:
