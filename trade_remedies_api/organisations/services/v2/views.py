@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from config.viewsets import BaseModelViewSet
 from core.models import User
 from organisations.models import Organisation
+from organisations.services.v2.pagination import StandardResultsSetPagination
 from organisations.services.v2.serializers import (
     OrganisationCaseRoleSerializer,
     OrganisationSerializer,
@@ -23,6 +24,7 @@ class OrganisationViewSet(BaseModelViewSet):
 
     queryset = Organisation.objects.all()
     serializer_class = OrganisationSerializer
+    pagination_class = StandardResultsSetPagination
 
     @action(
         detail=True,
