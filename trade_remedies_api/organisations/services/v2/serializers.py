@@ -55,6 +55,12 @@ class OrganisationUserSerializer(CustomValidationModelSerializer):
     security_group = serializers.SlugRelatedField(slug_field="name", queryset=Group.objects.all())
 
 
+class OrganisationListSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = Organisation
+        fields = "__all__"
+
+
 class OrganisationSerializer(CustomValidationModelSerializer):
     country = serializers.CharField(source="country.alpha3", required=False)
     country_code = serializers.ReadOnlyField(source="country.code")

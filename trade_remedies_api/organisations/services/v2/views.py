@@ -1,7 +1,5 @@
 from django.contrib.auth.models import Group
-from django.contrib.postgres.search import TrigramSimilarity
 from django.db.models import Q
-from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -9,9 +7,11 @@ from rest_framework.response import Response
 from config.viewsets import BaseModelViewSet
 from core.models import User
 from organisations.models import Organisation
+from organisations.services.v2.pagination import StandardResultsSetPagination
 from organisations.services.v2.serializers import (
     OrganisationCaseRoleSerializer,
     OrganisationSerializer,
+    OrganisationListSerializer,
 )
 from security.models import OrganisationCaseRole
 
@@ -21,8 +21,13 @@ class OrganisationViewSet(BaseModelViewSet):
     ModelViewSet for interacting with user objects via the API.
     """
 
-    queryset = Organisation.objects.all()
-    serializer_class = OrganisationSerializer
+    queryset = Organisation.objects.all().order_by("name")
+    pagination_class = StandardResultsSetPagination
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return OrganisationListSerializer
+        return OrganisationSerializer
 
     @action(
         detail=True,
