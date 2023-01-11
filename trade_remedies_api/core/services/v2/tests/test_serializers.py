@@ -42,7 +42,12 @@ class TestUserSerializer(CaseSetupTestMixin):
         assert self.user.name == "new_name"
 
     def test_unusable_password(self):
-        serializer = UserSerializer(data={"name": "new user", "email": self.user.email})
+        serializer = UserSerializer(
+            data={
+                "name": "new user",
+                "email": "newww@example.com",  # /PS-IGNORE
+            }
+        )
         assert serializer.is_valid()
         new_user = serializer.save()
         assert not new_user.has_usable_password()

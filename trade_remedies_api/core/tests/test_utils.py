@@ -23,7 +23,7 @@ class CSVInjectionTests(SimpleTestCase):
         assert output == ""
 
 
-class ConvertPhoneNumberToE164StandardFormatTests(SimpleTestCase):
+class ConvertPhoneNumberToE164StandardFormatTests(SimpleTestCase):  # /PS-IGNORE
     @staticmethod
     def test_checks_uk_phone_number_length_is_valid():
         valid_uk_mobile_number = "+447123456789"

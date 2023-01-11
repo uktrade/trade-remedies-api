@@ -1,5 +1,7 @@
 from django.contrib.auth.models import Group
 from django.contrib.postgres.search import TrigramSimilarity
+from django.db.models import Q
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -54,30 +56,24 @@ class OrganisationViewSet(BaseModelViewSet):
     )
     def search_by_company_name(self, request, *args, **kwargs):
         search_string = request.GET["company_name"]
+        case_id = request.GET.get("case_id")
 
-        matching_organisations_by_name = (
-            Organisation.objects.annotate(
-                similarity=TrigramSimilarity("name", search_string),
-            )
-            .filter(similarity__gt=0.1)
-            .order_by("-similarity")
+        # get organisations by name
+        matching_organisations = self.queryset.filter(
+            Q(name__icontains=search_string) | Q(companies_house_id__icontains=search_string)
         )
 
-        matching_organisations_by_number = (
-            Organisation.objects.annotate(
-                similarity=TrigramSimilarity("companies_house_id", search_string),
+        # if we recieve a case_id, then exclude if organisation is already associated with the case
+        if case_id:
+            matching_organisations = matching_organisations.exclude(
+                organisation__organisationcaserole__case=case_id,
             )
-            .filter(similarity__gt=0.1)
-            .order_by("-similarity")
-        )
 
-        # merge the two querysets into one and then return
-        matching_organisations = matching_organisations_by_name | matching_organisations_by_number
         return Response(
             OrganisationSerializer(
                 instance=matching_organisations,
                 many=True,
-                fields=["name", "address", "post_code", "companies_house_id", "id"],
+                fields=["name", "address", "post_code", "companies_house_id", "id", "case_count"],
             ).data
         )
 
@@ -87,13 +83,13 @@ class OrganisationCaseRoleViewSet(BaseModelViewSet):
     serializer_class = OrganisationCaseRoleSerializer
 
     def get_queryset(self):
-        if not self.request.query_params.get("case_id") and not self.request.query_params.get(
-            "organisation_id"
-        ):
-            return super().get_queryset()
+        queryset = super().get_queryset()
         filter_kwargs = {}
         if case_id := self.request.query_params.get("case_id"):
             filter_kwargs["case_id"] = case_id
         if organisation_id := self.request.query_params.get("organisation_id"):
             filter_kwargs["organisation_id"] = organisation_id
-        return self.queryset.filter(**filter_kwargs).distinct("case_id", "organisation_id")
+
+        if filter_kwargs:
+            return queryset.filter(**filter_kwargs)
+        return queryset

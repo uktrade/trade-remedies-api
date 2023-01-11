@@ -1,3 +1,8 @@
+self.confidential_document.refresh_from_db
+self.confidential_submission_document.refresh_from_db
+self.non_confidential_document.refresh_from_db
+assert str(self.non_confidential_document.parent.id
+DB
 assert send_mail.called_with
 ENV
 date_to
@@ -10,6 +15,15 @@ Own Organisation'
 Invite Third Party'
 NOTIFY_INFORM_INTERESTED_PARTIES_V2
 new_user
+NOTIFY_INFORM_INTERESTED_PARTIES_V2
+new_user
+0020_invitation_rejected_by
+Own Organisation'
+Invite Third Party'
+NOTIFY_INFORM_INTERESTED_PARTIES_V2
+new_user
+Own Organisation'
+accept_invite/{invitation_object.id}/start/
 NOTIFY_INFORM_INTERESTED_PARTIES_V2
 new_user
 Trade Remedies Service'

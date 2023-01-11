@@ -316,6 +316,13 @@ class Invitation(BaseModel):
     user_cases_to_link = models.ManyToManyField(
         UserCase, related_name="user_cases_to_link", blank=True
     )
+    authorised_signatory = models.ForeignKey(
+        Contact,
+        on_delete=models.PROTECT,
+        related_name="authorised_signatory_invitations",
+        null=True,
+        blank=True,
+    )
 
     objects = InvitationManager()
 
@@ -743,6 +750,10 @@ class Invitation(BaseModel):
                     "created_by": self.user,
                 },
             )
+
+        elif self.invitation_type == 2:
+            # this is a rep invite, don't assign cases as this is done on Caseworker approval
+            assign_cases = False
 
         # Let's add the user to the cases associated with this invitation
         if assign_cases:
