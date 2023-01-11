@@ -14,7 +14,7 @@ class CaseAPITest(CaseSetupTestMixin, FunctionalTestBase):
         Organisation.objects.create(name="filter_1"),
         organisations = self.client.get("/api/v2/organisations/").json()
         assert len(organisations["results"]) == 2
-        assert organisations["results"][0]["name"] == self.organisation.name
+        assert organisations["results"][1]["name"] == self.organisation.name
 
         # now lets filter
         organisations = self.client.get(
