@@ -7,7 +7,10 @@ from core.services.v2.registration.serializers import (
     VerifyEmailSerializer,
 )
 from core.models import User, UserProfile
-from core.services.v2.registration.serializers import V2RegistrationSerializer, VerifyEmailSerializer
+from core.services.v2.registration.serializers import (
+    V2RegistrationSerializer,
+    VerifyEmailSerializer,
+)
 from organisations.models import Organisation
 from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
 from core.models import Group
@@ -62,6 +65,19 @@ class TestV2RegistrationSerializer(TestCase):
         self.assertEqual(new_user_object.contact.address, "test org street")
         self.assertIn(self.org_owner_group, new_user_object.groups.all())
         self.assertEqual(new_user_object.contact.organisation, organisation_query.get())
+
+    def test_country_field_allows_null_value(self):
+        self.mock_data["country"] = None
+
+        serializer = V2RegistrationSerializer(data=self.mock_data)
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+
+        organisation_country = Organisation.objects.get(
+            name="test org", companies_house_id="000000"
+        ).country
+
+        self.assertEqual(None, organisation_country)
 
 
 class TestVerifyEmailSerializer(UserSetupTestBase):

@@ -222,8 +222,7 @@ class OrganisationManager(models.Manager):
         """
         created = False
         organisation = None
-        if not country and companies_house_id:
-            country = "GB"
+
         if organisation_id:
             try:
                 organisation = Organisation.objects.get(id=organisation_id)
