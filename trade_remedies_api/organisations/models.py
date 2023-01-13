@@ -220,7 +220,6 @@ class OrganisationManager(models.Manager):
         The user will be made a user of the organisation only if assign_user is True. This is
         only required during organisation creation when registering a new account.
         """
-        created = False
         organisation = None
 
         if organisation_id:
