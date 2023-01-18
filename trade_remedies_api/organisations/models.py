@@ -61,7 +61,7 @@ class OrganisationManager(models.Manager):
 
     @transaction.atomic  # noqa: C901
     def merge_organisation_records(
-            self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
+        self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
     ):
         """
         Merge two organisations records into one.
@@ -126,8 +126,8 @@ class OrganisationManager(models.Manager):
             if clash:
                 if org_case.role.key not in NOT_IN_CASE_ORG_CASE_ROLES:
                     if (
-                            clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
-                            and org_case.role.key != clash.role.key
+                        clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
+                        and org_case.role.key != clash.role.key
                     ):
                         # Argh, both orgs are in the same case with different,
                         # non awaiting roles - blow up!
@@ -195,22 +195,22 @@ class OrganisationManager(models.Manager):
 
     @transaction.atomic  # noqa: C901
     def create_or_update_organisation(
-            self,
-            user,
-            name,
-            trade_association=False,
-            companies_house_id=None,
-            datahub_id=None,
-            address=None,
-            post_code=None,
-            country=None,
-            organisation_id=None,
-            assign_user=False,
-            gov_body=False,
-            case=None,
-            json_data=None,
-            contact_object=None,
-            **kwargs,
+        self,
+        user,
+        name,
+        trade_association=False,
+        companies_house_id=None,
+        datahub_id=None,
+        address=None,
+        post_code=None,
+        country=None,
+        organisation_id=None,
+        assign_user=False,
+        gov_body=False,
+        case=None,
+        json_data=None,
+        contact_object=None,
+        **kwargs,
     ):
         """
         Create or update an organisation record.
@@ -322,7 +322,7 @@ class Organisation(BaseModel):
 
     @staticmethod
     def __is_potential_duplicate_organisation(
-            target_org: "Organisation", potential_dup_org: "Organisation"
+        target_org: "Organisation", potential_dup_org: "Organisation"
     ):
 
         DIGITS_PATTERN = re.compile(r"[^0-9]+")
@@ -357,8 +357,8 @@ class Organisation(BaseModel):
             return True
 
         return (
-                target_org.name == potential_dup_org.name
-                or target_org.address == potential_dup_org.address
+            target_org.name == potential_dup_org.name
+            or target_org.address == potential_dup_org.address
         )
 
     @transaction.atomic
@@ -421,7 +421,7 @@ class Organisation(BaseModel):
         )
 
     def related_pending_registrations_of_interest(
-            self, requested_by, all_interests=True, archived=False
+        self, requested_by, all_interests=True, archived=False
     ):
         """
         Return all pending registrations of interest for this organisaion.
@@ -583,7 +583,7 @@ class Organisation(BaseModel):
         Return all contacts assosciated with the organisation for a specific case.
         These might be lawyers representing the organisation or direct employee.
         """
-        case_contacts = Contact.objects.select_related("userprofile", "organisation", ).filter(
+        case_contacts = Contact.objects.select_related("userprofile", "organisation",).filter(
             casecontact__case=case,
             casecontact__organisation=self,
             deleted_at__isnull=True,
@@ -597,10 +597,10 @@ class Organisation(BaseModel):
         case = case or self.case_context
         if case:
             return (
-                    case
-                    and Submission.objects.filter(
-                organisation=self, case=case, status__default=False
-            ).exists()
+                case
+                and Submission.objects.filter(
+                    organisation=self, case=case, status__default=False
+                ).exists()
             )
 
     @property
@@ -610,10 +610,10 @@ class Organisation(BaseModel):
             from cases.models import Submission
 
             return (
-                    case
-                    and Submission.objects.filter(
-                organisation=self, case=case, status__default=False, type__key="interest"
-            ).exists()
+                case
+                and Submission.objects.filter(
+                    organisation=self, case=case, status__default=False, type__key="interest"
+                ).exists()
             )
 
     @property
@@ -773,7 +773,7 @@ class OrganisationMergeRecord(BaseModel):
     )
     status = models.PositiveSmallIntegerField(choices=status_choices, default=1)
     parent_organisation = models.ForeignKey(
-        Organisation, on_delete=models.PROTECT, related_name="merge_records"
+        Organisation, on_delete=models.PROTECT, related_name="merge_records", null=True
     )
 
 
