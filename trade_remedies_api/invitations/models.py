@@ -334,6 +334,10 @@ class Invitation(BaseModel):
             self.create_codes()
         super().save(*args, **kwargs)
 
+    @property
+    def has_potential_duplicate_orgs(self) -> bool:
+        return len(self.organisation.potential_duplicate_organisations) > 0
+
     def _to_dict(self):
         _dict = {
             "organisation": self.organisation.to_embedded_dict() if self.organisation else None,
@@ -367,6 +371,7 @@ class Invitation(BaseModel):
             if self.rejected_at
             else None,
             "meta": self.meta,
+            "has_potential_duplicate_orgs": self.has_potential_duplicate_orgs,
         }
         if self.submission:
             _dict["submission"] = {

@@ -81,6 +81,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     json_data = serializers.JSONField(required=False, allow_null=True)
     a_tag_website_url = serializers.SerializerMethodField()
     full_country_name = serializers.SerializerMethodField()
+    potential_duplicate_organisations = serializers.SerializerMethodField()
 
     class Meta:
         model = Organisation
@@ -95,6 +96,12 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         if "country" in data and isinstance(data["country"], dict):
             data["country"] = data["country"]["alpha3"]
         return data
+
+    def get_potential_duplicate_organisations(self, instance):
+        return [
+            duplicate_org.to_embedded_dict()
+            for duplicate_org in instance.potential_duplicate_organisations
+        ]
 
     @staticmethod
     def get_a_tag_website_url(instance):

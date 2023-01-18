@@ -220,10 +220,8 @@ class OrganisationManager(models.Manager):
         The user will be made a user of the organisation only if assign_user is True. This is
         only required during organisation creation when registering a new account.
         """
-        created = False
         organisation = None
-        if not country and companies_house_id:
-            country = "GB"
+
         if organisation_id:
             try:
                 organisation = Organisation.objects.get(id=organisation_id)
@@ -365,7 +363,7 @@ class Organisation(BaseModel):
         )
 
     @transaction.atomic
-    def potential_duplicate_organisations(self) -> typing.List["Organisation"]:
+    def _potential_duplicate_organisations(self) -> typing.List["Organisation"]:
         """
         Returns potential identical or similar organisations simialr to
         the given organisation
@@ -394,6 +392,10 @@ class Organisation(BaseModel):
             if self.__is_potential_duplicate_organisation(self, potential_dup_org):
                 result += [potential_dup_org]
         return result
+
+    @property
+    def potential_duplicate_organisations(self) -> typing.List["Organisation"]:
+        return self._potential_duplicate_organisations()
 
     def has_role_in_case(self, case, role):
         """

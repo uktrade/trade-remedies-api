@@ -29,6 +29,7 @@ class InvitationSerializer(CustomValidationModelSerializer):
 
     organisation_id = serializers.ReadOnlyField(source="organisation.id")
     organisation_name = serializers.ReadOnlyField(source="organisation.name")
+    has_potential_duplicate_orgs = serializers.ReadOnlyField()
     organisation_security_group = serializers.SlugRelatedField(
         slug_field="name", queryset=Group.objects.all(), required=False
     )
