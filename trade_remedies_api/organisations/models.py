@@ -1,28 +1,27 @@
-import re
 import logging
-import uuid
+import re
 import typing
+import uuid
+from functools import singledispatch
+
 from django.conf import settings
-from django.db import models, transaction, connection
+from django.contrib.postgres.fields import ArrayField
+from django.db import connection, models, transaction
+from django.utils import timezone
+from django_countries.fields import CountryField
+
+from audit import AUDIT_TYPE_NOTIFY
+from cases.constants import TRA_ORGANISATION_ID
+from cases.models.submission import Submission
+from contacts.models import CaseContact, Contact
 from core.base import BaseModel
 from core.models import SystemParameter
-from core.notifier import notify_footer, notify_contact_email
+from core.notifier import notify_contact_email, notify_footer
 from core.tasks import send_mail
-from audit import AUDIT_TYPE_NOTIFY
-from security.models import OrganisationCaseRole, OrganisationUser, get_security_group, UserCase
-from cases.models.submission import Submission
-from contacts.models import Contact, CaseContact
-from functools import singledispatch
-from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
+from core.utils import public_login_url, sql_get_list
 from organisations.constants import NOT_IN_CASE_ORG_CASE_ROLES
-from core.utils import (
-    sql_get_list,
-    public_login_url,
-)
-from django_countries.fields import CountryField
-from django.utils import timezone
-from cases.constants import TRA_ORGANISATION_ID
-
+from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
+from security.models import OrganisationCaseRole, OrganisationUser, UserCase, get_security_group
 
 logger = logging.getLogger(__name__)
 
@@ -759,3 +758,30 @@ class OrganisationName(models.Model):
             if self.to_date
             else None,
         }
+
+
+class OrganisationMergeRecord(BaseModel):
+    submission = models.OneToOneField(
+        Submission, on_delete=models.PROTECT, related_name="organisation_merge_record"
+    )
+
+
+class DuplicateOrganisationMerge(BaseModel):
+    status_choices = (
+        (1, "Pending"),
+        (2, "Not duplicate"),
+        (3, "Confirmed duplicate"),
+    )
+
+    merge_record = models.ForeignKey(
+        OrganisationMergeRecord, on_delete=models.PROTECT, related_name="duplicate_organisations"
+    )
+    parent_organisation = models.ForeignKey(
+        Organisation, on_delete=models.PROTECT, related_name="merge_records"
+    )
+    child_organisation = models.ForeignKey(
+        Organisation, on_delete=models.PROTECT, related_name="potential_duplicate_organisations"
+    )
+    status = models.PositiveSmallIntegerField(choices=status_choices, default=1)
+    parent_fields = ArrayField(models.CharField(max_length=100), null=True, blank=True)
+    child_fields = ArrayField(models.CharField(max_length=100), null=True, blank=True)
