@@ -1,3 +1,5 @@
+OrganisationMergeRecord
+DuplicateOrganisationMerge
 self.confidential_document.refresh_from_db
 self.confidential_submission_document.refresh_from_db
 self.non_confidential_document.refresh_from_db
