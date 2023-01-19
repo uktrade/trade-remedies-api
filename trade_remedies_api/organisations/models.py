@@ -362,7 +362,7 @@ class Organisation(BaseModel):
         )
 
     @transaction.atomic
-    def _potential_duplicate_organisations(self) -> typing.List["Organisation"]:
+    def _potential_duplicate_orgs(self) -> typing.List["Organisation"]:
         """
         Returns potential identical or similar organisations simialr to
         the given organisation
@@ -412,8 +412,8 @@ class Organisation(BaseModel):
         return result
 
     @property
-    def potential_duplicate_organisations(self) -> typing.List["Organisation"]:
-        return self._potential_duplicate_organisations()
+    def potential_duplicate_orgs(self) -> typing.List["Organisation"]:
+        return self._potential_duplicate_orgs()
 
     def has_role_in_case(self, case, role):
         """

@@ -336,7 +336,7 @@ class Invitation(BaseModel):
 
     @property
     def has_potential_duplicate_orgs(self) -> bool:
-        return len(self.organisation.potential_duplicate_organisations) > 0
+        return len(self.organisation.potential_duplicate_orgs) > 0
 
     def _to_dict(self):
         _dict = {

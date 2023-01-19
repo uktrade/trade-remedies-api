@@ -100,9 +100,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     @staticmethod
     def get_potential_duplicate_organisations(instance):
         """get a serialize-able duplicate organisation list"""
-        serializer = OrganisationListSerializer(
-            instance.potential_duplicate_organisations, many=True
-        )
+        serializer = OrganisationListSerializer(instance.potential_duplicate_orgs, many=True)
         return serializer.data
 
     @staticmethod
