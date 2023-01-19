@@ -97,7 +97,8 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             data["country"] = data["country"]["alpha3"]
         return data
 
-    def get_potential_duplicate_organisations(self, instance):
+    @staticmethod
+    def get_potential_duplicate_organisations(instance):
         """get a serialize-able duplicate organisation list"""
         return [
             duplicate_org.to_embedded_dict()

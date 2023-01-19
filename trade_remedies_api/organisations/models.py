@@ -371,15 +371,30 @@ class Organisation(BaseModel):
         # first we check which organisations contain our lookup values
         # A fuzzy search, because we can't do much manipulation of the db field values
         # until it gets to be a python object after the db query
-        potential_dup_orgs = Organisation.objects.exclude(id=self.id).filter(
-            models.Q(name__exact=self.name)
-            | models.Q(address__exact=self.address)
-            | models.Q(post_code__icontains=self.post_code)
-            | models.Q(vat_number__icontains=self.vat_number)
-            | models.Q(eori_number__icontains=self.eori_number)
-            | models.Q(duns_number__icontains=self.duns_number)
-            | models.Q(organisation_website__icontains=self.organisation_website)
+
+        fields_of_interest = (
+            "name",
+            "address",
+            "post_code",
+            "vat_number",
+            "eori_number",
+            "duns_number",
+            "organisation_website",
         )
+
+        q_objects = models.Q()
+
+        for field in fields_of_interest:
+            value = getattr(self, field)
+            if value:
+                if field in ("name", "address"):
+                    query = {f"{field}__exact": value}
+                    q_objects |= models.Q(**query)
+                else:
+                    query = {f"{field}__icontains": value}
+                    q_objects |= models.Q(**query)
+
+        potential_dup_orgs = Organisation.objects.exclude(id=self.id).filter(q_objects)
 
         if not potential_dup_orgs:
             return potential_dup_orgs
