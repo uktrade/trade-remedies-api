@@ -92,11 +92,16 @@ class UserSerializer(CustomValidationModelSerializer):
         serialization.
         """
         from organisations.services.v2.serializers import OrganisationSerializer
+        from organisations.models import Organisation
 
         if organisation_user_object := instance.organisation:
-            return OrganisationSerializer(
-                instance=organisation_user_object.organisation, exclude=["organisationuser_set"]
-            ).data
+            try:
+                return OrganisationSerializer(
+                    organisation_user_object.organisation,
+                    exclude=["organisationuser_set", "users"],
+                ).data
+            except Organisation.DoesNotExist:
+                return None
 
     @staticmethod
     def validate_password(value):

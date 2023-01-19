@@ -30,7 +30,16 @@ from core.services.v2.registration import views as registration_api
 from core.services.v2.users.views import ContactViewSet, TwoFactorAuthViewSet, UserViewSet
 from documents.services.v2.views import DocumentBundleViewSet, DocumentViewSet
 from invitations.services.v2.views import InvitationViewSet
-from organisations.services.v2.views import OrganisationCaseRoleViewSet, OrganisationViewSet
+from organisations.services.v2.serializers import (
+    DuplicateOrganisationMergeSerializer,
+    OrganisationMergeRecordSerializer,
+)
+from organisations.services.v2.views import (
+    DuplicateOrganisationMergeViewSet,
+    OrganisationCaseRoleViewSet,
+    OrganisationMergeRecordViewSet,
+    OrganisationViewSet,
+)
 
 urlpatterns = [
     path(f"{settings.API_PREFIX}/health/", core_api.ApiHealthView.as_view()),
@@ -198,6 +207,16 @@ router.register(
     f"{settings.API_V2_PREFIX}/django-feature-flags", FlagViewSet, basename="django-feature-flags"
 )
 router.register(f"{settings.API_V2_PREFIX}/feedback", FeedbackViewSet, basename="feedback")
+router.register(
+    f"{settings.API_V2_PREFIX}/organisation_merge_records",
+    OrganisationMergeRecordViewSet,
+    basename="organisation_merge_records",
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/duplicate_organisation_merges",
+    DuplicateOrganisationMergeViewSet,
+    basename="duplicate_organisation_merges",
+)
 urlpatterns += router.urls
 
 if settings.DEBUG:

@@ -1,6 +1,7 @@
 from django.contrib import admin
-from .models import Organisation
-from security.models import OrganisationUser, OrganisationCaseRole
+
+from security.models import OrganisationCaseRole, OrganisationUser
+from .models import DuplicateOrganisationMerge, Organisation, OrganisationMergeRecord
 
 
 class OrganisationCaseRoleInline(admin.TabularInline):
@@ -18,3 +19,5 @@ class OrganisationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Organisation, OrganisationAdmin)
+admin.site.register(OrganisationMergeRecord)
+admin.site.register(DuplicateOrganisationMerge)

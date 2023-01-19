@@ -1,3 +1,4 @@
+Serializes DuplicateOrganisationMerge
 OrganisationMergeRecord
 DuplicateOrganisationMerge
 self.confidential_document.refresh_from_db

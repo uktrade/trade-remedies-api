@@ -9,6 +9,7 @@ import sentry_sdk
 from django_log_formatter_ecs import ECSFormatter
 from flags import conditions
 from flags.conditions import DuplicateCondition
+from psycopg2.extensions import ISOLATION_LEVEL_READ_UNCOMMITTED
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -169,9 +170,29 @@ if "postgres" in _VCAP_SERVICES:
                 "MAX_CONNS": env("DB_MAX_CONNS", default=10),
             },
         },
+        "dirty_read": {
+            **dj_database_url.parse(
+                _database_uri,
+                engine="postgresql",
+                conn_max_age=0,
+            ),
+            "ENGINE": "django_db_geventpool.backends.postgresql_psycopg2",
+            "OPTIONS": {
+                "MAX_CONNS": env("DB_MAX_CONNS", default=10),
+                "isolation_level": ISOLATION_LEVEL_READ_UNCOMMITTED,
+            },
+        },
     }
 else:
-    DATABASES = {"default": env.db()}
+    default_database = env.db()
+    dirty_read_database = default_database.copy()
+    dirty_read_database["OPTIONS"] = {"isolation_level": ISOLATION_LEVEL_READ_UNCOMMITTED}
+
+    DATABASES = {"default": dirty_read_database, "dirty_read": dirty_read_database}
+
+DATABASE_ROUTERS = [
+    "config.routers.DynamicDatabaseRouter",
+]
 
 AUTH_PASSWORD_VALIDATORS = [
     {

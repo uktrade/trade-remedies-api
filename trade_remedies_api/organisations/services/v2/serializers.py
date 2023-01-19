@@ -10,7 +10,12 @@ from contacts.models import CaseContact, Contact
 from contacts.services.v2.serializers import CaseContactSerializer
 from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
-from organisations.models import Organisation
+from organisations.constants import (
+    AWAITING_ORG_CASE_ROLE,
+    PREPARING_ORG_CASE_ROLE,
+    REJECTED_ORG_CASE_ROLE,
+)
+from organisations.models import DuplicateOrganisationMerge, Organisation, OrganisationMergeRecord
 from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
 
 
@@ -82,6 +87,12 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     a_tag_website_url = serializers.SerializerMethodField()
     full_country_name = serializers.SerializerMethodField()
     potential_duplicate_organisations = serializers.SerializerMethodField()
+    users = serializers.SerializerMethodField()
+
+    approved_organisation_case_roles = serializers.SerializerMethodField()
+    approved_representative_cases = serializers.SerializerMethodField()
+    rejected_representative_cases = serializers.SerializerMethodField()
+    rejected_interested_party_cases = serializers.SerializerMethodField()
 
     class Meta:
         model = Organisation
@@ -102,6 +113,13 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         """get a serialize-able duplicate organisation list"""
         serializer = OrganisationListSerializer(instance.potential_duplicate_orgs, many=True)
         return serializer.data
+    
+    @staticmethod
+    def get_users(instance):
+        return OrganisationUserSerializer(
+            instance.organisationuser_set.all(), many=True, exclude=["organisation"]
+        ).data
+
 
     @staticmethod
     def get_a_tag_website_url(instance):
@@ -162,6 +180,32 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             )
 
         return rejections
+
+    @staticmethod
+    def get_approved_organisation_case_roles(instance):
+        """Returns all approved OrganisationCaseRoles for this organisation"""
+        return [
+            OrganisationCaseRoleSerializer(each, exclude=["organisation"]).data
+            for each in instance.organisationcaserole_set.all()
+            if each.role.key
+            not in [AWAITING_ORG_CASE_ROLE, REJECTED_ORG_CASE_ROLE, PREPARING_ORG_CASE_ROLE]
+        ]
+
+    def get_approved_representative_cases(self, instance):
+        """Returns all approved representative cases for this organisation"""
+        return [
+            each["case"] for each in self.get_representative_cases(instance) if each["validated"]
+        ]
+
+    def get_rejected_representative_cases(self, instance):
+        return [
+            each for each in self.get_rejected_cases(instance) if each["type"] == "representative"
+        ]
+
+    def get_rejected_interested_party_cases(self, instance):
+        return [
+            each for each in self.get_rejected_cases(instance) if each["type"] == "interested_party"
+        ]
 
     def get_representative_cases(self, instance):
         """Return all cases where this Organisation is acting as a representative"""
@@ -327,3 +371,48 @@ class OrganisationSerializer(CustomValidationModelSerializer):
 
         contacts = Contact.objects.filter(casecontact__organisation=instance)
         return ContactSerializer(instance=contacts, many=True).data
+
+
+skinny_organisation_fields = [
+    "name",
+    "address",
+    "post_code",
+    "country",
+    "vat_number",
+    "eori_number",
+    "duns_number",
+    "companies_house_id",
+    "organisation_website",
+    "approved_organisation_case_roles",
+    "approved_representative_cases",
+    "rejected_representative_cases",
+    "rejected_interested_party_cases",
+    "organisationuser_set",
+]
+
+
+class DuplicateOrganisationMergeSerializer(CustomValidationModelSerializer):
+    """Serializes DuplicateOrganisationMerge objects"""
+
+    class Meta:
+        model = DuplicateOrganisationMerge
+        fields = "__all__"
+
+    child_organisation = OrganisationSerializer(fields=skinny_organisation_fields)
+    parent_organisation = OrganisationSerializer(
+        fields=skinny_organisation_fields,
+        source="merge_record.parent_organisation",
+    )
+
+
+class OrganisationMergeRecordSerializer(CustomValidationModelSerializer):
+    """Serializes OrganisationMergeRecord objects"""
+
+    class Meta:
+        model = OrganisationMergeRecord
+        fields = "__all__"
+
+    parent_organisation = OrganisationSerializer(fields=skinny_organisation_fields)
+    potential_duplicates = DuplicateOrganisationMergeSerializer(
+        source="duplicate_organisations", many=True
+    )
