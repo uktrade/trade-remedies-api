@@ -98,6 +98,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         return data
 
     def get_potential_duplicate_organisations(self, instance):
+        """get a serialize-able duplicate organisation list"""
         return [
             duplicate_org.to_embedded_dict()
             for duplicate_org in instance.potential_duplicate_organisations
