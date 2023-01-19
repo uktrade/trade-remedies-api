@@ -390,4 +390,9 @@ validation_errors = {
         "error_text": "Select a rating of between 1 to 5 stars",
         "error_summary": "You need to select a rating of between 1 to 5 stars",
     },
+    "confirm_not_selected": {
+        "field": "confirm",
+        "error_text": "Select checkbox",
+        "error_summary": "You need to confirm you have authority to merge these organisations",
+    },
 }

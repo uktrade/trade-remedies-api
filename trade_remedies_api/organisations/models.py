@@ -13,6 +13,7 @@ from django_countries.fields import CountryField
 from audit import AUDIT_TYPE_NOTIFY
 from cases.constants import TRA_ORGANISATION_ID
 from cases.models.submission import Submission
+from config.context import db
 from contacts.models import CaseContact, Contact
 from core.base import BaseModel
 from core.models import SystemParameter
@@ -41,6 +42,75 @@ def _(organisation):
 
 
 class OrganisationManager(models.Manager):
+    def merge_organisations(
+        self,
+        parent_organisation,
+        child_organisation,
+        draft=True,
+    ):
+        """
+        Merges the child_organisation into the parent_organisation, deleting the former.
+        Parameters
+        ----------
+        parent_organisation : parent organisation that will retain its details (name..etc.)
+        child_organisation : organisation to be merged - child organisation that will get swallowed into the parent
+        draft : True if this is a draft merge, where you just want to see what would happen.
+        Returns
+        -------
+        The parent organisation object containing the records of both organisation_a and organisation_b
+        """
+        from invitations.models import Invitation
+
+        with transaction.atomic():
+            # finding the users who are members of the child org, but not of the parent.
+            # we need to add those users to the parent
+            parent_organisation_users = [each.user for each in parent_organisation.users]
+            for org_user in child_organisation.users:
+                if org_user.user not in parent_organisation_users:
+                    org_user.organisation = parent_organisation
+                    org_user.save()
+                else:
+                    # the child org user is already a member of the parent org, delete
+                    org_user.delete()
+
+            # updating the UserCase objects of the child_org
+            UserCase.objects.filter(organisation=child_organisation).update(
+                organisation=parent_organisation
+            )
+
+            # updating the contacts, this will also update the CaseContact object
+            Contact.objects.filter(organisation=child_organisation).update(
+                organisation=parent_organisation
+            )
+
+            # updating all OrganisationCaseRole objects which are unique to the child organisation, and
+            # to cases which the parent_organisation doesn't have a corresponding
+            # OrganisationCaseRole object
+            parent_org_cases = OrganisationCaseRole.objects.filter(
+                organisation=parent_organisation
+            ).values_list("case_id")
+
+            OrganisationCaseRole.objects.filter(organisation=child_organisation).exclude(
+                case_id__in=parent_org_cases
+            ).update(organisation=parent_organisation)
+
+            # updating the submissions
+            Submission.objects.filter(organisation=child_organisation).update(
+                organisation=parent_organisation
+            )
+
+            # updating the invitations
+            Invitation.objects.filter(organisation=child_organisation).update(
+                organisation=parent_organisation
+            )
+
+            child_organisation.delete()
+
+            if draft:
+                transaction.set_rollback(True)
+
+        return parent_organisation
+
     @transaction.atomic
     def find_similar_organisations(self, limit=None):
         """
@@ -782,6 +852,7 @@ class DuplicateOrganisationMerge(BaseModel):
         (1, "Pending"),
         (2, "Not duplicate"),
         (3, "Confirmed duplicate"),
+        (4, "Attributes selected"),
     )
     merge_record = models.ForeignKey(
         OrganisationMergeRecord, on_delete=models.PROTECT, related_name="duplicate_organisations"

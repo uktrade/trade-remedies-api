@@ -1,17 +1,21 @@
 from django.contrib.auth.models import Group
+from django.db import connection, transaction
 from django.db.models import Q
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-
+import pgtransaction
+from config.context import db
 from config.viewsets import BaseModelViewSet
 from core.models import User
-from organisations.models import Organisation
+from organisations.models import DuplicateOrganisationMerge, Organisation, OrganisationMergeRecord
 from organisations.services.v2.pagination import StandardResultsSetPagination
 from organisations.services.v2.serializers import (
+    DuplicateOrganisationMergeSerializer,
     OrganisationCaseRoleSerializer,
-    OrganisationSerializer,
     OrganisationListSerializer,
+    OrganisationMergeRecordSerializer,
+    OrganisationSerializer,
 )
 from security.models import OrganisationCaseRole
 
@@ -98,3 +102,71 @@ class OrganisationCaseRoleViewSet(BaseModelViewSet):
         if filter_kwargs:
             return queryset.filter(**filter_kwargs)
         return queryset
+
+
+class OrganisationMergeRecordViewSet(BaseModelViewSet):
+    queryset = OrganisationMergeRecord.objects.all()
+    serializer_class = OrganisationMergeRecordSerializer
+
+    def _apply_selections(self, parent_organisation, child_organisation):
+        pass
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_name="merge_organisations",
+    )
+    def merge_organisations(self, request, *args, **kwargs):
+        print("asd")
+
+    @action(
+        detail=True,
+        methods=["get"],
+        url_name="get_draft_merged_organisation",
+    )
+    def get_draft_merged_organisation(self, request, *args, **kwargs):
+        class DraftOrganisationCreatedException(Exception):
+            pass
+
+        merge_record = self.get_object()
+        cursor = connection.cursor()
+        cursor.execute("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED")
+        try:
+            with transaction.atomic():
+                # creating a savepoint here so that we can roll-back
+                draft_organisation = Organisation()
+                for potential_duplicate_organisation in merge_record.duplicate_organisations.all():
+                    for field in potential_duplicate_organisation.parent_fields:
+                        setattr(
+                            draft_organisation,
+                            field,
+                            getattr(merge_record.parent_organisation, field),
+                        )
+                    for field in potential_duplicate_organisation.child_fields:
+                        setattr(
+                            draft_organisation,
+                            field,
+                            getattr(potential_duplicate_organisation.child_organisation, field),
+                        )
+                    Organisation.objects.merge_organisations(
+                        draft_organisation,
+                        potential_duplicate_organisation.child_organisation,
+                        draft=False,
+                    )
+                # we exit this block and the changes are committed to the database, allowing the
+                # serializer to read the draft organisation from the DB
+                serializer_data = OrganisationSerializer(
+                    instance=draft_organisation,
+                    exclude=["organisationuser_set", "user_cases"],
+                ).data
+
+                # now we raise an exception, which will roll-back the transaction and delete
+                # the draft organisation along with any merge changes
+                raise DraftOrganisationCreatedException()
+        except DraftOrganisationCreatedException:
+            return Response(serializer_data)
+
+
+class DuplicateOrganisationMergeViewSet(BaseModelViewSet):
+    queryset = DuplicateOrganisationMerge.objects.all()
+    serializer_class = DuplicateOrganisationMergeSerializer
