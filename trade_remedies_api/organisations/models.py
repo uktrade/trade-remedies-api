@@ -372,9 +372,11 @@ class Organisation(BaseModel):
         # A fuzzy search, because we can't do much manipulation of the db field values
         # until it gets to be a python object after the db query
 
-        fields_of_interest = (
+        exact_match_fields = (
             "name",
             "address",
+        )
+        similar_match_fields = (
             "post_code",
             "vat_number",
             "eori_number",
@@ -384,15 +386,15 @@ class Organisation(BaseModel):
 
         q_objects = models.Q()
 
-        for field in fields_of_interest:
+        for field in exact_match_fields:
             value = getattr(self, field)
-            if value:
-                if field in ("name", "address"):
-                    query = {f"{field}__exact": value}
-                    q_objects |= models.Q(**query)
-                else:
-                    query = {f"{field}__icontains": value}
-                    q_objects |= models.Q(**query)
+            query = {f"{field}__exact": value}
+            q_objects |= models.Q(**query)
+
+        for field in similar_match_fields:
+            value = getattr(self, field)
+            query = {f"{field}__icontains": value}
+            q_objects |= models.Q(**query)
 
         potential_dup_orgs = Organisation.objects.exclude(id=self.id).filter(q_objects)
 
