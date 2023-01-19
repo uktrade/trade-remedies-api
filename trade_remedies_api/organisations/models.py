@@ -388,13 +388,15 @@ class Organisation(BaseModel):
 
         for field in exact_match_fields:
             value = getattr(self, field)
-            query = {f"{field}__exact": value}
-            q_objects |= models.Q(**query)
+            if value:
+                query = {f"{field}__exact": value}
+                q_objects |= models.Q(**query)
 
         for field in similar_match_fields:
             value = getattr(self, field)
-            query = {f"{field}__icontains": value}
-            q_objects |= models.Q(**query)
+            if value:
+                query = {f"{field}__icontains": value}
+                q_objects |= models.Q(**query)
 
         potential_dup_orgs = Organisation.objects.exclude(id=self.id).filter(q_objects)
 
