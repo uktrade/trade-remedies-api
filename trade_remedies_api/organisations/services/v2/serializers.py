@@ -86,9 +86,9 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     json_data = serializers.JSONField(required=False, allow_null=True)
     a_tag_website_url = serializers.SerializerMethodField()
     full_country_name = serializers.SerializerMethodField()
-    potential_duplicate_organisations = serializers.SerializerMethodField()
-    users = serializers.SerializerMethodField()
 
+    merge_record = serializers.SerializerMethodField()
+    users = serializers.SerializerMethodField()
     approved_organisation_case_roles = serializers.SerializerMethodField()
     approved_representative_cases = serializers.SerializerMethodField()
     rejected_representative_cases = serializers.SerializerMethodField()
@@ -109,17 +109,21 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         return data
 
     @staticmethod
-    def get_potential_duplicate_organisations(instance):
-        """get a serialize-able duplicate organisation list"""
-        serializer = OrganisationListSerializer(instance.potential_duplicate_orgs, many=True)
-        return serializer.data
-    
+    def get_merge_record(instance):
+        """Returns the merge record for this organisation if it exists"""
+        if not hasattr(instance, "merge_record"):
+            instance.find_potential_duplicate_orgs()
+
+        return OrganisationMergeRecordSerializer(
+            OrganisationMergeRecord.objects.get(parent_organisation=instance),
+            exclude=["parent_organisation"],
+        ).data
+
     @staticmethod
     def get_users(instance):
         return OrganisationUserSerializer(
             instance.organisationuser_set.all(), many=True, exclude=["organisation"]
         ).data
-
 
     @staticmethod
     def get_a_tag_website_url(instance):
@@ -188,7 +192,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             OrganisationCaseRoleSerializer(each, exclude=["organisation"]).data
             for each in instance.organisationcaserole_set.all()
             if each.role.key
-            not in [AWAITING_ORG_CASE_ROLE, REJECTED_ORG_CASE_ROLE, PREPARING_ORG_CASE_ROLE]
+               not in [AWAITING_ORG_CASE_ROLE, REJECTED_ORG_CASE_ROLE, PREPARING_ORG_CASE_ROLE]
         ]
 
     def get_approved_representative_cases(self, instance):
@@ -298,10 +302,10 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 )
                 if response.status_code == 200:
                     if (
-                        response.json().get(
-                            "company_name",
-                        )
-                        == organisation_name
+                            response.json().get(
+                                "company_name",
+                            )
+                            == organisation_name
                     ):
                         return True
         return False
@@ -383,11 +387,6 @@ skinny_organisation_fields = [
     "duns_number",
     "companies_house_id",
     "organisation_website",
-    "approved_organisation_case_roles",
-    "approved_representative_cases",
-    "rejected_representative_cases",
-    "rejected_interested_party_cases",
-    "organisationuser_set",
 ]
 
 

@@ -1,19 +1,18 @@
 import logging
 import re
-import typing
 import uuid
 from functools import singledispatch
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models, transaction
+from django.db.models import QuerySet
 from django.utils import timezone
 from django_countries.fields import CountryField
 
 from audit import AUDIT_TYPE_NOTIFY
 from cases.constants import TRA_ORGANISATION_ID
 from cases.models.submission import Submission
-from config.context import db
 from contacts.models import CaseContact, Contact
 from core.base import BaseModel
 from core.models import SystemParameter
@@ -43,10 +42,9 @@ def _(organisation):
 
 class OrganisationManager(models.Manager):
     def merge_organisations(
-        self,
-        parent_organisation,
-        child_organisation,
-        draft=True,
+            self,
+            parent_organisation,
+            child_organisation,
     ):
         """
         Merges the child_organisation into the parent_organisation, deleting the former.
@@ -54,7 +52,6 @@ class OrganisationManager(models.Manager):
         ----------
         parent_organisation : parent organisation that will retain its details (name..etc.)
         child_organisation : organisation to be merged - child organisation that will get swallowed into the parent
-        draft : True if this is a draft merge, where you just want to see what would happen.
         Returns
         -------
         The parent organisation object containing the records of both organisation_a and organisation_b
@@ -106,9 +103,6 @@ class OrganisationManager(models.Manager):
 
             child_organisation.delete()
 
-            if draft:
-                transaction.set_rollback(True)
-
         return parent_organisation
 
     @transaction.atomic
@@ -131,7 +125,7 @@ class OrganisationManager(models.Manager):
 
     @transaction.atomic  # noqa: C901
     def merge_organisation_records(
-        self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
+            self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
     ):
         """
         Merge two organisations records into one.
@@ -196,8 +190,8 @@ class OrganisationManager(models.Manager):
             if clash:
                 if org_case.role.key not in NOT_IN_CASE_ORG_CASE_ROLES:
                     if (
-                        clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
-                        and org_case.role.key != clash.role.key
+                            clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
+                            and org_case.role.key != clash.role.key
                     ):
                         # Argh, both orgs are in the same case with different,
                         # non awaiting roles - blow up!
@@ -265,22 +259,22 @@ class OrganisationManager(models.Manager):
 
     @transaction.atomic  # noqa: C901
     def create_or_update_organisation(
-        self,
-        user,
-        name,
-        trade_association=False,
-        companies_house_id=None,
-        datahub_id=None,
-        address=None,
-        post_code=None,
-        country=None,
-        organisation_id=None,
-        assign_user=False,
-        gov_body=False,
-        case=None,
-        json_data=None,
-        contact_object=None,
-        **kwargs,
+            self,
+            user,
+            name,
+            trade_association=False,
+            companies_house_id=None,
+            datahub_id=None,
+            address=None,
+            post_code=None,
+            country=None,
+            organisation_id=None,
+            assign_user=False,
+            gov_body=False,
+            case=None,
+            json_data=None,
+            contact_object=None,
+            **kwargs,
     ):
         """
         Create or update an organisation record.
@@ -392,7 +386,7 @@ class Organisation(BaseModel):
 
     @staticmethod
     def __is_potential_duplicate_organisation(
-        target_org: "Organisation", potential_dup_org: "Organisation"
+            target_org: "Organisation", potential_dup_org: "Organisation"
     ):
 
         DIGITS_PATTERN = re.compile(r"[^0-9]+")
@@ -427,15 +421,15 @@ class Organisation(BaseModel):
             return True
 
         return (
-            target_org.name == potential_dup_org.name
-            or target_org.address == potential_dup_org.address
+                target_org.name == potential_dup_org.name
+                or target_org.address == potential_dup_org.address
         )
 
     @transaction.atomic
-    def _potential_duplicate_orgs(self) -> typing.List["Organisation"]:
+    def _potential_duplicate_orgs(self) -> "OrganisationMergeRecord":
         """
-        Returns potential identical or similar organisations simialr to
-        the given organisation
+        Returns potential identical or similar organisations similar to
+        the given organisation.
         """
         # first we check which organisations contain our lookup values
         # A fuzzy search, because we can't do much manipulation of the db field values
@@ -467,22 +461,46 @@ class Organisation(BaseModel):
                 query = {f"{field}__icontains": value}
                 q_objects |= models.Q(**query)
 
-        potential_dup_orgs = Organisation.objects.exclude(id=self.id).filter(q_objects)
+        organisation_queryset = Organisation.objects.exclude(id=self.id)
+        if hasattr(self, "merge_record"):
+            # if there is a merge record associated with this organisation, we presume that
+            # the database has been scanned for potential duplicates, and we only want to check
+            # those organisations that have been created or modified since the last check
+            organisation_queryset = organisation_queryset.exclude(
+                models.Q(created_at__gt=self.merge_record.created_at) | models.Q(
+                    last_modified__gt=self.merge_record.created_at))
+        else:
+            OrganisationMergeRecord.objects.create(
+                parent_organisation=self
+            )
+
+        potential_dup_orgs = organisation_queryset.filter(q_objects)
 
         if not potential_dup_orgs:
+            self.merge_record.status = 2
+            self.merge_record.save()
             return potential_dup_orgs
-        result = []
+        results = []
 
         # we iterate through each organisation and do
-        # a granular check, then eliminate non serious potential duplicates
+        # a granular check, then eliminate non-serious potential duplicates
         # then we return serious potential duplicate organisations
         for potential_dup_org in potential_dup_orgs:
             if self.__is_potential_duplicate_organisation(self, potential_dup_org):
-                result += [potential_dup_org]
-        return result
+                results.append(potential_dup_org)
 
-    @property
-    def potential_duplicate_orgs(self) -> typing.List["Organisation"]:
+        # now we update the merge record
+        for potential_dup_org in potential_dup_orgs:
+            duplicate_organisation_merge_object = DuplicateOrganisationMerge.objects.get_or_create(
+                merge_record=self.merge_record,
+                child_organisation=potential_dup_org
+            )
+        self.merge_record.status = 3
+        self.merge_record.save()
+
+        return self.merge_record
+
+    def find_potential_duplicate_orgs(self) -> "OrganisationMergeRecord":
         return self._potential_duplicate_orgs()
 
     def has_role_in_case(self, case, role):
@@ -514,7 +532,7 @@ class Organisation(BaseModel):
         )
 
     def related_pending_registrations_of_interest(
-        self, requested_by, all_interests=True, archived=False
+            self, requested_by, all_interests=True, archived=False
     ):
         """
         Return all pending registrations of interest for this organisaion.
@@ -676,7 +694,7 @@ class Organisation(BaseModel):
         Return all contacts assosciated with the organisation for a specific case.
         These might be lawyers representing the organisation or direct employee.
         """
-        case_contacts = Contact.objects.select_related("userprofile", "organisation",).filter(
+        case_contacts = Contact.objects.select_related("userprofile", "organisation", ).filter(
             casecontact__case=case,
             casecontact__organisation=self,
             deleted_at__isnull=True,
@@ -690,10 +708,10 @@ class Organisation(BaseModel):
         case = case or self.case_context
         if case:
             return (
-                case
-                and Submission.objects.filter(
-                    organisation=self, case=case, status__default=False
-                ).exists()
+                    case
+                    and Submission.objects.filter(
+                organisation=self, case=case, status__default=False
+            ).exists()
             )
 
     @property
@@ -703,10 +721,10 @@ class Organisation(BaseModel):
             from cases.models import Submission
 
             return (
-                case
-                and Submission.objects.filter(
-                    organisation=self, case=case, status__default=False, type__key="interest"
-                ).exists()
+                    case
+                    and Submission.objects.filter(
+                organisation=self, case=case, status__default=False, type__key="interest"
+            ).exists()
             )
 
     @property
@@ -855,34 +873,72 @@ class OrganisationName(models.Model):
 
 class OrganisationMergeRecord(BaseModel):
     status_choices = (
-        (1, "Not started"),
-        (2, "No duplicates found"),
-        (2, "Started"),
-        (3, "Complete"),
+        ("not_started", "Not started"),
+        ("no_duplicates_found", "No duplicates found"),
+        ("started", "Started"),
+        ("complete", "Complete"),
     )
 
-    submission = models.OneToOneField(
-        Submission, on_delete=models.PROTECT, related_name="organisation_merge_record"
+    """submission = models.OneToOneField(
+        Submission, on_delete=models.PROTECT, related_name="organisation_merge_record", null=True
+    )"""
+    id = models.UUIDField(primary_key=False, default=uuid.uuid4, editable=False)
+    status = models.CharField(choices=status_choices, default="not_started", max_length=30)
+    parent_organisation = models.OneToOneField(
+        Organisation,
+        on_delete=models.PROTECT,
+        related_name="merge_record",
+        primary_key=True
     )
-    status = models.PositiveSmallIntegerField(choices=status_choices, default=1)
-    parent_organisation = models.ForeignKey(
-        Organisation, on_delete=models.PROTECT, related_name="merge_records", null=True
-    )
+
+    def merge_organisations(self, organisation=None):
+        if not organisation:
+            organisation = self.parent_organisation
+
+        for potential_duplicate_organisation in self.duplicate_organisations.all():
+            # going through the potential duplicates and applying the attributes from each
+            # duplicate selected by the caseworkers to the draft organisation
+            potential_duplicate_organisation._apply_selections(
+                organisation=organisation,
+            )
+
+            # now we finally run the merge_organisations method to re-associate the child
+            # objects (UserCase, OrganisationUser, OrganisationCaseRole...etc.) with the
+            # draft organisation
+            Organisation.objects.merge_organisations(
+                organisation,
+                potential_duplicate_organisation.child_organisation,
+            )
+
+        return organisation
 
 
 class DuplicateOrganisationMerge(BaseModel):
     status_choices = (
-        (1, "Pending"),
-        (2, "Not duplicate"),
-        (3, "Confirmed duplicate"),
-        (4, "Attributes selected"),
+        ("pending", "Pending"),
+        ("not_duplicate", "Not duplicate"),
+        ("confirmed_duplicate", "Confirmed duplicate"),
+        ("attributes_selected", "Attributes selected"),
     )
     merge_record = models.ForeignKey(
-        OrganisationMergeRecord, on_delete=models.PROTECT, related_name="duplicate_organisations"
+        OrganisationMergeRecord, on_delete=models.CASCADE, related_name="duplicate_organisations"
     )
     child_organisation = models.ForeignKey(
         Organisation, on_delete=models.PROTECT, related_name="potential_duplicate_organisations"
     )
-    status = models.PositiveSmallIntegerField(choices=status_choices, default=1)
+    status = models.CharField(choices=status_choices, default="pending", max_length=30)
     parent_fields = ArrayField(models.CharField(max_length=100), null=True, blank=True)
     child_fields = ArrayField(models.CharField(max_length=100), null=True, blank=True)
+
+    def _apply_selections(self, organisation=None):
+        if not organisation:
+            organisation = self.merge_record.parent_organisation
+
+        if not self.status == 2:
+            for field in self.parent_fields:
+                setattr(organisation, field, getattr(self.merge_record.parent_organisation, field))
+            for field in self.child_fields:
+                setattr(organisation, field, getattr(self.child_organisation, field))
+
+            organisation.save()
+        return organisation

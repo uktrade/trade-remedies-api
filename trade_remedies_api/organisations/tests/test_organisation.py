@@ -38,4 +38,4 @@ class OrganisationTest(unittest.TestCase):
             organisation_website="www.fakewebsite.co",
         )
 
-        assert len(target_organisation.potential_duplicate_orgs) == 3
+        assert len(target_organisation.find_potential_duplicate_orgs()) == 3

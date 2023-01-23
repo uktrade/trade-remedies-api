@@ -55,6 +55,7 @@ class DynamicFieldsModelSerializer(serializers.Serializer):
         # Don't pass the 'fields' arg up to the superclass
         fields = kwargs.pop("fields", None)
         exclude = kwargs.pop("exclude", None)
+        slim = kwargs.pop("slim", False)
 
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
@@ -70,6 +71,15 @@ class DynamicFieldsModelSerializer(serializers.Serializer):
             not_allowed = set(exclude)
             for exclude_name in not_allowed:
                 self.fields.pop(exclude_name)
+
+        if slim:
+            # drop any fields that are not defined in the model (and have a corresponding column
+            # in the database)
+            model_fields = [f.name for f in self.Meta.model._meta.get_fields()]
+            current_field = set(self.fields.keys())
+            for field_name in current_field:
+                if field_name not in model_fields:
+                    self.fields.pop(field_name)
 
 
 class CustomValidationSerializer(DynamicFieldsMixinIDAlways, DynamicFieldsModelSerializer):
