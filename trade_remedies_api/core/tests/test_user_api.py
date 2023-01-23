@@ -34,7 +34,7 @@ class UserAPITest(APITestCase, APISetUpMixin):
 
     def test_user_name_escape(self):
         """Test to ensure names are escaped when making a POST request"""
-        data = {"name": "<script>super</script>"}
+        data = {"name": "<script>super</script>", "country_code": "GB"}
 
         query_dict = QueryDict("", mutable=True)
         query_dict.update(data)
