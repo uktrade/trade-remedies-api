@@ -10,6 +10,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.db.utils import IntegrityError
 from django.http import HttpResponse
+from django.utils.html import escape
 from feedback.models import FeedbackForm
 from rest_framework import status
 from rest_framework.views import APIView
@@ -147,7 +148,7 @@ class UserApiView(TradeRemediesApiView):
         country = request.data.get("country_code")
         timezone = request.data.get("timezone")
         phone = request.data.get("phone")
-        name = request.data.get("name")
+        name = escape(request.data.get("name"))
         title_id = request.data.get("job_title_id")
         active = request.data.get("active") in TRUTHFUL_INPUT_VALUES
         colour = request.data.get("colour")
