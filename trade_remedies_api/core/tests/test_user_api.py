@@ -32,7 +32,8 @@ class UserAPITest(APITestCase, APISetUpMixin):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_user_name_update(self):
+    def test_user_name_escape(self):
+        """Test to ensure names are escaped when making a POST request"""
         data = {"name": "<script>super</script>"}
 
         query_dict = QueryDict("", mutable=True)
@@ -45,5 +46,23 @@ class UserAPITest(APITestCase, APISetUpMixin):
 
         self.assertEqual(
             "&lt;script&gt;super&lt;/script&gt;", response.json()["response"]["result"]["name"]
+        )
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+
+    def test_user_phone_escape(self):
+        """Test to ensure phone numbers are escaped when making a POST request"""
+        data = {"phone": "<script>07112233445</script>", "country_code": "GB"}
+
+        query_dict = QueryDict("", mutable=True)
+        query_dict.update(data)
+        query_dict._mutable = False
+
+        response = self.client.post(
+            f"/api/v1/user/{self.admin.id}/", query_dict, follow=True, format="multipart"
+        )
+
+        self.assertEqual(
+            "&lt;script&gt;07112233445&lt;/script&gt;",
+            response.json()["response"]["result"]["phone"],
         )
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
