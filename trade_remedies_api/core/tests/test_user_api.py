@@ -27,6 +27,16 @@ class UserAPITest(APITestCase, APISetUpMixin):
 
         self.client.force_authenticate(user=self.admin, token=self.admin.auth_token)
 
+    def client_post(self, data):
+        """Response with QueryDict payload for /api/v1/user POST API endpoint"""
+        query_dict = QueryDict("", mutable=True)
+        query_dict.update(data)
+        query_dict._mutable = False
+
+        return self.client.post(
+            f"/api/v1/user/{self.admin.id}/", query_dict, follow=True, format="multipart"
+        )
+
     def test_user_create(self):
         response = self.client.get(f"/api/v1/user/{self.admin.id}/", follow=True)
 
@@ -34,15 +44,7 @@ class UserAPITest(APITestCase, APISetUpMixin):
 
     def test_user_name_escape(self):
         """Test to ensure names are escaped when making a POST request"""
-        data = {"name": "<script>super</script>", "country_code": "GB"}
-
-        query_dict = QueryDict("", mutable=True)
-        query_dict.update(data)
-        query_dict._mutable = False
-
-        response = self.client.post(
-            f"/api/v1/user/{self.admin.id}/", query_dict, follow=True, format="multipart"
-        )
+        response = self.client_post({"name": "<script>super</script>", "country_code": "GB"})
 
         self.assertEqual(
             "&lt;script&gt;super&lt;/script&gt;", response.json()["response"]["result"]["name"]
@@ -51,15 +53,7 @@ class UserAPITest(APITestCase, APISetUpMixin):
 
     def test_user_phone_escape(self):
         """Test to ensure phone numbers are escaped when making a POST request"""
-        data = {"phone": "<script>07112233445</script>", "country_code": "GB"}
-
-        query_dict = QueryDict("", mutable=True)
-        query_dict.update(data)
-        query_dict._mutable = False
-
-        response = self.client.post(
-            f"/api/v1/user/{self.admin.id}/", query_dict, follow=True, format="multipart"
-        )
+        response = self.client_post({"phone": "<script>07112233445</script>", "country_code": "GB"})
 
         self.assertEqual(
             "&lt;script&gt;07112233445&lt;/script&gt;",
