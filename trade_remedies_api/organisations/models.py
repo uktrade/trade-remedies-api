@@ -4,6 +4,8 @@ import uuid
 import typing
 from django.conf import settings
 from django.db import models, transaction, connection
+from django.utils.html import escape
+
 from core.base import BaseModel
 from core.models import SystemParameter
 from core.notifier import notify_footer, notify_contact_email
@@ -546,12 +548,12 @@ class Organisation(BaseModel):
                 organisation=self, case=case, status__default=False
             ).exists()
         return {
-            "name": self.name,
+            "name": escape(self.name),
             "datahub_id": self.datahub_id,
-            "companies_house_id": self.companies_house_id,
+            "companies_house_id": escape(self.companies_house_id),
             "trade_association": self.trade_association,
-            "address": self.address,
-            "post_code": self.post_code,
+            "address": escape(self.address),
+            "post_code": escape(self.post_code),
             "country": {
                 "name": self.country.name if self.country else None,
                 "code": self.country.code if self.country else None,
@@ -563,10 +565,10 @@ class Organisation(BaseModel):
             "gov_body": self.gov_body,
             "is_tra": str(self.id) == TRA_ORGANISATION_ID,
             "has_non_draft_subs": has_non_draft_subs,
-            "vat_number": self.vat_number,
-            "eori_number": self.eori_number,
-            "duns_number": self.duns_number,
-            "organisation_website": self.organisation_website,
+            "vat_number": escape(self.vat_number),
+            "eori_number": escape(self.eori_number),
+            "duns_number": escape(self.duns_number),
+            "organisation_website": escape(self.organisation_website),
             "fraudulent": self.fraudulent,
             "previous_names": [pn.to_dict() for pn in self.previous_names]
             if self.has_previous_names
