@@ -963,7 +963,7 @@ class UserProfile(models.Model):
             "country": country.name if country else None,
             "contact": self.contact.to_dict() if self.contact else None,
             "country_code": country.code if country else None,
-            "phone": self.contact.phone if self.contact else None,
+            "phone": escape(self.contact.phone) if self.contact else None,
             "address": self.contact.address if self.contact else None,
             "email_verified_at": self.email_verified_at.strftime(settings.API_DATETIME_FORMAT)
             if self.email_verified_at
