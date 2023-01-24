@@ -147,8 +147,8 @@ class UserApiView(TradeRemediesApiView):
         roles = request.data.getlist("roles", [])
         country = request.data.get("country_code")
         timezone = request.data.get("timezone")
-        phone = escape(request.data.get("phone"))
-        name = escape(request.data.get("name"))
+        phone = request.data.get("phone")
+        name = request.data.get("name")
         title_id = request.data.get("job_title_id")
         active = request.data.get("active") in TRUTHFUL_INPUT_VALUES
         colour = request.data.get("colour")
