@@ -1,4 +1,6 @@
 from django.db import models, transaction
+from django.utils.html import escape
+
 from core.base import SimpleBaseModel, BaseModel
 from core.models import UserProfile, User
 from core.utils import convert_to_e164
@@ -101,8 +103,8 @@ class Contact(BaseModel):
         base_dict.update(
             {
                 "primary": self.is_primary(case),
-                "phone": self.phone,
-                "address": self.address,
+                "phone": escape(self.phone),
+                "address": escape(self.address),
                 "post_code": self.post_code,
                 "country": {
                     "name": self.country.name if self.country else None,
