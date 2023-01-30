@@ -7,14 +7,19 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0065_auto_20221214_1203'),
-        ('organisations', '0020_organisationmergerecord_submission'),
+        ("cases", "0065_auto_20221214_1203"),
+        ("organisations", "0020_organisationmergerecord_submission"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='submissionorganisationmergerecord',
-            name='submission',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, serialize=False, to='cases.submission'),
+            model_name="submissionorganisationmergerecord",
+            name="submission",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                primary_key=True,
+                serialize=False,
+                to="cases.submission",
+            ),
         ),
     ]

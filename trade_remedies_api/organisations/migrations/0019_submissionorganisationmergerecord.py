@@ -10,27 +10,74 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cases', '0065_auto_20221214_1203'),
+        ("cases", "0065_auto_20221214_1203"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('organisations', '0018_auto_20230130_1151'),
+        ("organisations", "0018_auto_20230130_1151"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SubmissionOrganisationMergeRecord',
+            name="SubmissionOrganisationMergeRecord",
             fields=[
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('last_modified', models.DateTimeField(auto_now=True, null=True)),
-                ('deleted_at', models.DateTimeField(blank=True, null=True)),
-                ('submission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, primary_key=True, serialize=False, to='cases.submission')),
-                ('status', models.CharField(choices=[('not_started', 'Not started'), ('in_progress', 'In Progress'), ('complete', 'Complete')], default='not_started', max_length=30)),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='submissionorganisationmergerecord_created_by', to=settings.AUTH_USER_MODEL)),
-                ('modified_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='submissionorganisationmergerecord_modified_by', to=settings.AUTH_USER_MODEL)),
-                ('organisation_merge_record', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='organisations.organisationmergerecord')),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("last_modified", models.DateTimeField(auto_now=True, null=True)),
+                ("deleted_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "submission",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        primary_key=True,
+                        serialize=False,
+                        to="cases.submission",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("not_started", "Not started"),
+                            ("in_progress", "In Progress"),
+                            ("complete", "Complete"),
+                        ],
+                        default="not_started",
+                        max_length=30,
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="submissionorganisationmergerecord_created_by",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "modified_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="submissionorganisationmergerecord_modified_by",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "organisation_merge_record",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="organisations.organisationmergerecord",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
-            bases=(models.Model, dirtyfields.dirtyfields.DirtyFieldsMixin, audit.mixins.AuditableMixin),
+            bases=(
+                models.Model,
+                dirtyfields.dirtyfields.DirtyFieldsMixin,
+                audit.mixins.AuditableMixin,
+            ),
         ),
     ]
