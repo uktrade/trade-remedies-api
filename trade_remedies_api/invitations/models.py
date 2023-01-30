@@ -334,7 +334,6 @@ class Invitation(BaseModel):
             self.create_codes()
         super().save(*args, **kwargs)
 
-
     def _to_dict(self):
         _dict = {
             "organisation": self.organisation.to_embedded_dict() if self.organisation else None,

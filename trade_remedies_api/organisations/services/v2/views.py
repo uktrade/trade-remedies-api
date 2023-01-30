@@ -1,14 +1,21 @@
 from django.contrib.auth.models import Group
 from django.db import connection, transaction
 from django.db.models import Q
+from django.http import Http404
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-import pgtransaction
-from config.context import db
+
+from cases.models import Submission
 from config.viewsets import BaseModelViewSet
 from core.models import User
-from organisations.models import DuplicateOrganisationMerge, Organisation, OrganisationMergeRecord
+from organisations.decorators import no_commit_transaction
+from organisations.models import (
+    DuplicateOrganisationMerge,
+    Organisation,
+    OrganisationMergeRecord,
+    SubmissionOrganisationMergeRecord,
+)
 from organisations.services.v2.pagination import StandardResultsSetPagination
 from organisations.services.v2.serializers import (
     DuplicateOrganisationMergeSerializer,
@@ -16,6 +23,7 @@ from organisations.services.v2.serializers import (
     OrganisationListSerializer,
     OrganisationMergeRecordSerializer,
     OrganisationSerializer,
+    SubmissionOrganisationMergeRecordSerializer,
 )
 from security.models import OrganisationCaseRole
 
@@ -108,7 +116,27 @@ class OrganisationViewSet(BaseModelViewSet):
     )
     def has_similar_organisations(self, request, *args, **kwargs):
         organisation = self.get_object()
-        return Response(len(organisation.find_potential_duplicate_orgs().potential_duplicates))
+        return Response(
+            organisation.find_potential_duplicate_orgs().duplicate_organisations.count()
+        )
+
+    @action(
+        detail=True,
+        methods=["get"],
+        url_name="get_organisation_card_data",
+        url_path="get_organisation_card_data",
+    )
+    def get_organisation_card_data(self, request, *args, **kwargs):
+        """Returns all the data required to render the organisation card for a specific organisation.
+
+        This is quite a costly operation and so it makes sense to keep it in its own method so:
+
+        1. The normal OrganisationSerializer isn't slowed down by this expensive operation
+        2. The address card can be rendered on the fly without having to make a separate request
+        3. Changes to what is displayed in the organisation card can just be done in one place
+        """
+        organisation_object = self.get_object()
+        return Response(organisation_object.organisation_card_data())
 
 
 class OrganisationCaseRoleViewSet(BaseModelViewSet):
@@ -131,15 +159,24 @@ class OrganisationCaseRoleViewSet(BaseModelViewSet):
 class OrganisationMergeRecordViewSet(BaseModelViewSet):
     queryset = OrganisationMergeRecord.objects.all()
     serializer_class = OrganisationMergeRecordSerializer
+    http_method_names = ["get", "delete", "patch"]
 
     def retrieve(self, request, *args, **kwargs):
         """We want to create merge records if someone tries to request one for an organisation that
         has not been scanned for duplicates yet."""
-        instance = self.get_object()
+        organisation_object = get_object_or_404(Organisation, pk=kwargs["pk"])
+        instance = organisation_object.find_potential_duplicate_orgs()
+
+        if submission_id := request.GET.get("submission_id"):
+            # Add the submission to the merge record
+            submission_object = get_object_or_404(Submission, pk=submission_id)
+            SubmissionOrganisationMergeRecord.objects.get_or_create(
+                submission=submission_object,
+                organisation_merge_record=instance,
+            )
         return Response(
             OrganisationMergeRecordSerializer(
                 instance=instance,
-                fields=["organisation", "potential_duplicates"],
             ).data
         )
 
@@ -156,8 +193,48 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
     @action(
         detail=True,
         methods=["get"],
+        url_name="get_draft_merged_selections",
+    )
+    @no_commit_transaction
+    def get_draft_merged_selections(self, request, *args, **kwargs):
+        """
+        Returns a serialized draft organisation that just contains the selected attributes by the
+        caseworkers in the merge process. This is used to preview the result of the first stage of
+        the merge process (without viewing merged orgs users/cases/rejections etc).
+        without actually committing the merge to the database.
+        """
+        merge_record = self.get_object()
+        return_data = {}
+        phantom_organisation = merge_record.parent_organisation
+        for potential_duplicate_organisation in merge_record.duplicate_organisations.filter(
+            status="attributes_selected"
+        ).all():
+            # going through the potential duplicates and applying the attributes from each
+            # duplicate selected by the caseworkers to the draft organisation
+            potential_duplicate_organisation._apply_selections(
+                organisation=phantom_organisation,
+            )
+        return_data["phantom_organisation_serializer"] = OrganisationSerializer(
+            phantom_organisation
+        ).data
+
+        # if we have a current_duplicate_id query parameter, we want to also get the
+        # identical fields between the phantom org and the current duplicate being
+        # analysed
+        if current_duplicate_id := request.GET.get("current_duplicate_id"):
+            current_duplicate = merge_record.duplicate_organisations.get(pk=current_duplicate_id)
+            return_data["identical_fields"] = phantom_organisation.get_identical_fields(
+                current_duplicate.child_organisation
+            )
+
+        return Response(return_data)
+
+    @action(
+        detail=True,
+        methods=["get"],
         url_name="get_draft_merged_organisation",
     )
+    @no_commit_transaction
     def get_draft_merged_organisation(self, request, *args, **kwargs):
         """
         Returns a draft organisation that is the result of merging the child organisation into
@@ -169,39 +246,23 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
         -------
         Serialized draft organisation
         """
-        class DraftOrganisationCreatedException(Exception):
-            pass
 
         merge_record = self.get_object()
-        cursor = connection.cursor()
-        # setting the read level to REPEATABLE READ ensures that we can read the uncommitted data
-        # from the database when loading the serializer
-        cursor.execute("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED")
-        try:
-            # running it with transaction.atomic() so that changes are stored in a single
-            # transaction, but not committed to the database
-            with transaction.atomic():
-                # the phantom_organisation never exists in the database, it is only used to
-                # preview the result of the merge
-                # 👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻
-                phantom_organisation = Organisation()
-                # 👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻
-                phantom_organisation = merge_record.merge_organisations(
-                    organisation=phantom_organisation
-                )
-
-                serializer_data = OrganisationSerializer(
-                    instance=phantom_organisation,
-                    exclude=["organisationuser_set", "user_cases"],
-                ).data
-
-                # now we raise an exception, which will roll back the transaction and delete
-                # the draft organisation along with any merge changes
-                raise DraftOrganisationCreatedException()
-        except DraftOrganisationCreatedException:
-            return Response(serializer_data)
+        # the phantom_organisation never exists in the database, it is only used to
+        # preview the result of the merge
+        # 👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻
+        phantom_organisation = Organisation()
+        # 👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻
+        phantom_organisation = merge_record.merge_organisations(organisation=phantom_organisation)
+        return_data = phantom_organisation.organisation_card_data()
+        return Response(return_data)
 
 
 class DuplicateOrganisationMergeViewSet(BaseModelViewSet):
     queryset = DuplicateOrganisationMerge.objects.all()
     serializer_class = DuplicateOrganisationMergeSerializer
+
+
+class SubmissionOrganisationMergeRecordViewSet(BaseModelViewSet):
+    queryset = SubmissionOrganisationMergeRecord.objects.all()
+    serializer_class = SubmissionOrganisationMergeRecordSerializer

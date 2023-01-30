@@ -1,3 +1,8 @@
+Complete
+updated_at
+In Progress
+phantom_organisation_serializer
+SubmissionOrganisationMergeRecord
 Serializes DuplicateOrganisationMerge
 OrganisationMergeRecord
 DuplicateOrganisationMerge

@@ -70,7 +70,6 @@ class BaseModelViewSet(viewsets.ModelViewSet):
                         return f"<SlimSerializer for {model_name}>"
 
                 return SlimSerializer
+
             return slim_serializer_factory(self.queryset.model)
         return super().get_serializer_class()
-
-

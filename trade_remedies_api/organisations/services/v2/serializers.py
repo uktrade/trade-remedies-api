@@ -1,21 +1,17 @@
-import requests
 from django.contrib.auth.models import Group
-from django.db.models import F
 from django_restql.fields import NestedField
 from rest_framework import serializers
 
-from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
 from config.serializers import CustomValidationModelSerializer
 from contacts.models import CaseContact, Contact
 from contacts.services.v2.serializers import CaseContactSerializer
-from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
-from organisations.constants import (
-    AWAITING_ORG_CASE_ROLE,
-    PREPARING_ORG_CASE_ROLE,
-    REJECTED_ORG_CASE_ROLE,
+from organisations.models import (
+    DuplicateOrganisationMerge,
+    Organisation,
+    OrganisationMergeRecord,
+    SubmissionOrganisationMergeRecord,
 )
-from organisations.models import DuplicateOrganisationMerge, Organisation, OrganisationMergeRecord
 from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
 
 
@@ -75,24 +71,16 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     validated = serializers.SerializerMethodField()
     organisationcaserole_set = OrganisationCaseRoleSerializer(many=True, required=False)
     user_cases = serializers.SerializerMethodField()
-    does_name_match_companies_house = serializers.SerializerMethodField()
     case_contacts = serializers.SerializerMethodField()
-    representative_cases = serializers.SerializerMethodField()
     contacts = serializers.SerializerMethodField()
     representative_contacts = serializers.SerializerMethodField()
     case_count = serializers.IntegerField(required=False)
     country_name = serializers.ReadOnlyField(source="country.name")
-    rejected_cases = serializers.SerializerMethodField()
     json_data = serializers.JSONField(required=False, allow_null=True)
     a_tag_website_url = serializers.SerializerMethodField()
     full_country_name = serializers.SerializerMethodField()
 
-    merge_record = serializers.SerializerMethodField()
     users = serializers.SerializerMethodField()
-    approved_organisation_case_roles = serializers.SerializerMethodField()
-    approved_representative_cases = serializers.SerializerMethodField()
-    rejected_representative_cases = serializers.SerializerMethodField()
-    rejected_interested_party_cases = serializers.SerializerMethodField()
 
     class Meta:
         model = Organisation
@@ -109,17 +97,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         return data
 
     @staticmethod
-    def get_merge_record(instance):
-        """Returns the merge record for this organisation if it exists"""
-        if not hasattr(instance, "merge_record"):
-            instance.find_potential_duplicate_orgs()
-
-        return OrganisationMergeRecordSerializer(
-            OrganisationMergeRecord.objects.get(parent_organisation=instance),
-            exclude=["parent_organisation"],
-        ).data
-
-    @staticmethod
     def get_users(instance):
         return OrganisationUserSerializer(
             instance.organisationuser_set.all(), many=True, exclude=["organisation"]
@@ -133,155 +110,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         return instance.organisation_website
 
     @staticmethod
-    def get_rejected_cases(instance):
-        """Return all instances when this organisation was rejected from a case"""
-        from invitations.models import Invitation
-        from cases.services.v2.serializers import CaseSerializer
-
-        rejections = []
-
-        # finding the rep invitations for this org which have been rejected
-        rejected_invitations = Invitation.objects.filter(
-            contact__organisation=instance,
-            rejected_by__isnull=False,
-            rejected_at__isnull=False,
-            invitation_type=2,  # only rep invites
-        )
-        for invitation in rejected_invitations:
-            rejections.append(
-                {
-                    "case": CaseSerializer(
-                        invitation.submission.case, fields=["name", "reference"]
-                    ).data,
-                    "date_rejected": invitation.rejected_at,
-                    "rejected_reason": invitation.submission.deficiency_notice_params.get(
-                        "explain_why_contact_org_not_verified", ""
-                    ),
-                    "rejected_by": UserSerializer(
-                        invitation.rejected_by, fields=["name", "email"]
-                    ).data,
-                    "type": "representative",
-                }
-            )
-
-        # finding the interested party cases for this org which have been rejected
-        rejected_org_case_roles = OrganisationCaseRole.objects.filter(
-            organisation=instance, role__key="rejected"
-        )
-        for rejected_org_case_role in rejected_org_case_roles:
-            rejections.append(
-                {
-                    "case": CaseSerializer(
-                        rejected_org_case_role.case, fields=["name", "reference"]
-                    ).data,
-                    "date_rejected": rejected_org_case_role.validated_at,
-                    "rejected_reason": "N/A",
-                    "rejected_by": UserSerializer(
-                        rejected_org_case_role.validated_by, fields=["name", "email"]
-                    ).data,
-                    "type": "interested_party",
-                }
-            )
-
-        return rejections
-
-    @staticmethod
-    def get_approved_organisation_case_roles(instance):
-        """Returns all approved OrganisationCaseRoles for this organisation"""
-        return [
-            OrganisationCaseRoleSerializer(each, exclude=["organisation"]).data
-            for each in instance.organisationcaserole_set.all()
-            if each.role.key
-               not in [AWAITING_ORG_CASE_ROLE, REJECTED_ORG_CASE_ROLE, PREPARING_ORG_CASE_ROLE]
-        ]
-
-    def get_approved_representative_cases(self, instance):
-        """Returns all approved representative cases for this organisation"""
-        return [
-            each["case"] for each in self.get_representative_cases(instance) if each["validated"]
-        ]
-
-    def get_rejected_representative_cases(self, instance):
-        return [
-            each for each in self.get_rejected_cases(instance) if each["type"] == "representative"
-        ]
-
-    def get_rejected_interested_party_cases(self, instance):
-        return [
-            each for each in self.get_rejected_cases(instance) if each["type"] == "interested_party"
-        ]
-
-    def get_representative_cases(self, instance):
-        """Return all cases where this Organisation is acting as a representative"""
-        representations = []
-        # first let's get the cases where this organisation has been invited as a representative
-        from cases.models import Submission
-        from cases.services.v2.serializers import CaseSerializer
-        from invitations.models import Invitation
-
-        representative_case_contacts = (
-            CaseContact.objects.filter(
-                contact__organisation=instance,
-            )
-            .exclude(contact__organisation=F("organisation"))
-            .distinct("case")
-        )
-        for case_contact in representative_case_contacts:
-            try:
-                corresponding_org_case_role = OrganisationCaseRole.objects.get(
-                    organisation=case_contact.organisation, case=case_contact.case
-                )
-            except OrganisationCaseRole.DoesNotExist:
-                continue
-            representation = {
-                "on_behalf_of": case_contact.organisation.name,
-                "case": CaseSerializer(case_contact.case).data,
-                "role": corresponding_org_case_role.role.name,
-            }
-            # now we need to find if this case_contact has been created as part of an ROI or an invitation
-            invitation = (
-                Invitation.objects.filter(
-                    contact__organisation=instance,
-                    case=case_contact.case,
-                    organisation=case_contact.organisation,
-                    invitation_type=2,
-                    approved_at__isnull=False,
-                )
-                .order_by("-last_modified")
-                .first()
-            )
-            if invitation:
-                representation.update(
-                    {"validated": invitation.approved_at, "validated_at": invitation.approved_at}
-                )
-                representations.append(representation)
-            else:
-                # maybe it's an ROI that got them here
-                try:
-                    (
-                        Submission.objects.filter(
-                            type_id=SUBMISSION_TYPE_REGISTER_INTEREST,
-                            contact__organisation=instance,
-                            case=case_contact.case,
-                            organisation=case_contact.organisation,
-                        )
-                        .order_by("-last_modified")
-                        .first()
-                    )
-                    representation.update(
-                        {
-                            "validated": bool(corresponding_org_case_role.validated_at),
-                            "validated_at": corresponding_org_case_role.validated_at,
-                        }
-                    )
-                    representations.append(representation)
-                except Submission.DoesNotExist:
-                    ...
-                    # todo - log error here, how do they have access to this case
-
-        return representations
-
-    @staticmethod
     def get_case_contacts(instance):
         """
         Return all CaseContact objects where the contact belongs to this organisation.
@@ -289,26 +117,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         In this way we can find all the cases where this organisation is representing another org."""
         case_contacts = CaseContact.objects.filter(contact__organisation=instance)
         return CaseContactSerializer(instance=case_contacts, many=True).data
-
-    @staticmethod
-    def get_does_name_match_companies_house(instance):
-        """Checks if the company name on Companies House matches the company name in the DB"""
-        if registration_number := instance.companies_house_id:
-            if organisation_name := instance.name:
-                headers = {"Authorization": f"Basic {COMPANIES_HOUSE_BASIC_AUTH}"}
-                response = requests.get(
-                    f"{COMPANIES_HOUSE_BASE_DOMAIN}/company/{registration_number}",
-                    headers=headers,
-                )
-                if response.status_code == 200:
-                    if (
-                            response.json().get(
-                                "company_name",
-                            )
-                            == organisation_name
-                    ):
-                        return True
-        return False
 
     @staticmethod
     def get_user_cases(instance):
@@ -402,6 +210,23 @@ class DuplicateOrganisationMergeSerializer(CustomValidationModelSerializer):
         fields=skinny_organisation_fields,
         source="merge_record.parent_organisation",
     )
+    order_in_parent = serializers.SerializerMethodField()
+    identical_fields = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_order_in_parent(instance):
+        """Returns the order of this duplicate in the parent organisation along with number of total duplicates, e.g 3/10 possible duplicates"""
+        all_duplicates = list(
+            instance.merge_record.duplicate_organisations.order_by("created_at").all()
+        )
+        return (all_duplicates.index(instance), len(all_duplicates))
+
+    @staticmethod
+    def get_identical_fields(instance):
+        """Returns a list of the fields that are identical between the parent and child organisation"""
+        return instance.merge_record.parent_organisation.get_identical_fields(
+            instance.child_organisation
+        )
 
 
 class OrganisationMergeRecordSerializer(CustomValidationModelSerializer):
@@ -411,7 +236,22 @@ class OrganisationMergeRecordSerializer(CustomValidationModelSerializer):
         model = OrganisationMergeRecord
         fields = "__all__"
 
+    id = serializers.UUIDField(source="parent_organisation.id", read_only=True)
     parent_organisation = OrganisationSerializer(fields=skinny_organisation_fields)
-    potential_duplicates = DuplicateOrganisationMergeSerializer(
-        source="duplicate_organisations", many=True
-    )
+    status_name = serializers.CharField(source="get_status_display")
+    potential_duplicates = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_potential_duplicates(instance):
+        """Returns all potential duplicates for this merge record"""
+        return DuplicateOrganisationMergeSerializer(
+            instance.duplicate_organisations.order_by("created_at"), many=True
+        ).data
+
+
+class SubmissionOrganisationMergeRecordSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = SubmissionOrganisationMergeRecord
+        fields = "__all__"
+
+    organisation_merge_record = OrganisationMergeRecordSerializer()

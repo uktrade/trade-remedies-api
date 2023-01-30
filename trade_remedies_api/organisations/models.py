@@ -3,15 +3,16 @@ import re
 import uuid
 from functools import singledispatch
 
+import requests
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models, transaction
-from django.db.models import QuerySet
+from django.db.models import F
 from django.utils import timezone
 from django_countries.fields import CountryField
 
 from audit import AUDIT_TYPE_NOTIFY
-from cases.constants import TRA_ORGANISATION_ID
+from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST, TRA_ORGANISATION_ID
 from cases.models.submission import Submission
 from contacts.models import CaseContact, Contact
 from core.base import BaseModel
@@ -19,7 +20,12 @@ from core.models import SystemParameter
 from core.notifier import notify_contact_email, notify_footer
 from core.tasks import send_mail
 from core.utils import public_login_url, sql_get_list
-from organisations.constants import NOT_IN_CASE_ORG_CASE_ROLES
+from organisations.constants import (
+    AWAITING_ORG_CASE_ROLE,
+    NOT_IN_CASE_ORG_CASE_ROLES,
+    PREPARING_ORG_CASE_ROLE,
+    REJECTED_ORG_CASE_ROLE,
+)
 from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
 from security.models import OrganisationCaseRole, OrganisationUser, UserCase, get_security_group
 
@@ -42,9 +48,9 @@ def _(organisation):
 
 class OrganisationManager(models.Manager):
     def merge_organisations(
-            self,
-            parent_organisation,
-            child_organisation,
+        self,
+        parent_organisation,
+        child_organisation,
     ):
         """
         Merges the child_organisation into the parent_organisation, deleting the former.
@@ -125,7 +131,7 @@ class OrganisationManager(models.Manager):
 
     @transaction.atomic  # noqa: C901
     def merge_organisation_records(
-            self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
+        self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
     ):
         """
         Merge two organisations records into one.
@@ -190,8 +196,8 @@ class OrganisationManager(models.Manager):
             if clash:
                 if org_case.role.key not in NOT_IN_CASE_ORG_CASE_ROLES:
                     if (
-                            clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
-                            and org_case.role.key != clash.role.key
+                        clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
+                        and org_case.role.key != clash.role.key
                     ):
                         # Argh, both orgs are in the same case with different,
                         # non awaiting roles - blow up!
@@ -259,22 +265,22 @@ class OrganisationManager(models.Manager):
 
     @transaction.atomic  # noqa: C901
     def create_or_update_organisation(
-            self,
-            user,
-            name,
-            trade_association=False,
-            companies_house_id=None,
-            datahub_id=None,
-            address=None,
-            post_code=None,
-            country=None,
-            organisation_id=None,
-            assign_user=False,
-            gov_body=False,
-            case=None,
-            json_data=None,
-            contact_object=None,
-            **kwargs,
+        self,
+        user,
+        name,
+        trade_association=False,
+        companies_house_id=None,
+        datahub_id=None,
+        address=None,
+        post_code=None,
+        country=None,
+        organisation_id=None,
+        assign_user=False,
+        gov_body=False,
+        case=None,
+        json_data=None,
+        contact_object=None,
+        **kwargs,
     ):
         """
         Create or update an organisation record.
@@ -386,7 +392,7 @@ class Organisation(BaseModel):
 
     @staticmethod
     def __is_potential_duplicate_organisation(
-            target_org: "Organisation", potential_dup_org: "Organisation"
+        target_org: "Organisation", potential_dup_org: "Organisation"
     ):
 
         DIGITS_PATTERN = re.compile(r"[^0-9]+")
@@ -421,12 +427,12 @@ class Organisation(BaseModel):
             return True
 
         return (
-                target_org.name == potential_dup_org.name
-                or target_org.address == potential_dup_org.address
+            target_org.name == potential_dup_org.name
+            or target_org.address == potential_dup_org.address
         )
 
     @transaction.atomic
-    def _potential_duplicate_orgs(self) -> "OrganisationMergeRecord":
+    def _potential_duplicate_orgs(self, submission_id=None) -> "OrganisationMergeRecord":
         """
         Returns potential identical or similar organisations similar to
         the given organisation.
@@ -467,17 +473,16 @@ class Organisation(BaseModel):
             # the database has been scanned for potential duplicates, and we only want to check
             # those organisations that have been created or modified since the last check
             organisation_queryset = organisation_queryset.exclude(
-                models.Q(created_at__gt=self.merge_record.created_at) | models.Q(
-                    last_modified__gt=self.merge_record.created_at))
-        else:
-            OrganisationMergeRecord.objects.create(
-                parent_organisation=self
+                models.Q(created_at__gt=self.merge_record.created_at)
+                | models.Q(last_modified__gt=self.merge_record.created_at)
             )
+        else:
+            OrganisationMergeRecord.objects.create(parent_organisation=self)
 
         potential_dup_orgs = organisation_queryset.filter(q_objects)
 
         if not potential_dup_orgs:
-            self.merge_record.status = 2
+            self.merge_record.status = "no_duplicates_found"
             self.merge_record.save()
             return potential_dup_orgs
         results = []
@@ -491,17 +496,16 @@ class Organisation(BaseModel):
 
         # now we update the merge record
         for potential_dup_org in potential_dup_orgs:
-            duplicate_organisation_merge_object = DuplicateOrganisationMerge.objects.get_or_create(
-                merge_record=self.merge_record,
-                child_organisation=potential_dup_org
+            DuplicateOrganisationMerge.objects.get_or_create(
+                merge_record=self.merge_record, child_organisation=potential_dup_org
             )
-        self.merge_record.status = 3
+        self.merge_record.status = "duplicates_found"
         self.merge_record.save()
 
         return self.merge_record
 
-    def find_potential_duplicate_orgs(self) -> "OrganisationMergeRecord":
-        return self._potential_duplicate_orgs()
+    def find_potential_duplicate_orgs(self, submission_id=None) -> "OrganisationMergeRecord":
+        return self._potential_duplicate_orgs(submission_id=submission_id)
 
     def has_role_in_case(self, case, role):
         """
@@ -532,7 +536,7 @@ class Organisation(BaseModel):
         )
 
     def related_pending_registrations_of_interest(
-            self, requested_by, all_interests=True, archived=False
+        self, requested_by, all_interests=True, archived=False
     ):
         """
         Return all pending registrations of interest for this organisaion.
@@ -694,7 +698,7 @@ class Organisation(BaseModel):
         Return all contacts assosciated with the organisation for a specific case.
         These might be lawyers representing the organisation or direct employee.
         """
-        case_contacts = Contact.objects.select_related("userprofile", "organisation", ).filter(
+        case_contacts = Contact.objects.select_related("userprofile", "organisation",).filter(
             casecontact__case=case,
             casecontact__organisation=self,
             deleted_at__isnull=True,
@@ -708,10 +712,10 @@ class Organisation(BaseModel):
         case = case or self.case_context
         if case:
             return (
-                    case
-                    and Submission.objects.filter(
-                organisation=self, case=case, status__default=False
-            ).exists()
+                case
+                and Submission.objects.filter(
+                    organisation=self, case=case, status__default=False
+                ).exists()
             )
 
     @property
@@ -721,10 +725,10 @@ class Organisation(BaseModel):
             from cases.models import Submission
 
             return (
-                    case
-                    and Submission.objects.filter(
-                organisation=self, case=case, status__default=False, type__key="interest"
-            ).exists()
+                case
+                and Submission.objects.filter(
+                    organisation=self, case=case, status__default=False, type__key="interest"
+                ).exists()
             )
 
     @property
@@ -831,6 +835,259 @@ class Organisation(BaseModel):
             self.save()
         return org_name
 
+    def representative_cases(self) -> list:
+        """
+        Returns all cases where this organisation is acting as a representative.
+
+        Returns a list of dictionaries where each dictionary contains the details of a particular
+        representation on a case:
+
+        [
+            {
+                'case': CaseSerializer.data,  # the case they are on
+                'role': 'domestic_producer',   # the role they are acting as
+                'on_behalf_of': 'interested_party_organisation_name',  # the organisation they are acting on behalf of
+                'validated': True,  # whether the representation has been validated
+                'validated_at': '2020-01-01T00:00:00Z',  # when the representation was validated
+            },
+            ...
+        ]
+        """
+        from cases.services.v2.serializers import CaseSerializer
+        from invitations.models import Invitation
+
+        representations = []
+
+        representative_case_contacts = (
+            CaseContact.objects.filter(
+                contact__organisation=self,
+            )
+            .exclude(contact__organisation=F("organisation"))
+            .distinct("case")
+        )
+        for case_contact in representative_case_contacts:
+            try:
+                corresponding_org_case_role = OrganisationCaseRole.objects.get(
+                    organisation=case_contact.organisation, case=case_contact.case
+                )
+            except OrganisationCaseRole.DoesNotExist:
+                continue
+            representation = {
+                "on_behalf_of": case_contact.organisation.name,
+                "case": CaseSerializer(case_contact.case).data,
+                "role": corresponding_org_case_role.role.name,
+            }
+            # now we need to find if this case_contact has been created as part of an ROI or an invitation
+            invitation = (
+                Invitation.objects.filter(
+                    contact__organisation=self,
+                    case=case_contact.case,
+                    organisation=case_contact.organisation,
+                    invitation_type=2,
+                    approved_at__isnull=False,
+                )
+                .order_by("-last_modified")
+                .first()
+            )
+            if invitation:
+                representation.update(
+                    {"validated": invitation.approved_at, "validated_at": invitation.approved_at}
+                )
+                representations.append(representation)
+            else:
+                # maybe it's an ROI that got them here
+                try:
+                    (
+                        Submission.objects.filter(
+                            type_id=SUBMISSION_TYPE_REGISTER_INTEREST,
+                            contact__organisation=self,
+                            case=case_contact.case,
+                            organisation=case_contact.organisation,
+                        )
+                        .order_by("-last_modified")
+                        .first()
+                    )
+                    representation.update(
+                        {
+                            "validated": bool(corresponding_org_case_role.validated_at),
+                            "validated_at": corresponding_org_case_role.validated_at,
+                        }
+                    )
+                    representations.append(representation)
+                except Submission.DoesNotExist:
+                    ...
+                    # todo - log error here, how do they have access to this case
+
+        return representations
+
+    def rejected_cases(self) -> list:
+        """Returns all cases where this organisation has been rejected as either an interested
+        party or a representative.
+
+        Returns a list of dictionaries where each dictionary contains the details of a particular
+        rejection from a case:
+
+        [
+            {
+                'case': CaseSerializer.data,  # the case they were rejected from
+                'date_rejected': '2021-01-01T00:00:00Z',  # when they were rejected
+                'rejected_by': UserSerializer.data,  # who rejected them
+                'rejected_reason': 'Fraudulent',  # the reason they were rejected
+                'type': 'interested_party/representative',  # whether they were rejected as an interested party or a representative
+            },
+            ...
+        ]
+        """
+        from cases.services.v2.serializers import CaseSerializer
+        from core.services.v2.users.serializers import UserSerializer
+        from invitations.models import Invitation
+
+        rejections = []
+
+        # finding the rep invitations for this org which have been rejected
+        rejected_invitations = Invitation.objects.filter(
+            contact__organisation=self,
+            rejected_by__isnull=False,
+            rejected_at__isnull=False,
+            invitation_type=2,  # only rep invites
+        )
+        for invitation in rejected_invitations:
+            rejections.append(
+                {
+                    "case": CaseSerializer(
+                        invitation.submission.case, fields=["name", "reference"]
+                    ).data,
+                    "date_rejected": invitation.rejected_at,
+                    "rejected_reason": invitation.submission.deficiency_notice_params.get(
+                        "explain_why_contact_org_not_verified", ""
+                    ),
+                    "rejected_by": UserSerializer(
+                        invitation.rejected_by, fields=["name", "email"]
+                    ).data,
+                    "type": "representative",
+                }
+            )
+
+        # finding the interested party cases for this org which have been rejected
+        rejected_org_case_roles = OrganisationCaseRole.objects.filter(
+            organisation=self, role__key="rejected"
+        )
+        for rejected_org_case_role in rejected_org_case_roles:
+            rejections.append(
+                {
+                    "case": CaseSerializer(
+                        rejected_org_case_role.case, fields=["name", "reference"]
+                    ).data,
+                    "date_rejected": rejected_org_case_role.validated_at,
+                    "rejected_reason": "N/A",
+                    "rejected_by": UserSerializer(
+                        rejected_org_case_role.validated_by, fields=["name", "email"]
+                    ).data,
+                    "type": "interested_party",
+                }
+            )
+
+        return rejections
+
+    def does_name_match_companies_house(self) -> bool:
+        """
+        Returns True if the organisation name matches the name on Companies House, False otherwise.
+        """
+        from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
+
+        if registration_number := self.companies_house_id:
+            if organisation_name := self.name:
+                headers = {"Authorization": f"Basic {COMPANIES_HOUSE_BASIC_AUTH}"}
+                response = requests.get(
+                    f"{COMPANIES_HOUSE_BASE_DOMAIN}/company/{registration_number}",
+                    headers=headers,
+                )
+                if response.status_code == 200:
+                    if (
+                        response.json().get(
+                            "company_name",
+                        )
+                        == organisation_name
+                    ):
+                        return True
+        return False
+
+    def organisation_card_data(self) -> dict:
+        """
+        Returns a dictionary containing the data required to render the organisation card on the
+        front-end.
+        """
+        from organisations.services.v2.serializers import (
+            OrganisationSerializer,
+            OrganisationCaseRoleSerializer,
+        )
+
+        return_dict = {}
+
+        # get the slim, quick OrganisationSerializer data
+
+        return_dict.update(
+            OrganisationSerializer(
+                self,
+                fields=[
+                    "name",
+                    "companies_house_id",
+                    "organisation_website",
+                    "a_tag_website_url",
+                    "country",
+                    "full_country_name",
+                    "vat_number",
+                    "duns_number",
+                    "eori_number",
+                    "address",
+                    "post_code",
+                ],
+            ).data
+        )
+
+        representative_cases = self.representative_cases()
+        return_dict["representative_cases"] = representative_cases
+        return_dict["approved_representative_cases"] = [
+            each for each in representative_cases if each["validated"]
+        ]
+
+        rejected_cases = self.rejected_cases()
+        return_dict["rejected_cases"] = rejected_cases
+        return_dict["rejected_representative_cases"] = [
+            each for each in rejected_cases if each["type"] == "representative"
+        ]
+        return_dict["rejected_interested_party_cases"] = [
+            each for each in rejected_cases if each["type"] == "interested_party"
+        ]
+
+        return_dict["approved_organisation_case_roles"] = [
+            OrganisationCaseRoleSerializer(each, exclude=["organisation"]).data
+            for each in self.organisationcaserole_set.all()
+            if each.role.key
+            not in [AWAITING_ORG_CASE_ROLE, REJECTED_ORG_CASE_ROLE, PREPARING_ORG_CASE_ROLE]
+        ]
+
+        return_dict["does_name_match_companies_house"] = self.does_name_match_companies_house()
+
+        return return_dict
+
+    def get_identical_fields(self, other_organisation: "Organisation") -> list:
+        """
+        Returns a list of fields which are identical between this organisation and the other
+        organisation.
+        """
+        identical_fields = []
+
+        for field in self._meta.get_fields():
+            if field.name in ["id", "created_at", "updated_at", "created_by", "updated_by"]:
+                continue
+            parent_value = getattr(self, field.name, None)
+            child_value = getattr(other_organisation, field.name, None)
+            if parent_value and child_value and parent_value == child_value:
+                identical_fields.append(field.name)
+
+        return identical_fields
+
 
 class OrganisationName(models.Model):
     """
@@ -873,22 +1130,17 @@ class OrganisationName(models.Model):
 
 class OrganisationMergeRecord(BaseModel):
     status_choices = (
-        ("not_started", "Not started"),
+        ("not_checked", "Not checked"),
         ("no_duplicates_found", "No duplicates found"),
-        ("started", "Started"),
-        ("complete", "Complete"),
+        ("duplicates_found", "Duplicates found"),
     )
-
-    """submission = models.OneToOneField(
-        Submission, on_delete=models.PROTECT, related_name="organisation_merge_record", null=True
-    )"""
-    id = models.UUIDField(primary_key=False, default=uuid.uuid4, editable=False)
-    status = models.CharField(choices=status_choices, default="not_started", max_length=30)
+    id = None
+    status = models.CharField(choices=status_choices, default="not_checked", max_length=30)
     parent_organisation = models.OneToOneField(
-        Organisation,
-        on_delete=models.PROTECT,
-        related_name="merge_record",
-        primary_key=True
+        Organisation, on_delete=models.PROTECT, related_name="merge_record", primary_key=True
+    )
+    submission = models.ManyToManyField(
+        Submission, related_name="merge_records", through="SubmissionOrganisationMergeRecord"
     )
 
     def merge_organisations(self, organisation=None):
@@ -912,11 +1164,14 @@ class OrganisationMergeRecord(BaseModel):
 
         return organisation
 
+    def potential_duplicates(self):
+        return self.duplicate_organisations.order_by("-created_at")
+
 
 class DuplicateOrganisationMerge(BaseModel):
     status_choices = (
         ("pending", "Pending"),
-        ("not_duplicate", "Not duplicate"),
+        ("confirmed_not_duplicate", "Not duplicate"),
         ("confirmed_duplicate", "Confirmed duplicate"),
         ("attributes_selected", "Attributes selected"),
     )
@@ -934,11 +1189,27 @@ class DuplicateOrganisationMerge(BaseModel):
         if not organisation:
             organisation = self.merge_record.parent_organisation
 
-        if not self.status == 2:
-            for field in self.parent_fields:
-                setattr(organisation, field, getattr(self.merge_record.parent_organisation, field))
-            for field in self.child_fields:
-                setattr(organisation, field, getattr(self.child_organisation, field))
+        if self.status == "attributes_selected":
+            if self.parent_fields:
+                for field in self.parent_fields:
+                    setattr(
+                        organisation, field, getattr(self.merge_record.parent_organisation, field)
+                    )
+            if self.child_fields:
+                for field in self.child_fields:
+                    setattr(organisation, field, getattr(self.child_organisation, field))
 
             organisation.save()
         return organisation
+
+
+class SubmissionOrganisationMergeRecord(BaseModel):
+    status_choices = (
+        ("not_started", "Not started"),
+        ("in_progress", "In Progress"),
+        ("complete", "Complete"),
+    )
+
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
+    organisation_merge_record = models.ForeignKey(OrganisationMergeRecord, on_delete=models.CASCADE)
+    status = models.CharField(default="not_started", choices=status_choices, max_length=30)

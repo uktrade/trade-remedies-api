@@ -30,15 +30,12 @@ from core.services.v2.registration import views as registration_api
 from core.services.v2.users.views import ContactViewSet, TwoFactorAuthViewSet, UserViewSet
 from documents.services.v2.views import DocumentBundleViewSet, DocumentViewSet
 from invitations.services.v2.views import InvitationViewSet
-from organisations.services.v2.serializers import (
-    DuplicateOrganisationMergeSerializer,
-    OrganisationMergeRecordSerializer,
-)
 from organisations.services.v2.views import (
     DuplicateOrganisationMergeViewSet,
     OrganisationCaseRoleViewSet,
     OrganisationMergeRecordViewSet,
     OrganisationViewSet,
+    SubmissionOrganisationMergeRecordViewSet,
 )
 
 urlpatterns = [
@@ -216,6 +213,11 @@ router.register(
     f"{settings.API_V2_PREFIX}/duplicate_organisation_merges",
     DuplicateOrganisationMergeViewSet,
     basename="duplicate_organisation_merges",
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/submission_organisation_merge_records",
+    SubmissionOrganisationMergeRecordViewSet,
+    basename="submission_organisation_merge_records",
 )
 urlpatterns += router.urls
 
