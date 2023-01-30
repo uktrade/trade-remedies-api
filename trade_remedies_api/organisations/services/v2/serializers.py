@@ -152,27 +152,24 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 "role": corresponding_org_case_role.role.name,
             }
             # now we need to find if this case_contact has been created as part of an ROI or an invitation
-            invitation = (
-                Invitation.objects.filter(
-                    contact__organisation=instance,
-                    case=case_contact.case,
-                    organisation=case_contact.organisation,
-                )
-                .order_by("-last_modified")
-                .first()
-            )
-            if invitation:
+            invitations = Invitation.objects.filter(
+                contact__organisation=instance,
+                case=case_contact.case,
+                organisation=case_contact.organisation,
+            ).order_by("-last_modified")
+            if invitations:
+                invitation = invitations.first()
                 representation.update(
                     {
                         "validated": invitation.submission.deficiency_notice_params.get(
                             "contact_org_verify", False
                         )
-                        if invitation.submission.deficiency_notice_params
+                        if invitation.submission and invitation.submission.deficiency_notice_params
                         else False,
                         "validated_at": invitation.submission.deficiency_notice_params.get(
                             "contact_org_verify_at", None
                         )
-                        if invitation.submission.deficiency_notice_params
+                        if invitation.submission and invitation.submission.deficiency_notice_params
                         else None,
                     }
                 )
