@@ -1021,6 +1021,7 @@ class Organisation(BaseModel):
             OrganisationSerializer,
             OrganisationCaseRoleSerializer,
         )
+        from core.services.v2.users.serializers import UserSerializer
 
         return_dict = {}
 
@@ -1068,6 +1069,11 @@ class Organisation(BaseModel):
         ]
 
         return_dict["does_name_match_companies_house"] = self.does_name_match_companies_house()
+
+        return_dict["users"] = [
+            UserSerializer(each.user, exclude=["contact", "organisation"]).data
+            for each in self.organisationuser_set.all()
+        ]
 
         return return_dict
 
@@ -1147,7 +1153,9 @@ class OrganisationMergeRecord(BaseModel):
         if not organisation:
             organisation = self.parent_organisation
 
-        for potential_duplicate_organisation in self.duplicate_organisations.all():
+        for potential_duplicate_organisation in self.duplicate_organisations.filter(
+            status="attributes_selected"
+        ):
             # going through the potential duplicates and applying the attributes from each
             # duplicate selected by the caseworkers to the draft organisation
             potential_duplicate_organisation._apply_selections(
@@ -1210,6 +1218,7 @@ class SubmissionOrganisationMergeRecord(BaseModel):
         ("complete", "Complete"),
     )
 
-    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
+    id = None
+    submission = models.OneToOneField(Submission, on_delete=models.CASCADE, primary_key=True)
     organisation_merge_record = models.ForeignKey(OrganisationMergeRecord, on_delete=models.CASCADE)
     status = models.CharField(default="not_started", choices=status_choices, max_length=30)

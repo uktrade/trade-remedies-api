@@ -159,7 +159,6 @@ class OrganisationCaseRoleViewSet(BaseModelViewSet):
 class OrganisationMergeRecordViewSet(BaseModelViewSet):
     queryset = OrganisationMergeRecord.objects.all()
     serializer_class = OrganisationMergeRecordSerializer
-    http_method_names = ["get", "delete", "patch"]
 
     def retrieve(self, request, *args, **kwargs):
         """We want to create merge records if someone tries to request one for an organisation that
@@ -248,12 +247,9 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
         """
 
         merge_record = self.get_object()
-        # the phantom_organisation never exists in the database, it is only used to
-        # preview the result of the merge
-        # 👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻
-        phantom_organisation = Organisation()
-        # 👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻
-        phantom_organisation = merge_record.merge_organisations(organisation=phantom_organisation)
+        phantom_organisation = merge_record.merge_organisations(
+            organisation=merge_record.parent_organisation
+        )
         return_data = phantom_organisation.organisation_card_data()
         return Response(return_data)
 
@@ -266,3 +262,23 @@ class DuplicateOrganisationMergeViewSet(BaseModelViewSet):
 class SubmissionOrganisationMergeRecordViewSet(BaseModelViewSet):
     queryset = SubmissionOrganisationMergeRecord.objects.all()
     serializer_class = SubmissionOrganisationMergeRecordSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        submission_object = get_object_or_404(Submission, pk=kwargs["pk"])
+        if instance := getattr(submission_object, "submissionorganisationmergerecord", False):
+            organisation_object = instance.organisation_merge_record.parent_organisation
+        else:
+            organisation_object = get_object_or_404(Organisation, pk=request.GET["organisation_id"])
+
+        merge_record = organisation_object.find_potential_duplicate_orgs()
+
+        instance, _ = SubmissionOrganisationMergeRecord.objects.get_or_create(
+            submission=submission_object,
+            organisation_merge_record=merge_record,
+        )
+
+        return Response(
+            SubmissionOrganisationMergeRecordSerializer(
+                instance=instance,
+            ).data
+        )

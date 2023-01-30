@@ -254,4 +254,13 @@ class SubmissionOrganisationMergeRecordSerializer(CustomValidationModelSerialize
         model = SubmissionOrganisationMergeRecord
         fields = "__all__"
 
+    id = serializers.UUIDField(source="submission.id", read_only=True)
     organisation_merge_record = OrganisationMergeRecordSerializer()
+    status_name = serializers.CharField(source="get_status_display")
+    submission = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_submission(instance):
+        from cases.services.v2.serializers import SubmissionSerializer
+
+        return SubmissionSerializer(instance.submission).data
