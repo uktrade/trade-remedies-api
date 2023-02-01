@@ -61,7 +61,6 @@ class ContactSerializer(CustomValidationModelSerializer, EmailSerializer):
 
 class UserSerializer(CustomValidationModelSerializer):
     editable_only_on_create_fields = ["email"]
-    is_organisation_owner = serializers.ReadOnlyField()
     case_count = serializers.ReadOnlyField()
 
     class Meta:

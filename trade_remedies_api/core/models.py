@@ -884,15 +884,6 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         return {perm.codename: perm.name for perm in permissions}
 
     @property
-    def case_count(self) -> int:
-        """
-        The number of cases the user has been involved in
-        Returns:
-            int: number of cases
-        """
-        return self.usercase_set.count()
-
-    @property
     def organisation_users(self):
         """Return all organisation users for this user's organisation
 
