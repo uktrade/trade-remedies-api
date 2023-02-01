@@ -586,13 +586,6 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         return None
 
     @property
-    def is_organisation_owner(self) -> bool:
-        """
-        Return true if a user is an organisation owner
-        """
-        return self.owner_of is not None
-
-    @property
     def initials(self):
         if not hasattr(self, "_initials"):
             self._initials = "N/A"

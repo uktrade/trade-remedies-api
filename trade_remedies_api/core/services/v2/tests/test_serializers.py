@@ -22,7 +22,6 @@ class TestUserSerializer(CaseSetupTestMixin):
             user=self.user, security_group=self.owner_group
         )
         serializer = UserSerializer(instance=self.user)
-        assert serializer.data["is_organisation_owner"]
         assert serializer.data["organisation"]
         assert str(self.organisation.id) == serializer.data["organisation"]["id"]
 
