@@ -49,9 +49,9 @@ def _(organisation):
 
 class OrganisationManager(models.Manager):
     def merge_organisations(
-        self,
-        parent_organisation,
-        child_organisation,
+            self,
+            parent_organisation,
+            child_organisation,
     ):
         """
         Merges the child_organisation into the parent_organisation, deleting the former.
@@ -132,7 +132,7 @@ class OrganisationManager(models.Manager):
 
     @transaction.atomic  # noqa: C901
     def merge_organisation_records(
-        self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
+            self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
     ):
         """
         Merge two organisations records into one.
@@ -197,8 +197,8 @@ class OrganisationManager(models.Manager):
             if clash:
                 if org_case.role.key not in NOT_IN_CASE_ORG_CASE_ROLES:
                     if (
-                        clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
-                        and org_case.role.key != clash.role.key
+                            clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
+                            and org_case.role.key != clash.role.key
                     ):
                         # Argh, both orgs are in the same case with different,
                         # non awaiting roles - blow up!
@@ -266,22 +266,22 @@ class OrganisationManager(models.Manager):
 
     @transaction.atomic  # noqa: C901
     def create_or_update_organisation(
-        self,
-        user,
-        name,
-        trade_association=False,
-        companies_house_id=None,
-        datahub_id=None,
-        address=None,
-        post_code=None,
-        country=None,
-        organisation_id=None,
-        assign_user=False,
-        gov_body=False,
-        case=None,
-        json_data=None,
-        contact_object=None,
-        **kwargs,
+            self,
+            user,
+            name,
+            trade_association=False,
+            companies_house_id=None,
+            datahub_id=None,
+            address=None,
+            post_code=None,
+            country=None,
+            organisation_id=None,
+            assign_user=False,
+            gov_body=False,
+            case=None,
+            json_data=None,
+            contact_object=None,
+            **kwargs,
     ):
         """
         Create or update an organisation record.
@@ -393,7 +393,7 @@ class Organisation(BaseModel):
 
     @staticmethod
     def __is_potential_duplicate_organisation(
-        target_org: "Organisation", potential_dup_org: "Organisation"
+            target_org: "Organisation", potential_dup_org: "Organisation"
     ):
 
         DIGITS_PATTERN = re.compile(r"[^0-9]+")
@@ -428,8 +428,8 @@ class Organisation(BaseModel):
             return True
 
         return (
-            target_org.name == potential_dup_org.name
-            or target_org.address == potential_dup_org.address
+                target_org.name == potential_dup_org.name
+                or target_org.address == potential_dup_org.address
         )
 
     @transaction.atomic
@@ -483,7 +483,11 @@ class Organisation(BaseModel):
         potential_dup_orgs = organisation_queryset.filter(q_objects)
 
         if not potential_dup_orgs:
-            self.merge_record.status = "no_duplicates_found"
+            if self.merge_record.duplicate_organisations.filter(status="pending").exists():
+                # there are still pending potential merges
+                self.merge_record.status = "duplicates_found"
+            else:
+                self.merge_record.status = "no_duplicates_found"
             self.merge_record.save()
             return self.merge_record
         results = []
@@ -537,7 +541,7 @@ class Organisation(BaseModel):
         )
 
     def related_pending_registrations_of_interest(
-        self, requested_by, all_interests=True, archived=False
+            self, requested_by, all_interests=True, archived=False
     ):
         """
         Return all pending registrations of interest for this organisaion.
@@ -699,7 +703,7 @@ class Organisation(BaseModel):
         Return all contacts assosciated with the organisation for a specific case.
         These might be lawyers representing the organisation or direct employee.
         """
-        case_contacts = Contact.objects.select_related("userprofile", "organisation",).filter(
+        case_contacts = Contact.objects.select_related("userprofile", "organisation", ).filter(
             casecontact__case=case,
             casecontact__organisation=self,
             deleted_at__isnull=True,
@@ -713,10 +717,10 @@ class Organisation(BaseModel):
         case = case or self.case_context
         if case:
             return (
-                case
-                and Submission.objects.filter(
-                    organisation=self, case=case, status__default=False
-                ).exists()
+                    case
+                    and Submission.objects.filter(
+                organisation=self, case=case, status__default=False
+            ).exists()
             )
 
     @property
@@ -726,10 +730,10 @@ class Organisation(BaseModel):
             from cases.models import Submission
 
             return (
-                case
-                and Submission.objects.filter(
-                    organisation=self, case=case, status__default=False, type__key="interest"
-                ).exists()
+                    case
+                    and Submission.objects.filter(
+                organisation=self, case=case, status__default=False, type__key="interest"
+            ).exists()
             )
 
     @property
@@ -1005,10 +1009,10 @@ class Organisation(BaseModel):
                 )
                 if response.status_code == 200:
                     if (
-                        response.json().get(
-                            "company_name",
-                        )
-                        == organisation_name
+                            response.json().get(
+                                "company_name",
+                            )
+                            == organisation_name
                     ):
                         return True
         return False
@@ -1066,7 +1070,7 @@ class Organisation(BaseModel):
             OrganisationCaseRoleSerializer(each, exclude=["organisation"]).data
             for each in self.organisationcaserole_set.all()
             if each.role.key
-            not in [AWAITING_ORG_CASE_ROLE, REJECTED_ORG_CASE_ROLE, PREPARING_ORG_CASE_ROLE]
+               not in [AWAITING_ORG_CASE_ROLE, REJECTED_ORG_CASE_ROLE, PREPARING_ORG_CASE_ROLE]
         ]
 
         return_dict["does_name_match_companies_house"] = self.does_name_match_companies_house()
@@ -1151,10 +1155,10 @@ class OrganisationMergeRecord(BaseModel):
     )
 
     def merge_organisations(
-        self,
-        organisation=None,
-        notify_users=False,
-        create_audit_log=False,
+            self,
+            organisation=None,
+            notify_users=False,
+            create_audit_log=False,
     ) -> "Organisation":
         """
         Merges the duplicate organisations into the parent organisation.
@@ -1173,7 +1177,7 @@ class OrganisationMergeRecord(BaseModel):
 
         ids_merged = []
         for potential_duplicate_organisation in self.duplicate_organisations.filter(
-            status="attributes_selected"
+                status="attributes_selected"
         ).order_by("-created_at"):
             # going through the potential duplicates and applying the attributes from each
             # duplicate selected by the caseworkers to the draft organisation
@@ -1193,7 +1197,7 @@ class OrganisationMergeRecord(BaseModel):
         if notify_users:
             notify_template_id = SystemParameter.get("NOTIFY_ORGANISATION_MERGED")
             for organisation_user in organisation.organisationuser_set.filter(
-                security_group__name=SECURITY_GROUP_ORGANISATION_OWNER
+                    security_group__name=SECURITY_GROUP_ORGANISATION_OWNER
             ):
                 send_mail(
                     organisation_user.user.email,
