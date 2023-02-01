@@ -46,6 +46,7 @@ class InvitationSerializer(CustomValidationModelSerializer):
     authorised_signatory = NestedField(
         required=False, serializer_class=ContactSerializer, accept_pk=True
     )
+    type_verbose_name = serializers.ReadOnlyField(source="get_invitation_type_display")
 
     def to_internal_value(self, data):
         """API requests can pass case_role with the key"""
