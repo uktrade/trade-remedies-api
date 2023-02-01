@@ -186,7 +186,9 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
     )
     def merge_organisations(self, request, *args, **kwargs):
         merge_record = self.get_object()
-        merged_organisation = merge_record.merge_organisations()
+        merged_organisation = merge_record.merge_organisations(
+            notify_users=True, create_audit_log=True
+        )
         return Response(OrganisationSerializer(merged_organisation).data)
 
     @action(
@@ -274,6 +276,7 @@ class SubmissionOrganisationMergeRecordViewSet(BaseModelViewSet):
 
         instance, _ = SubmissionOrganisationMergeRecord.objects.get_or_create(
             submission=submission_object,
+            # organisation_merge_record=organisation_object.merge_record
             organisation_merge_record=merge_record,
         )
 

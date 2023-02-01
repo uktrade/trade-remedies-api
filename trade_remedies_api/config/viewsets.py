@@ -58,7 +58,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
         then a slim serializer will be used, this is identical to a normal serializer but without
         any of the bloated computed fields.
         """
-        if self.request.query_params.get("slim", "no") == "yes":
+        if "slim" in self.request.query_params:
             # they want a slim serializer without additional computed fields
             def slim_serializer_factory(model_name):
                 class SlimSerializer(CustomValidationModelSerializer):

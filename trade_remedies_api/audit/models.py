@@ -10,6 +10,7 @@ from django.contrib.postgres import fields
 from django.conf import settings
 from . import (
     AUDIT_TYPE_LOGIN_FAILED,
+    AUDIT_TYPE_ORGANISATION_MERGED,
     AUDIT_TYPE_UPDATE,
     AUDIT_TYPE_CREATE,
     AUDIT_TYPE_DELETE,
@@ -77,6 +78,7 @@ class Audit(models.Model):
         (AUDIT_TYPE_PASSWORD_RESET_FAILED, "Password Reset Failed"),
         (AUDIT_TYPE_USER_CREATED, "New User Created"),
         (AUDIT_TYPE_EMAIL_VERIFIED, "Email Verified"),
+        (AUDIT_TYPE_ORGANISATION_MERGED, "Organisation Merged"),
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

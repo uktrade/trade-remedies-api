@@ -11,7 +11,8 @@ from django.db.models import F
 from django.utils import timezone
 from django_countries.fields import CountryField
 
-from audit import AUDIT_TYPE_NOTIFY
+from audit import AUDIT_TYPE_NOTIFY, AUDIT_TYPE_ORGANISATION_MERGED
+from audit.utils import audit_log
 from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST, TRA_ORGANISATION_ID
 from cases.models.submission import Submission
 from contacts.models import CaseContact, Contact
@@ -432,7 +433,7 @@ class Organisation(BaseModel):
         )
 
     @transaction.atomic
-    def _potential_duplicate_orgs(self, submission_id=None) -> "OrganisationMergeRecord":
+    def _potential_duplicate_orgs(self) -> "OrganisationMergeRecord":
         """
         Returns potential identical or similar organisations similar to
         the given organisation.
@@ -484,7 +485,7 @@ class Organisation(BaseModel):
         if not potential_dup_orgs:
             self.merge_record.status = "no_duplicates_found"
             self.merge_record.save()
-            return potential_dup_orgs
+            return self.merge_record
         results = []
 
         # we iterate through each organisation and do
@@ -504,8 +505,8 @@ class Organisation(BaseModel):
 
         return self.merge_record
 
-    def find_potential_duplicate_orgs(self, submission_id=None) -> "OrganisationMergeRecord":
-        return self._potential_duplicate_orgs(submission_id=submission_id)
+    def find_potential_duplicate_orgs(self) -> "OrganisationMergeRecord":
+        return self._potential_duplicate_orgs()
 
     def has_role_in_case(self, case, role):
         """
@@ -1149,13 +1150,31 @@ class OrganisationMergeRecord(BaseModel):
         Submission, related_name="merge_records", through="SubmissionOrganisationMergeRecord"
     )
 
-    def merge_organisations(self, organisation=None):
+    def merge_organisations(
+        self,
+        organisation=None,
+        notify_users=False,
+        create_audit_log=False,
+    ) -> "Organisation":
+        """
+        Merges the duplicate organisations into the parent organisation.
+        Parameters
+        ----------
+        organisation : the parent organisation to merge the duplicates into
+        notify_users : True if you want the users to be notified of the merge
+        create_audit_log : True if you want to create an audit log of the merge
+
+        Returns
+        -------
+        Organisation
+        """
         if not organisation:
             organisation = self.parent_organisation
 
+        ids_merged = []
         for potential_duplicate_organisation in self.duplicate_organisations.filter(
             status="attributes_selected"
-        ):
+        ).order_by("-created_at"):
             # going through the potential duplicates and applying the attributes from each
             # duplicate selected by the caseworkers to the draft organisation
             potential_duplicate_organisation._apply_selections(
@@ -1168,6 +1187,33 @@ class OrganisationMergeRecord(BaseModel):
             Organisation.objects.merge_organisations(
                 organisation,
                 potential_duplicate_organisation.child_organisation,
+            )
+            ids_merged.append(potential_duplicate_organisation.child_organisation.id)
+
+        if notify_users:
+            notify_template_id = SystemParameter.get("NOTIFY_ORGANISATION_MERGED")
+            for organisation_user in organisation.organisationuser_set.filter(
+                security_group__name=SECURITY_GROUP_ORGANISATION_OWNER
+            ):
+                send_mail(
+                    organisation_user.user.email,
+                    context={
+                        "full_name": organisation_user.user.name,
+                        "organisation_name": organisation.name,
+                        "login_url": public_login_url(),
+                        "public_cases": SystemParameter.get("LINK_TRA_CASELIST"),
+                    },
+                    template_id=notify_template_id,
+                    audit_kwargs={
+                        "audit_type": AUDIT_TYPE_NOTIFY,
+                        "user": organisation_user.user,
+                    },
+                )
+        if create_audit_log:
+            audit_log(
+                audit_type=AUDIT_TYPE_ORGANISATION_MERGED,
+                model=self,
+                data={"organisations_merged_with": ids_merged},
             )
 
         return organisation

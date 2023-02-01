@@ -32,3 +32,19 @@ class CaseAPITest(CaseSetupTestMixin, FunctionalTestBase):
             }).encode()).decode()}"""
         ).json()
         assert len(organisations["results"]) == 0
+
+    def test_slim(self):
+        """Tests that when the 'slim' query parameter is passed, a slimmed-down of the serializer is
+        used.
+        """
+        fat_response = self.client.get(f"/api/v2/organisations/{self.organisation.pk}").json()
+        assert "id" in fat_response
+        assert "full_country_name" in fat_response
+        assert "name" in fat_response
+
+        slim_response = self.client.get(
+            f"/api/v2/organisations/{self.organisation.pk}?slim=yes"
+        ).json()
+        assert "id" in slim_response
+        assert "full_country_name" not in slim_response
+        assert "name" in slim_response
