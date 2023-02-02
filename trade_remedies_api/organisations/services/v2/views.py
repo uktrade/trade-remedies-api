@@ -276,7 +276,7 @@ class SubmissionOrganisationMergeRecordViewSet(BaseModelViewSet):
 
         instance, _ = SubmissionOrganisationMergeRecord.objects.get_or_create(
             submission=submission_object,
-            # organisation_merge_record=organisation_object.merge_record
+            #organisation_merge_record=organisation_object.merge_record
             organisation_merge_record=merge_record,
         )
 
