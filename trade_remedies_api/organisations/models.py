@@ -511,9 +511,9 @@ class Organisation(BaseModel):
                 merge_record=self.merge_record, child_organisation=potential_dup_org
             )
         self.merge_record.status = "duplicates_found"
-        self.merge_record.submissionorganisationmergerecord_set.filter(
-            status="Complete"
-        ).update(status="in_progress")
+        self.merge_record.submissionorganisationmergerecord_set.filter(status="Complete").update(
+            status="in_progress"
+        )
         self.merge_record.save()
 
         return self.merge_record
