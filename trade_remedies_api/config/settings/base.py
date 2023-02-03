@@ -9,7 +9,6 @@ import sentry_sdk
 from django_log_formatter_ecs import ECSFormatter
 from flags import conditions
 from flags.conditions import DuplicateCondition
-from psycopg2.extensions import ISOLATION_LEVEL_READ_UNCOMMITTED
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -174,7 +173,6 @@ if "postgres" in _VCAP_SERVICES:
 else:
     default_database = env.db()
     DATABASES = {"default": default_database}
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {

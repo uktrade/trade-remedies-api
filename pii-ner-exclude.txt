@@ -1,3 +1,5 @@
+# Optional
+SpectacularRedocView.as_view(url_name='schema
 Returns ------- Organisation
 Organisation Merged
 Complete

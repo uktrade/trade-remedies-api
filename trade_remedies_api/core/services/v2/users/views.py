@@ -6,10 +6,11 @@ from rest_framework.response import Response
 
 from config.viewsets import BaseModelViewSet
 from contacts.models import CaseContact, Contact
-from core.models import TwoFactorAuth, User
+from core.models import TwoFactorAuth, User, UserProfile
 from core.services.v2.users.serializers import (
     ContactSerializer,
     TwoFactorAuthSerializer,
+    UserProfileSerializer,
     UserSerializer,
 )
 from organisations.models import Organisation
@@ -147,3 +148,8 @@ class TwoFactorAuthViewSet(viewsets.ModelViewSet):
 
     queryset = TwoFactorAuth.objects.all()
     serializer_class = TwoFactorAuthSerializer
+
+
+class UserProfileViewSet(BaseModelViewSet):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer

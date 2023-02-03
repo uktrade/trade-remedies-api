@@ -34,12 +34,7 @@ class OrganisationViewSet(BaseModelViewSet):
     """
 
     queryset = Organisation.objects.all().order_by("name")
-    pagination_class = StandardResultsSetPagination
-
-    def get_serializer_class(self):
-        if self.action == "list":
-            return OrganisationListSerializer
-        return OrganisationSerializer
+    serializer_class = OrganisationSerializer
 
     @action(
         detail=True,

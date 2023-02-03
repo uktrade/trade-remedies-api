@@ -22,12 +22,18 @@ from rest_framework.views import APIView
 
 from cases.services import api as cases_api
 from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, SubmissionViewSet
+from config.openapi_generation import OpenAPIGenerator, OpenAPIUIView
 from core.services import api as core_api
 from core.services.auth import views as auth_api
 from core.services.v2.feature_flags.views import FlagViewSet
 from core.services.v2.feedback.views import FeedbackViewSet
 from core.services.v2.registration import views as registration_api
-from core.services.v2.users.views import ContactViewSet, TwoFactorAuthViewSet, UserViewSet
+from core.services.v2.users.views import (
+    ContactViewSet,
+    TwoFactorAuthViewSet,
+    UserProfileViewSet,
+    UserViewSet,
+)
 from documents.services.v2.views import DocumentBundleViewSet, DocumentViewSet
 from invitations.services.v2.views import InvitationViewSet
 from organisations.services.v2.views import (
@@ -37,6 +43,13 @@ from organisations.services.v2.views import (
     OrganisationViewSet,
     SubmissionOrganisationMergeRecordViewSet,
 )
+from drf_spectacular.views import (
+    AUTHENTICATION_CLASSES,
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
+
 
 urlpatterns = [
     path(f"{settings.API_PREFIX}/health/", core_api.ApiHealthView.as_view()),
@@ -219,6 +232,11 @@ router.register(
     SubmissionOrganisationMergeRecordViewSet,
     basename="submission_organisation_merge_records",
 )
+router.register(
+    f"{settings.API_V2_PREFIX}/user_profiles",
+    UserProfileViewSet,
+    basename="user_profiles",
+)
 urlpatterns += router.urls
 
 if settings.DEBUG:
@@ -234,3 +252,13 @@ if settings.DEBUG:
 
 if settings.DJANGO_ADMIN:
     urlpatterns.append(path("admin/", admin.site.urls))
+
+
+"""urlpatterns +=[
+    # YOUR PATTERNS
+    path(f'api/schema/', OpenAPIGenerator.as_view(), name='schema'),
+    # Optional UI:
+    path('api/schema/swagger-ui/', OpenAPIUIView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+]
+"""

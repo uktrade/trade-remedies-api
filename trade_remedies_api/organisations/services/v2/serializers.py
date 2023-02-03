@@ -16,7 +16,6 @@ from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, Us
 
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
-    case = serializers.SerializerMethodField()
     case_role_key = serializers.SerializerMethodField()
     validated_by = UserSerializer(fields=["name", "email"], required=False)
     role_name = serializers.CharField(source="role.name", required=False)
@@ -25,7 +24,6 @@ class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
     class Meta:
         model = OrganisationCaseRole
         fields = "__all__"
-        extra_kwargs = {"case": {"read_only": True}, "organisation": {"read_only": True}}
 
     def to_internal_value(self, data):
         data = data.copy()  # Making the QueryDict mutable
@@ -35,12 +33,12 @@ class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
             data["role"] = role_object.pk
         return super().to_internal_value(data)
 
-    @staticmethod
-    def get_case(instance):
-        # This needs to be a SerializerMethodField to avoid the circular import of CaseSerializer
+    def to_representation(self, obj):
         from cases.services.v2.serializers import CaseSerializer
 
-        return CaseSerializer(instance=instance.case).data
+        ret = super().to_representation(obj)
+        ret["case"] = CaseSerializer(instance=obj.case).data
+        return ret
 
     @staticmethod
     def get_case_role_key(instance):
