@@ -112,7 +112,8 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         """
         Return all CaseContact objects where the contact belongs to this organisation.
 
-        In this way we can find all the cases where this organisation is representing another org."""
+        In this way we can find all the cases where this organisation is representing another org.
+        """
         case_contacts = CaseContact.objects.filter(contact__organisation=instance)
         return CaseContactSerializer(instance=case_contacts, many=True).data
 

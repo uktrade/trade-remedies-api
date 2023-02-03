@@ -1,3 +1,8 @@
+alpha3
+TRS
+"Returns the order of this duplicate in the parent organisation along
+Serializes OrganisationMergeRecord
+
 # Optional
 SpectacularRedocView.as_view(url_name='schema
 Returns ------- Organisation
