@@ -10,6 +10,9 @@ class TestReassociateContactOrg(TestCase):
         contact_object = Contact.objects.create(name="test", email="test@example.com")  # /PS-IGNORE
         organisation_object = Organisation.objects.create(name="test company")
         assert not contact_object.organisation
-        call_command("correct_user_contact_org", contact_object.id, organisation_object.id)
+        call_command("correct_user_contact_org", {
+            "contact_id": [contact_object.id],
+            "organisation_id": [organisation_object.id],
+        })
         contact_object.refresh_from_db()
         assert contact_object.organisation == organisation_object
