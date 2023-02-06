@@ -42,12 +42,6 @@ from organisations.services.v2.views import (
     OrganisationViewSet,
     SubmissionOrganisationMergeRecordViewSet,
 )
-from drf_spectacular.views import (
-    AUTHENTICATION_CLASSES,
-    SpectacularAPIView,
-    SpectacularRedocView,
-    SpectacularSwaggerView,
-)
 
 
 urlpatterns = [
