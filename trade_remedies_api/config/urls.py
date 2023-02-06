@@ -22,7 +22,6 @@ from rest_framework.views import APIView
 
 from cases.services import api as cases_api
 from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, SubmissionViewSet
-from config.openapi_generation import OpenAPIGenerator, OpenAPIUIView
 from core.services import api as core_api
 from core.services.auth import views as auth_api
 from core.services.v2.feature_flags.views import FlagViewSet
