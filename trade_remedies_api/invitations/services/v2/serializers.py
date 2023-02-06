@@ -9,6 +9,8 @@ from invitations.models import Invitation
 from organisations.services.v2.serializers import OrganisationSerializer
 from security.models import CaseRole
 from security.services.v2.serializers import UserCaseSerializer
+from security.models import CaseRole
+from security.services.v2.serializers import UserCaseSerializer
 
 
 class InvitationSerializer(CustomValidationModelSerializer):
@@ -41,6 +43,10 @@ class InvitationSerializer(CustomValidationModelSerializer):
     cases_to_link = NestedField(serializer_class=CaseSerializer, many=True, required=False)
     user_cases_to_link = NestedField(serializer_class=UserCaseSerializer, many=True, required=False)
     case = NestedField(required=False, serializer_class=CaseSerializer, accept_pk=True)
+    authorised_signatory = NestedField(
+        required=False, serializer_class=ContactSerializer, accept_pk=True
+    )
+    type_verbose_name = serializers.ReadOnlyField(source="get_invitation_type_display")
 
     def to_internal_value(self, data):
         """API requests can pass case_role with the key"""

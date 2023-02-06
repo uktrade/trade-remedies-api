@@ -1,6 +1,7 @@
 import requests
 from django.contrib.auth.models import Group
 from django.db.models import F
+from django_restql.fields import NestedField
 from rest_framework import serializers
 
 from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
@@ -11,7 +12,6 @@ from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from organisations.models import Organisation
 from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
-from django_restql.fields import NestedField
 
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
@@ -55,6 +55,12 @@ class OrganisationUserSerializer(CustomValidationModelSerializer):
     security_group = serializers.SlugRelatedField(slug_field="name", queryset=Group.objects.all())
 
 
+class OrganisationListSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = Organisation
+        fields = "__all__"
+
+
 class OrganisationSerializer(CustomValidationModelSerializer):
     country = serializers.CharField(source="country.alpha3", required=False)
     country_code = serializers.ReadOnlyField(source="country.code")
@@ -69,19 +75,26 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     representative_cases = serializers.SerializerMethodField()
     contacts = serializers.SerializerMethodField()
     representative_contacts = serializers.SerializerMethodField()
+    case_count = serializers.IntegerField(required=False)
     country_name = serializers.ReadOnlyField(source="country.name")
     rejected_cases = serializers.SerializerMethodField()
     json_data = serializers.JSONField(required=False, allow_null=True)
     a_tag_website_url = serializers.SerializerMethodField()
     full_country_name = serializers.SerializerMethodField()
 
+    class Meta:
+        model = Organisation
+        fields = "__all__"
+
     def to_representation(self, instance):
         instance.json_data = {}
         return super().to_representation(instance)
 
-    class Meta:
-        model = Organisation
-        fields = "__all__"
+    def to_internal_value(self, data):
+        data = super().to_internal_value(data)
+        if "country" in data and isinstance(data["country"], dict):
+            data["country"] = data["country"]["alpha3"]
+        return data
 
     @staticmethod
     def get_a_tag_website_url(instance):
@@ -118,7 +131,26 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                     "rejected_by": UserSerializer(
                         invitation.rejected_by, fields=["name", "email"]
                     ).data,
-                    "invitation_id": invitation.id,
+                    "type": "representative",
+                }
+            )
+
+        # finding the interested party cases for this org which have been rejected
+        rejected_org_case_roles = OrganisationCaseRole.objects.filter(
+            organisation=instance, role__key="rejected"
+        )
+        for rejected_org_case_role in rejected_org_case_roles:
+            rejections.append(
+                {
+                    "case": CaseSerializer(
+                        rejected_org_case_role.case, fields=["name", "reference"]
+                    ).data,
+                    "date_rejected": rejected_org_case_role.validated_at,
+                    "rejected_reason": "N/A",
+                    "rejected_by": UserSerializer(
+                        rejected_org_case_role.validated_by, fields=["name", "email"]
+                    ).data,
+                    "type": "interested_party",
                 }
             )
 
@@ -152,26 +184,20 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 "role": corresponding_org_case_role.role.name,
             }
             # now we need to find if this case_contact has been created as part of an ROI or an invitation
-            invitations = Invitation.objects.filter(
-                contact__organisation=instance,
-                case=case_contact.case,
-                organisation=case_contact.organisation,
-            ).order_by("-last_modified")
-            if invitations:
-                invitation = invitations.first()
+            invitation = (
+                Invitation.objects.filter(
+                    contact__organisation=instance,
+                    case=case_contact.case,
+                    organisation=case_contact.organisation,
+                    invitation_type=2,
+                    approved_at__isnull=False,
+                )
+                .order_by("-last_modified")
+                .first()
+            )
+            if invitation:
                 representation.update(
-                    {
-                        "validated": invitation.submission.deficiency_notice_params.get(
-                            "contact_org_verify", False
-                        )
-                        if invitation.submission and invitation.submission.deficiency_notice_params
-                        else False,
-                        "validated_at": invitation.submission.deficiency_notice_params.get(
-                            "contact_org_verify_at", None
-                        )
-                        if invitation.submission and invitation.submission.deficiency_notice_params
-                        else None,
-                    }
+                    {"validated": invitation.approved_at, "validated_at": invitation.approved_at}
                 )
                 representations.append(representation)
             else:
@@ -280,12 +306,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     def get_full_country_name(instance):
         """Return the full country name of the Organisation, e.g. GB --> Great Britain"""
         return instance.country.name if instance.country else None
-
-    def to_internal_value(self, data):
-        data = super().to_internal_value(data)
-        if "country" in data and isinstance(data["country"], dict):
-            data["country"] = data["country"]["alpha3"]
-        return data
 
     @staticmethod
     def get_contacts(instance):

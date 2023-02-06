@@ -8,6 +8,7 @@ import pytz
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
+from django.utils.html import escape
 from django_countries.fields import Country
 from audit.mixins import AuditableMixin
 from dirtyfields import DirtyFieldsMixin
@@ -286,7 +287,11 @@ class BaseModel(SimpleBaseModel):
                         val = self.to_json(fields=subField, obj=val, context=self)
                 elif hasattr(val, "to_dict"):
                     val = val.to_dict()
-                out[field] = val
+
+                if isinstance(val, str):
+                    out[field] = escape(val)
+                else:
+                    out[field] = val
             except AttributeError:
                 pass
         return out
