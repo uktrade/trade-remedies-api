@@ -395,7 +395,6 @@ class Organisation(BaseModel):
     def __is_potential_duplicate_organisation(
         target_org: "Organisation", potential_dup_org: "Organisation"
     ):
-
         DIGITS_PATTERN = re.compile(r"[^0-9]+")
         DIGITS_ALPHA_PATTERN = re.compile(r"[^0-9a-zA-Z]+")
 
@@ -712,7 +711,10 @@ class Organisation(BaseModel):
         Return all contacts assosciated with the organisation for a specific case.
         These might be lawyers representing the organisation or direct employee.
         """
-        case_contacts = Contact.objects.select_related("userprofile", "organisation",).filter(
+        case_contacts = Contact.objects.select_related(
+            "userprofile",
+            "organisation",
+        ).filter(
             casecontact__case=case,
             casecontact__organisation=self,
             deleted_at__isnull=True,
@@ -1056,6 +1058,7 @@ class Organisation(BaseModel):
                     "eori_number",
                     "address",
                     "post_code",
+                    "country_name",
                 ],
             ).data
         )

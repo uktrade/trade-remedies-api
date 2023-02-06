@@ -194,6 +194,7 @@ skinny_organisation_fields = [
     "duns_number",
     "companies_house_id",
     "organisation_website",
+    "country_name",
 ]
 
 

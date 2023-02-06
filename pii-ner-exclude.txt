@@ -1,3 +1,18 @@
+"trade_remedies_api URL Configuration The `
+API_PREFIX}/health/
+case_id>/
+request_email_verify
+"trade_remedies_api URL Configuration The `
+API_PREFIX}/health/
+case_id>/
+request_email_verify
+SELECT
+uc2.case_id
+cc1 join contacts_casecontact cc2 on cc1.organisation_id='{organisation.id}' and cc2.organisation_id = '
+Select Country
+" Returns True if the organisation name matches the name on Companies House
+" Returns a dictionary
+does_name_match_companies_house
 alpha3
 TRS
 "Returns the order of this duplicate in the parent organisation along
