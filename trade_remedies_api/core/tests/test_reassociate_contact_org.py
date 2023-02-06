@@ -12,10 +12,8 @@ class TestReassociateContactOrg(TestCase):
         assert not contact_object.organisation
         call_command(
             "reassociate_contact_org",
-            {
-                "contact_id": [contact_object.id],
-                "organisation_id": [organisation_object.id],
-            },
+            contact_object.id,
+            organisation_object.id
         )
         contact_object.refresh_from_db()
         assert contact_object.organisation == organisation_object
