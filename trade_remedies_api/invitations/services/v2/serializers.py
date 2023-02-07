@@ -9,8 +9,6 @@ from invitations.models import Invitation
 from organisations.services.v2.serializers import OrganisationSerializer
 from security.models import CaseRole
 from security.services.v2.serializers import UserCaseSerializer
-from security.models import CaseRole
-from security.services.v2.serializers import UserCaseSerializer
 
 
 class InvitationSerializer(CustomValidationModelSerializer):
@@ -46,7 +44,37 @@ class InvitationSerializer(CustomValidationModelSerializer):
     authorised_signatory = NestedField(
         required=False, serializer_class=ContactSerializer, accept_pk=True
     )
-    type_verbose_name = serializers.ReadOnlyField(source="get_invitation_type_display")
+    type_display_name = serializers.ReadOnlyField(source="get_invitation_type_display")
+    status = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_status(instance):
+        """Helper function to return a machine and human-readable status. (obviously they're both
+        machine-readable but YOU KNOW WHAT I MEAN.
+
+        CHOICES:
+
+        "draft" - Draft
+        "accepted" - Accepted
+        "invite_sent" - Invite sent
+        "waiting_tra_review" - Waiting TRA review
+        "rejected_by_tra" - Rejected by the TRA
+        "deficient" - Deficient
+        """
+        if not instance.email_sent:
+            return "draft", "Draft"
+        if instance.invitation_type == 1:
+            if instance.accepted_at:
+                return "accepted", "Accepted"
+            else:
+                return "invite_sent", "Invite sent"
+        elif instance.invitation_type == 2:
+            if not instance.approved_at and not instance.rejected_at:
+                return "waiting_tra_review", "Waiting TRA review"
+            elif instance.rejected_at:
+                return "rejected_by_tra", "Rejected by the TRA"
+            elif instance.submission.deficiency_sent_at:
+                return "deficient", "Deficient"
 
     def to_internal_value(self, data):
         """API requests can pass case_role with the key"""
