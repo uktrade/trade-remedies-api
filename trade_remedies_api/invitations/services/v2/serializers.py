@@ -69,12 +69,14 @@ class InvitationSerializer(CustomValidationModelSerializer):
             else:
                 return "invite_sent", "Invite sent"
         elif instance.invitation_type == 2:
+            if instance.submission.status.version:
+                return "deficient", "Deficient"
+            elif not instance.accepted_at:
+                return "invite_sent", "Invite sent"
             if not instance.approved_at and not instance.rejected_at:
                 return "waiting_tra_review", "Waiting TRA review"
             elif instance.rejected_at:
                 return "rejected_by_tra", "Rejected by the TRA"
-            elif instance.submission.deficiency_sent_at:
-                return "deficient", "Deficient"
 
     def to_internal_value(self, data):
         """API requests can pass case_role with the key"""
