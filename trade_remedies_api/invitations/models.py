@@ -68,10 +68,6 @@ class InvitationManager(models.Manager):
             if invitation and invitation.email == user.email:
                 # We only want to process the invitation if it belongs to the user logging in
                 invitation.process_invitation(user, accept=True, register_interest=True)
-        pending_invites = self.filter(user=user, accepted_at__isnull=True, deleted_at__isnull=True)
-        for invite in pending_invites:
-            invite.accepted()
-            accepted.append(invite.id)
         return accepted
 
     def validate_public_invite(self, short_code, user):
