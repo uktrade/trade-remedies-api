@@ -69,6 +69,7 @@ class UserSerializer(CustomValidationModelSerializer):
     password = serializers.CharField(required=False)
     email = serializers.EmailField()
     cases = serializers.SerializerMethodField()
+    user_cases = serializers.SerializerMethodField()
     organisation = serializers.SerializerMethodField()
     twofactorauth = TwoFactorAuthSerializer(required=False)
     contact = NestedField(serializer_class=ContactSerializer, required=False)
@@ -80,12 +81,20 @@ class UserSerializer(CustomValidationModelSerializer):
             data.pop("password", None)
         return data
 
-    def get_cases(self, instance):
+    @staticmethod
+    def get_user_cases(instance):
+        from security.services.v2.serializers import UserCaseSerializer
+
+        return UserCaseSerializer(instance=instance.usercase_set.all(), many=True).data
+
+    @staticmethod
+    def get_cases(instance):
         from cases.services.v2.serializers import CaseSerializer
 
         return [CaseSerializer(each).data for each in Case.objects.user_cases(user=instance)]
 
-    def get_organisation(self, instance):
+    @staticmethod
+    def get_organisation(instance):
         """Gets the organisation that this user belongs to.
 
         Provides an exclude argument to the OrganisationSerializer to avoid recursive infinite
