@@ -194,16 +194,14 @@ class CustomValidationModelSerializer(CustomValidationSerializer, serializers.Mo
             # Let's format the errors into something more enjoyable
             formatted_errors = defaultdict(list)
             for field, errors in self.error_list.items():
-                for error in errors.args:
-                    formatted_errors[field].append(error)
+                if hasattr(errors, "args"):
+                    for error in errors.args:
+                        formatted_errors[field].append(error)
+                elif isinstance(errors, list):
+                    for error in errors:
+                        formatted_errors[field].append(error)
 
             formatted_errors = dict(formatted_errors)
-
-            sentry_sdk.capture_message(
-                f"Someone tried to save a serializer with invalid data,"
-                f"the errors were: {formatted_errors}"
-            )
-
             raise InvalidSerializerError(detail=formatted_errors, serializer=self)
         return super().save(**kwargs)
 
