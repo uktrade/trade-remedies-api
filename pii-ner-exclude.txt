@@ -1,4 +1,10 @@
-commas
+Overrides the django-restql DynamicFieldsMixin
+ALWAYS
+" A Serializer
+" Dict of native values <- Dict
+.validate
+" The ModelSecurity
+Roles
 IDE
 self.confidential_document.refresh_from_db
 self.confidential_submission_document.refresh_from_db
