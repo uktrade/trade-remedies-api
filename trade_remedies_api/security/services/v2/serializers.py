@@ -34,13 +34,12 @@ class UserCaseSerializer(CustomValidationModelSerializer):
 
     @staticmethod
     def get_case_contact(instance):
-        try:
-            case_contact = CaseContact.objects.get(
-                case=instance.case, contact=instance.user.contact
-            )
-            return CaseContactSerializer(case_contact).data
-        except CaseContact.DoesNotExist:
-            return None
+        case_contacts = CaseContact.objects.filter(
+            case=instance.case, contact=instance.user.contact
+        )
+        if case_contacts:
+            return CaseContactSerializer(case_contacts.first()).data
+        return None
 
 
 class CaseRoleSerializer(CustomValidationModelSerializer):
