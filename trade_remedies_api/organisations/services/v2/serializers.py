@@ -53,6 +53,7 @@ class OrganisationUserSerializer(CustomValidationModelSerializer):
 
     user = UserSerializer()
     security_group = serializers.SlugRelatedField(slug_field="name", queryset=Group.objects.all())
+    security_group_key = serializers.ReadOnlyField(source="security_group.key")
 
 
 class OrganisationListSerializer(CustomValidationModelSerializer):

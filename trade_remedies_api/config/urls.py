@@ -22,6 +22,7 @@ from rest_framework.views import APIView
 
 from cases.services import api as cases_api
 from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, SubmissionViewSet
+from contacts.services.v2.views import CaseContactViewSet
 from core.services import api as core_api
 from core.services.auth import views as auth_api
 from core.services.v2.feature_flags.views import FlagViewSet
@@ -35,6 +36,7 @@ from organisations.services.v2.views import (
     OrganisationUserViewSet,
     OrganisationViewSet,
 )
+from security.services.v2.views import UserCaseViewSet
 
 urlpatterns = [
     path(f"{settings.API_PREFIX}/health/", core_api.ApiHealthView.as_view()),
@@ -206,6 +208,16 @@ router.register(
     f"{settings.API_V2_PREFIX}/organisation_users",
     OrganisationUserViewSet,
     basename="organisation_users",
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/case_contacts",
+    CaseContactViewSet,
+    basename="case_contacts",
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/user_cases",
+    UserCaseViewSet,
+    basename="user_cases",
 )
 urlpatterns += router.urls
 

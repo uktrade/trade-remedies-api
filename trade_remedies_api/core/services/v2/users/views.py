@@ -13,6 +13,8 @@ from core.services.v2.users.serializers import (
     UserSerializer,
 )
 from organisations.models import Organisation
+from security.models import UserCase
+from security.services.v2.serializers import UserCaseSerializer
 
 
 class UserViewSet(BaseModelViewSet):
