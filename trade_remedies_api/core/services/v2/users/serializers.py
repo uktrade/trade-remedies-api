@@ -29,6 +29,7 @@ class ContactSerializer(CustomValidationModelSerializer, EmailSerializer):
     organisation_name = serializers.ReadOnlyField(source="organisation.name")
     has_user = serializers.ReadOnlyField()
     user_id = serializers.SerializerMethodField()
+    country_iso_code = serializers.ReadOnlyField(source="country.code")
 
     @staticmethod
     def get_user_id(instance):

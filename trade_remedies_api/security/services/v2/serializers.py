@@ -1,13 +1,14 @@
+from rest_framework import serializers
+
 from cases.services.v2.serializers import CaseSerializer
 from config.serializers import CustomValidationModelSerializer
+from contacts.models import CaseContact
+from contacts.services.v2.serializers import CaseContactSerializer
 from organisations.services.v2.serializers import (
     OrganisationCaseRoleSerializer,
     OrganisationSerializer,
 )
-from security.models import OrganisationCaseRole, UserCase
-from rest_framework import serializers
-from organisations.services.v2.serializers import OrganisationSerializer
-from security.models import CaseRole, UserCase
+from security.models import CaseRole, OrganisationCaseRole, UserCase
 
 
 class UserCaseSerializer(CustomValidationModelSerializer):
@@ -18,6 +19,7 @@ class UserCaseSerializer(CustomValidationModelSerializer):
     organisation = OrganisationSerializer(fields=["name"])
     case = CaseSerializer(fields=["name", "reference"])
     organisation_case_role = serializers.SerializerMethodField()
+    case_contact = serializers.SerializerMethodField()
 
     @staticmethod
     def get_organisation_case_role(instance):
@@ -28,6 +30,16 @@ class UserCaseSerializer(CustomValidationModelSerializer):
             )
             return OrganisationCaseRoleSerializer(org_case_role).data
         except OrganisationCaseRole.DoesNotExist:
+            return None
+
+    @staticmethod
+    def get_case_contact(instance):
+        try:
+            case_contact = CaseContact.objects.get(
+                case=instance.case, contact=instance.user.contact
+            )
+            return CaseContactSerializer(case_contact).data
+        except CaseContact.DoesNotExist:
             return None
 
 
