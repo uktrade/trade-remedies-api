@@ -1,9 +1,11 @@
+from django_restql.fields import NestedField
 from rest_framework import serializers
 
 from cases.services.v2.serializers import CaseSerializer
 from config.serializers import CustomValidationModelSerializer
 from contacts.models import CaseContact
 from contacts.services.v2.serializers import CaseContactSerializer
+from core.services.v2.users.serializers import UserSerializer
 from organisations.services.v2.serializers import (
     OrganisationCaseRoleSerializer,
     OrganisationSerializer,
@@ -16,8 +18,21 @@ class UserCaseSerializer(CustomValidationModelSerializer):
         model = UserCase
         fields = "__all__"
 
-    organisation = OrganisationSerializer(fields=["name"])
-    case = CaseSerializer(fields=["name", "reference"])
+    organisation = NestedField(
+        serializer_class=OrganisationSerializer, required=False, accept_pk=True, fields=["name"]
+    )
+    case = NestedField(
+        serializer_class=CaseSerializer,
+        required=False,
+        accept_pk=True,
+        fields=["name", "reference"],
+    )
+    user = NestedField(
+        serializer_class=UserSerializer,
+        required=False,
+        accept_pk=True,
+        fields=["name", "email"],
+    )
     organisation_case_role = serializers.SerializerMethodField()
     case_contact = serializers.SerializerMethodField()
 
