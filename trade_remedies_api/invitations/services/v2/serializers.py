@@ -61,23 +61,51 @@ class InvitationSerializer(CustomValidationModelSerializer):
         "rejected_by_tra" - Rejected by the TRA
         "deficient" - Deficient
         """
+        choices = {
+            "draft": "Draft",
+            "accepted": "Accepted",
+            "invite_sent": "Invite sent",
+            "waiting_tra_review": "Waiting TRA Approval",
+            "rejected_by_tra": "Rejected by the TRA",
+            "approved_by_tra": "Approved by the TRA",
+            "deficient": "Deficient",
+            "unknown": "Unknown",  # this should never happen
+        }
+        status = "unknown"
+
         if not instance.email_sent:
-            return "draft", "Draft"
-        if instance.invitation_type == 1:
+            status = "draft"
+        if instance.invitation_type in [1, 3]:
+            # an own-org or caseworker invitation, there are really only 3 states:
+            # 1. draft
+            # 2. invite sent
+            # 3. accepted
             if instance.accepted_at:
-                return "accepted", "Accepted"
+                status = "accepted"
             else:
-                return "invite_sent", "Invite sent"
+                status = "invite_sent"
         elif instance.invitation_type == 2:
+            # a rep invitation is a bit more complex, they are related to a submission and can have
+            # a number of states:
+            # 1. draft - invitation in progress
+            # 2. invite sent - invitation sent but not accepted
+            # 3. waiting tra review - invitation accepted but not yet approved by the TRA
+            # 4. rejected by tra - invitation rejected by the TRA
+            # 5. approved by tra - invitation approved by the TRA
+            # 6. deficient - submission associated with the invitation is deficient
             if instance.submission.status.version:
-                return "deficient", "Deficient"
+                status = "deficient"
             elif not instance.accepted_at:
-                return "invite_sent", "Invite sent"
+                status = "invite_sent"
             if not instance.approved_at and not instance.rejected_at:
-                return "waiting_tra_review", "Waiting TRA review"
+                status = "waiting_tra_review"
             elif instance.rejected_at:
-                return "rejected_by_tra", "Rejected by the TRA"
-        return "unknown", "Unknown"
+                status = "rejected_by_tra"
+            if instance.approved_at:
+                status = "approved_by_tra"
+
+        status = choices[status]
+        return status[0], status[1]
 
     def to_internal_value(self, data):
         """API requests can pass case_role with the key"""
