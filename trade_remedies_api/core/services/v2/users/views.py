@@ -15,7 +15,7 @@ from core.services.v2.users.serializers import (
 from organisations.models import Organisation
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(BaseModelViewSet):
     """
     ModelViewSet for interacting with user objects via the API.
     """
@@ -142,7 +142,7 @@ class ContactViewSet(BaseModelViewSet):
         return self.retrieve(request)
 
 
-class TwoFactorAuthViewSet(viewsets.ModelViewSet):
+class TwoFactorAuthViewSet(BaseModelViewSet):
     """ModelViewSet for interacting with TwoFactorAuth objects."""
 
     queryset = TwoFactorAuth.objects.all()

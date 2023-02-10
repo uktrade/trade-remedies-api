@@ -19,7 +19,7 @@ from security.constants import ROLE_PREPARING
 from security.models import CaseRole, OrganisationCaseRole
 
 
-class CaseViewSet(viewsets.ModelViewSet):
+class CaseViewSet(BaseModelViewSet):
     queryset = Case.objects.all()
     serializer_class = CaseSerializer
 
