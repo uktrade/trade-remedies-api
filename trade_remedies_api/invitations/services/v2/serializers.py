@@ -77,6 +77,7 @@ class InvitationSerializer(CustomValidationModelSerializer):
                 return "waiting_tra_review", "Waiting TRA review"
             elif instance.rejected_at:
                 return "rejected_by_tra", "Rejected by the TRA"
+        return "unknown", "Unknown"
 
     def to_internal_value(self, data):
         """API requests can pass case_role with the key"""
