@@ -105,6 +105,6 @@ class DocumentViewSet(BaseModelViewSet):
         return Response(status=204)
 
 
-class DocumentBundleViewSet(viewsets.ModelViewSet):
+class DocumentBundleViewSet(BaseModelViewSet):
     queryset = DocumentBundle.objects.all()
     serializer_class = DocumentBundleSerializer
