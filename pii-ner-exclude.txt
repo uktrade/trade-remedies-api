@@ -1,4 +1,9 @@
-self.confidential_document.refresh_from_db
+" ModelViewSet for interacting with
+" Deletes the user
+get_user_by_email
+" ModelViewSet for interacting with contact objects via the API
+"ModelViewSet for interacting with TwoFactorAuth objects
+kself.confidential_document.refresh_from_db
 self.confidential_submission_document.refresh_from_db
 self.non_confidential_document.refresh_from_db
 assert str(self.non_confidential_document.parent.id

@@ -3,13 +3,18 @@ import json
 
 from django.http import Http404
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+from core.services.base import GroupPermission
 
 
 class BaseModelViewSet(viewsets.ModelViewSet):
     """
     Base class for ModelViewSets to share commonly overriden methods
     """
+
+    permission_classes = (IsAuthenticated, GroupPermission)
 
     def get_queryset(self):
         queryset = super().get_queryset()
