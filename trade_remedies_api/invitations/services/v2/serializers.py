@@ -75,7 +75,7 @@ class InvitationSerializer(CustomValidationModelSerializer):
 
         if not instance.email_sent:
             status = "draft"
-        if instance.invitation_type in [1, 3]:
+        elif instance.invitation_type in [1, 3]:
             # an own-org or caseworker invitation, there are really only 3 states:
             # 1. draft
             # 2. invite sent
@@ -104,8 +104,8 @@ class InvitationSerializer(CustomValidationModelSerializer):
             if instance.approved_at:
                 status = "approved_by_tra"
 
-        status = choices[status]
-        return status[0], status[1]
+        verbose_status = choices[status]
+        return status, verbose_status
 
     def to_internal_value(self, data):
         """API requests can pass case_role with the key"""

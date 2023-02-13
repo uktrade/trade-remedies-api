@@ -9,6 +9,8 @@ from contacts.models import Contact
 from core.models import TwoFactorAuth, User
 from core.services.auth.serializers import EmailSerializer
 from core.utils import convert_to_e164
+from organisations.constants import REJECTED_ORG_CASE_ROLE
+from security.models import OrganisationCaseRole
 
 
 class TwoFactorAuthSerializer(serializers.ModelSerializer):
@@ -86,13 +88,30 @@ class UserSerializer(CustomValidationModelSerializer):
     def get_user_cases(instance):
         from security.services.v2.serializers import UserCaseSerializer
 
-        return UserCaseSerializer(instance=instance.usercase_set.all(), many=True).data
+        user_cases = instance.usercase_set.all()
+        non_rejected_user_cases_ids = []
+        for user_case in user_cases:
+            if not OrganisationCaseRole.objects.filter(
+                case=user_case.case,
+                organisation__organisationuser__user=user_case.user,
+                role__key=REJECTED_ORG_CASE_ROLE,
+            ).exists():
+                non_rejected_user_cases_ids.append(user_case.id)
+
+        return UserCaseSerializer(
+            instance=instance.usercase_set.filter(id__in=non_rejected_user_cases_ids), many=True
+        ).data
 
     @staticmethod
     def get_cases(instance):
         from cases.services.v2.serializers import CaseSerializer
 
-        return [CaseSerializer(each).data for each in Case.objects.user_cases(user=instance)]
+        return [
+            CaseSerializer(each).data
+            for each in Case.objects.user_cases(
+                user=instance, exclude_organisation_case_role=REJECTED_ORG_CASE_ROLE
+            )
+        ]
 
     @staticmethod
     def get_organisation(instance):
