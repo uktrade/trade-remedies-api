@@ -10,6 +10,7 @@ from contacts.models import CaseContact, Contact
 from contacts.services.v2.serializers import CaseContactSerializer
 from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
+from organisations.constants import REJECTED_ORG_CASE_ROLE
 from organisations.models import Organisation
 from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
 
@@ -232,7 +233,8 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         """
         Return all CaseContact objects where the contact belongs to this organisation.
 
-        In this way we can find all the cases where this organisation is representing another org."""
+        In this way we can find all the cases where this organisation is representing another org.
+        """
         case_contacts = CaseContact.objects.filter(contact__organisation=instance)
         return CaseContactSerializer(instance=case_contacts, many=True).data
 
@@ -258,15 +260,9 @@ class OrganisationSerializer(CustomValidationModelSerializer):
 
     @staticmethod
     def get_user_cases(instance):
-        user_cases = UserCase.objects.filter(
-            user__organisationuser__organisation=instance,
-            case__deleted_at__isnull=True,
-            case__archived_at__isnull=True,
-        )
-
         from security.services.v2.serializers import UserCaseSerializer
 
-        return UserCaseSerializer(user_cases, many=True).data
+        return UserCaseSerializer(instance.get_user_cases(), many=True).data
 
     def get_cases(self, instance):
         """Return all cases that this organisation is a part of."""
@@ -274,11 +270,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
 
         from cases.models import Case
 
-        user_cases = UserCase.objects.filter(
-            user__organisationuser__organisation=instance,
-            case__deleted_at__isnull=True,
-            case__archived_at__isnull=True,
-        ).select_related("case")
+        user_cases = instance.get_user_cases().select_related("case")
         if request := self.context.get("request", None):
             if not request.user.is_tra():
                 cases = user_cases.filter(user=request.user)
