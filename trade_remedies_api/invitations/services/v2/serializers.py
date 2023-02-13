@@ -97,11 +97,11 @@ class InvitationSerializer(CustomValidationModelSerializer):
                 status = "deficient"
             elif not instance.accepted_at:
                 status = "invite_sent"
-            if not instance.approved_at and not instance.rejected_at:
+            elif not instance.approved_at and not instance.rejected_at:
                 status = "waiting_tra_review"
             elif instance.rejected_at:
                 status = "rejected_by_tra"
-            if instance.approved_at:
+            elif instance.approved_at:
                 status = "approved_by_tra"
 
         verbose_status = choices[status]
