@@ -144,7 +144,7 @@ class ContactViewSet(BaseModelViewSet):
         return self.retrieve(request)
 
 
-class TwoFactorAuthViewSet(viewsets.ModelViewSet):
+class TwoFactorAuthViewSet(BaseModelViewSet):
     """ModelViewSet for interacting with TwoFactorAuth objects."""
 
     queryset = TwoFactorAuth.objects.all()
