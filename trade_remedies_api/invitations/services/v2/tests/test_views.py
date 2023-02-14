@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group
 
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
 from cases.models import Submission, get_submission_type
-from config.test_bases import CaseSetupTestMixin, OrganisationSetupTestMixin
+from config.test_bases import CaseSetupTestMixin
 from contacts.models import CaseContact, Contact
 from core.models import User
 from invitations.models import Invitation
@@ -39,12 +39,13 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
             user=self.user,
             submission=self.submission_object,
             contact=self.contact_object,
+            created_by=self.user,
         )
 
     def test_update_contact_creation(self):
         self.assertFalse(Contact.objects.filter(email=new_email, name=new_name).exists())
 
-        invitation = self.client.put(
+        self.client.put(
             f"/api/v2/invitations/{self.invitation_object.pk}/",
             data={
                 "name": new_name,
@@ -222,3 +223,99 @@ class TestInvitationViewSet(CaseSetupTestMixin, FunctionalTestBase):
         )
 
         # assert send_mail.called_with
+
+    def test_caseworker_invite_existing_contact(self):
+        # tests that the caseworker invite creation reuses existing contacts
+        org = Organisation.objects.create(
+            name="duplicate org",
+            draft=True,
+        )
+        duplicate_contact = Contact.objects.create(
+            organisation=org,
+            name=self.contact_object.name,
+            email=self.contact_object.email,
+        )
+
+        # the viewset should now pickup on the fact that the email already belongs to a
+        response = self.client.post(
+            "/api/v2/invitations/",
+            data={
+                "organisation": org.id,
+                "case": self.case_object.id,
+                "contact": duplicate_contact.id,
+                "invitation_type": 3,
+                "name": self.contact_object.name,
+                "email": self.contact_object.email,
+                "case_role_key": "applicant",
+            },
+        )
+
+        new_invitation = response.json()
+        assert new_invitation["contact"]["id"] != str(duplicate_contact.id)
+        assert new_invitation["contact"]["id"] == str(self.contact_object.id)
+
+        # now checking the org has been deleted
+        org.refresh_from_db()
+        assert org.deleted_at
+
+    def test_caseworker_invite_new_contact_used(self):
+        # tests that the caseworker invite creation reuses existing contacts
+        org = Organisation.objects.create(name="duplicate org")
+        duplicate_contact = Contact.objects.create(
+            organisation=org,
+            name="new contact name",
+            email="newemail@example.com",  # /PS-IGNORE
+        )
+
+        # the viewset should now pickup on the fact that the email already belongs to a
+        response = self.client.post(
+            "/api/v2/invitations/",
+            data={
+                "organisation": org.id,
+                "case": self.case_object.id,
+                "contact": duplicate_contact.id,
+                "invitation_type": 3,
+                "name": self.contact_object.name,
+                "email": self.contact_object.email,
+                "case_role_key": "applicant",
+            },
+        )
+
+        new_invitation = response.json()
+        assert new_invitation["contact"]["id"] == str(duplicate_contact.id)
+        assert new_invitation["contact"]["id"] != str(self.contact_object.id)
+
+    def test_send_representative_invitation_existing_user(self):
+        """tests that when an existing user is sent a rep invite, the submission is marked as
+        received and the invitation as accepted
+        """
+        self.invitation_object.invitation_type = 2
+        self.invitation_object.save()
+        self.contact_object.organisation = self.organisation
+        self.contact_object.save()
+        assert not self.invitation_object.submission.status.received
+        assert not self.invitation_object.accepted_at
+        assert not self.invitation_object.invited_user
+        self.client.post(f"/api/v2/invitations/{self.invitation_object.pk}/send_invitation/")
+        self.invitation_object.refresh_from_db()
+        assert self.invitation_object.submission.status.received
+        assert self.invitation_object.accepted_at
+        assert self.invitation_object.invited_user == self.user
+
+    def test_send_representative_invitation_new_user(self):
+        """tests that when an existing user is sent a rep invite, the submission is marked as
+        received and the invitation as accepted
+        """
+        new_contact = Contact.objects.create(
+            email=new_email, name=new_name, organisation=self.organisation
+        )
+        self.invitation_object.contact = new_contact
+        self.invitation_object.invitation_type = 2
+        self.invitation_object.save()
+
+        assert not self.invitation_object.submission.status.sent
+
+        self.client.post(f"/api/v2/invitations/{self.invitation_object.pk}/send_invitation/")
+        self.invitation_object.refresh_from_db()
+        assert self.invitation_object.submission.status.sent
+        assert not self.invitation_object.accepted_at

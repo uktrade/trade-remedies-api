@@ -340,11 +340,6 @@ validation_errors = {
         "error_text": "Select who is registering",
         "error_summary": "You need to select who is registering",
     },
-    "verify_invite_no_option_selected": {
-        "field": "been_able_to_verify_representative",
-        "error_text": "Select a verification option",
-        "error_summary": "You need to select one of the verification options",
-    },
     "caseworker_review_invite_no_contact_selected": {
         "field": "name",
         "error_text": "Select a contact",
@@ -384,6 +379,11 @@ validation_errors = {
         "field": "contact_email",
         "error_text": "Enter the email address in the correct format. Eg. name@example.com",
         "error_summary": "The contact's email address needs to be in the correct format. Eg. name@example.com",
+    },
+    "verify_invite_no_option_selected": {
+        "field": "been_able_to_verify_representative",
+        "error_text": "Select a verification option",
+        "error_summary": "You need to select one of the verification options",
     },
     "feedback_no_rating": {
         "field": "feedback",

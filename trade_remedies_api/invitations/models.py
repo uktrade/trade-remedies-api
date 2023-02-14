@@ -84,7 +84,6 @@ class InvitationManager(models.Manager):
         Raises an InvitationFailure if the code is not found
         """
         try:
-
             invite = self.get(short_code=short_code, deleted_at__isnull=True)
             organisation_user = invite.process_invitation(user=user, accept=False)
             organisation = organisation_user.organisation
@@ -315,6 +314,13 @@ class Invitation(BaseModel):
     cases_to_link = models.ManyToManyField(Case, related_name="cases_to_link", blank=True)
     user_cases_to_link = models.ManyToManyField(
         UserCase, related_name="user_cases_to_link", blank=True
+    )
+    authorised_signatory = models.ForeignKey(
+        Contact,
+        on_delete=models.PROTECT,
+        related_name="authorised_signatory_invitations",
+        null=True,
+        blank=True,
     )
 
     objects = InvitationManager()
@@ -743,6 +749,10 @@ class Invitation(BaseModel):
                     "created_by": self.user,
                 },
             )
+
+        elif self.invitation_type == 2:
+            # this is a rep invite, don't assign cases as this is done on Caseworker approval
+            assign_cases = False
 
         # Let's add the user to the cases associated with this invitation
         if assign_cases:
