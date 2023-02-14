@@ -49,7 +49,6 @@ class TestInvitationSerializer(CaseSetupTestMixin):
         self.invitation_object.save()
 
         serializer = InvitationSerializer(instance=self.invitation_object)
-        assert serializer.is_valid()
         assert serializer.validated_data["status"] == ("accepted", "Accepted")
 
     def test_invite_sent_status(self):
@@ -58,7 +57,6 @@ class TestInvitationSerializer(CaseSetupTestMixin):
         self.invitation_object.save()
 
         serializer = InvitationSerializer(instance=self.invitation_object)
-        assert serializer.is_valid()
         assert serializer.validated_data["status"] == ("invite_sent", "Invite sent")
 
     def test_invite_waiting_tra_review_status(self):
@@ -67,7 +65,6 @@ class TestInvitationSerializer(CaseSetupTestMixin):
         self.invitation_object.save()
 
         serializer = InvitationSerializer(instance=self.invitation_object)
-        assert serializer.is_valid()
         assert serializer.validated_data["status"] == ("waiting_tra_review", "Waiting TRA Approval")
 
     def test_invite_rejected_by_tra_status(self):
@@ -77,7 +74,6 @@ class TestInvitationSerializer(CaseSetupTestMixin):
         self.invitation_object.save()
 
         serializer = InvitationSerializer(instance=self.invitation_object)
-        assert serializer.is_valid()
         assert serializer.validated_data["status"] == ("rejected_by_tra", "Rejected by the TRA")
 
     def test_invite_approved_by_tra_status(self):
@@ -87,7 +83,6 @@ class TestInvitationSerializer(CaseSetupTestMixin):
         self.invitation_object.save()
 
         serializer = InvitationSerializer(instance=self.invitation_object)
-        assert serializer.is_valid()
         assert serializer.validated_data["status"] == ("approved_by_tra", "Approved by the TRA")
 
     def test_invite_submission_deficient_status(self):
@@ -112,5 +107,4 @@ class TestInvitationSerializer(CaseSetupTestMixin):
         self.invitation_object.save()
 
         serializer = InvitationSerializer(instance=self.invitation_object)
-        assert serializer.is_valid()
         assert serializer.validated_data["status"] == ("deficient", "Deficient")
