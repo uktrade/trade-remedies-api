@@ -84,7 +84,6 @@ class InvitationManager(models.Manager):
         Raises an InvitationFailure if the code is not found
         """
         try:
-
             invite = self.get(short_code=short_code, deleted_at__isnull=True)
             organisation_user = invite.process_invitation(user=user, accept=False)
             organisation = organisation_user.organisation
