@@ -10,9 +10,8 @@ from contacts.models import CaseContact, Contact
 from contacts.services.v2.serializers import CaseContactSerializer
 from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
-from organisations.constants import REJECTED_ORG_CASE_ROLE
 from organisations.models import Organisation
-from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
+from security.models import CaseRole, OrganisationCaseRole, OrganisationUser
 
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):

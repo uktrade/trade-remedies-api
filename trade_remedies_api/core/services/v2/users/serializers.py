@@ -84,6 +84,11 @@ class UserSerializer(CustomValidationModelSerializer):
             data.pop("password", None)
         return data
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data.pop("password", None)  # never return the hashed password
+        return data
+
     @staticmethod
     def get_user_cases(instance):
         from security.services.v2.serializers import UserCaseSerializer
