@@ -1,6 +1,6 @@
 import requests
 from django.contrib.auth.models import Group
-from django.db.models import F
+from django.db.models import F, Q
 from django_restql.fields import NestedField
 from rest_framework import serializers
 
@@ -264,7 +264,11 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         if requesting_user := self.context.get("requesting_user"):
             # We want to filter the user cases
             # to only those that are visible to the requesting organisation
-            user_cases = user_cases.filter(organisation=requesting_user.contact.organisation.id)
+            if not requesting_user.is_tra():
+                user_cases = user_cases.filter(
+                    Q(organisation=requesting_user.contact.organisation.id)
+                    | Q(user=requesting_user)
+                )
         return UserCaseSerializer(user_cases, many=True).data
 
     def get_cases(self, instance):
