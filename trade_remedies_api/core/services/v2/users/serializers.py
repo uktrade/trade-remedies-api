@@ -89,8 +89,7 @@ class UserSerializer(CustomValidationModelSerializer):
         data.pop("password", None)  # never return the hashed password
         return data
 
-    @staticmethod
-    def get_user_cases(instance):
+    def get_user_cases(self, instance):
         from security.services.v2.serializers import UserCaseSerializer
 
         user_cases = instance.usercase_set.all()
@@ -103,8 +102,14 @@ class UserSerializer(CustomValidationModelSerializer):
             ).exists():
                 non_rejected_user_cases_ids.append(user_case.id)
 
+        user_cases = instance.usercase_set.filter(id__in=non_rejected_user_cases_ids)
+        if request := self.context.get("request"):
+            # We want to filter the user cases
+            # to only those that are visible to the requesting organisation
+            user_cases = user_cases.filter(organisation=request.user.contact.organisation.id)
+
         return UserCaseSerializer(
-            instance=instance.usercase_set.filter(id__in=non_rejected_user_cases_ids), many=True
+            instance=user_cases, many=True
         ).data
 
     @staticmethod
