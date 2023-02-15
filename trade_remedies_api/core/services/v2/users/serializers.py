@@ -108,9 +108,7 @@ class UserSerializer(CustomValidationModelSerializer):
             # to only those that are visible to the requesting organisation
             user_cases = user_cases.filter(organisation=request.user.contact.organisation.id)
 
-        return UserCaseSerializer(
-            instance=user_cases, many=True
-        ).data
+        return UserCaseSerializer(instance=user_cases, many=True).data
 
     @staticmethod
     def get_cases(instance):
