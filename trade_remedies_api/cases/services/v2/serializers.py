@@ -72,7 +72,7 @@ class SubmissionSerializer(CustomValidationModelSerializer):
         serializer_class=UserSerializer,
         required=False,
         accept_pk=True,
-        fields=["id", "name", "email"],
+        fields=["name", "email"],
     )
     status = NestedField(
         serializer_class=SubmissionStatusSerializer, required=False, accept_pk=True

@@ -341,7 +341,6 @@ class PublicUserApiView(TradeRemediesApiView):
 
     @transaction.atomic  # noqa: C901
     def post(self, request, organisation_id, user_id=None, invitation_id=None, *args, **kwargs):
-
         group = None
         password = None
         invitation = None
