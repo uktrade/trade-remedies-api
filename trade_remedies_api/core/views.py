@@ -1,35 +1,9 @@
 from django.http import HttpResponse
-from celery.task.control import inspect
+
+from .notifier import application_service_health
 
 
-def _pingdom_custom_status_html_wrapper(status: str, response_time: float) -> str:
-    """
-    response data format:
-    https://documentation.solarwinds.com/en/success_center/pingdom/content/topics/http-custom-check.htm?cshid=pd-rd_115000431709-http-custom-check
-    """
-    html = """
-    <br/>
-        <pingdom_http_custom_check>
-            <status>
-                <strong>{}</strong>
-            </status>
-            <response_time>
-                <strong>{}</strong>
-            </response_time>
-        </pingdom_http_custom_check>
-    <br/>
-    <br/>
-    """.format(
-        status, response_time
-    )
-    return html
-
-
-def application_issue():
-    return _pingdom_custom_status_html_wrapper("OK", 50)
-
-
-def health_check(request):
+def health_check(_request):
     """
     Following specifications
     A view that returns the health status of the trs api app as a XML response.
@@ -41,9 +15,9 @@ def health_check(request):
         The response also has cache control headers set to 'no-cache, no-store, must-revalidate'.
     """
 
-    html = application_issue()
+    html = application_service_health()
 
-    if not application_issue():
+    if "OK" in html:
         response = HttpResponse(html, content_type="text/xml", status=200)
     else:
         response = HttpResponse(html, content_type="text/xml", status=503)
