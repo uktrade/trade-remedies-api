@@ -181,6 +181,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 continue
             representation = {
                 "on_behalf_of": case_contact.organisation.name,
+                "on_behalf_of_id": case_contact.organisation.id,
                 "case": CaseSerializer(case_contact.case).data,
                 "role": corresponding_org_case_role.role.name,
             }
