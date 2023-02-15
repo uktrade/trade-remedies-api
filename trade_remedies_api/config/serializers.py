@@ -189,6 +189,11 @@ class CustomValidationModelSerializer(CustomValidationSerializer, serializers.Mo
 
     editable_only_on_create_fields = []  # Fields that are only editable on creation, and not update
 
+    def to_representation(self, instance):
+        if not self.context and getattr(self.parent, "context", False):
+            self._context = self.parent.context
+        return super().to_representation(instance)
+
     def save(self, **kwargs):
         if self.errors:
             # Let's format the errors into something more enjoyable

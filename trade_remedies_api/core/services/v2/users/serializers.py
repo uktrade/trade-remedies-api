@@ -103,10 +103,10 @@ class UserSerializer(CustomValidationModelSerializer):
                 non_rejected_user_cases_ids.append(user_case.id)
 
         user_cases = instance.usercase_set.filter(id__in=non_rejected_user_cases_ids)
-        if request := self.context.get("request"):
+        if requesting_user := self.context.get("requesting_user"):
             # We want to filter the user cases
             # to only those that are visible to the requesting organisation
-            user_cases = user_cases.filter(organisation=request.user.contact.organisation.id)
+            user_cases = user_cases.filter(organisation=requesting_user.contact.organisation.id)
 
         return UserCaseSerializer(instance=user_cases, many=True).data
 

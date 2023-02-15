@@ -732,9 +732,15 @@ class Organisation(BaseModel):
         )
 
         if exclude_rejected:
-            user_cases = user_cases.exclude(
-                case__organisationcaserole__role__key=REJECTED_ORG_CASE_ROLE
-            )
+            exclude_ids = []
+            for user_case in user_cases:
+                if OrganisationCaseRole.objects.filter(
+                    case=user_case.case,
+                    organisation__organisationuser__user=user_case.user,
+                    role__key=REJECTED_ORG_CASE_ROLE,
+                ).exists():
+                    exclude_ids.append(user_case.id)
+            user_cases = user_cases.exclude(id__in=exclude_ids)
 
         return user_cases
 

@@ -257,11 +257,15 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                         return True
         return False
 
-    @staticmethod
-    def get_user_cases(instance):
+    def get_user_cases(self, instance):
         from security.services.v2.serializers import UserCaseSerializer
 
-        return UserCaseSerializer(instance.get_user_cases(), many=True).data
+        user_cases = instance.get_user_cases()
+        if requesting_user := self.context.get("requesting_user"):
+            # We want to filter the user cases
+            # to only those that are visible to the requesting organisation
+            user_cases = user_cases.filter(organisation=requesting_user.contact.organisation.id)
+        return UserCaseSerializer(user_cases, many=True).data
 
     def get_cases(self, instance):
         """Return all cases that this organisation is a part of."""
