@@ -80,6 +80,12 @@ class UserSerializer(CustomValidationModelSerializer):
             data.pop("password", None)
         return data
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Remove password field if serializer is updating an existing user
+        data.pop("password", None)
+        return data
+
     def get_cases(self, instance):
         from cases.services.v2.serializers import CaseSerializer
 
