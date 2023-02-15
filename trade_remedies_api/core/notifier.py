@@ -137,13 +137,11 @@ def ping_celery():
 @measure_time
 def ping_postgres():
     """
-    This function pings PostgreSQL.
+    This function pings Database(PostgreSQL).
 
     :return: None
     """
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT 1")
-        cursor.fetchone()
+    connection.ensure_connection()
 
 
 @measure_time
@@ -202,14 +200,15 @@ def application_service_health():
     """
     services = [ping_celery, ping_postgres, ping_redis, ping_opensearch]
     response_times = []
-    try:
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            futures = [executor.submit(service) for service in services]
-            for future in concurrent.futures.as_completed(futures):
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [executor.submit(service) for service in services]
+        for future in concurrent.futures.as_completed(futures):
+            try:
                 _, response_time = future.result()
                 response_times.append(response_time)
-    except Exception as err:
-        return _pingdom_custom_status_html_wrapper(f"Error: {err}", 0)
+            except Exception as err:
+                return _pingdom_custom_status_html_wrapper(f"Error: {str(err)}", 0)
 
     avg_response_time = sum(response_times) / len(response_times)
     return _pingdom_custom_status_html_wrapper("OK", avg_response_time)
