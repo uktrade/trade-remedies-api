@@ -95,14 +95,14 @@ class InvitationSerializer(CustomValidationModelSerializer):
             # 6. deficient - submission associated with the invitation is deficient
             if instance.submission.status.version:
                 status = "deficient"
-            elif not instance.accepted_at:
-                status = "invite_sent"
-            elif not instance.approved_at and not instance.rejected_at:
-                status = "waiting_tra_review"
             elif instance.rejected_at:
                 status = "rejected_by_tra"
             elif instance.approved_at:
                 status = "approved_by_tra"
+            elif not instance.accepted_at and not instance.submission.status.received:
+                status = "invite_sent"
+            elif not instance.approved_at and not instance.rejected_at:
+                status = "waiting_tra_review"
 
         verbose_status = choices[status]
         return status, verbose_status

@@ -1,3 +1,4 @@
+Invite 3rd
 Overrides the django-restql DynamicFieldsMixin
 ALWAYS
 " A Serializer

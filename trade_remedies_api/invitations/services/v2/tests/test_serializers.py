@@ -9,7 +9,7 @@ from security.constants import SECURITY_GROUP_ORGANISATION_USER
 from security.models import CaseRole
 
 
-class TestInvitationSerializer(CaseSetupTestMixin):
+class InvitationCreationTest(CaseSetupTestMixin):
     def setUp(self) -> None:
         super().setUp()
         self.invitation_object = Invitation.objects.create(
@@ -18,6 +18,8 @@ class TestInvitationSerializer(CaseSetupTestMixin):
             email="test@example.com",  # /PS-IGNORE
         )
 
+
+class TestInvitationSerializer(InvitationCreationTest):
     def test_security_group(self):
         serializer = InvitationSerializer(self.invitation_object)
         self.assertEqual(
@@ -49,7 +51,7 @@ class TestInvitationSerializer(CaseSetupTestMixin):
         self.invitation_object.save()
 
         serializer = InvitationSerializer(instance=self.invitation_object)
-        assert serializer.validated_data["status"] == ("accepted", "Accepted")
+        assert serializer.data["status"] == ("accepted", "Accepted")
 
     def test_invite_sent_status(self):
         self.invitation_object.invitation_type = 1
@@ -57,54 +59,63 @@ class TestInvitationSerializer(CaseSetupTestMixin):
         self.invitation_object.save()
 
         serializer = InvitationSerializer(instance=self.invitation_object)
-        assert serializer.validated_data["status"] == ("invite_sent", "Invite sent")
+        assert serializer.data["status"] == ("invite_sent", "Invite sent")
 
-    def test_invite_waiting_tra_review_status(self):
-        self.invitation_object.invitation_type = 2
-        self.invitation_object.email_sent = True
-        self.invitation_object.save()
 
-        serializer = InvitationSerializer(instance=self.invitation_object)
-        assert serializer.validated_data["status"] == ("waiting_tra_review", "Waiting TRA Approval")
-
-    def test_invite_rejected_by_tra_status(self):
-        self.invitation_object.invitation_type = 2
-        self.invitation_object.email_sent = True
-        self.invitation_object.rejected_at = timezone.now()
-        self.invitation_object.save()
-
-        serializer = InvitationSerializer(instance=self.invitation_object)
-        assert serializer.validated_data["status"] == ("rejected_by_tra", "Rejected by the TRA")
-
-    def test_invite_approved_by_tra_status(self):
-        self.invitation_object.invitation_type = 2
-        self.invitation_object.email_sent = True
-        self.invitation_object.approved_at = timezone.now()
-        self.invitation_object.save()
-
-        serializer = InvitationSerializer(instance=self.invitation_object)
-        assert serializer.validated_data["status"] == ("approved_by_tra", "Approved by the TRA")
-
-    def test_invite_submission_deficient_status(self):
+class TestRepresentativeInvitationSerializer(InvitationCreationTest):
+    def setUp(self) -> None:
+        super().setUp()
         SubmissionDocumentType.objects.create(
             id=SUBMISSION_DOCUMENT_TYPE_CUSTOMER, key="respondent", name="Customer Document"
         )
 
-        submission_type = get_submission_type(SUBMISSION_TYPE_INVITE_3RD_PARTY)
-        submission_status = submission_type.deficient_status
-        submission = Submission.objects.create(
+        self.submission_type = get_submission_type(SUBMISSION_TYPE_INVITE_3RD_PARTY)
+        submission_status = self.submission_type.default_status
+        self.submission_object = Submission.objects.create(
             name="Invite 3rd party",
-            type=submission_type,
+            type=self.submission_type,
             status=submission_status,
             case=self.case_object,
             contact=self.contact_object,
             organisation=self.organisation,
         )
         self.invitation_object.invitation_type = 2
-        self.invitation_object.submission = submission
+        self.invitation_object.submission = self.submission_object
+        self.invitation_object.save()
+
+    def test_invite_waiting_tra_review_status(self):
+        self.invitation_object.email_sent = True
+        self.invitation_object.save()
+        self.submission_object.status = self.submission_type.received_status
+        self.submission_object.save()
+
+        serializer = InvitationSerializer(instance=self.invitation_object)
+        assert serializer.data["status"] == ("waiting_tra_review", "Waiting TRA Approval")
+
+    def test_invite_rejected_by_tra_status(self):
+        self.invitation_object.email_sent = True
+        self.invitation_object.rejected_at = timezone.now()
+        self.invitation_object.save()
+
+        serializer = InvitationSerializer(instance=self.invitation_object)
+        assert serializer.data["status"] == ("rejected_by_tra", "Rejected by the TRA")
+
+    def test_invite_approved_by_tra_status(self):
+        self.submission_object.save()
+
         self.invitation_object.email_sent = True
         self.invitation_object.approved_at = timezone.now()
         self.invitation_object.save()
 
         serializer = InvitationSerializer(instance=self.invitation_object)
-        assert serializer.validated_data["status"] == ("deficient", "Deficient")
+        assert serializer.data["status"] == ("approved_by_tra", "Approved by the TRA")
+
+    def test_invite_submission_deficient_status(self):
+        self.submission_object.status = self.submission_type.deficient_status
+        self.submission_object.save()
+        self.invitation_object.email_sent = True
+        self.invitation_object.approved_at = timezone.now()
+        self.invitation_object.save()
+
+        serializer = InvitationSerializer(instance=self.invitation_object)
+        assert serializer.data["status"] == ("deficient", "Deficient")
