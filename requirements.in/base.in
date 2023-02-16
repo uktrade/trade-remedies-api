@@ -36,6 +36,7 @@ openpyxl==3.0.6
 opensearch-py==1.0.0
 phonenumbers==8.12.38
 pillow>=9.2.0
+prompt-toolkit>=3.0.30
 psycopg2-binary==2.9.1
 python-docx==0.8.10
 python-pptx==0.6.18

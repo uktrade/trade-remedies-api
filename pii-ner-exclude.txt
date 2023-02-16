@@ -1,3 +1,11 @@
+"trade_remedies_api URL Configuration The `
+API_PREFIX}/health/
+case_id>/
+request_email_verify
+"trade_remedies_api URL Configuration The `
+API_PREFIX}/health/
+case_id>/
+request_email_verify
 Invite 3rd
 Overrides the django-restql DynamicFieldsMixin
 ALWAYS
@@ -12,6 +20,11 @@ SELECT
 uc2.case_id
 cc1 join contacts_casecontact cc2 on cc1.organisation_id='{organisation.id}' and cc2.organisation_id = '
 Select Country
+celery==5.2.2
+django==3.2.17
+gevent==21.12.0
+odfpy==1.4.1
+whitenoise==5.3.0
 " ModelViewSet for interacting with
 " Deletes the user
 get_user_by_email

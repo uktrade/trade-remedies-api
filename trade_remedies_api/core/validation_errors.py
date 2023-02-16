@@ -340,6 +340,11 @@ validation_errors = {
         "error_text": "Select who is registering",
         "error_summary": "You need to select who is registering",
     },
+    "caseworker_review_invite_no_company_post_code_or_number_entered": {
+        "field": ["companies_house_id", "post_code"],
+        "error_text": "Enter either the organisation's registration number or the postcode for the organisation's address",
+        "error_summary": "We need either the organisation's registration number or the postcode for the organisation's address",
+    },
     "caseworker_review_invite_no_contact_selected": {
         "field": "name",
         "error_text": "Select a contact",
