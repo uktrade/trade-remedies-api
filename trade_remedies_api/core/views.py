@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 
-from .notifier import application_service_health
+from .healthcheck import application_service_health
 
 
 def health_check(_request):

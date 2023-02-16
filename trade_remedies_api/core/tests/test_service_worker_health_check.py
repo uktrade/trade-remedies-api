@@ -3,7 +3,7 @@ from django.conf import settings
 from django.test import SimpleTestCase
 from django.urls import reverse
 
-from core.notifier import application_service_health
+from core.healthcheck import application_service_health
 
 
 class HealthCheckTestCase(SimpleTestCase):
