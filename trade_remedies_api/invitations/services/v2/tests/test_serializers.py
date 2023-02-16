@@ -32,7 +32,7 @@ class TestInvitationSerializer(InvitationCreationTest):
         self.assertEqual(serializer.data["email"], "test@example.com")  # /PS-IGNORE
 
     def test_case_role_key(self):
-        applicant_case_role = CaseRole.objects.create(name="Applicant", key="applicant")
+        applicant_case_role = CaseRole.objects.get(key="applicant")
         serializer = InvitationSerializer(
             instance=self.invitation_object, data={"case_role_key": "applicant"}
         )
@@ -41,8 +41,7 @@ class TestInvitationSerializer(InvitationCreationTest):
 
     def test_draft_status(self):
         serializer = InvitationSerializer(instance=self.invitation_object)
-        assert serializer.is_valid()
-        assert serializer.validated_data["status"] == ("draft", "Draft")
+        assert serializer.data["status"] == ("draft", "Draft")
 
     def test_accepted_status(self):
         self.invitation_object.invitation_type = 1
