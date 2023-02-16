@@ -234,6 +234,10 @@ lxml==4.9.1
     #   python-pptx
 markdown==3.1.1
     # via -r requirements.in/../requirements/base.txt
+markupsafe==2.1.2
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   werkzeug
 marshmallow==3.6.1
     # via
     #   -r requirements.in/../requirements/base.txt
@@ -456,7 +460,7 @@ wcwidth==0.2.5
     # via
     #   -r requirements.in/../requirements/base.txt
     #   prompt-toolkit
-werkzeug==0.15.5
+werkzeug==2.2.3
     # via -r requirements.in/../requirements/base.txt
 wheel==0.38.4
     # via
