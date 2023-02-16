@@ -108,11 +108,11 @@ class UserSerializer(CustomValidationModelSerializer):
             if not requesting_user.is_tra():
                 # We want to filter the user cases
                 # to only those that are visible to the requesting organisation
+                query_filter = Q(user=requesting_user)
                 user_cases = user_cases.filter(user=requesting_user)
                 if requesting_user.contact.organisation:
-                    user_cases = user_cases.filter(
-                        organisation=requesting_user.contact.organisation.id
-                    )
+                    query_filter = query_filter | Q(organisation=requesting_user.contact.organisation.id)
+                user_cases = user_cases.filter(query_filter)
         return UserCaseSerializer(instance=user_cases, many=True).data
 
     @staticmethod
