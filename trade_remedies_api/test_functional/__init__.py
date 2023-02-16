@@ -14,6 +14,6 @@ class FunctionalTestBase(APITransactionTestCase):
             email="standard@gov.uk",  # /PS-IGNORE
             password="super-secret-password1D!",
         )
-        super_user_group = Group.objects.create(name="SECURITY_GROUP_SUPER_USER")
+        super_user_group = Group.objects.create(name=SECURITY_GROUP_SUPER_USER)
         self.user.groups.add(super_user_group)
         self.client.force_authenticate(user=self.user, token=self.user.get_access_token())
