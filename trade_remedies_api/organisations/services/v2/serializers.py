@@ -272,7 +272,8 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 user_cases = user_cases.filter(user=requesting_user)
                 if requesting_user.contact.organisation:
                     query_filter = query_filter | Q(
-                        organisation=requesting_user.contact.organisation.id)
+                        organisation=requesting_user.contact.organisation.id
+                    )
                 user_cases = user_cases.filter(query_filter)
         return UserCaseSerializer(user_cases, many=True).data
 
