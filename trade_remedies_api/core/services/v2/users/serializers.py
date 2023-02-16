@@ -92,7 +92,6 @@ class UserSerializer(CustomValidationModelSerializer):
 
     def get_user_cases(self, instance):
         from security.services.v2.serializers import UserCaseSerializer
-
         user_cases = instance.usercase_set.all()
         non_rejected_user_cases_ids = []
         for user_case in user_cases:
