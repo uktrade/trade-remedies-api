@@ -326,7 +326,7 @@ class Invitation(BaseModel):
 
     objects = InvitationManager()
 
-    organisation_details_captured = models.BooleanField(null=True)
+    organisation_details_not_captured = models.BooleanField(null=True)
 
     def __str__(self):
         return f"{self.organisation} invites {self.contact}"
