@@ -50,7 +50,7 @@ class UserCaseSerializer(CustomValidationModelSerializer):
     @staticmethod
     def get_case_contact(instance):
         case_contacts = CaseContact.objects.filter(
-            case=instance.case, contact=instance.user.contact
+            case=instance.case, contact=instance.user.contact, organisation=instance.organisation
         )
         if case_contacts:
             return CaseContactSerializer(case_contacts.first()).data
