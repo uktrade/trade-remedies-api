@@ -1,6 +1,6 @@
 import requests
 from django.contrib.auth.models import Group
-from django.db.models import F
+from django.db.models import F, Q
 from django_restql.fields import NestedField
 from rest_framework import serializers
 
@@ -11,7 +11,7 @@ from contacts.services.v2.serializers import CaseContactSerializer
 from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from organisations.models import Organisation
-from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
+from security.models import CaseRole, OrganisationCaseRole, OrganisationUser
 
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
@@ -53,6 +53,7 @@ class OrganisationUserSerializer(CustomValidationModelSerializer):
 
     user = UserSerializer()
     security_group = serializers.SlugRelatedField(slug_field="name", queryset=Group.objects.all())
+    security_group_key = serializers.ReadOnlyField(source="security_group.key")
 
 
 class OrganisationListSerializer(CustomValidationModelSerializer):
@@ -180,6 +181,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 continue
             representation = {
                 "on_behalf_of": case_contact.organisation.name,
+                "on_behalf_of_id": case_contact.organisation.id,
                 "case": CaseSerializer(case_contact.case).data,
                 "role": corresponding_org_case_role.role.name,
             }
@@ -256,16 +258,26 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                         return True
         return False
 
-    @staticmethod
-    def get_user_cases(instance):
-        user_cases = UserCase.objects.filter(
-            user__organisationuser__organisation=instance,
-            case__deleted_at__isnull=True,
-            case__archived_at__isnull=True,
-        )
-
+    def get_user_cases(self, instance):
         from security.services.v2.serializers import UserCaseSerializer
 
+        user_cases = instance.get_user_cases()
+        if requesting_user := self.context.get("requesting_user"):
+            # We want to filter the user cases
+            # to only those that are visible to the requesting organisation
+            if not requesting_user.is_tra():
+                # We want to filter the user cases
+                # to only those that are visible to the requesting organisation
+                query_filter = Q(user=requesting_user)
+                if requesting_user.contact.organisation:
+                    query_filter = (
+                        query_filter
+                        | Q(organisation=requesting_user.contact.organisation)
+                        | Q(
+                            user__userprofile__contact__organisation=requesting_user.contact.organisation
+                        )
+                    )
+                user_cases = user_cases.filter(query_filter)
         return UserCaseSerializer(user_cases, many=True).data
 
     def get_cases(self, instance):
@@ -274,11 +286,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
 
         from cases.models import Case
 
-        user_cases = UserCase.objects.filter(
-            user__organisationuser__organisation=instance,
-            case__deleted_at__isnull=True,
-            case__archived_at__isnull=True,
-        ).select_related("case")
+        user_cases = instance.get_user_cases().select_related("case")
         if request := self.context.get("request", None):
             if not request.user.is_tra():
                 cases = user_cases.filter(user=request.user)

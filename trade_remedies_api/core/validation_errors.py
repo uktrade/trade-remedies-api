@@ -344,6 +344,7 @@ validation_errors = {
         "field": ["companies_house_id", "post_code"],
         "error_text": "Enter either the organisation's registration number or the postcode for the organisation's address",
         "error_summary": "We need either the organisation's registration number or the postcode for the organisation's address",
+        "summary_link": "post_code-label",
     },
     "caseworker_review_invite_no_contact_selected": {
         "field": "name",
