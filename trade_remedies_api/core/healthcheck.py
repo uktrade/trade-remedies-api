@@ -36,8 +36,8 @@ def ping_redis():
 
     :return: None
     """
-    redis_conn = redis.Redis(
-        host=settings.REDIS_BASE_URL, port=6379, db=settings.REDIS_DATABASE_NUMBER
+    redis_conn = redis.StrictRedis.from_url(
+        settings.REDIS_BASE_URL, db=settings.REDIS_DATABASE_NUMBER
     )
     redis_conn.ping()
 
@@ -56,8 +56,7 @@ def ping_opensearch():
 def _pingdom_custom_status_html_wrapper(status: str, response_time: float) -> str:
     """
     response data format:
-    https://documentation.solarwinds.com/en/success_center/pingdom/
-    content/topics/http-custom-check.htm?cshid=pd-rd_115000431709-http-custom-check
+    https://documentation.solarwinds.com/en/success_center/pingdom/content/topics/http-custom-check.htm?cshid=pd-rd_115000431709-http-custom-check
     """
     html = """
     <br/>
