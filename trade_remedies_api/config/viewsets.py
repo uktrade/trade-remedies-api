@@ -1,6 +1,7 @@
 import base64
 import json
 
+from django.core.exceptions import FieldError
 from django.http import Http404
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -23,6 +24,13 @@ class BaseModelViewSet(viewsets.ModelViewSet):
             # and filter the queryset accordingly.
             filter_parameters = json.loads(base64.b64decode(filter_parameters))  # /PS-IGNORE
             queryset = queryset.filter(**filter_parameters)
+
+        # removing deleted objects from the queryset
+        try:
+            queryset = queryset.exclude(deleted_at__isnull=False)
+        except FieldError:
+            # some models do not have deleted_at
+            pass
         return queryset
 
     def perform_create(self, serializer):
@@ -38,6 +46,11 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["requesting_user"] = self.request.user
+        return context
 
     def get_serializer(self, *args, **kwargs):
         serializer_class = self.get_serializer_class()

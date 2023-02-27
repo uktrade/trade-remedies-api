@@ -57,6 +57,7 @@ class CaseSetupTestMixin(OrganisationSetupTestMixin):
 
         self.applicant_case_role = CaseRole.objects.create(key="applicant", name="Applicant")
         self.contributor_case_role = CaseRole.objects.create(key="contributor", name="Contributor")
+        self.rejected_case_role = CaseRole.objects.create(key="rejected", name="Rejected")
 
         self.case_type_object = CaseType.objects.create(name="")
         self.case_object = Case.objects.create(

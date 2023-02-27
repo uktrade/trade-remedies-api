@@ -1,4 +1,5 @@
 from django_restql.fields import NestedField
+from rest_framework import serializers
 
 from config.serializers import CustomValidationModelSerializer
 from contacts.models import CaseContact

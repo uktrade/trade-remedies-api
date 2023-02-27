@@ -10,10 +10,11 @@ from organisations.models import Organisation
 from organisations.services.v2.pagination import StandardResultsSetPagination
 from organisations.services.v2.serializers import (
     OrganisationCaseRoleSerializer,
-    OrganisationSerializer,
     OrganisationListSerializer,
+    OrganisationSerializer,
+    OrganisationUserSerializer,
 )
-from security.models import OrganisationCaseRole
+from security.models import OrganisationCaseRole, OrganisationUser
 
 
 class OrganisationViewSet(BaseModelViewSet):
@@ -98,3 +99,8 @@ class OrganisationCaseRoleViewSet(BaseModelViewSet):
         if filter_kwargs:
             return queryset.filter(**filter_kwargs)
         return queryset
+
+
+class OrganisationUserViewSet(BaseModelViewSet):
+    queryset = OrganisationUser.objects.all()
+    serializer_class = OrganisationUserSerializer

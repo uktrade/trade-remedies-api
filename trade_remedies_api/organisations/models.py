@@ -1,30 +1,27 @@
-import re
 import logging
-import uuid
+import re
 import typing
-from django.conf import settings
-from django.db import models, transaction, connection
-from django.utils.html import escape
+import uuid
+from functools import singledispatch
 
+from django.conf import settings
+from django.db import connection, models, transaction
+from django.utils import timezone
+from django.utils.html import escape
+from django_countries.fields import CountryField
+
+from audit import AUDIT_TYPE_NOTIFY
+from cases.constants import TRA_ORGANISATION_ID
+from cases.models.submission import Submission
+from contacts.models import CaseContact, Contact
 from core.base import BaseModel
 from core.models import SystemParameter
-from core.notifier import notify_footer, notify_contact_email
+from core.notifier import notify_contact_email, notify_footer
 from core.tasks import send_mail
-from audit import AUDIT_TYPE_NOTIFY
-from security.models import OrganisationCaseRole, OrganisationUser, get_security_group, UserCase
-from cases.models.submission import Submission
-from contacts.models import Contact, CaseContact
-from functools import singledispatch
+from core.utils import public_login_url, sql_get_list
+from organisations.constants import NOT_IN_CASE_ORG_CASE_ROLES, REJECTED_ORG_CASE_ROLE
 from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
-from organisations.constants import NOT_IN_CASE_ORG_CASE_ROLES
-from core.utils import (
-    sql_get_list,
-    public_login_url,
-)
-from django_countries.fields import CountryField
-from django.utils import timezone
-from cases.constants import TRA_ORGANISATION_ID
-
+from security.models import OrganisationCaseRole, OrganisationUser, UserCase, get_security_group
 
 logger = logging.getLogger(__name__)
 
@@ -327,7 +324,6 @@ class Organisation(BaseModel):
     def __is_potential_duplicate_organisation(
         target_org: "Organisation", potential_dup_org: "Organisation"
     ):
-
         DIGITS_PATTERN = re.compile(r"[^0-9]+")
         DIGITS_ALPHA_PATTERN = re.compile(r"[^0-9a-zA-Z]+")
 
@@ -722,6 +718,28 @@ class Organisation(BaseModel):
             self.name = name
             self.save()
         return org_name
+
+    def get_user_cases(self, exclude_rejected=True):
+        """Return all UserCases for this organisation except for those with the rejected role if
+        exclude_rejected is True."""
+        user_cases = UserCase.objects.filter(
+            user__organisationuser__organisation=self,
+            case__deleted_at__isnull=True,
+            case__archived_at__isnull=True,
+        )
+
+        if exclude_rejected:
+            exclude_ids = []
+            for user_case in user_cases:
+                if OrganisationCaseRole.objects.filter(
+                    case=user_case.case,
+                    organisation__organisationuser__user=user_case.user,
+                    role__key=REJECTED_ORG_CASE_ROLE,
+                ).exists():
+                    exclude_ids.append(user_case.id)
+            user_cases = user_cases.exclude(id__in=exclude_ids)
+
+        return user_cases
 
 
 class OrganisationName(models.Model):

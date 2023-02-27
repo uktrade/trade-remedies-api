@@ -32,3 +32,21 @@ class CaseAPITest(CaseSetupTestMixin, FunctionalTestBase):
             }).encode()).decode()}"""
         ).json()
         assert len(organisations["results"]) == 0
+
+    def test_deleted_item(self):
+        case = self.client.get(f"/api/v2/cases/{self.case_object.id}/")
+        assert case.status_code == 200
+
+        self.case_object.delete()
+        case = self.client.get(f"/api/v2/cases/{self.case_object.id}/")
+        assert case.status_code == 404
+
+    def test_deleted_items(self):
+        case = self.client.get("/api/v2/cases/")
+        assert case.status_code == 200
+        assert len(case.json()) == 1
+
+        self.case_object.delete()
+        case = self.client.get("/api/v2/cases/")
+        assert case.status_code == 200
+        assert len(case.json()) == 0

@@ -22,6 +22,7 @@ from rest_framework.views import APIView
 
 from cases.services import api as cases_api
 from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, SubmissionViewSet
+from contacts.services.v2.views import CaseContactViewSet
 from core.views import health_check
 from core.services import api as core_api
 from core.services.auth import views as auth_api
@@ -31,7 +32,12 @@ from core.services.v2.registration import views as registration_api
 from core.services.v2.users.views import ContactViewSet, TwoFactorAuthViewSet, UserViewSet
 from documents.services.v2.views import DocumentBundleViewSet, DocumentViewSet
 from invitations.services.v2.views import InvitationViewSet
-from organisations.services.v2.views import OrganisationCaseRoleViewSet, OrganisationViewSet
+from organisations.services.v2.views import (
+    OrganisationCaseRoleViewSet,
+    OrganisationUserViewSet,
+    OrganisationViewSet,
+)
+from security.services.v2.views import UserCaseViewSet
 
 urlpatterns = [
     path(f"{settings.API_PREFIX}/health/", core_api.ApiHealthView.as_view()),
@@ -199,6 +205,21 @@ router.register(
     f"{settings.API_V2_PREFIX}/django-feature-flags", FlagViewSet, basename="django-feature-flags"
 )
 router.register(f"{settings.API_V2_PREFIX}/feedback", FeedbackViewSet, basename="feedback")
+router.register(
+    f"{settings.API_V2_PREFIX}/organisation_users",
+    OrganisationUserViewSet,
+    basename="organisation_users",
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/case_contacts",
+    CaseContactViewSet,
+    basename="case_contacts",
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/user_cases",
+    UserCaseViewSet,
+    basename="user_cases",
+)
 urlpatterns += router.urls
 
 if settings.DEBUG:
