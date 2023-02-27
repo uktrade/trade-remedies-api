@@ -29,11 +29,11 @@ def create_new_case_type(apps, schema_editor):
     db_alias = schema_editor.connection.alias
 
     # create new case type if it doesn't already exist
-    if not CaseType.objects.using(db_alias).filter(name__iexact="Suspension Extension Review").exists():
-        # create new case type, base it on "Suspension Application"
-        new_case_type = CaseType.objects.using(db_alias).get(name__iexact="Suspension Application")
+    if not CaseType.objects.using(db_alias).filter(name__iexact="Suspension extension review").exists():
+        # create new case type, base it on "Suspension application"
+        new_case_type = CaseType.objects.using(db_alias).get(name__iexact="Suspension application")
         new_case_type.id = None
-        new_case_type.name = "Suspension Extension Review"
+        new_case_type.name = "Suspension extension review"
         new_case_type.acronym="SN"
         new_case_type.order=150
         # No parents for this new case type
