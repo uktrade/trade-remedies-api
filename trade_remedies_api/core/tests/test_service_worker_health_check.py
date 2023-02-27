@@ -7,7 +7,7 @@ from core.healthcheck import application_service_health
 
 
 class HealthCheckTestCase(SimpleTestCase):
-    @patch.object(settings, "REDIS_BASE_URL", "http://redis")
+    @patch.object(settings, "REDIS_BASE_URL", "redis://redis:6379")
     @patch.object(settings, "REDIS_DATABASE_NUMBER", 0)
     @patch.object(settings, "OPENSEARCH_URI", "http://opensearch.com")
     def test_application_issue(self):
@@ -16,11 +16,11 @@ class HealthCheckTestCase(SimpleTestCase):
             mock_redis = Mock()
             mock_redis.ping.return_value = True
             mock_from_url.return_value = mock_redis
-            html = application_service_health()
+            xml = application_service_health()
             mock_redis.ping.assert_called_once()
-            self.assertIn("OK", html)
+            self.assertIn("OK", xml)
 
-    @patch.object(settings, "REDIS_BASE_URL", "http://redis")
+    @patch.object(settings, "REDIS_BASE_URL", "redis://redis:6379")
     @patch.object(settings, "REDIS_DATABASE_NUMBER", 0)
     @patch.object(settings, "OPENSEARCH_URI", "http://opensearch.com")
     def test_application_issue_error(self):
@@ -29,9 +29,9 @@ class HealthCheckTestCase(SimpleTestCase):
             mock_redis = Mock()
             mock_redis.ping.side_effect = Exception("Redis connection failed")
             mock_from_url.return_value = mock_redis
-            html = application_service_health()
+            xml = application_service_health()
             mock_redis.ping.assert_called_once()
-            self.assertIn("Error", html)
+            self.assertIn("Error", xml)
 
     @patch(
         "core.views.application_service_health",

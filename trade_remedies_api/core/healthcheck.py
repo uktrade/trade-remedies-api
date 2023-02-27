@@ -1,6 +1,7 @@
 import redis
 import requests
 import concurrent.futures
+import xml.etree.ElementTree as ET
 from celery.result import AsyncResult
 from django.db import connection
 from django.conf import settings
@@ -53,27 +54,21 @@ def ping_opensearch():
     return response
 
 
-def _pingdom_custom_status_html_wrapper(status: str, response_time: float) -> str:
+def _pingdom_custom_status_html_wrapper(status_str: str, response_time_value: float) -> str:
     """
     response data format:
     https://documentation.solarwinds.com/en/success_center/pingdom/content/topics/http-custom-check.htm?cshid=pd-rd_115000431709-http-custom-check
     """
-    html = """
-    <br/>
-        <pingdom_http_custom_check>
-            <status>
-                <strong>{}</strong>
-            </status>
-            <response_time>
-                <strong>{}</strong>
-            </response_time>
-        </pingdom_http_custom_check>
-    <br/>
-    <br/>
-    """.format(
-        status, response_time
-    )
-    return html
+    root = ET.Element("root")
+    pingdom_http_custom_check = ET.SubElement(root, "pingdom_http_custom_check")
+    status = ET.SubElement(pingdom_http_custom_check, "status")
+    strong = ET.SubElement(status, "strong")
+    strong.text = str(status_str)
+    response_time = ET.SubElement(pingdom_http_custom_check, "response_time")
+    strong = ET.SubElement(response_time, "strong")
+    strong.text = str(response_time_value)
+    xml = ET.tostring(root, encoding="unicode", method="xml")
+    return xml
 
 
 def application_service_health():
