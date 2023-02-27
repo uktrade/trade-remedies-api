@@ -36,8 +36,8 @@ def ping_redis():
 
     :return: None
     """
-    redis_conn = redis.Redis(
-        host=settings.REDIS_BASE_URL, port=6379, db=settings.REDIS_DATABASE_NUMBER
+    redis_conn = redis.StrictRedis.from_url(
+        settings.REDIS_BASE_URL, db=settings.REDIS_DATABASE_NUMBER
     )
     redis_conn.ping()
 
