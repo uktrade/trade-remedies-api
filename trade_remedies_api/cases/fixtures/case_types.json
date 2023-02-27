@@ -36,13 +36,13 @@
           {
             "criterion": "after",
             "milestone": "MEASURE_COMMENCEMENT",
-            "value": 12,
+            "value": 0,
             "unit": "months"
           },
           {
             "criterion": "before",
             "milestone": "MEASURE_EXPIRY",
-            "value": -12,
+            "value": 0,
             "unit": "months"
           },
           {
@@ -79,13 +79,13 @@
           {
             "criterion": "after",
             "milestone": "MEASURE_COMMENCEMENT",
-            "value": 12,
+            "value": 0,
             "unit": "months"
           },
           {
             "criterion": "before",
             "milestone": "MEASURE_EXPIRY",
-            "value": -3,
+            "value": 0,
             "unit": "months"
           },
           {
@@ -121,13 +121,13 @@
           {
             "criterion": "after",
             "milestone": "MEASURE_EXPIRY",
-            "value": -12,
+            "value": 0,
             "unit": "months"
           },
           {
             "criterion": "before",
             "milestone": "MEASURE_EXPIRY",
-            "value": -3,
+            "value": 0,
             "unit": "months"
           },
           {
@@ -164,13 +164,13 @@
           {
             "criterion": "after",
             "milestone": "MEASURE_COMMENCEMENT",
-            "value": 1,
+            "value": 0,
             "unit": "days"
           },
           {
             "criterion": "before",
             "milestone": "MEASURE_EXPIRY",
-            "value": -3,
+            "value": 0,
             "unit": "months"
           },
           {
@@ -196,13 +196,13 @@
           {
             "criterion": "after",
             "milestone": "MEASURE_COMMENCEMENT",
-            "value": 1,
+            "value": 0,
             "unit": "days"
           },
           {
             "criterion": "before",
             "milestone": "MEASURE_EXPIRY",
-            "value": -3,
+            "value": 0,
             "unit": "months"
           },
           {
@@ -238,13 +238,13 @@
           {
             "criterion": "after",
             "milestone": "MEASURE_COMMENCEMENT",
-            "value": 1,
+            "value": 0,
             "unit": "days"
           },
           {
             "criterion": "before",
             "milestone": "MEASURE_EXPIRY",
-            "value": -3,
+            "value": 0,
             "unit": "months"
           },
           {
@@ -281,13 +281,13 @@
           {
             "criterion": "after",
             "milestone": "MEASURE_COMMENCEMENT",
-            "value": 12,
+            "value": 0,
             "unit": "months"
           },
           {
             "criterion": "before",
             "milestone": "MEASURE_EXPIRY",
-            "value": -3,
+            "value": 0,
             "unit": "months"
           },
           {
@@ -329,13 +329,13 @@
           {
             "criterion": "after",
             "milestone": "MEASURE_COMMENCEMENT",
-            "value": 1,
+            "value": 0,
             "unit": "days"
           },
           {
             "criterion": "before",
             "milestone": "MEASURE_EXPIRY",
-            "value": -3,
+            "value": 0,
             "unit": "months"
           },
           {
@@ -424,13 +424,13 @@
           {
             "criterion": "after",
             "milestone": "MEASURE_COMMENCEMENT",
-            "value": 12,
+            "value": 0,
             "unit": "months"
           },
           {
             "criterion": "before",
             "milestone": "MEASURE_EXPIRY",
-            "value": -12,
+            "value": 0,
             "unit": "months"
           },
           { "criterion": "parent_case_types", "value": [] }
@@ -500,13 +500,13 @@
           {
             "criterion": "after",
             "milestone": "MEASURE_COMMENCEMENT",
-            "value": 18,
+            "value": 0,
             "unit": "months"
           },
           {
             "criterion": "before",
             "milestone": "MEASURE_EXPIRY",
-            "value": -24,
+            "value": 0,
             "unit": "months"
           },
           { "criterion": "parent_case_types", "value": [] }
@@ -529,13 +529,13 @@
           {
             "criterion": "after",
             "milestone": "MEASURE_COMMENCEMENT",
-            "value": 12,
+            "value": 0,
             "unit": "months"
           },
           {
             "criterion": "before",
             "milestone": "MEASURE_EXPIRY",
-            "value": -3,
+            "value": 0,
             "unit": "months"
           },
           {
@@ -561,13 +561,13 @@
           {
             "criterion": "after",
             "milestone": "MEASURE_COMMENCEMENT",
-            "value": 12,
+            "value": 0,
             "unit": "months"
           },
           {
             "criterion": "before",
             "milestone": "MEASURE_EXPIRY",
-            "value": -12,
+            "value": 0,
             "unit": "months"
           },
           {
@@ -607,13 +607,13 @@
           {
             "criterion": "after",
             "milestone": "MEASURE_COMMENCEMENT",
-            "value": 12,
+            "value": 0,
             "unit": "months"
           },
           {
             "criterion": "before",
             "milestone": "MEASURE_EXPIRY",
-            "value": -3,
+            "value": 0,
             "unit": "months"
           },
           {
@@ -654,14 +654,14 @@
           {
             "criterion": "after",
             "milestone": "MEASURE_COMMENCEMENT",
-            "value": 12,
-            "unit": "months"
+            "value": 0,
+            "unit": "days"
           },
           {
             "criterion": "before",
             "milestone": "MEASURE_EXPIRY",
-            "value": -12,
-            "unit": "months"
+            "value": 0,
+            "unit": "days"
           },
           {
             "criterion": "parent_case_types",
@@ -718,7 +718,13 @@
           {
             "criterion": "after",
             "milestone": "MEASURE_COMMENCEMENT",
-            "value": 1,
+            "value": 0,
+            "unit": "days"
+          },
+          {
+            "criterion": "before",
+            "milestone": "MEASURE_EXPIRY",
+            "value": 0,
             "unit": "days"
           }
         ]
