@@ -94,12 +94,16 @@ class PublicCaseView(APIView):
             case_number = "SA" + case_number[2:]
         match = re.search("([A-Za-z]{1,3})([0-9]+)", case_number)
         if match:
-            case = Case.objects.get(
+            queryset = Case.objects.filter(
                 type__acronym__iexact=match.group(1),
                 initiated_sequence=match.group(2),
                 deleted_at__isnull=True,
             )
-            return ResponseSuccess({"result": case.to_dict()})
+            if queryset:
+                return ResponseSuccess({"result": queryset.last().to_dict()})
+            else:
+                logger.debug(f"{case_number} does not exist")
+                return ResponseSuccess({"result": None})
         else:
             logger.debug(f"Request to this view with case_number {case_number}")
             return ResponseSuccess({"result": None})
