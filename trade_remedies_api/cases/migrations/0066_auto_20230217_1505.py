@@ -31,18 +31,43 @@ def create_new_case_type(apps, schema_editor):
     # create new case type if it doesn't already exist
     if not CaseType.objects.using(db_alias).filter(name__iexact="Suspension extension review").exists():
         # create new case type, base it on "Suspension Application"
-        new_case_type = CaseType.objects.using(db_alias).get(name__iexact="Suspension Application")
-        new_case_type.id = None
-        new_case_type.name = "Suspension extension review"
-        new_case_type.acronym="SN"
-        new_case_type.order=150
-        # No parents for this new case type
-        for each in new_case_type.meta["criteria"]:
-            if "criterion" in each.keys():
-                if each["criterion"] == "parent_case_types":
-                    # update the value
-                    each["value"] = []
-        new_case_type.save()
+        # # new_case_type = CaseType.objects.using(db_alias).get(name__iexact="Suspension Application")
+        # new_case_type = CaseType.objects.using(db_alias).get(acronym__iexact="SA")
+        # new_case_type.id = None
+        # new_case_type.name = "Suspension extension review"
+        # new_case_type.acronym="SN"
+        # new_case_type.order=150
+        # # No parents for this new case type
+        # for each in new_case_type.meta["criteria"]:
+        #     if "criterion" in each.keys():
+        #         if each["criterion"] == "parent_case_types":
+        #             # update the value
+        #             each["value"] = []
+        # new_case_type.save()
+
+
+        CaseType.objects.using(db_alias).create(
+            name="Suspension extension review",
+            acronym="SN",
+            order=150,
+            meta = {
+                "review": true,
+                "criteria": [
+                    {
+                        "criterion": "after",
+                        "milestone": "MEASURE_COMMENCEMENT",
+                        "value": 0,
+                        "unit": "days"
+                    },
+                    {
+                        "criterion": "before",
+                        "milestone": "MEASURE_EXPIRY",
+                        "value": 0,
+                        "unit": "days"
+                    },
+                ]
+            }
+        )
 
 
 class Migration(migrations.Migration):
