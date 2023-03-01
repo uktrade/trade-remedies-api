@@ -726,6 +726,10 @@
             "milestone": "MEASURE_EXPIRY",
             "value": 0,
             "unit": "days"
+          },
+          { 
+            "criterion": "parent_case_types", 
+            "value": [] 
           }
         ]
       }

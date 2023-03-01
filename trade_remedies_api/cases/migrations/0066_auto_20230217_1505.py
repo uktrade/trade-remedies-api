@@ -40,6 +40,7 @@ def create_new_case_type(apps, schema_editor):
             acronym="SN",
             order=150,
             colour="#6F777B",
+            workflow="c83c0c75-a04d-4212-a942-eb35855c60fe",
             meta={
                 "review": "true",
                 "criteria": [
@@ -54,6 +55,10 @@ def create_new_case_type(apps, schema_editor):
                         "milestone": "MEASURE_EXPIRY",
                         "value": 0,
                         "unit": "days",
+                    },
+                    { 
+                        "criterion": "parent_case_types", 
+                        "value": [] 
                     },
                 ],
             },
