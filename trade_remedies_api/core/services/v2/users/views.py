@@ -63,7 +63,7 @@ class UserViewSet(BaseModelViewSet):
         url_path="get_user_by_email/(?P<user_email>\S+)",
     )
     def get_user_by_email(self, request, user_email, *args, **kwargs):
-        """Returns a serialized User object queried using a case-insensitive email address.
+        """Returns a serialized User object queried using a case-sensitive email address.
 
         Raises a 404 if a user with that email is not found.
         """
