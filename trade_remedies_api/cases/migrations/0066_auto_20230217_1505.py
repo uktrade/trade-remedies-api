@@ -27,6 +27,7 @@ def create_new_case_type(apps, schema_editor):
     # We get the model from the versioned app registry;
     # if we directly import it, it'll be the wrong version
     CaseType = apps.get_model("cases", "CaseType")
+    WorkflowTemplate = apps.get_model("workflow", "WorkflowTemplate")
     db_alias = schema_editor.connection.alias
 
     # create new case type if it doesn't already exist
@@ -35,12 +36,14 @@ def create_new_case_type(apps, schema_editor):
         .filter(name__iexact="Suspension Extension review")
         .exists()
     ):
+        workflow_instance = WorkflowTemplate.objects.using(db_alias).get(id="c83c0c75-a04d-4212-a942-eb35855c60fe")
+        
         CaseType.objects.using(db_alias).create(
             name="Suspension Extension review",
             acronym="SN",
             order=150,
             colour="#6F777B",
-            workflow="c83c0c75-a04d-4212-a942-eb35855c60fe",
+            workflow=workflow_instance,
             meta={
                 "review": "true",
                 "criteria": [
