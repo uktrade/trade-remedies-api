@@ -181,15 +181,26 @@ class InvitationViewSet(BaseModelViewSet):
 
         if invitation_object.invitation_type == 1:
             # This is an invitation from within the organisation
-            invitation_object.send(
-                sent_by=request.user,
-                direct=False,
-                template_key="NOTIFY_INVITE_ORGANISATION_USER",
-                context={
-                    "login_url": f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/"
-                    f"{invitation_object.id}/start/"
-                },
-            )
+            user_query = User.objects.filter(email__iexact=invitation_object.contact.email)
+            if (
+                user_query.exists()
+                and user_query.last().organisation.id != invitation_object.organisation.id
+            ):
+                invitation_object.send(
+                    sent_by=request.user,
+                    direct=False,
+                    template_key="NOTIFY_INVITE_EXISTING_ORGANISATION_USER",
+                )
+            else:
+                invitation_object.send(
+                    sent_by=request.user,
+                    direct=False,
+                    template_key="NOTIFY_INVITE_ORGANISATION_USER",
+                    context={
+                        "login_url": f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/"
+                        f"{invitation_object.id}/start/"
+                    },
+                )
 
         elif invitation_object.invitation_type == 2:
             # This is a representative invite, send the appropriate email
