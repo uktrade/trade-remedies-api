@@ -1,3 +1,49 @@
+send_mail.called_with
+company_vat_number
+" Creates a new user object and all the relevant satellite objects (
+User.objects.create
+" Generate
+" Creates and saves a User
+INSTANCE
+" Creates and saves a superuser
+" Toggles the given role name
+" Take a list of {caseid, primary}
+Return a JSON
+" Remove a
+User.objects.all().order_by('created_at
+" Returns the user's auth token
+" Hold the required information
+"Generate a 2FA code
+2FA_CODE_MESSAGE
+f"Password
+" Performs a password
+Number
+" Loads a system param spec
+Return a Notification
+TRADE_REMEDIES_EMAIL
+" Creates a new user object and all the relevant satellite objects (
+User.objects.create
+" Generate
+" Creates and saves a User
+INSTANCE
+" Creates and saves a superuser
+" Toggles the given role name
+" Take a list of {caseid, primary}
+Return a JSON
+" Remove a
+User.objects.all().order_by('created_at
+" Returns the user's auth token
+" Hold the required information
+"Generate a 2FA code
+2FA_CODE_MESSAGE
+f"Password
+" Performs a password
+Number
+" Loads a system param spec
+send_mail.called_with
+company_vat_number
+Return a Notification
+TRADE_REMEDIES_EMAIL
 Once a 3rd party
 "trade_remedies_api URL Configuration The `
 API_PREFIX}/health/
