@@ -1,20 +1,17 @@
 import datetime
 
+from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITransactionTestCase
-from rest_framework import status
-
-from core.models import User
 
 from cases.models import Case, CaseType, CaseWorkflowState, SubmissionType
-
+from core.models import User
 from security.models import CaseRole
-
 from workflow.models import WorkflowTemplate
 
 
 class CaseTest(APITransactionTestCase):
-    reset_sequences = False
+    reset_sequences = True
 
     def setUp(self):
         self.submission_type = SubmissionType.objects.create(
@@ -24,13 +21,23 @@ class CaseTest(APITransactionTestCase):
             name="some dumb json", template={"key": "ASSIGN_TEAM"}
         )
 
-        latest_case_type = CaseType.objects.last().id
+        try:
+            latest_case_type = CaseType.objects.last().id
+        except AttributeError:
+            latest_case_type = 0
         self.case_type = CaseType.objects.create(
             id=latest_case_type + 1,
             name="dumb and dumber",
             workflow=self.workflow,
         )
-        self.case_role = CaseRole.objects.create(name="king")
+        try:
+            latest_case_role = CaseRole.objects.last().id
+        except AttributeError:
+            latest_case_role = 0
+        self.case_role = CaseRole.objects.create(
+            name="king",
+            id=latest_case_role + 1,
+        )
         self.user = User.objects.create(
             name="Jack",
             email="jack@gov.uk",  # /PS-IGNORE
