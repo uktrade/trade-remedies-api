@@ -1,3 +1,7 @@
+Suspension Extension
+SN
+ER
+SA
 deficiency_notice_params
 " ModelViewSet for interacting with
 " Deletes the user
