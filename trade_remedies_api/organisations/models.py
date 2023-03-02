@@ -582,10 +582,7 @@ class Organisation(BaseModel):
         Return all contacts assosciated with the organisation for a specific case.
         These might be lawyers representing the organisation or direct employee.
         """
-        case_contacts = Contact.objects.select_related(
-            "userprofile",
-            "organisation",
-        ).filter(
+        case_contacts = Contact.objects.select_related("userprofile", "organisation",).filter(
             casecontact__case=case,
             casecontact__organisation=self,
             deleted_at__isnull=True,
