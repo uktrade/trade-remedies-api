@@ -1,6 +1,7 @@
 import requests
 from django.contrib.auth.models import Group
-from django.db.models import F
+from django.db.models import F, Q
+from django_restql.fields import NestedField
 from rest_framework import serializers
 
 from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
@@ -10,8 +11,7 @@ from contacts.services.v2.serializers import CaseContactSerializer
 from core.services.ch_proxy import COMPANIES_HOUSE_BASE_DOMAIN, COMPANIES_HOUSE_BASIC_AUTH
 from core.services.v2.users.serializers import ContactSerializer, UserSerializer
 from organisations.models import Organisation
-from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
-from django_restql.fields import NestedField
+from security.models import CaseRole, OrganisationCaseRole, OrganisationUser
 
 
 class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
@@ -53,6 +53,13 @@ class OrganisationUserSerializer(CustomValidationModelSerializer):
 
     user = UserSerializer()
     security_group = serializers.SlugRelatedField(slug_field="name", queryset=Group.objects.all())
+    security_group_key = serializers.ReadOnlyField(source="security_group.key")
+
+
+class OrganisationListSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = Organisation
+        fields = "__all__"
 
 
 class OrganisationSerializer(CustomValidationModelSerializer):
@@ -69,19 +76,26 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     representative_cases = serializers.SerializerMethodField()
     contacts = serializers.SerializerMethodField()
     representative_contacts = serializers.SerializerMethodField()
+    case_count = serializers.IntegerField(required=False)
     country_name = serializers.ReadOnlyField(source="country.name")
     rejected_cases = serializers.SerializerMethodField()
     json_data = serializers.JSONField(required=False, allow_null=True)
     a_tag_website_url = serializers.SerializerMethodField()
     full_country_name = serializers.SerializerMethodField()
 
+    class Meta:
+        model = Organisation
+        fields = "__all__"
+
     def to_representation(self, instance):
         instance.json_data = {}
         return super().to_representation(instance)
 
-    class Meta:
-        model = Organisation
-        fields = "__all__"
+    def to_internal_value(self, data):
+        data = super().to_internal_value(data)
+        if "country" in data and isinstance(data["country"], dict):
+            data["country"] = data["country"]["alpha3"]
+        return data
 
     @staticmethod
     def get_a_tag_website_url(instance):
@@ -118,7 +132,26 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                     "rejected_by": UserSerializer(
                         invitation.rejected_by, fields=["name", "email"]
                     ).data,
-                    "invitation_id": invitation.id,
+                    "type": "representative",
+                }
+            )
+
+        # finding the interested party cases for this org which have been rejected
+        rejected_org_case_roles = OrganisationCaseRole.objects.filter(
+            organisation=instance, role__key="rejected"
+        )
+        for rejected_org_case_role in rejected_org_case_roles:
+            rejections.append(
+                {
+                    "case": CaseSerializer(
+                        rejected_org_case_role.case, fields=["name", "reference"]
+                    ).data,
+                    "date_rejected": rejected_org_case_role.validated_at,
+                    "rejected_reason": "N/A",
+                    "rejected_by": UserSerializer(
+                        rejected_org_case_role.validated_by, fields=["name", "email"]
+                    ).data,
+                    "type": "interested_party",
                 }
             )
 
@@ -148,30 +181,25 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                 continue
             representation = {
                 "on_behalf_of": case_contact.organisation.name,
+                "on_behalf_of_id": case_contact.organisation.id,
                 "case": CaseSerializer(case_contact.case).data,
                 "role": corresponding_org_case_role.role.name,
             }
             # now we need to find if this case_contact has been created as part of an ROI or an invitation
-            invitations = Invitation.objects.filter(
-                contact__organisation=instance,
-                case=case_contact.case,
-                organisation=case_contact.organisation,
-            ).order_by("-last_modified")
-            if invitations:
-                invitation = invitations.first()
+            invitation = (
+                Invitation.objects.filter(
+                    contact__organisation=instance,
+                    case=case_contact.case,
+                    organisation=case_contact.organisation,
+                    invitation_type=2,
+                    approved_at__isnull=False,
+                )
+                .order_by("-last_modified")
+                .first()
+            )
+            if invitation:
                 representation.update(
-                    {
-                        "validated": invitation.submission.deficiency_notice_params.get(
-                            "contact_org_verify", False
-                        )
-                        if invitation.submission and invitation.submission.deficiency_notice_params
-                        else False,
-                        "validated_at": invitation.submission.deficiency_notice_params.get(
-                            "contact_org_verify_at", None
-                        )
-                        if invitation.submission and invitation.submission.deficiency_notice_params
-                        else None,
-                    }
+                    {"validated": invitation.approved_at, "validated_at": invitation.approved_at}
                 )
                 representations.append(representation)
             else:
@@ -205,7 +233,8 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         """
         Return all CaseContact objects where the contact belongs to this organisation.
 
-        In this way we can find all the cases where this organisation is representing another org."""
+        In this way we can find all the cases where this organisation is representing another org.
+        """
         case_contacts = CaseContact.objects.filter(contact__organisation=instance)
         return CaseContactSerializer(instance=case_contacts, many=True).data
 
@@ -229,16 +258,26 @@ class OrganisationSerializer(CustomValidationModelSerializer):
                         return True
         return False
 
-    @staticmethod
-    def get_user_cases(instance):
-        user_cases = UserCase.objects.filter(
-            user__organisationuser__organisation=instance,
-            case__deleted_at__isnull=True,
-            case__archived_at__isnull=True,
-        )
-
+    def get_user_cases(self, instance):
         from security.services.v2.serializers import UserCaseSerializer
 
+        user_cases = instance.get_user_cases()
+        if requesting_user := self.context.get("requesting_user"):
+            # We want to filter the user cases
+            # to only those that are visible to the requesting organisation
+            if not requesting_user.is_tra():
+                # We want to filter the user cases
+                # to only those that are visible to the requesting organisation
+                query_filter = Q(user=requesting_user)
+                if requesting_user.contact.organisation:
+                    query_filter = (
+                        query_filter
+                        | Q(organisation=requesting_user.contact.organisation)
+                        | Q(
+                            user__userprofile__contact__organisation=requesting_user.contact.organisation
+                        )
+                    )
+                user_cases = user_cases.filter(query_filter)
         return UserCaseSerializer(user_cases, many=True).data
 
     def get_cases(self, instance):
@@ -247,11 +286,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
 
         from cases.models import Case
 
-        user_cases = UserCase.objects.filter(
-            user__organisationuser__organisation=instance,
-            case__deleted_at__isnull=True,
-            case__archived_at__isnull=True,
-        ).select_related("case")
+        user_cases = instance.get_user_cases().select_related("case")
         if request := self.context.get("request", None):
             if not request.user.is_tra():
                 cases = user_cases.filter(user=request.user)
@@ -280,12 +315,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     def get_full_country_name(instance):
         """Return the full country name of the Organisation, e.g. GB --> Great Britain"""
         return instance.country.name if instance.country else None
-
-    def to_internal_value(self, data):
-        data = super().to_internal_value(data)
-        if "country" in data and isinstance(data["country"], dict):
-            data["country"] = data["country"]["alpha3"]
-        return data
 
     @staticmethod
     def get_contacts(instance):

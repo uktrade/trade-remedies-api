@@ -261,7 +261,14 @@ class CaseManager(models.Manager):
         )
         return organisation, case, submission
 
-    def user_cases(self, user, organisation=None, organisation_role=None, current=None):
+    def user_cases(
+        self,
+        user,
+        organisation=None,
+        organisation_role=None,
+        current=None,
+        exclude_organisation_case_role=False,
+    ):
         """
         Return all user cases or cases relating to a specific organisation.
         A user can see all cases if they have Owner access for the organisation,
@@ -271,6 +278,7 @@ class CaseManager(models.Manager):
         :param user: User instance
         :param organisation: Organisation instance
         :param organisation_role: CaseRole instance or name
+        :param exclude_organisation_case_role: CaseRole instance or name - will exclude cases where the organisation has this role
         """
 
         if user.is_tra() and not organisation:
@@ -280,6 +288,10 @@ class CaseManager(models.Manager):
             cases = self.filter(deleted_at__isnull=True, usercase__user=user)
             if organisation_role:
                 cases = cases.filter(organisationcaserole__role=get_role(organisation_role))
+            if exclude_organisation_case_role:
+                cases = cases.exclude(
+                    organisationcaserole__role=get_role(exclude_organisation_case_role)
+                )
         if current is not None:
             cases = cases.filter(archived_at__isnull=current)
         cases = cases.select_related("type", "stage", "created_by", "archive_reason")
