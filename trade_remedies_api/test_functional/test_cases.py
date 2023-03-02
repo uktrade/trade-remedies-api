@@ -23,7 +23,10 @@ class CaseTest(APITransactionTestCase):
         self.workflow = WorkflowTemplate.objects.create(
             name="some dumb json", template={"key": "ASSIGN_TEAM"}
         )
+
+        latest_case_type = CaseType.objects.last().id
         self.case_type = CaseType.objects.create(
+            id=latest_case_type + 1,
             name="dumb and dumber",
             workflow=self.workflow,
         )
