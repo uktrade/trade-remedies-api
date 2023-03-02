@@ -14,7 +14,7 @@ from workflow.models import WorkflowTemplate
 
 
 class CaseTest(APITransactionTestCase):
-    reset_sequences = True
+    reset_sequences = False
 
     def setUp(self):
         self.submission_type = SubmissionType.objects.create(
