@@ -1,3 +1,4 @@
+available_review_types = self.notice.available_case_review_types
 Notice and Case
 TRS
 Args
