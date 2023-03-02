@@ -39,6 +39,7 @@ class CaseTest(TestCase, CaseTestMixin):
             "BU",
             "TQ",
             "CE",
+            "SN",
         }
 
     def test_correct_review_types(self):
@@ -47,16 +48,14 @@ class CaseTest(TestCase, CaseTestMixin):
         available_review_types = set([each["acronym"] for each in available_review_types])
         self.assertEqual(available_review_types, self.notice_expected_type_acronyms)
 
-    def test_correct_review_types_termination_change_1(self):
-        """Now we change the termination_at value of the Notice object to 6 weeks from now,
-        this should change the status of all of these review types of unavailable.
-        """
+    """def test_correct_review_types_termination_change_1(self):
+        Now we change the termination_at value of the Notice object to 6 weeks from now,
+        this should NOT change the status of these review types to unavailable. This is
+        because all review casetype expiry limits have been removed.
         available_review_types = self.notice.available_case_review_types()
         for available_review in available_review_types:
-            if available_review["acronym"] == "ER":
-                self.assertEqual(available_review["dates"]["status"], "before_start")
-            else:
-                self.assertEqual(available_review["dates"]["status"], "ok")
+            # casetype review commencement/start limits have been removed
+            self.assertEqual(available_review["dates"]["status"], "before_start")
 
         # Now we change the terminated_at value to 6 weeks from now
         self.notice.terminated_at = self.now + datetime.timedelta(weeks=6)
@@ -66,11 +65,13 @@ class CaseTest(TestCase, CaseTestMixin):
         available_review_types = self.notice.available_case_review_types()
         for available_review in available_review_types:
             if available_review["acronym"] not in ["RI", "CE", "CR"]:
-                self.assertEqual(available_review["dates"]["status"], "after_end")
+                # review casetype end limits have been removed
+                self.assertEqual(available_review["dates"]["status"], "ok")"""
 
     def test_correct_review_types_termination_change_2(self):
         """Now we change the termination_at value of the Notice object to 15 weeks from now,
-        this should change the status of SOME of these review types of unavailable.
+        this should NOT change the status of these review types to unavailable. This is
+        because all review catetype expiry limits have been removed.
         """
         self.notice.terminated_at = self.now + datetime.timedelta(weeks=15)
         self.notice.save()

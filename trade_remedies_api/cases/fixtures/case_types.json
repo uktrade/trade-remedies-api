@@ -702,5 +702,27 @@
         ]
       }
     }
+  },
+  {
+    "model": "cases.casetype",
+    "pk": 24,
+    "fields": {
+      "name": "Suspension Extension Review",
+      "acronym": "SN",
+      "colour": "#6F777B",
+      "workflow": "c83c0c75-a04d-4212-a942-eb35855c60fe",
+      "order": 150,
+      "meta": {
+        "review": true,
+        "criteria": [
+          {
+            "criterion": "after",
+            "milestone": "MEASURE_COMMENCEMENT",
+            "value": 1,
+            "unit": "days"
+          }
+        ]
+      }
+    }
   }
 ]
