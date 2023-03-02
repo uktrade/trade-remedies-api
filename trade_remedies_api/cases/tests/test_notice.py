@@ -56,7 +56,7 @@ class CaseTest(TestCase, CaseTestMixin):
         available_review_types = self.notice.available_case_review_types()
         for available_review in available_review_types:
             # casetype review commencement/start limits have been removed
-            self.assertEqual(available_review["dates"]["status"], "ok")
+            self.assertEqual(available_review["dates"]["status"], "before_start")
 
         # Now we change the terminated_at value to 6 weeks from now
         self.notice.terminated_at = self.now + datetime.timedelta(weeks=6)
