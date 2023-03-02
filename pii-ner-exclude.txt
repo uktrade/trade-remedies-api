@@ -1,3 +1,31 @@
+Notice and Case
+TRS
+Args
+" Load a case
+ex_oficio
+Case Created
+action_obj
+" Returns True if the organisation
+CASE_REGISTRATION_DURATION
+" Note: This is potentially
+TR-2046
+Assign a TRA
+" Remove a user (team member
+" Check the case
+Notice and Case
+TRS
+Args
+" Load a case
+ex_oficio
+Case Created
+action_obj
+" Returns True if the organisation
+CASE_REGISTRATION_DURATION
+" Note: This is potentially
+TR-2046
+Assign a TRA
+" Remove a user (team member
+" Check the case
 Suspension Extension
 SN
 ER

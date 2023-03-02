@@ -73,6 +73,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(update_case_types),
+        # migrations.RunPython(update_case_types),
         migrations.RunPython(create_new_case_type),
     ]
