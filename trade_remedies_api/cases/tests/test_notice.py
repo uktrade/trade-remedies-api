@@ -79,13 +79,11 @@ class CaseTest(TestCase, CaseTestMixin):
         self.notice.refresh_from_db()
         available_review_types = self.notice.available_case_review_types()
         for available_review in available_review_types:
-            # The Interim Review type should still be available - review casetype end limits
-            # have been removed
+            # The Interim Review type should no longer be available as the measures are ending soon
             if available_review["acronym"] == "IR":
-                self.assertEqual(available_review["dates"]["status"], "ok")
+                self.assertEqual(available_review["dates"]["status"], "after_end")
 
-            # The Scope Review type should be available as review casetype end limits
-            # have been removed
+            # The Scope Review type should be available as it's not 3 months till measure expiry
             if available_review["acronym"] == "SC":
                 self.assertEqual(available_review["dates"]["status"], "ok")
 
