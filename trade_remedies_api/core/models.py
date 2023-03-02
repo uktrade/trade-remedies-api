@@ -18,7 +18,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
 from django.utils import crypto, timezone
-from django.utils.html import escape
 from phonenumbers.phonenumberutil import NumberParseException
 from rest_framework.authtoken.models import Token
 from timezone_field import TimeZoneField
@@ -693,8 +692,8 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         _dict = {
             "id": str(self.id),
             "created_at": self.created_at.strftime(settings.API_DATETIME_FORMAT),
-            "email": escape(self.email),
-            "name": escape(self.name),
+            "email": self.email,
+            "name": self.name,
             "initials": self.initials,
             "active": self.is_active,
             "groups": [group.name for group in self.get_groups()],
@@ -963,7 +962,7 @@ class UserProfile(models.Model):
             "country": country.name if country else None,
             "contact": self.contact.to_dict() if self.contact else None,
             "country_code": country.code if country else None,
-            "phone": escape(self.contact.phone) if self.contact else None,
+            "phone": self.contact.phone if self.contact else None,
             "address": self.contact.address if self.contact else None,
             "email_verified_at": self.email_verified_at.strftime(settings.API_DATETIME_FORMAT)
             if self.email_verified_at

@@ -114,12 +114,11 @@ class ContactViewSet(BaseModelViewSet):
             # unless we get an organisation_id in the request
             organisation_object = get_object_or_404(Organisation, pk=organisation_id)
 
-        primary = request.data.get("primary", "no")
         CaseContact.objects.get_or_create(
             case=case_object,
             contact=contact_object,
             organisation=organisation_object,
-            primary=True if primary == "yes" else False,
+            primary=request.data.get("primary", False),
         )
 
         return self.retrieve(request)

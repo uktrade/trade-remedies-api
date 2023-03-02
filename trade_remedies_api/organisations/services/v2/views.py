@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group
-from django.db.models import Q
+from django.contrib.postgres.search import TrigramSimilarity
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -7,11 +7,9 @@ from rest_framework.response import Response
 from config.viewsets import BaseModelViewSet
 from core.models import User
 from organisations.models import Organisation
-from organisations.services.v2.pagination import StandardResultsSetPagination
 from organisations.services.v2.serializers import (
     OrganisationCaseRoleSerializer,
     OrganisationSerializer,
-    OrganisationListSerializer,
 )
 from security.models import OrganisationCaseRole
 
@@ -21,13 +19,8 @@ class OrganisationViewSet(BaseModelViewSet):
     ModelViewSet for interacting with user objects via the API.
     """
 
-    queryset = Organisation.objects.all().order_by("name")
-    pagination_class = StandardResultsSetPagination
-
-    def get_serializer_class(self):
-        if self.action == "list":
-            return OrganisationListSerializer
-        return OrganisationSerializer
+    queryset = Organisation.objects.all()
+    serializer_class = OrganisationSerializer
 
     @action(
         detail=True,
@@ -61,24 +54,30 @@ class OrganisationViewSet(BaseModelViewSet):
     )
     def search_by_company_name(self, request, *args, **kwargs):
         search_string = request.GET["company_name"]
-        case_id = request.GET.get("case_id")
 
-        # get organisations by name
-        matching_organisations = self.queryset.filter(
-            Q(name__icontains=search_string) | Q(companies_house_id__icontains=search_string)
+        matching_organisations_by_name = (
+            Organisation.objects.annotate(
+                similarity=TrigramSimilarity("name", search_string),
+            )
+            .filter(similarity__gt=0.1)
+            .order_by("-similarity")
         )
 
-        # if we recieve a case_id, then exclude if organisation is already associated with the case
-        if case_id:
-            matching_organisations = matching_organisations.exclude(
-                organisation__organisationcaserole__case=case_id,
+        matching_organisations_by_number = (
+            Organisation.objects.annotate(
+                similarity=TrigramSimilarity("companies_house_id", search_string),
             )
+            .filter(similarity__gt=0.1)
+            .order_by("-similarity")
+        )
 
+        # merge the two querysets into one and then return
+        matching_organisations = matching_organisations_by_name | matching_organisations_by_number
         return Response(
             OrganisationSerializer(
                 instance=matching_organisations,
                 many=True,
-                fields=["name", "address", "post_code", "companies_house_id", "id", "case_count"],
+                fields=["name", "address", "post_code", "companies_house_id", "id"],
             ).data
         )
 

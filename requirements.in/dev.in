@@ -19,7 +19,6 @@ pytest-mock
 pytest-pythonpath
 pytest-xdist
 traitlets==4.3.3
-wheel>=0.38.1
 
 git+https://github.com/uktrade/modification-pre-commit
 git+https://github.com/uktrade/fitness-functions
