@@ -68,10 +68,6 @@ class InvitationManager(models.Manager):
             if invitation and invitation.email == user.email:
                 # We only want to process the invitation if it belongs to the user logging in
                 invitation.process_invitation(user, accept=True, register_interest=True)
-        pending_invites = self.filter(user=user, accepted_at__isnull=True, deleted_at__isnull=True)
-        for invite in pending_invites:
-            invite.accepted()
-            accepted.append(invite.id)
         return accepted
 
     def validate_public_invite(self, short_code, user):
@@ -84,7 +80,6 @@ class InvitationManager(models.Manager):
         Raises an InvitationFailure if the code is not found
         """
         try:
-
             invite = self.get(short_code=short_code, deleted_at__isnull=True)
             organisation_user = invite.process_invitation(user=user, accept=False)
             organisation = organisation_user.organisation
@@ -325,6 +320,8 @@ class Invitation(BaseModel):
     )
 
     objects = InvitationManager()
+
+    organisation_details_not_captured = models.BooleanField(null=True)
 
     def __str__(self):
         return f"{self.organisation} invites {self.contact}"

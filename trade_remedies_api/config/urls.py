@@ -22,6 +22,8 @@ from rest_framework.views import APIView
 
 from cases.services import api as cases_api
 from cases.services.v2.views import CaseViewSet, SubmissionTypeViewSet, SubmissionViewSet
+from contacts.services.v2.views import CaseContactViewSet
+from core.views import health_check
 from core.services import api as core_api
 from core.services.auth import views as auth_api
 from core.services.v2.feature_flags.views import FlagViewSet
@@ -35,6 +37,12 @@ from core.services.v2.users.views import (
 )
 from documents.services.v2.views import DocumentBundleViewSet, DocumentViewSet
 from invitations.services.v2.views import InvitationViewSet
+from organisations.services.v2.views import (
+    OrganisationCaseRoleViewSet,
+    OrganisationUserViewSet,
+    OrganisationViewSet,
+)
+from security.services.v2.views import UserCaseViewSet
 from organisations.services.v2.views import (
     DuplicateOrganisationMergeViewSet,
     OrganisationCaseRoleViewSet,
@@ -211,6 +219,21 @@ router.register(
 )
 router.register(f"{settings.API_V2_PREFIX}/feedback", FeedbackViewSet, basename="feedback")
 router.register(
+    f"{settings.API_V2_PREFIX}/organisation_users",
+    OrganisationUserViewSet,
+    basename="organisation_users",
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/case_contacts",
+    CaseContactViewSet,
+    basename="case_contacts",
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/user_cases",
+    UserCaseViewSet,
+    basename="user_cases",
+)
+router.register(
     f"{settings.API_V2_PREFIX}/organisation_merge_records",
     OrganisationMergeRecordViewSet,
     basename="organisation_merge_records",
@@ -246,12 +269,4 @@ if settings.DEBUG:
 if settings.DJANGO_ADMIN:
     urlpatterns.append(path("admin/", admin.site.urls))
 
-
-"""urlpatterns +=[
-    # YOUR PATTERNS
-    path(f'api/schema/', OpenAPIGenerator.as_view(), name='schema'),
-    # Optional UI:
-    path('api/schema/swagger-ui/', OpenAPIUIView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-]
-"""
+urlpatterns.append(path("healthcheck", health_check, name="healthcheck"))

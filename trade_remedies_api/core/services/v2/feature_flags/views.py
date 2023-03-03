@@ -2,10 +2,11 @@ from flags.sources import get_flags
 from rest_framework import exceptions, viewsets
 from rest_framework.response import Response
 
+from config.viewsets import BaseModelViewSet
 from core.services.v2.feature_flags.serializers import FlagSerializer
 
 
-class FlagViewSet(viewsets.ViewSet):
+class FlagViewSet(BaseModelViewSet):
     """
     GenericViewSet to retrieve feature flags in the codebase.
     """

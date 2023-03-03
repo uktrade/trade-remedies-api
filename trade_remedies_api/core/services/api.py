@@ -10,6 +10,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.db.utils import IntegrityError
 from django.http import HttpResponse
+from django.utils.html import escape
 from feedback.models import FeedbackForm
 from rest_framework import status
 from rest_framework.views import APIView
@@ -340,7 +341,6 @@ class PublicUserApiView(TradeRemediesApiView):
 
     @transaction.atomic  # noqa: C901
     def post(self, request, organisation_id, user_id=None, invitation_id=None, *args, **kwargs):
-
         group = None
         password = None
         invitation = None

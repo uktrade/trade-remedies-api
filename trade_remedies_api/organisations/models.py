@@ -1,10 +1,15 @@
 import logging
 import re
+import logging
+import re
+import typing
 import uuid
 from functools import singledispatch
 
 import requests
 import tldextract
+from functools import singledispatch
+
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models, transaction
@@ -18,6 +23,15 @@ from audit.utils import audit_log
 from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST, TRA_ORGANISATION_ID
 from cases.models.submission import Submission
 from contacts.models import CaseContact, Contact
+from django.db import connection, models, transaction
+from django.utils import timezone
+from django.utils.html import escape
+from django_countries.fields import CountryField
+
+from audit import AUDIT_TYPE_NOTIFY
+from cases.constants import TRA_ORGANISATION_ID
+from cases.models.submission import Submission
+from contacts.models import CaseContact, Contact
 from core.base import BaseModel
 from core.models import SystemParameter
 from core.notifier import notify_contact_email, notify_footer
@@ -29,6 +43,8 @@ from organisations.constants import (
     PREPARING_ORG_CASE_ROLE,
     REJECTED_ORG_CASE_ROLE,
 )
+from core.utils import public_login_url, sql_get_list
+from organisations.constants import NOT_IN_CASE_ORG_CASE_ROLES, REJECTED_ORG_CASE_ROLE
 from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
 from security.models import OrganisationCaseRole, OrganisationUser, UserCase, get_security_group
 
@@ -731,12 +747,12 @@ class Organisation(BaseModel):
                 organisation=self, case=case, status__default=False
             ).exists()
         return {
-            "name": self.name,
+            "name": escape(self.name),
             "datahub_id": self.datahub_id,
-            "companies_house_id": self.companies_house_id,
+            "companies_house_id": escape(self.companies_house_id),
             "trade_association": self.trade_association,
-            "address": self.address,
-            "post_code": self.post_code,
+            "address": escape(self.address),
+            "post_code": escape(self.post_code),
             "country": {
                 "name": self.country.name if self.country else None,
                 "code": self.country.code if self.country else None,
@@ -748,10 +764,10 @@ class Organisation(BaseModel):
             "gov_body": self.gov_body,
             "is_tra": str(self.id) == TRA_ORGANISATION_ID,
             "has_non_draft_subs": has_non_draft_subs,
-            "vat_number": self.vat_number,
-            "eori_number": self.eori_number,
-            "duns_number": self.duns_number,
-            "organisation_website": self.organisation_website,
+            "vat_number": escape(self.vat_number),
+            "eori_number": escape(self.eori_number),
+            "duns_number": escape(self.duns_number),
+            "organisation_website": escape(self.organisation_website),
             "fraudulent": self.fraudulent,
             "previous_names": [pn.to_dict() for pn in self.previous_names]
             if self.has_previous_names
@@ -1168,6 +1184,28 @@ class Organisation(BaseModel):
                 identical_fields.append(field.name)
 
         return identical_fields
+
+    def get_user_cases(self, exclude_rejected=True):
+        """Return all UserCases for this organisation except for those with the rejected role if
+        exclude_rejected is True."""
+        user_cases = UserCase.objects.filter(
+            user__organisationuser__organisation=self,
+            case__deleted_at__isnull=True,
+            case__archived_at__isnull=True,
+        )
+
+        if exclude_rejected:
+            exclude_ids = []
+            for user_case in user_cases:
+                if OrganisationCaseRole.objects.filter(
+                    case=user_case.case,
+                    organisation__organisationuser__user=user_case.user,
+                    role__key=REJECTED_ORG_CASE_ROLE,
+                ).exists():
+                    exclude_ids.append(user_case.id)
+            user_cases = user_cases.exclude(id__in=exclude_ids)
+
+        return user_cases
 
 
 class OrganisationName(models.Model):

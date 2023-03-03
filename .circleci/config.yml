@@ -64,6 +64,9 @@ jobs:
           - discovery.type=single-node
           - plugins.security.disabled=true
     steps:
+      - add_ssh_keys:
+            fingerprints:
+              - "9f:19:e2:26:c4:aa:6e:4d:98:77:22:09:b9:cf:50:f3"
       - checkout
       - restore_dependency_cache
       - install_dependencies

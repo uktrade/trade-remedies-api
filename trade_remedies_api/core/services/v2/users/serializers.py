@@ -1,5 +1,6 @@
 from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
+from django.db.models import Q
 from django_restql.fields import NestedField
 from rest_framework import serializers
 
@@ -9,6 +10,8 @@ from contacts.models import Contact
 from core.models import TwoFactorAuth, User, UserProfile
 from core.services.auth.serializers import EmailSerializer
 from core.utils import convert_to_e164
+from organisations.constants import REJECTED_ORG_CASE_ROLE
+from security.models import OrganisationCaseRole
 
 
 class TwoFactorAuthSerializer(serializers.ModelSerializer):
@@ -29,6 +32,7 @@ class ContactSerializer(CustomValidationModelSerializer, EmailSerializer):
     organisation_name = serializers.ReadOnlyField(source="organisation.name")
     has_user = serializers.ReadOnlyField()
     user_id = serializers.SerializerMethodField()
+    country_iso_code = serializers.ReadOnlyField(source="country.code")
 
     @staticmethod
     def get_user_id(instance):
@@ -69,6 +73,7 @@ class UserSerializer(CustomValidationModelSerializer):
     password = serializers.CharField(required=False)
     email = serializers.EmailField()
     cases = serializers.SerializerMethodField()
+    user_cases = serializers.SerializerMethodField()
     organisation = serializers.SerializerMethodField()
     twofactorauth = TwoFactorAuthSerializer(required=False)
     contact = NestedField(serializer_class=ContactSerializer, required=False)
@@ -80,12 +85,54 @@ class UserSerializer(CustomValidationModelSerializer):
             data.pop("password", None)
         return data
 
-    def get_cases(self, instance):
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data.pop("password", None)  # never return the hashed password
+        return data
+
+    def get_user_cases(self, instance):
+        from security.services.v2.serializers import UserCaseSerializer
+
+        user_cases = instance.usercase_set.all()
+        non_rejected_user_cases_ids = []
+        for user_case in user_cases:
+            if not OrganisationCaseRole.objects.filter(
+                case=user_case.case,
+                organisation__organisationuser__user=user_case.user,
+                role__key=REJECTED_ORG_CASE_ROLE,
+            ).exists():
+                non_rejected_user_cases_ids.append(user_case.id)
+
+        user_cases = instance.usercase_set.filter(id__in=non_rejected_user_cases_ids)
+        if requesting_user := self.context.get("requesting_user"):
+            if not requesting_user.is_tra():
+                # We want to filter the user cases
+                # to only those that are visible to the requesting organisation
+                query_filter = Q(user=requesting_user)
+                if requesting_user.contact.organisation:
+                    query_filter = (
+                        query_filter
+                        | Q(organisation=requesting_user.contact.organisation)
+                        | Q(
+                            user__userprofile__contact__organisation=requesting_user.contact.organisation
+                        )
+                    )
+                user_cases = user_cases.filter(query_filter)
+        return UserCaseSerializer(instance=user_cases, many=True).data
+
+    @staticmethod
+    def get_cases(instance):
         from cases.services.v2.serializers import CaseSerializer
 
-        return [CaseSerializer(each).data for each in Case.objects.user_cases(user=instance)]
+        return [
+            CaseSerializer(each).data
+            for each in Case.objects.user_cases(
+                user=instance, exclude_organisation_case_role=REJECTED_ORG_CASE_ROLE
+            )
+        ]
 
-    def get_organisation(self, instance):
+    @staticmethod
+    def get_organisation(instance):
         """Gets the organisation that this user belongs to.
 
         Provides an exclude argument to the OrganisationSerializer to avoid recursive infinite

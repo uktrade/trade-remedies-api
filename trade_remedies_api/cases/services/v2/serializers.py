@@ -68,7 +68,12 @@ class SubmissionSerializer(CustomValidationModelSerializer):
         serializer_class=OrganisationSerializer, required=False, accept_pk=True
     )
     documents = NestedField(serializer_class=DocumentSerializer, many=True, required=False)
-    created_by = NestedField(serializer_class=UserSerializer, required=False, accept_pk=True)
+    created_by = NestedField(
+        serializer_class=UserSerializer,
+        required=False,
+        accept_pk=True,
+        fields=["name", "email"],
+    )
     status = NestedField(
         serializer_class=SubmissionStatusSerializer, required=False, accept_pk=True
     )
@@ -92,7 +97,7 @@ class SubmissionSerializer(CustomValidationModelSerializer):
     @staticmethod
     def get_parent(instance):
         if parent := instance.parent:
-            return SubmissionSerializer(parent).data
+            return SubmissionSerializer(parent, exclude=["organisation"]).data
 
     @staticmethod
     def get_deficiency_notices(instance):
