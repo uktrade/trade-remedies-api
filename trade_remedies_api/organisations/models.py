@@ -6,6 +6,7 @@ import typing
 import uuid
 from functools import singledispatch
 
+import django.db.models
 import requests
 import tldextract
 from functools import singledispatch
@@ -409,46 +410,6 @@ class Organisation(BaseModel):
         else:
             return self.name
 
-    @staticmethod
-    def __is_potential_duplicate_organisation(
-        target_org: "Organisation", potential_dup_org: "Organisation"
-    ):
-        DIGITS_PATTERN = re.compile(r"[^0-9]+")
-        DIGITS_ALPHA_PATTERN = re.compile(r"[^0-9a-zA-Z]+")
-
-        target_post_code = re.sub(DIGITS_ALPHA_PATTERN, "", target_org.post_code or "").lower()
-        potential_post_code = re.sub(
-            DIGITS_ALPHA_PATTERN, "", potential_dup_org.post_code or ""
-        ).lower()
-
-        if target_post_code == potential_post_code:
-            return True
-
-        target_vat_number = re.sub(DIGITS_PATTERN, "", target_org.vat_number or "")
-        potential_vat_number = re.sub(DIGITS_PATTERN, "", potential_dup_org.vat_number or "")
-
-        if target_vat_number == potential_vat_number:
-            return True
-
-        target_duns_number = re.sub(DIGITS_ALPHA_PATTERN, "", target_org.duns_number).lower()
-        potential_duns_number = re.sub(
-            DIGITS_ALPHA_PATTERN, "", potential_dup_org.duns_number or ""
-        ).lower()
-
-        if target_duns_number == potential_duns_number:
-            return True
-
-        target_eori_number = re.sub(DIGITS_PATTERN, "", target_org.eori_number or "")
-        potential_eori_number = re.sub(DIGITS_PATTERN, "", potential_dup_org.eori_number or "")
-
-        if target_eori_number == potential_eori_number:
-            return True
-
-        return (
-            target_org.name == potential_dup_org.name
-            or target_org.address == potential_dup_org.address
-        )
-
     @transaction.atomic
     def _potential_duplicate_orgs(self) -> "OrganisationMergeRecord":
         """
@@ -476,14 +437,26 @@ class Organisation(BaseModel):
             " ",
         )
 
-        def filter_without_spaces(queryset, field):
-            annotated_field_name = f"{field}_no_spaces"
-            kwargs = {annotated_field_name: Replace(field, Value(" "), Value(""))}
-            return annotated_field_name, queryset.annotate(**kwargs)
+        def annotate_without_special_chars(
+            queryset: django.db.models.QuerySet, field: str
+        ) -> (str, django.db.models.QuerySet):
+            """
+            Annotate a queryset with a field that has all special characters removed
+            Parameters
+            ----------
+            queryset : the queryset to operate on
+            field : the name of the field to annotate
 
-        def filter_without_special_chars(queryset, field):
+            Returns
+            -------
+            tuple:
+                0 - the name of the annotated column with all special characters removed
+                1 - the queryset with the annotated columns
+            """
             annotation_kwargs = {
-                f"{field}_sf{index}": Replace(field, Value(each), Value(""))
+                f"{field}_sf{index}": Replace(
+                    field if index == 0 else f"{field}_sf{index-1}", Value(each), Value("")
+                )
                 for index, each in enumerate(special_characters)
             }
             last_annotation = f"{field}_sf{len(special_characters) - 1}"
@@ -515,11 +488,9 @@ class Organisation(BaseModel):
                 query = {f"{field}__iexact": value}
                 q_objects |= models.Q(**query)
 
-        potential_duplicates = potential_duplicates.filter(q_objects)
-
         # filter by reg_number and post_code, removing special characters
         ignore_special_character_fields = (
-            "reg_number",
+            "companies_house_id",
             "post_code",
         )
 
@@ -527,7 +498,7 @@ class Organisation(BaseModel):
             value = getattr(self, field)
             if value:
                 value = "".join(c for c in value if c not in special_characters)
-                removed_special_chars = filter_without_special_chars(
+                removed_special_chars = annotate_without_special_chars(
                     potential_duplicates,
                     field,
                 )
@@ -550,7 +521,7 @@ class Organisation(BaseModel):
             value = getattr(self, field)
             if value:
                 value = "".join(c for c in value if c.isdigit())
-                removed_special_chars = filter_without_special_chars(
+                removed_special_chars = annotate_without_special_chars(
                     potential_duplicates,
                     field,
                 )
