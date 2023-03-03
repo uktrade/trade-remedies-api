@@ -1,38 +1,25 @@
 import logging
-import re
 import logging
-import re
-import typing
 import uuid
 from functools import singledispatch
 
 import django.db.models
 import requests
 import tldextract
-from functools import singledispatch
-
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models, transaction
 from django.db.models import F, Value
 from django.db.models.functions import Replace
 from django.utils import timezone
+from django.utils.html import escape
 from django_countries.fields import CountryField
 
 from audit import AUDIT_TYPE_NOTIFY, AUDIT_TYPE_ORGANISATION_MERGED
 from audit.utils import audit_log
 from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST, TRA_ORGANISATION_ID
-from cases.models.submission import Submission
-from contacts.models import CaseContact, Contact
-from django.db import connection, models, transaction
-from django.utils import timezone
-from django.utils.html import escape
-from django_countries.fields import CountryField
-
-from audit import AUDIT_TYPE_NOTIFY
-from cases.constants import TRA_ORGANISATION_ID
-from cases.models.submission import Submission
-from contacts.models import CaseContact, Contact
+from cases.models.submission import Submission, Submission
+from contacts.models import CaseContact, CaseContact, Contact, Contact
 from core.base import BaseModel
 from core.models import SystemParameter
 from core.notifier import notify_contact_email, notify_footer
@@ -44,8 +31,6 @@ from organisations.constants import (
     PREPARING_ORG_CASE_ROLE,
     REJECTED_ORG_CASE_ROLE,
 )
-from core.utils import public_login_url, sql_get_list
-from organisations.constants import NOT_IN_CASE_ORG_CASE_ROLES, REJECTED_ORG_CASE_ROLE
 from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
 from security.models import OrganisationCaseRole, OrganisationUser, UserCase, get_security_group
 
