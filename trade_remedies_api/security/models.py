@@ -371,10 +371,10 @@ class UserCase(SimpleBaseModel):
     to all cases but explicit access can still be set. This model allows for a future extension of
     the type of access a user might have in the case.
     A user's participation in a case might require approval by the TRA. The confirmed key, which
-    defaults to True, determiens the confirmation state of the user in the case. confirmed_by/at
+    defaults to True, determines the confirmation state of the user in the case. confirmed_by/at
     determine who and when confirmation took place IF it was required. Users invited by the TRA
     or users creating the case do not require confirmation. However, invited 3rd parties with
-    letter of authrotiry do.
+    letter of authority do.
     """
 
     user = models.ForeignKey(

@@ -1,3 +1,5 @@
+import time
+from functools import wraps
 import hashlib
 from django.core.cache import cache
 from django.conf import settings
@@ -25,5 +27,25 @@ def method_cache(method):
             return_value = method(instance, *args, **kwargs)
             cache.set(cache_key, return_value, 60 * settings.METHOD_CACHE_DURATION_MINUTES)
         return return_value
+
+    return wrapper
+
+
+def measure_time(func):
+    """
+    This decorator measures the response time of a function
+    and returns both the task and the response time.
+
+    :param func: the function to measure
+    :return: the task and the response time in seconds
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        response_time = end_time - start_time
+        return result, response_time
 
     return wrapper

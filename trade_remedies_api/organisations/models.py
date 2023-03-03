@@ -1,27 +1,27 @@
 import logging
+import re
+import typing
 import uuid
+from functools import singledispatch
+
 from django.conf import settings
-from django.db import models, transaction, connection
+from django.db import connection, models, transaction
+from django.utils import timezone
+from django.utils.html import escape
+from django_countries.fields import CountryField
+
+from audit import AUDIT_TYPE_NOTIFY
+from cases.constants import TRA_ORGANISATION_ID
+from cases.models.submission import Submission
+from contacts.models import CaseContact, Contact
 from core.base import BaseModel
 from core.models import SystemParameter
-from core.notifier import notify_footer, notify_contact_email
+from core.notifier import notify_contact_email, notify_footer
 from core.tasks import send_mail
-from audit import AUDIT_TYPE_NOTIFY
-from security.models import OrganisationCaseRole, OrganisationUser, get_security_group, UserCase
-from cases.models.submission import Submission
-from contacts.models import Contact, CaseContact
-from functools import singledispatch
+from core.utils import public_login_url, sql_get_list
+from organisations.constants import NOT_IN_CASE_ORG_CASE_ROLES, REJECTED_ORG_CASE_ROLE
 from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
-from organisations.constants import NOT_IN_CASE_ORG_CASE_ROLES
-from core.utils import (
-    sql_get_list,
-    public_login_url,
-)
-from django_countries.fields import CountryField
-from django.utils import timezone
-from cases.constants import TRA_ORGANISATION_ID
-from django.contrib.postgres import fields
-
+from security.models import OrganisationCaseRole, OrganisationUser, UserCase, get_security_group
 
 logger = logging.getLogger(__name__)
 
@@ -219,10 +219,8 @@ class OrganisationManager(models.Manager):
         The user will be made a user of the organisation only if assign_user is True. This is
         only required during organisation creation when registering a new account.
         """
-        created = False
         organisation = None
-        if not country and companies_house_id:
-            country = "GB"
+
         if organisation_id:
             try:
                 organisation = Organisation.objects.get(id=organisation_id)
@@ -313,9 +311,6 @@ class Organisation(BaseModel):
 
     objects = OrganisationManager()
 
-    # class Meta:
-    #     unique_together = ['name', 'country']
-
     class Meta:
         permissions = (("merge_organisations", "Can merge organisations"),)
 
@@ -324,6 +319,77 @@ class Organisation(BaseModel):
             return f"{self.name} (TA)"
         else:
             return self.name
+
+    @staticmethod
+    def __is_potential_duplicate_organisation(
+        target_org: "Organisation", potential_dup_org: "Organisation"
+    ):
+        DIGITS_PATTERN = re.compile(r"[^0-9]+")
+        DIGITS_ALPHA_PATTERN = re.compile(r"[^0-9a-zA-Z]+")
+
+        target_post_code = re.sub(DIGITS_ALPHA_PATTERN, "", target_org.post_code or "").lower()
+        potential_post_code = re.sub(
+            DIGITS_ALPHA_PATTERN, "", potential_dup_org.post_code or ""
+        ).lower()
+
+        if target_post_code == potential_post_code:
+            return True
+
+        target_vat_number = re.sub(DIGITS_PATTERN, "", target_org.vat_number or "")
+        potential_vat_number = re.sub(DIGITS_PATTERN, "", potential_dup_org.vat_number or "")
+
+        if target_vat_number == potential_vat_number:
+            return True
+
+        target_duns_number = re.sub(DIGITS_ALPHA_PATTERN, "", target_org.duns_number).lower()
+        potential_duns_number = re.sub(
+            DIGITS_ALPHA_PATTERN, "", potential_dup_org.duns_number or ""
+        ).lower()
+
+        if target_duns_number == potential_duns_number:
+            return True
+
+        target_eori_number = re.sub(DIGITS_PATTERN, "", target_org.eori_number or "")
+        potential_eori_number = re.sub(DIGITS_PATTERN, "", potential_dup_org.eori_number or "")
+
+        if target_eori_number == potential_eori_number:
+            return True
+
+        return (
+            target_org.name == potential_dup_org.name
+            or target_org.address == potential_dup_org.address
+        )
+
+    @transaction.atomic
+    def potential_duplicate_organisations(self) -> typing.List["Organisation"]:
+        """
+        Returns potential identical or similar organisations simialr to
+        the given organisation
+        """
+        # first we check which organisations contain our lookup values
+        # A fuzzy search, because we can't do much manipulation of the db field values
+        # until it gets to be a python object after the db query
+        potential_dup_orgs = Organisation.objects.exclude(id=self.id).filter(
+            models.Q(name__exact=self.name)
+            | models.Q(address__exact=self.address)
+            | models.Q(post_code__icontains=self.post_code)
+            | models.Q(vat_number__icontains=self.vat_number)
+            | models.Q(eori_number__icontains=self.eori_number)
+            | models.Q(duns_number__icontains=self.duns_number)
+            | models.Q(organisation_website__icontains=self.organisation_website)
+        )
+
+        if not potential_dup_orgs:
+            return potential_dup_orgs
+        result = []
+
+        # we iterate through each organisation and do
+        # a granular check, then eliminate non serious potential duplicates
+        # then we return serious potential duplicate organisations
+        for potential_dup_org in potential_dup_orgs:
+            if self.__is_potential_duplicate_organisation(self, potential_dup_org):
+                result += [potential_dup_org]
+        return result
 
     def has_role_in_case(self, case, role):
         """
@@ -405,7 +471,6 @@ class Organisation(BaseModel):
             cases = cases.filter(user=requested_by)
         if initiated_only:
             cases = cases.filter(case__initiated_at__isnull=False)
-        # cases = cases.order_by(order_by)
         cases = cases.values("organisation_id", "case_id").distinct()
         _cache = {}
         related_cases = []
@@ -463,7 +528,7 @@ class Organisation(BaseModel):
 
     @property
     def user_count(self):
-        return len(self.users)
+        return self.users.count()
 
     def _to_dict(self, case=None, with_contacts=True):
         contacts = []
@@ -479,12 +544,12 @@ class Organisation(BaseModel):
                 organisation=self, case=case, status__default=False
             ).exists()
         return {
-            "name": self.name,
+            "name": escape(self.name),
             "datahub_id": self.datahub_id,
-            "companies_house_id": self.companies_house_id,
+            "companies_house_id": escape(self.companies_house_id),
             "trade_association": self.trade_association,
-            "address": self.address,
-            "post_code": self.post_code,
+            "address": escape(self.address),
+            "post_code": escape(self.post_code),
             "country": {
                 "name": self.country.name if self.country else None,
                 "code": self.country.code if self.country else None,
@@ -496,10 +561,10 @@ class Organisation(BaseModel):
             "gov_body": self.gov_body,
             "is_tra": str(self.id) == TRA_ORGANISATION_ID,
             "has_non_draft_subs": has_non_draft_subs,
-            "vat_number": self.vat_number,
-            "eori_number": self.eori_number,
-            "duns_number": self.duns_number,
-            "organisation_website": self.organisation_website,
+            "vat_number": escape(self.vat_number),
+            "eori_number": escape(self.eori_number),
+            "duns_number": escape(self.duns_number),
+            "organisation_website": escape(self.organisation_website),
             "fraudulent": self.fraudulent,
             "previous_names": [pn.to_dict() for pn in self.previous_names]
             if self.has_previous_names
@@ -653,6 +718,28 @@ class Organisation(BaseModel):
             self.name = name
             self.save()
         return org_name
+
+    def get_user_cases(self, exclude_rejected=True):
+        """Return all UserCases for this organisation except for those with the rejected role if
+        exclude_rejected is True."""
+        user_cases = UserCase.objects.filter(
+            user__organisationuser__organisation=self,
+            case__deleted_at__isnull=True,
+            case__archived_at__isnull=True,
+        )
+
+        if exclude_rejected:
+            exclude_ids = []
+            for user_case in user_cases:
+                if OrganisationCaseRole.objects.filter(
+                    case=user_case.case,
+                    organisation__organisationuser__user=user_case.user,
+                    role__key=REJECTED_ORG_CASE_ROLE,
+                ).exists():
+                    exclude_ids.append(user_case.id)
+            user_cases = user_cases.exclude(id__in=exclude_ids)
+
+        return user_cases
 
 
 class OrganisationName(models.Model):

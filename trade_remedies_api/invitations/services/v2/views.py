@@ -66,6 +66,25 @@ class InvitationViewSet(BaseModelViewSet):
             invitation_object.organisation_security_group = Group.objects.get(
                 name=SECURITY_GROUP_THIRD_PARTY_USER
             )
+
+        if invitation_object.invitation_type == 3:
+            # this is a caseworker invite, if the contact passed already exists as a user,
+            # then let's just use that contact instead
+            try:
+                existing_user = User.objects.get(email__iexact=invitation_object.contact.email)
+                # a user with that email already exists, it could be intentional
+                if existing_user.contact != invitation_object.contact:
+                    # the contacts don't match up, let's use the existing user's contact
+                    if invitation_object.contact.organisation.draft:
+                        # if it's a draft org (hasn't been used yet), just delete it here
+                        invitation_object.contact.organisation.delete()
+
+                    invitation_object.organisation = existing_user.contact.organisation
+                    invitation_object.contact = existing_user.contact
+            except User.DoesNotExist:
+                # a user with that email does not exist, let's carry on with the original contact
+                pass
+
         invitation_object.save()
 
         return invitation_object
@@ -162,15 +181,26 @@ class InvitationViewSet(BaseModelViewSet):
 
         if invitation_object.invitation_type == 1:
             # This is an invitation from within the organisation
-            invitation_object.send(
-                sent_by=request.user,
-                direct=False,
-                template_key="NOTIFY_INVITE_ORGANISATION_USER",
-                context={
-                    "login_url": f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/"
-                    f"{invitation_object.id}/start/"
-                },
-            )
+            user_query = User.objects.filter(email__iexact=invitation_object.contact.email)
+            if (
+                user_query.exists()
+                and user_query.last().organisation.id != invitation_object.organisation.id
+            ):
+                invitation_object.send(
+                    sent_by=request.user,
+                    direct=False,
+                    template_key="NOTIFY_INVITE_EXISTING_ORGANISATION_USER",
+                )
+            else:
+                invitation_object.send(
+                    sent_by=request.user,
+                    direct=False,
+                    template_key="NOTIFY_INVITE_ORGANISATION_USER",
+                    context={
+                        "login_url": f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/"
+                        f"{invitation_object.id}/start/"
+                    },
+                )
 
         elif invitation_object.invitation_type == 2:
             # This is a representative invite, send the appropriate email
@@ -187,6 +217,7 @@ class InvitationViewSet(BaseModelViewSet):
 
                 # now we want to mark the submission as received
                 invitation_object.submission.update_status("received", request.user)
+                invitation_object.accepted_at = timezone.now()
             else:
                 # The user does not exist
                 template_name = "NOTIFY_NEW_THIRD_PARTY_INVITE"
@@ -234,7 +265,9 @@ class InvitationViewSet(BaseModelViewSet):
                 invitation_object.invited_user = invitation_object.contact.userprofile.user
             else:
                 new_user = True
-                login_url = f"{settings.PUBLIC_ROOT_URL}?invitation={invitation_object.pk}"
+                login_url = (
+                    f"{settings.PUBLIC_ROOT_URL}/case/accept_invite/{invitation_object.id}/start/"
+                )
 
             # This is an invitation sent by the TRA
             invitation_object.send(
