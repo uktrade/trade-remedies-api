@@ -4,10 +4,12 @@ import uuid
 from functools import singledispatch
 
 import requests
+import tldextract
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models, transaction
-from django.db.models import F
+from django.db.models import F, Value
+from django.db.models.functions import Replace
 from django.utils import timezone
 from django_countries.fields import CountryField
 
@@ -437,80 +439,136 @@ class Organisation(BaseModel):
         Returns potential identical or similar organisations similar to
         the given organisation.
         """
+
         # first we check which organisations contain our lookup values
         # A fuzzy search, because we can't do much manipulation of the db field values
         # until it gets to be a python object after the db query
 
-        exact_match_fields = (
-            "name",
-            "address",
+        special_characters = (
+            "!",
+            "%",
+            "-",
+            "_",
+            "*",
+            "?",
+            ":",
+            ";",
+            ",",
+            ".",
+            "/",
+            "|",
+            " ",
         )
-        similar_match_fields = (
-            "post_code",
-            "vat_number",
-            "eori_number",
-            "duns_number",
-            "organisation_website",
-        )
 
-        q_objects = models.Q()
+        def filter_without_spaces(queryset, field):
+            annotated_field_name = f"{field}_no_spaces"
+            kwargs = {annotated_field_name: Replace(field, Value(" "), Value(""))}
+            return annotated_field_name, queryset.annotate(**kwargs)
 
-        for field in exact_match_fields:
-            value = getattr(self, field)
-            if value:
-                query = {f"{field}__exact": value}
-                q_objects |= models.Q(**query)
+        def filter_without_special_chars(queryset, field):
+            annotation_kwargs = {
+                f"{field}_sf{index}": Replace(field, Value(each), Value(""))
+                for index, each in enumerate(special_characters)
+            }
+            last_annotation = f"{field}_sf{len(special_characters) - 1}"
+            return last_annotation, queryset.annotate(**annotation_kwargs)
 
-        for field in similar_match_fields:
-            value = getattr(self, field)
-            if value:
-                query = {f"{field}__icontains": value}
-                q_objects |= models.Q(**query)
-
-        organisation_queryset = Organisation.objects.exclude(id=self.id)
+        potential_duplicates = Organisation.objects.exclude(id=self.id)
         if hasattr(self, "merge_record"):
             # if there is a merge record associated with this organisation, we presume that
             # the database has been scanned for potential duplicates, and we only want to check
             # those organisations that have been created or modified since the last check
-            organisation_queryset = organisation_queryset.filter(
+            potential_duplicates = potential_duplicates.filter(
                 models.Q(created_at__gte=self.merge_record.created_at)
                 | models.Q(last_modified__gte=self.merge_record.created_at)
             )
         else:
             OrganisationMergeRecord.objects.create(parent_organisation=self)
 
-        potential_dup_orgs = organisation_queryset.filter(q_objects)
+        q_objects = models.Q()
+
+        # filter fields that require an exact (case-insensitive) match
+        exact_match_fields = (
+            "name",
+            "address",
+            "duns_number",
+        )
+        for field in exact_match_fields:
+            value = getattr(self, field)
+            if value:
+                query = {f"{field}__iexact": value}
+                q_objects |= models.Q(**query)
+
+        potential_duplicates = potential_duplicates.filter(q_objects)
+
+        # filter by reg_number and post_code, removing special characters
+        ignore_special_character_fields = (
+            "reg_number",
+            "post_code",
+        )
+
+        for field in ignore_special_character_fields:
+            value = getattr(self, field)
+            if value:
+                value = "".join(c for c in value if c not in special_characters)
+                removed_special_chars = filter_without_special_chars(
+                    potential_duplicates,
+                    field,
+                )
+                potential_duplicates = removed_special_chars[1]
+                query = {f"{removed_special_chars[0]}__icontains": value}
+                q_objects |= models.Q(**query)
+
+        # now we filter by the URL, removing http://, www., and the suffix
+        if url := self.organisation_website:
+            url = tldextract.extract(url)
+            url_domain = url.domain
+            q_objects |= models.Q(organisation_website__icontains=url_domain)
+
+        # now we filter by the VAT number and EORI number
+        ignore_alpha_character_fields = (
+            "vat_number",
+            "eori_number",
+        )
+        for field in ignore_alpha_character_fields:
+            value = getattr(self, field)
+            if value:
+                value = "".join(c for c in value if c.isdigit())
+                removed_special_chars = filter_without_special_chars(
+                    potential_duplicates,
+                    field,
+                )
+                potential_duplicates = removed_special_chars[1]
+                query = {f"{removed_special_chars[0]}__icontains": value}
+                q_objects |= models.Q(**query)
+
+        # applying the filter to the queryset
+        potential_duplicates = potential_duplicates.filter(q_objects)
 
         # Why did the cow cross the road? To get to the udder side.
-        if not potential_dup_orgs:
+        # lol.
+        if not potential_duplicates:
             if self.merge_record.duplicate_organisations.filter(status="pending").exists():
                 # there are still pending potential merges
 
                 # update the statuses
                 self.merge_record.status = "duplicates_found"
                 self.merge_record.submissionorganisationmergerecord_set.filter(
-                    status="Complete"
+                    status="complete"
                 ).update(status="in_progress")
             else:
                 self.merge_record.status = "no_duplicates_found"
             self.merge_record.save()
             return self.merge_record
-        results = []
 
-        # we iterate through each organisation and do
-        # a granular check, then eliminate non-serious potential duplicates
-        # then we return serious potential duplicate organisations
-        for potential_dup_org in potential_dup_orgs:
-            if self.__is_potential_duplicate_organisation(self, potential_dup_org):
-                results.append(potential_dup_org)
-
-        # now we update the merge record
-        for potential_dup_org in potential_dup_orgs:
+        # now we update the merge record and create DuplicateOrganisationMerge records for each
+        # of the confirmed duplicates (if they don't already exist)
+        for potential_dup_org in potential_duplicates:
             DuplicateOrganisationMerge.objects.get_or_create(
                 merge_record=self.merge_record, child_organisation=potential_dup_org
             )
         self.merge_record.status = "duplicates_found"
-        self.merge_record.submissionorganisationmergerecord_set.filter(status="Complete").update(
+        self.merge_record.submissionorganisationmergerecord_set.filter(status="complete").update(
             status="in_progress"
         )
         self.merge_record.save()
@@ -711,10 +769,7 @@ class Organisation(BaseModel):
         Return all contacts assosciated with the organisation for a specific case.
         These might be lawyers representing the organisation or direct employee.
         """
-        case_contacts = Contact.objects.select_related(
-            "userprofile",
-            "organisation",
-        ).filter(
+        case_contacts = Contact.objects.select_related("userprofile", "organisation",).filter(
             casecontact__case=case,
             casecontact__organisation=self,
             deleted_at__isnull=True,
