@@ -396,7 +396,7 @@ class Organisation(BaseModel):
             return self.name
 
     @transaction.atomic
-    def _potential_duplicate_orgs(self) -> "OrganisationMergeRecord":
+    def _potential_duplicate_orgs(self, fresh=False) -> "OrganisationMergeRecord":
         """
         Returns potential identical or similar organisations similar to
         the given organisation.
@@ -451,11 +451,13 @@ class Organisation(BaseModel):
         if hasattr(self, "merge_record"):
             # if there is a merge record associated with this organisation, we presume that
             # the database has been scanned for potential duplicates, and we only want to check
-            # those organisations that have been created or modified since the last check
-            potential_duplicates = potential_duplicates.filter(
-                models.Q(created_at__gte=self.merge_record.created_at)
-                | models.Q(last_modified__gte=self.merge_record.created_at)
-            )
+            # those organisations that have been created or modified since the last check. Unless
+            # the fresh argument is True, in which case we will always scan for all
+            if not fresh:
+                potential_duplicates = potential_duplicates.filter(
+                    models.Q(created_at__gte=self.merge_record.created_at)
+                    | models.Q(last_modified__gte=self.merge_record.created_at)
+                )
         else:
             OrganisationMergeRecord.objects.create(parent_organisation=self)
 
@@ -547,8 +549,8 @@ class Organisation(BaseModel):
 
         return self.merge_record
 
-    def find_potential_duplicate_orgs(self) -> "OrganisationMergeRecord":
-        return self._potential_duplicate_orgs()
+    def find_potential_duplicate_orgs(self, fresh=False) -> "OrganisationMergeRecord":
+        return self._potential_duplicate_orgs(fresh=fresh)
 
     def has_role_in_case(self, case, role):
         """
@@ -741,10 +743,7 @@ class Organisation(BaseModel):
         Return all contacts assosciated with the organisation for a specific case.
         These might be lawyers representing the organisation or direct employee.
         """
-        case_contacts = Contact.objects.select_related(
-            "userprofile",
-            "organisation",
-        ).filter(
+        case_contacts = Contact.objects.select_related("userprofile", "organisation",).filter(
             casecontact__case=case,
             casecontact__organisation=self,
             deleted_at__isnull=True,

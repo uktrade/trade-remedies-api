@@ -166,7 +166,9 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
         """We want to create merge records if someone tries to request one for an organisation that
         has not been scanned for duplicates yet."""
         organisation_object = get_object_or_404(Organisation, pk=kwargs["pk"])
-        instance = organisation_object.find_potential_duplicate_orgs()
+        instance = organisation_object.find_potential_duplicate_orgs(
+            fresh=True if request.GET.get("fresh", "no") == "yes" else False
+        )
 
         if submission_id := request.GET.get("submission_id"):
             # Add the submission to the merge record
