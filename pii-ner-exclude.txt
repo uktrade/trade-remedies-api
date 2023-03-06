@@ -1,3 +1,73 @@
+"trade_remedies_api URL Configuration The `
+API_PREFIX}/health/
+case_id>/
+request_email_verify
+XML
+Cache-Control
+"trade_remedies_api URL Configuration The `
+API_PREFIX}/health/
+case_id>/
+request_email_verify
+XML
+Cache-Control
+"trade_remedies_api URL Configuration The `
+API_PREFIX}/health/
+case_id>/
+request_email_verify
+XML
+Cache-Control
+Return a Notification
+TRADE_REMEDIES_EMAIL
+SELECT
+self.assertEqual(status
+XML
+Cache-Control
+Return a Notification
+TRADE_REMEDIES_EMAIL
+Return a Notification
+TRADE_REMEDIES_EMAIL
+Return a Notification
+TRADE_REMEDIES_EMAIL
+Return a Notification
+TRADE_REMEDIES_EMAIL
+XML
+Cache-Control
+parts/
+Installer
+htmlcov/
+.cache
+db.sqlite3
+NER
+SR
+SA
+GET
+GET /case/{CASE_ID}/` Return
+ex_oficio
+" Create a "Register
+GET /cases/{ORGANISATION_ID}/
+GET /cases/{ORGANISATION_ID}/{CASE_ID}/submissions/` Return
+CURRENT_STAGE
+"Returns the available review types
+Suspension Extension
+SN
+ER
+SA
+SN
+Suspension Extension
+SN
+Suspension Extension
+SN
+SR
+SA
+GET
+GET /case/{CASE_ID}/` Return
+ex_oficio
+" Create a "Register
+GET /cases/{ORGANISATION_ID}/
+GET /cases/{ORGANISATION_ID}/{CASE_ID}/submissions/` Return
+CURRENT_STAGE
+"Returns the available review types
+
 deficiency_notice_params
 " ModelViewSet for interacting with
 " Deletes the user

@@ -13,6 +13,7 @@ from core.services.exceptions import (
 from django.db.models import Q
 from django.db import transaction, models
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.views import APIView
 from cases.models import (
@@ -94,19 +95,15 @@ class PublicCaseView(APIView):
             case_number = "SA" + case_number[2:]
         match = re.search("([A-Za-z]{1,3})([0-9]+)", case_number)
         if match:
-            queryset = Case.objects.filter(
+            case = get_object_or_404(
+                Case,
                 type__acronym__iexact=match.group(1),
                 initiated_sequence=match.group(2),
                 deleted_at__isnull=True,
             )
-            if queryset:
-                return ResponseSuccess({"result": queryset.last().to_dict()})
-            else:
-                logger.debug(f"{case_number} does not exist")
-                return ResponseSuccess({"result": None})
-        else:
-            logger.debug(f"Request to this view with case_number {case_number}")
-            return ResponseSuccess({"result": None})
+            return ResponseSuccess({"result": case.to_dict()})
+        logger.debug(f"Request to this view with case_number {case_number}")
+        return ResponseSuccess({"result": None})
 
 
 class PublicNoticeView(APIView):
