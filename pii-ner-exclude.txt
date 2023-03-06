@@ -1,36 +1,12 @@
 "trade_remedies_api URL Configuration The `
-API_PREFIX}/health/
 case_id>/
 request_email_verify
-XML
-Cache-Control
-"trade_remedies_api URL Configuration The `
 API_PREFIX}/health/
-case_id>/
-request_email_verify
 XML
-Cache-Control
-"trade_remedies_api URL Configuration The `
-API_PREFIX}/health/
-case_id>/
-request_email_verify
-XML
-Cache-Control
-Return a Notification
-TRADE_REMEDIES_EMAIL
 SELECT
 self.assertEqual(status
-XML
-Cache-Control
 Return a Notification
 TRADE_REMEDIES_EMAIL
-Return a Notification
-TRADE_REMEDIES_EMAIL
-Return a Notification
-TRADE_REMEDIES_EMAIL
-Return a Notification
-TRADE_REMEDIES_EMAIL
-XML
 Cache-Control
 parts/
 Installer
