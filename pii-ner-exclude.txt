@@ -48,26 +48,39 @@ GET /cases/{ORGANISATION_ID}/
 GET /cases/{ORGANISATION_ID}/{CASE_ID}/submissions/` Return
 CURRENT_STAGE
 "Returns the available review types
+available_review_types = self.notice.available_case_review_types
+Notice and Case
+TRS
+Args
+" Load a case
+ex_oficio
+Case Created
+action_obj
+" Returns True if the organisation
+CASE_REGISTRATION_DURATION
+" Note: This is potentially
+TR-2046
+Assign a TRA
+" Remove a user (team member
+" Check the case
+Notice and Case
+TRS
+Args
+" Load a case
+ex_oficio
+Case Created
+action_obj
+" Returns True if the organisation
+CASE_REGISTRATION_DURATION
+" Note: This is potentially
+TR-2046
+Assign a TRA
+" Remove a user (team member
+" Check the case
 Suspension Extension
 SN
 ER
 SA
-SN
-Suspension Extension
-SN
-Suspension Extension
-SN
-SR
-SA
-GET
-GET /case/{CASE_ID}/` Return
-ex_oficio
-" Create a "Register
-GET /cases/{ORGANISATION_ID}/
-GET /cases/{ORGANISATION_ID}/{CASE_ID}/submissions/` Return
-CURRENT_STAGE
-"Returns the available review types
-
 deficiency_notice_params
 " ModelViewSet for interacting with
 " Deletes the user
