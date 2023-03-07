@@ -1,3 +1,77 @@
+send_mail.called_with
+company_vat_number
+" Creates a new user object and all the relevant satellite objects (
+User.objects.create
+" Generate
+" Creates and saves a User
+INSTANCE
+" Creates and saves a superuser
+" Toggles the given role name
+" Take a list of {caseid, primary}
+Return a JSON
+" Remove a
+User.objects.all().order_by('created_at
+" Returns the user's auth token
+" Hold the required information
+"Generate a 2FA code
+2FA_CODE_MESSAGE
+f"Password
+" Performs a password
+Number
+" Loads a system param spec
+Return a Notification
+TRADE_REMEDIES_EMAIL
+" Creates a new user object and all the relevant satellite objects (
+User.objects.create
+" Generate
+" Creates and saves a User
+INSTANCE
+" Creates and saves a superuser
+" Toggles the given role name
+" Take a list of {caseid, primary}
+Return a JSON
+" Remove a
+User.objects.all().order_by('created_at
+" Returns the user's auth token
+" Hold the required information
+"Generate a 2FA code
+2FA_CODE_MESSAGE
+f"Password
+" Performs a password
+Number
+" Loads a system param spec
+send_mail.called_with
+company_vat_number
+Return a Notification
+TRADE_REMEDIES_EMAIL
+Once a 3rd party
+"trade_remedies_api URL Configuration The `
+API_PREFIX}/health/
+case_id>/
+request_email_verify
+"trade_remedies_api URL Configuration The `
+API_PREFIX}/health/
+case_id>/
+request_email_verify
+Invite 3rd
+Overrides the django-restql DynamicFieldsMixin
+ALWAYS
+" A Serializer
+" Dict of native values <- Dict
+.validate
+SELECT
+uc2.case_id
+cc1 join contacts_casecontact cc2 on cc1.organisation_id='{organisation.id}' and cc2.organisation_id = '
+Select Country
+SELECT
+uc2.case_id
+cc1 join contacts_casecontact cc2 on cc1.organisation_id='{organisation.id}' and cc2.organisation_id = '
+Select Country
+celery==5.2.2
+django==3.2.17
+gevent==21.12.0
+odfpy==1.4.1
+whitenoise==5.3.0
 "trade_remedies_api URL Configuration The `
 case_id>/
 request_email_verify
@@ -63,7 +137,54 @@ deficiency_notice_params
 get_user_by_email
 " ModelViewSet for interacting with contact objects via the API
 "ModelViewSet for interacting with TwoFactorAuth objects
-kself.confidential_document.refresh_from_db
+alpha3
+TRS
+parts/
+Installer
+htmlcov/
+.cache
+db.sqlite3
+NER
+Validate
+InvitationFailure
+PUBLIC_ROOT_URL}/invitation/{invite.code}/for/{organisation.id}/
+"Send the invite
+Keyword
+NOTIFY_INFORM_INTERESTED_PARTIES
+PUBLIC_ROOT_URL}/invitation/{self.code}/{self.case.id}/
+" Assign the user
+Assign Organisation User
+" Creates and returns a new registration of interest
+Assign the invitee
+Validate
+InvitationFailure
+PUBLIC_ROOT_URL}/invitation/{invite.code}/for/{organisation.id}/
+"Send the invite
+Keyword
+NOTIFY_INFORM_INTERESTED_PARTIES
+PUBLIC_ROOT_URL}/invitation/{self.code}/{self.case.id}/
+" Assign the user
+Assign Organisation User
+" Creates and returns a new registration of interest
+Assign the invitee
+parts/
+Installer
+htmlcov/
+.cache
+db.sqlite3
+NER
+alpha3
+TRS
+Update
+GET
+" ModelViewSet for interacting with
+" Deletes the user
+get_user_by_email
+" ModelViewSet for interacting with contact objects via the API
+"ModelViewSet for interacting with TwoFactorAuth objects
+commas
+IDE
+self.confidential_document.refresh_from_db
 self.confidential_submission_document.refresh_from_db
 self.non_confidential_document.refresh_from_db
 assert str(self.non_confidential_document.parent.id

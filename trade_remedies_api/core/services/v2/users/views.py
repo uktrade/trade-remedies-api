@@ -13,6 +13,8 @@ from core.services.v2.users.serializers import (
     UserSerializer,
 )
 from organisations.models import Organisation
+from security.models import UserCase
+from security.services.v2.serializers import UserCaseSerializer
 
 
 class UserViewSet(BaseModelViewSet):
@@ -61,12 +63,13 @@ class UserViewSet(BaseModelViewSet):
         url_path="get_user_by_email/(?P<user_email>\S+)",
     )
     def get_user_by_email(self, request, user_email, *args, **kwargs):
-        """Returns a serialized User object queried using a case-insensitive email address.
+        """Returns a serialized User object queried using a case-sensitive email address.
 
         Raises a 404 if a user with that email is not found.
         """
         try:
-            user_object = User.objects.get(email__iexact=user_email)
+            # email needs to be exact and unique
+            user_object = User.objects.get(email__exact=user_email)
             return Response(UserSerializer(user_object).data)
         except User.DoesNotExist:
             return Response(
@@ -114,11 +117,12 @@ class ContactViewSet(BaseModelViewSet):
             # unless we get an organisation_id in the request
             organisation_object = get_object_or_404(Organisation, pk=organisation_id)
 
+        primary = request.data.get("primary", "no")
         CaseContact.objects.get_or_create(
             case=case_object,
             contact=contact_object,
             organisation=organisation_object,
-            primary=request.data.get("primary", False),
+            primary=True if primary == "yes" else False,
         )
 
         return self.retrieve(request)

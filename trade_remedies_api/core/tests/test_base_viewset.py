@@ -13,8 +13,8 @@ class CaseAPITest(CaseSetupTestMixin, FunctionalTestBase):
         queryset."""
         Organisation.objects.create(name="filter_1"),
         organisations = self.client.get("/api/v2/organisations/").json()
-        assert len(organisations) == 2
-        assert organisations[0]["name"] == self.organisation.name
+        assert len(organisations["results"]) == 2
+        assert organisations["results"][1]["name"] == self.organisation.name
 
         # now lets filter
         organisations = self.client.get(
@@ -22,8 +22,8 @@ class CaseAPITest(CaseSetupTestMixin, FunctionalTestBase):
                 "name": "filter_1"
             }).encode()).decode()}"""
         ).json()
-        assert len(organisations) == 1
-        assert organisations[0]["name"] == "filter_1"
+        assert len(organisations["results"]) == 1
+        assert organisations["results"][0]["name"] == "filter_1"
 
         # try filtering with a non-existent company
         organisations = self.client.get(
@@ -31,4 +31,22 @@ class CaseAPITest(CaseSetupTestMixin, FunctionalTestBase):
                 "name": "dont exist"
             }).encode()).decode()}"""
         ).json()
-        assert len(organisations) == 0
+        assert len(organisations["results"]) == 0
+
+    def test_deleted_item(self):
+        case = self.client.get(f"/api/v2/cases/{self.case_object.id}/")
+        assert case.status_code == 200
+
+        self.case_object.delete()
+        case = self.client.get(f"/api/v2/cases/{self.case_object.id}/")
+        assert case.status_code == 404
+
+    def test_deleted_items(self):
+        case = self.client.get("/api/v2/cases/")
+        assert case.status_code == 200
+        assert len(case.json()) == 1
+
+        self.case_object.delete()
+        case = self.client.get("/api/v2/cases/")
+        assert case.status_code == 200
+        assert len(case.json()) == 0
