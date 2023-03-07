@@ -134,5 +134,5 @@ ner_output_file.txt
 .pii-secret-hook/*
 /.pii-secret-hook/
 
-# IDE
-.vscode
+# vscode
+.vscode/

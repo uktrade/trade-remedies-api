@@ -72,6 +72,66 @@ django==3.2.17
 gevent==21.12.0
 odfpy==1.4.1
 whitenoise==5.3.0
+"trade_remedies_api URL Configuration The `
+case_id>/
+request_email_verify
+API_PREFIX}/health/
+XML
+SELECT
+self.assertEqual(status
+Return a Notification
+TRADE_REMEDIES_EMAIL
+Cache-Control
+parts/
+Installer
+htmlcov/
+.cache
+db.sqlite3
+NER
+SR
+SA
+GET
+GET /case/{CASE_ID}/` Return
+ex_oficio
+" Create a "Register
+GET /cases/{ORGANISATION_ID}/
+GET /cases/{ORGANISATION_ID}/{CASE_ID}/submissions/` Return
+CURRENT_STAGE
+"Returns the available review types
+available_review_types = self.notice.available_case_review_types
+Notice and Case
+TRS
+Args
+" Load a case
+ex_oficio
+Case Created
+action_obj
+" Returns True if the organisation
+CASE_REGISTRATION_DURATION
+" Note: This is potentially
+TR-2046
+Assign a TRA
+" Remove a user (team member
+" Check the case
+Notice and Case
+TRS
+Args
+" Load a case
+ex_oficio
+Case Created
+action_obj
+" Returns True if the organisation
+CASE_REGISTRATION_DURATION
+" Note: This is potentially
+TR-2046
+Assign a TRA
+" Remove a user (team member
+" Check the case
+Suspension Extension
+SN
+ER
+SA
+deficiency_notice_params
 " ModelViewSet for interacting with
 " Deletes the user
 get_user_by_email
@@ -141,15 +201,6 @@ Own Organisation'
 Invite Third Party'
 NOTIFY_INFORM_INTERESTED_PARTIES_V2
 new_user
-NOTIFY_INFORM_INTERESTED_PARTIES_V2
-new_user
-0020_invitation_rejected_by
-Own Organisation'
-Invite Third Party'
-NOTIFY_INFORM_INTERESTED_PARTIES_V2
-new_user
-Own Organisation'
-accept_invite/{invitation_object.id}/start/
 NOTIFY_INFORM_INTERESTED_PARTIES_V2
 new_user
 Trade Remedies Service'
