@@ -1,3 +1,29 @@
+"trade_remedies_api URL Configuration The `
+case_id>/
+request_email_verify
+API_PREFIX}/health/
+XML
+SELECT
+self.assertEqual(status
+Return a Notification
+TRADE_REMEDIES_EMAIL
+Cache-Control
+parts/
+Installer
+htmlcov/
+.cache
+db.sqlite3
+NER
+SR
+SA
+GET
+GET /case/{CASE_ID}/` Return
+ex_oficio
+" Create a "Register
+GET /cases/{ORGANISATION_ID}/
+GET /cases/{ORGANISATION_ID}/{CASE_ID}/submissions/` Return
+CURRENT_STAGE
+"Returns the available review types
 available_review_types = self.notice.available_case_review_types
 Notice and Case
 TRS
