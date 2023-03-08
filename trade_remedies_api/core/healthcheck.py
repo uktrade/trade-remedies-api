@@ -1,13 +1,16 @@
+import logging
+import xml.etree.ElementTree as ET
+
 import redis
 import requests
-import concurrent.futures
-import xml.etree.ElementTree as ET
+import sentry_sdk
 from celery.result import AsyncResult
-from django.db import connection
 from django.conf import settings
+from django.db import connection
 
 from .decorators import measure_time
 
+logger = logging.getLogger(__name__)
 
 @measure_time
 def ping_celery():
@@ -81,14 +84,13 @@ def application_service_health():
     services = [ping_celery, ping_postgres, ping_redis, ping_opensearch]
     response_times = []
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [executor.submit(service) for service in services]
-        for future in concurrent.futures.as_completed(futures):
-            try:
-                _, response_time = future.result()
-                response_times.append(response_time)
-            except Exception as err:
-                return _pingdom_custom_status_html_wrapper(f"Error: {str(err)}", 0)
+    for service_check in services:
+        try:
+            _, response_time = service_check()
+            response_times.append(response_time)
+        except Exception as err:
+            sentry_sdk.capture_exception(err)
+            return _pingdom_custom_status_html_wrapper(f"Error: {str(err)}", 0)
 
     avg_response_time = sum(response_times) / len(response_times)
     return _pingdom_custom_status_html_wrapper("OK", avg_response_time)
