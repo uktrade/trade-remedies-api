@@ -396,4 +396,9 @@ validation_errors = {
         "error_text": "Select a rating of between 1 to 5 stars",
         "error_summary": "You need to select a rating of between 1 to 5 stars",
     },
+    "organisation_already_setup_not_selected": {
+        "field": "existing_account",
+        "error_text": "Select yes if anyone else from your organisation has already set up an account.",
+        "error_summary": "You need to select Yes if anyone else from your organisation has already set up an account.",
+    },
 }
