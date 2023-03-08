@@ -8,13 +8,14 @@ from core.healthcheck import application_service_health
 
 
 class HealthCheckTestCase(SimpleTestCase):
-
     # we need to mock the celery app as it will fail otherwise and the overall healthcheck will fail
     @patch.object(settings, "REDIS_BASE_URL", "redis://redis:6379")
     @patch.object(settings, "REDIS_DATABASE_NUMBER", 0)
     @patch.object(settings, "OPENSEARCH_URI", "http://opensearch.com")
-    @patch("config.celery.app.control.inspect",
-           return_value=Mock(attrs={"ping": Mock(return_value=True)}))
+    @patch(
+        "config.celery.app.control.inspect",
+        return_value=Mock(attrs={"ping": Mock(return_value=True)}),
+    )
     def test_application_issue(self, mocked_celery_app):
         # Test when the Redis service is up and running
         with patch("redis.StrictRedis.from_url") as mock_from_url:
@@ -28,8 +29,10 @@ class HealthCheckTestCase(SimpleTestCase):
     @patch.object(settings, "REDIS_BASE_URL", "redis://redis:6379")
     @patch.object(settings, "REDIS_DATABASE_NUMBER", 0)
     @patch.object(settings, "OPENSEARCH_URI", "http://opensearch.com")
-    @patch("config.celery.app.control.inspect",
-           return_value=Mock(attrs={"ping": Mock(return_value=True)}))
+    @patch(
+        "config.celery.app.control.inspect",
+        return_value=Mock(attrs={"ping": Mock(return_value=True)}),
+    )
     def test_application_issue_error(self, mocked_celery_app):
         # Test when there is an issue in the redis service
         with patch("redis.StrictRedis.from_url") as mock_from_url:
