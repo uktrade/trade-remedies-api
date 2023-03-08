@@ -1,3 +1,10 @@
+Update ADR
+Session
+Remote User
+Use Django
+Model Views
+REST API
+Django Graphene](https://pypi.org
 send_mail.called_with
 company_vat_number
 " Creates a new user object and all the relevant satellite objects (
