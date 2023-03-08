@@ -23,11 +23,23 @@ class CaseTest(APITransactionTestCase):
         self.workflow = WorkflowTemplate.objects.create(
             name="some dumb json", template={"key": "ASSIGN_TEAM"}
         )
+        try:
+            latest_case_type = CaseType.objects.last().id
+        except AttributeError:
+            latest_case_type = 0
         self.case_type = CaseType.objects.create(
+            id=latest_case_type + 1,
             name="dumb and dumber",
             workflow=self.workflow,
         )
-        self.case_role = CaseRole.objects.create(name="king")
+        try:
+            latest_case_role = CaseRole.objects.last().id
+        except AttributeError:
+            latest_case_role = 0
+        self.case_role = CaseRole.objects.create(
+            name="king",
+            id=latest_case_role + 1,
+        )
         self.user = User.objects.create(
             name="Jack",
             email="jack@gov.uk",  # /PS-IGNORE

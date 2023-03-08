@@ -1,4 +1,5 @@
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
+
 from django.conf import settings
 from django.test import SimpleTestCase
 from django.urls import reverse
@@ -7,10 +8,19 @@ from core.healthcheck import application_service_health
 
 
 class HealthCheckTestCase(SimpleTestCase):
+    # we need to mock the celery app as it will fail otherwise and the overall healthcheck will fail
     @patch.object(settings, "REDIS_BASE_URL", "redis://redis:6379")
     @patch.object(settings, "REDIS_DATABASE_NUMBER", 0)
     @patch.object(settings, "OPENSEARCH_URI", "http://opensearch.com")
-    def test_application_issue(self):
+    @patch(
+        "config.celery.app.control.inspect",
+        return_value=Mock(attrs={"ping": Mock(return_value=True)}),
+    )
+    @patch(
+        "django.db.connection.ensure_connection",
+        return_value=True,
+    )
+    def test_application_issue(self, mocked_celery_app, mocked_ensure_connection):
         # Test when the Redis service is up and running
         with patch("redis.StrictRedis.from_url") as mock_from_url:
             mock_redis = Mock()
@@ -23,7 +33,15 @@ class HealthCheckTestCase(SimpleTestCase):
     @patch.object(settings, "REDIS_BASE_URL", "redis://redis:6379")
     @patch.object(settings, "REDIS_DATABASE_NUMBER", 0)
     @patch.object(settings, "OPENSEARCH_URI", "http://opensearch.com")
-    def test_application_issue_error(self):
+    @patch(
+        "config.celery.app.control.inspect",
+        return_value=Mock(attrs={"ping": Mock(return_value=True)}),
+    )
+    @patch(
+        "django.db.connection.ensure_connection",
+        return_value=True,
+    )
+    def test_application_issue_error(self, mocked_celery_app, mocked_ensure_connection):
         # Test when there is an issue in the redis service
         with patch("redis.StrictRedis.from_url") as mock_from_url:
             mock_redis = Mock()
