@@ -16,7 +16,11 @@ class HealthCheckTestCase(SimpleTestCase):
         "config.celery.app.control.inspect",
         return_value=Mock(attrs={"ping": Mock(return_value=True)}),
     )
-    def test_application_issue(self, mocked_celery_app):
+    @patch(
+        "django.db.connection.ensure_connection",
+        return_value=True,
+    )
+    def test_application_issue(self, mocked_celery_app, mocked_ensure_connection):
         # Test when the Redis service is up and running
         with patch("redis.StrictRedis.from_url") as mock_from_url:
             mock_redis = Mock()
@@ -33,7 +37,11 @@ class HealthCheckTestCase(SimpleTestCase):
         "config.celery.app.control.inspect",
         return_value=Mock(attrs={"ping": Mock(return_value=True)}),
     )
-    def test_application_issue_error(self, mocked_celery_app):
+    @patch(
+        "django.db.connection.ensure_connection",
+        return_value=True,
+    )
+    def test_application_issue_error(self, mocked_celery_app, mocked_ensure_connection):
         # Test when there is an issue in the redis service
         with patch("redis.StrictRedis.from_url") as mock_from_url:
             mock_redis = Mock()
