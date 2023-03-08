@@ -4,13 +4,15 @@ import xml.etree.ElementTree as ET
 import redis
 import requests
 import sentry_sdk
-from celery.result import AsyncResult
+from config.celery import app
 from django.conf import settings
 from django.db import connection
 
 from .decorators import measure_time
+from .exceptions import HealthCheckException
 
 logger = logging.getLogger(__name__)
+
 
 @measure_time
 def ping_celery():
@@ -18,9 +20,11 @@ def ping_celery():
     This function pings Celery.
     :return: the task
     """
-
-    task = AsyncResult("dummy-task-id")
-    return task
+    i = app.control.inspect()
+    availability = i.ping()
+    if not availability:
+        raise HealthCheckException("Celery not working")
+    return availability
 
 
 @measure_time
@@ -53,7 +57,7 @@ def ping_opensearch():
 
     :return: the response from OpenSearch
     """
-    response = requests.get(settings.OPENSEARCH_URI, timeout=30)
+    response = requests.get(settings.OPENSEARCH_URI, timeout=1)
     return response
 
 
