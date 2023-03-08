@@ -93,7 +93,7 @@ def application_service_health():
             _, response_time = service_check()
             response_times.append(response_time)
         except Exception as err:
-            raise err
+            #raise err
             sentry_sdk.capture_exception(err)
             return _pingdom_custom_status_html_wrapper(f"Error: {str(err)}", 0)
 
