@@ -7,7 +7,7 @@
 ## Context
 
 There is a requirement to save all emails that the TRS sends to users. This is part of a wider audit chain that will be
-used to ensure that the TRS is compliant. We currently use GOV.NOTIFY to send all email communication which only saves
+used to ensure that the TRS is compliant. We currently use [GOV.UK Notify](https://www.notifications.service.gov.uk) to send all email communication which only saves
 logs for 7 days, this is not enough, we want a permanent record of all emails sent.
 
 The question is how do we achieve this? There are a number of options:
