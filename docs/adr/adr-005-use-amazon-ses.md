@@ -31,4 +31,4 @@ who requested it, the delivery status, and date/time when the email was sent.
 
 ## Consequences
 
-- A reliable, secure, and easy to understand audit log is created for all emails sent from the TRS
+- A reliable, secure, and easy to understand audit log is created for all emails sent from the TRS.
