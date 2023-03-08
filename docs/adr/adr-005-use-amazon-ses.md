@@ -24,7 +24,7 @@ solution with the lowest maintenance cost.
 ## Decision
 
 We will use Amazon SES to send a copy of all emails sent from the TRS. Amazon SES was chosen as it allows us to send
-HTML emails and does not restrict us to using templates like GOV.NOTIFY. This is useful as we want to send carbon copies
+HTML emails and does not restrict us to using templates like [GOV.UK Notify](https://www.notifications.service.gov.uk). This is useful as we want to send carbon copies
 of the emails sent to the audit mailbox whilst also prepending metadata
 to the emails. This metadata will be used to store various bits of information, like the user
 who requested it, the delivery status, and date/time when the email was sent.
