@@ -1,8 +1,8 @@
 import logging
 from collections import defaultdict
 
-from rest_framework.exceptions import APIException
 from rest_framework import serializers, status
+from rest_framework.exceptions import APIException
 
 from core.validation_errors import validation_errors
 
@@ -102,4 +102,8 @@ class CustomValidationError(serializers.ValidationError):
 
 
 class InvalidPhoneNumberFormatException(Exception):
+    pass
+
+
+class HealthCheckException(Exception):
     pass
