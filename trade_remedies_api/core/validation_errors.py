@@ -398,7 +398,7 @@ validation_errors = {
     },
     "organisation_already_setup_not_selected": {
         "field": "existing_account",
-        "error_text": "Select yes if anyone else from your organisation has already set up an account",
+        "error_text": "Select Yes if anyone else from your organisation has already set up an account",
         "error_summary": "You need to select Yes if anyone else from your organisation has already set up an account",
     },
 }
