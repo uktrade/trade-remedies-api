@@ -1,5 +1,4 @@
 import logging
-import logging
 import uuid
 from functools import singledispatch
 
@@ -440,7 +439,7 @@ class Organisation(BaseModel):
             """
             annotation_kwargs = {
                 f"{field}_sf{index}": Replace(
-                    field if index == 0 else f"{field}_sf{index-1}", Value(each), Value("")
+                    field if index == 0 else f"{field}_sf{index - 1}", Value(each), Value("")
                 )
                 for index, each in enumerate(special_characters)
             }
@@ -493,12 +492,6 @@ class Organisation(BaseModel):
                 query = {f"{removed_special_chars[0]}__icontains": value}
                 q_objects |= models.Q(**query)
 
-        # now we filter by the URL, removing http://, www., and the suffix
-        if url := self.organisation_website:
-            url = tldextract.extract(url)
-            url_domain = url.domain
-            q_objects |= models.Q(organisation_website__icontains=url_domain)
-
         # now we filter by the VAT number and EORI number
         ignore_alpha_character_fields = (
             "vat_number",
@@ -516,13 +509,29 @@ class Organisation(BaseModel):
                 query = {f"{removed_special_chars[0]}__icontains": value}
                 q_objects |= models.Q(**query)
 
+        # now we filter by the URL, removing http://, www., and the suffix
+        if url := self.organisation_website:
+            url = url.split("/")
+            if url[0] in ["https:", "http:"]:
+                url = url[2].split(".")
+            else:
+                url = url[0].split(".")
+            if len(url) == 2:
+                url_domain = url[0]
+            else:
+                url_domain = url[1]
+            q_objects |= models.Q(organisation_website__icontains=url_domain)
+
         # applying the filter to the queryset
         potential_duplicates = potential_duplicates.filter(q_objects)
 
         # Why did the cow cross the road? To get to the udder side.
         # lol.
         if not potential_duplicates:
-            if self.merge_record.duplicate_organisations.filter(status="pending").exists():
+            if fresh:
+                # if this is a fresh search, we want to delete all existing potential duplicates
+                self.merge_record.duplicate_organisations.all().delete()
+            elif self.merge_record.duplicate_organisations.filter(status="pending").exists():
                 # there are still pending potential merges
 
                 # update the statuses
@@ -743,7 +752,10 @@ class Organisation(BaseModel):
         Return all contacts assosciated with the organisation for a specific case.
         These might be lawyers representing the organisation or direct employee.
         """
-        case_contacts = Contact.objects.select_related("userprofile", "organisation",).filter(
+        case_contacts = Contact.objects.select_related(
+            "userprofile",
+            "organisation",
+        ).filter(
             casecontact__case=case,
             casecontact__organisation=self,
             deleted_at__isnull=True,
