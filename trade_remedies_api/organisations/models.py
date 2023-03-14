@@ -456,6 +456,9 @@ class Organisation(BaseModel):
                     models.Q(created_at__gte=self.merge_record.created_at)
                     | models.Q(last_modified__gte=self.merge_record.created_at)
                 )
+            if fresh:
+                # if this is a fresh search, we want to delete all existing potential duplicates
+                self.merge_record.duplicate_organisations.all().delete()
         else:
             OrganisationMergeRecord.objects.create(parent_organisation=self)
 
@@ -488,7 +491,7 @@ class Organisation(BaseModel):
                     field,
                 )
                 potential_duplicates = removed_special_chars[1]
-                query = {f"{removed_special_chars[0]}__icontains": value}
+                query = {f"{removed_special_chars[0]}__iexact": value}
                 q_objects |= models.Q(**query)
 
         # now we filter by the VAT number and EORI number
@@ -505,7 +508,7 @@ class Organisation(BaseModel):
                     field,
                 )
                 potential_duplicates = removed_special_chars[1]
-                query = {f"{removed_special_chars[0]}__icontains": value}
+                query = {f"{removed_special_chars[0]}__iexact": value}
                 q_objects |= models.Q(**query)
 
         # now we filter by the URL, removing http://, www., and the suffix
@@ -515,7 +518,7 @@ class Organisation(BaseModel):
                 url = url[2].split(".")
             else:
                 url = url[0].split(".")
-            if len(url) == 2:
+            if len(url) in [2, 3]:  # if it's a .co.uk, the length will be 3:
                 url_domain = url[0]
             else:
                 url_domain = url[1]
@@ -527,10 +530,7 @@ class Organisation(BaseModel):
         # Why did the cow cross the road? To get to the udder side.
         # lol.
         if not potential_duplicates:
-            if fresh:
-                # if this is a fresh search, we want to delete all existing potential duplicates
-                self.merge_record.duplicate_organisations.all().delete()
-            elif self.merge_record.duplicate_organisations.filter(status="pending").exists():
+            if self.merge_record.duplicate_organisations.filter(status="pending").exists():
                 # there are still pending potential merges
 
                 # update the statuses
