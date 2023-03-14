@@ -518,11 +518,14 @@ class Organisation(BaseModel):
                 url = url[2].split(".")
             else:
                 url = url[0].split(".")
-            if len(url) in [2, 3]:  # if it's a .co.uk, the length will be 3:
-                url_domain = url[0]
-            else:
-                url_domain = url[1]
-            q_objects |= models.Q(organisation_website__icontains=url_domain)
+            # now we iterate through the reversed URL list and find the domain
+            for i in range(len(url) - 1, 0, -1):
+                if url[i] in ["co", "uk", "com", "net", "org"]:
+                    continue
+                else:
+                    url_domain = url[i]
+                    q_objects |= models.Q(organisation_website__icontains=url_domain)
+                    break
 
         # applying the filter to the queryset
         potential_duplicates = potential_duplicates.filter(q_objects)
