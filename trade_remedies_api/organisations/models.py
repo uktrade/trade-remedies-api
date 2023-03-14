@@ -508,7 +508,7 @@ class Organisation(BaseModel):
                     field,
                 )
                 potential_duplicates = removed_special_chars[1]
-                query = {f"{removed_special_chars[0]}__iexact": value}
+                query = {f"{removed_special_chars[0]}__icontains": value}
                 q_objects |= models.Q(**query)
 
         # now we filter by the URL, removing http://, www., and the suffix
