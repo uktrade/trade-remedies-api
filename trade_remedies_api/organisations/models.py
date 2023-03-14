@@ -4,7 +4,6 @@ from functools import singledispatch
 
 import django.db.models
 import requests
-import tldextract
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models, transaction

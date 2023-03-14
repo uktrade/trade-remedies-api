@@ -47,7 +47,6 @@ requests_toolbelt==0.9.1
 sentry-sdk==0.13.1
 striprtf==0.0.10
 titlecase==0.12.0
-tldextract==3.4.0
 urllib3==1.26.5
 werkzeug==2.2.3
 whitenoise==5.3.0

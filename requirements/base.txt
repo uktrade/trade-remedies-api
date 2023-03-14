@@ -111,8 +111,6 @@ et-xmlfile==1.1.0
     # via openpyxl
 feed-gov-back==0.4
     # via -r requirements.in/base.in
-filelock==3.9.0
-    # via tldextract
 freezegun==1.1.0
     # via -r requirements.in/base.in
 geckoboard-py==1.0.0
@@ -124,9 +122,7 @@ graphviz==0.8.3
 greenlet==1.1.1
     # via gevent
 idna==2.10
-    # via
-    #   requests
-    #   tldextract
+    # via requests
 jdcal==1.4.1
     # via openpyxl
 jmespath==0.10.0
@@ -209,11 +205,7 @@ requests==2.25.1
     #   -r requirements.in/base.in
     #   geckoboard-py
     #   notifications-python-client
-    #   requests-file
     #   requests-toolbelt
-    #   tldextract
-requests-file==1.5.1
-    # via tldextract
 requests-toolbelt==0.9.1
     # via -r requirements.in/base.in
 s3transfer==0.4.2
@@ -225,14 +217,11 @@ six==1.16.0
     #   click-repl
     #   django-extensions
     #   python-dateutil
-    #   requests-file
 sqlparse==0.4.2
     # via django
 striprtf==0.0.10
     # via -r requirements.in/base.in
 titlecase==0.12.0
-    # via -r requirements.in/base.in
-tldextract==3.4.0
     # via -r requirements.in/base.in
 urllib3==1.26.5
     # via

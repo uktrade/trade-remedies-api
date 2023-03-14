@@ -175,10 +175,7 @@ executing==1.2.0
 feed-gov-back==0.4
     # via -r requirements.in/../requirements/base.txt
 filelock==3.9.0
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   tldextract
-    #   virtualenv
+    # via virtualenv
 fitness-functions @ git+https://github.com/uktrade/fitness-functions
     # via -r requirements.in/dev.in
 flake8==5.0.4
@@ -205,7 +202,6 @@ idna==2.10
     # via
     #   -r requirements.in/../requirements/base.txt
     #   requests
-    #   tldextract
 iniconfig==1.1.1
     # via pytest
 ipython==8.10.0
@@ -400,13 +396,7 @@ requests==2.25.1
     #   codecov
     #   geckoboard-py
     #   notifications-python-client
-    #   requests-file
     #   requests-toolbelt
-    #   tldextract
-requests-file==1.5.1
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   tldextract
 requests-toolbelt==0.9.1
     # via -r requirements.in/../requirements/base.txt
 s3transfer==0.4.2
@@ -421,7 +411,6 @@ six==1.16.0
     #   click-repl
     #   django-extensions
     #   python-dateutil
-    #   requests-file
     #   virtualenv
 sqlparse==0.4.2
     # via
@@ -433,8 +422,6 @@ stack-data==0.6.2
 striprtf==0.0.10
     # via -r requirements.in/../requirements/base.txt
 titlecase==0.12.0
-    # via -r requirements.in/../requirements/base.txt
-tldextract==3.4.0
     # via -r requirements.in/../requirements/base.txt
 toml==0.10.2
     # via
