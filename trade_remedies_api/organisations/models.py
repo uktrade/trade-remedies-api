@@ -445,7 +445,9 @@ class Organisation(BaseModel):
             last_annotation = f"{field}_sf{len(special_characters) - 1}"
             return last_annotation, queryset.annotate(**annotation_kwargs)
 
-        potential_duplicates = Organisation.objects.exclude(id=self.id)
+        potential_duplicates = Organisation.objects.exclude(id=self.id).exclude(
+            deleted_at__isnull=False
+        )
         if hasattr(self, "merge_record"):
             # if there is a merge record associated with this organisation, we presume that
             # the database has been scanned for potential duplicates, and we only want to check
@@ -754,10 +756,7 @@ class Organisation(BaseModel):
         Return all contacts assosciated with the organisation for a specific case.
         These might be lawyers representing the organisation or direct employee.
         """
-        case_contacts = Contact.objects.select_related(
-            "userprofile",
-            "organisation",
-        ).filter(
+        case_contacts = Contact.objects.select_related("userprofile", "organisation",).filter(
             casecontact__case=case,
             casecontact__organisation=self,
             deleted_at__isnull=True,
