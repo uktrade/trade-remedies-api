@@ -1,4 +1,6 @@
 from django.contrib.auth.models import Group
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -30,11 +32,34 @@ class UserViewSet(BaseModelViewSet):
         methods=["get"],
         url_name="user_in_group",
     )
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "group_name",
+                openapi.IN_QUERY,
+                description="Name of the group",
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
     def is_user_in_group(self, request, *args, **kwargs):
         user = User.objects.get(pk=kwargs["pk"])
         is_in_group = user.groups.filter(name=request.query_params.get("group_name")).exists()
         return Response({"user_is_in_group": is_in_group})
 
+    @swagger_auto_schema(
+        method="put",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "group_name": openapi.Schema(
+                    type=openapi.IN_BODY,
+                    format=openapi.TYPE_STRING,
+                    description="Name of the group to add the user to",
+                )
+            },
+        ),
+    )
     @action(detail=True, methods=["put"], url_name="change_group", url_path="change_group")
     def add_group(self, request, *args, **kwargs):
         """

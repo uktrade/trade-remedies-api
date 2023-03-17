@@ -103,6 +103,8 @@ THIRD_PARTY_APPS = [
     "axes",
     "feedback",
     "flags",
+    "drf_spectacular",
+    "drf_yasg",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + DRF_APPS + LOCAL_APPS + THIRD_PARTY_APPS
@@ -227,6 +229,7 @@ REST_FRAMEWORK = {
         "config.renderers.DefaultAPIRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 # Redis - Trade remedies uses different redis database numbers for the Django Cache
@@ -548,3 +551,16 @@ AUDIT_EMAIL_SMTP_HOST = env.str(
 )
 AUDIT_EMAIL_SMTP_PORT = env.int("AUDIT_EMAIL_SMTP_PORT", default=587)
 AUDIT_EMAIL_TO_ADDRESS = env.str("AUDIT_EMAIL_TO_ADDRESS")
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Trade Remedies Service API",
+    "DESCRIPTION": "Your project description",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SERVE_AUTHENTICATION": [],
+}
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {"Token": {"type": "apiKey", "name": "Authorization", "in": "header"}}
+}
