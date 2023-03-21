@@ -1,6 +1,7 @@
 from django.contrib.auth.models import Group
-from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import status
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema, inline_serializer
+from rest_framework import serializers, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -24,6 +25,25 @@ class UserViewSet(BaseModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @extend_schema(
+        summary="Check if user is in group",
+        parameters=[
+            OpenApiParameter(
+                "group_name",
+                type=str,
+                location=OpenApiParameter.QUERY,
+            ),
+        ],
+        methods=["get"],
+        responses={
+            200: inline_serializer(
+                name="BooleanResponse",
+                fields={
+                    "user_is_in_group": serializers.BooleanField(),
+                },
+            )
+        },
+    )
     @action(
         detail=True,
         methods=["get"],
@@ -35,13 +55,7 @@ class UserViewSet(BaseModelViewSet):
         return Response({"user_is_in_group": is_in_group})
 
     @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                "group_name",
-                type=str,
-                location=OpenApiParameter.QUERY,
-            ),
-        ],
+        request={"group_name": str},
         methods=["put"],
         responses={200: UserSerializer},
     )
@@ -56,6 +70,11 @@ class UserViewSet(BaseModelViewSet):
         group_object.save()
         return self.retrieve(request, *args, **kwargs)
 
+    @extend_schema(
+        request={"group_name": str},
+        methods=["delete"],
+        responses={200: UserSerializer},
+    )
     @add_group.mapping.delete
     def delete_group(self, request, *args, **kwargs):
         """
@@ -66,6 +85,21 @@ class UserViewSet(BaseModelViewSet):
         user_object.groups.remove(group_object)
         return self.retrieve(request, *args, **kwargs)
 
+    @extend_schema(
+        methods=["get"],
+        responses={
+            200: UserSerializer,
+            404: OpenApiTypes.STR,
+        },
+        examples=[
+            OpenApiExample(
+                "User Not Found",
+                value="User with email test@example.com does not exist",  # /PS-IGNORE
+                response_only=True,
+                status_codes=["404"],
+            )
+        ],
+    )
     @action(
         detail=False,
         methods=["get"],
@@ -87,6 +121,10 @@ class UserViewSet(BaseModelViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+    @extend_schema(
+        methods=["get"],
+        responses={200: UserSerializer},
+    )
     @action(
         detail=True,
         methods=["get"],
@@ -99,6 +137,15 @@ class UserViewSet(BaseModelViewSet):
         return self.retrieve(request)
 
 
+NOT_FOUND_RESPONSE = OpenApiExample(
+    "Not Found",
+    description="Not Found",
+    value={"detail": "Not found."},
+    response_only=True,
+    status_codes=["404"],
+)
+
+
 class ContactViewSet(BaseModelViewSet):
     """
     ModelViewSet for interacting with contact objects via the API.
@@ -107,6 +154,22 @@ class ContactViewSet(BaseModelViewSet):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
 
+    @extend_schema(
+        methods=["patch"],
+        request=inline_serializer(
+            "case_id_organisation_serializer",
+            fields={
+                "case_id": serializers.UUIDField(),
+                "organisation_id": serializers.UUIDField(required=False),
+                "primary": serializers.ChoiceField(choices=("yes", "no"), required=False),
+            },
+        ),
+        responses={
+            200: ContactSerializer,
+            404: OpenApiTypes.OBJECT,
+        },
+        examples=[NOT_FOUND_RESPONSE],
+    )
     @action(
         detail=True,
         methods=["patch"],
@@ -114,7 +177,10 @@ class ContactViewSet(BaseModelViewSet):
         url_path="add_to_case",
     )
     def add_to_case(self, request, *args, **kwargs):
-        """Adds this contact to a case by creating a CaseContact object."""
+        """Adds this contact to a case by creating a CaseContact object. If an organisation_id is
+        provided in the request body, then the CaseContact object will be associated with the
+        relevant Organisation object.
+        """
 
         from cases.models import Case
 
@@ -137,6 +203,15 @@ class ContactViewSet(BaseModelViewSet):
 
         return self.retrieve(request)
 
+    @extend_schema(
+        methods=["patch"],
+        request={"organisation_id": str},
+        responses={
+            200: ContactSerializer,
+            404: OpenApiTypes.OBJECT,
+        },
+        examples=[NOT_FOUND_RESPONSE],
+    )
     @action(
         detail=True,
         methods=["patch"],

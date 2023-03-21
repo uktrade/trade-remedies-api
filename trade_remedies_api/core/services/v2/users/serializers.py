@@ -174,3 +174,7 @@ class GroupSerializer(serializers.ModelSerializer):
             role_object = Group.objects.get(name=security_group)
             data[""] = role_object.pk
         return super().to_internal_value(data)
+
+
+class GroupNameSerializer(serializers.Serializer):
+    group_name = serializers.ChoiceField(choices=Group.objects.values_list("name", flat=True))

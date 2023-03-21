@@ -20,6 +20,7 @@ from sentry_sdk.integrations.django import DjangoIntegration
 # as we want to get an `ImproperlyConfigured` exception to avoid a badly
 # configured deployment.
 from config.feature_flags import is_user_part_of_group
+from config.version import __version__
 
 root = environ.Path(__file__) - 4
 env = environ.Env(
@@ -554,8 +555,8 @@ AUDIT_EMAIL_TO_ADDRESS = env.str("AUDIT_EMAIL_TO_ADDRESS")
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Trade Remedies Service API",
-    "DESCRIPTION": "Your project description",
-    "VERSION": "1.0.0",
+    "DESCRIPTION": "API for the Trade Remedies Service, used by the public and caseworker portals to populate views and manipulate data",
+    "VERSION": __version__,
     "SERVE_AUTHENTICATION": [],
 }
 
