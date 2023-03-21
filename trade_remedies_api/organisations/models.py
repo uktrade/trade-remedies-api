@@ -458,6 +458,14 @@ class Organisation(BaseModel):
                     models.Q(created_at__gte=self.merge_record.created_at)
                     | models.Q(last_modified__gte=self.merge_record.created_at)
                 )
+
+                # finding the existing current duplicates (if any) that have been updated since
+                # the last search, we want to delete them as potential duplicates, so they
+                # can be searched again (in case they have been updated since the last search
+                # to no longer match as a duplicate.)
+                self.merge_record.potential_duplicates().filter(
+                    child_organisation__last_modified__gte=self.merge_record.created_at
+                ).delete()
             if fresh:
                 # if this is a fresh search, we want to delete all existing potential duplicates
                 self.merge_record.duplicate_organisations.all().delete()

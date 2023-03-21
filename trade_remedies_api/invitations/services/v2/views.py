@@ -25,6 +25,10 @@ class InvitationViewSet(BaseModelViewSet):
     queryset = Invitation.objects.all()
     serializer_class = InvitationSerializer
 
+    def retrieve(self, request, *args, **kwargs):
+        x = super().retrieve(request, *args, **kwargs)
+        return x
+
     def get_queryset(self):
         """We can filter the queryset using GET query parameters.
 
