@@ -104,7 +104,6 @@ THIRD_PARTY_APPS = [
     "feedback",
     "flags",
     "drf_spectacular",
-    "drf_yasg",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + DRF_APPS + LOCAL_APPS + THIRD_PARTY_APPS
@@ -557,10 +556,9 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Trade Remedies Service API",
     "DESCRIPTION": "Your project description",
     "VERSION": "1.0.0",
-    "SERVE_INCLUDE_SCHEMA": False,
     "SERVE_AUTHENTICATION": [],
 }
 
-SWAGGER_SETTINGS = {
+"""SWAGGER_SETTINGS = {
     "SECURITY_DEFINITIONS": {"Token": {"type": "apiKey", "name": "Authorization", "in": "header"}}
-}
+}"""

@@ -3,6 +3,7 @@ import json
 
 from django.core.exceptions import FieldError
 from django.http import Http404
+from drf_spectacular.openapi import AutoSchema
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -16,6 +17,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
     """
 
     permission_classes = (IsAuthenticated, GroupPermission)
+    schema = AutoSchema()
 
     def get_queryset(self):
         queryset = super().get_queryset()

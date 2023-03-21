@@ -1,3 +1,66 @@
+"Django settings for
+Sentry
+SessionMiddleware
+django.middleware.common
+CommonMiddleware
+AuthenticationMiddleware
+MessageMiddleware
+AxesMiddleware
+BACKEND
+VCAP_SERVICES
+ContainsSpecialChar
+http://localhost:8001
+AutoSchema
+RedisCache
+DefaultClient
+IP
+Axes
+OPENSEARCH HOST
+doc_type
+ROOT_LOG_LEVEL
+TODO-V2:
+AWS
+boto3
+expiry
+SOS
+FEATURE_FLAG
+AUDIT COPY EMAILS
+AUDIT_EMAIL_TO_ADDRESS
+TITLE
+DESCRIPTION
+BSD License
+Optional UI
+r'^swagger(?P
+"Django settings for
+Sentry
+SessionMiddleware
+django.middleware.common
+CommonMiddleware
+AuthenticationMiddleware
+MessageMiddleware
+AxesMiddleware
+BACKEND
+VCAP_SERVICES
+ContainsSpecialChar
+http://localhost:8001
+AutoSchema
+RedisCache
+DefaultClient
+IP
+Axes
+OPENSEARCH HOST
+doc_type
+ROOT_LOG_LEVEL
+TODO-V2:
+AWS
+boto3
+expiry
+SOS
+FEATURE_FLAG
+AUDIT COPY EMAILS
+AUDIT_EMAIL_TO_ADDRESS
+TITLE
+DESCRIPTION
 Macintosh
 Intel Mac
 KHTML
