@@ -1152,7 +1152,14 @@ class Organisation(BaseModel):
         identical_fields = []
 
         for field in self._meta.get_fields():
-            if field.name in ["id", "created_at", "updated_at", "created_by", "updated_by"]:
+            if field.name in [
+                "id",
+                "created_at",
+                "updated_at",
+                "created_by",
+                "updated_by",
+                "country",
+            ]:
                 continue
             parent_value = getattr(self, field.name, None)
             child_value = getattr(other_organisation, field.name, None)
