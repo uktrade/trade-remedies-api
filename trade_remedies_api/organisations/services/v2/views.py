@@ -193,7 +193,7 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
         merged_organisation = merge_record.merge_organisations(
             notify_users=True, create_audit_log=True
         )
-        return Response(OrganisationSerializer(merged_organisation).data)
+        return Response(OrganisationSerializer(merged_organisation, fields=["id"]).data)
 
     @action(
         detail=True,
