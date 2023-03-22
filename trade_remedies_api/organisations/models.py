@@ -51,9 +51,9 @@ def _(organisation):
 
 class OrganisationManager(models.Manager):
     def merge_organisations(
-        self,
-        parent_organisation,
-        child_organisation,
+            self,
+            parent_organisation,
+            child_organisation,
     ):
         """
         Merges the child_organisation into the parent_organisation, deleting the former.
@@ -134,7 +134,7 @@ class OrganisationManager(models.Manager):
 
     @transaction.atomic  # noqa: C901
     def merge_organisation_records(
-        self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
+            self, organisation, merge_with=None, parameter_map=None, merged_by=None, notify=False
     ):
         """
         Merge two organisations records into one.
@@ -199,8 +199,8 @@ class OrganisationManager(models.Manager):
             if clash:
                 if org_case.role.key not in NOT_IN_CASE_ORG_CASE_ROLES:
                     if (
-                        clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
-                        and org_case.role.key != clash.role.key
+                            clash.role.key not in NOT_IN_CASE_ORG_CASE_ROLES
+                            and org_case.role.key != clash.role.key
                     ):
                         # Argh, both orgs are in the same case with different,
                         # non awaiting roles - blow up!
@@ -268,22 +268,22 @@ class OrganisationManager(models.Manager):
 
     @transaction.atomic  # noqa: C901
     def create_or_update_organisation(
-        self,
-        user,
-        name,
-        trade_association=False,
-        companies_house_id=None,
-        datahub_id=None,
-        address=None,
-        post_code=None,
-        country=None,
-        organisation_id=None,
-        assign_user=False,
-        gov_body=False,
-        case=None,
-        json_data=None,
-        contact_object=None,
-        **kwargs,
+            self,
+            user,
+            name,
+            trade_association=False,
+            companies_house_id=None,
+            datahub_id=None,
+            address=None,
+            post_code=None,
+            country=None,
+            organisation_id=None,
+            assign_user=False,
+            gov_body=False,
+            case=None,
+            json_data=None,
+            contact_object=None,
+            **kwargs,
     ):
         """
         Create or update an organisation record.
@@ -421,7 +421,7 @@ class Organisation(BaseModel):
         )
 
         def annotate_without_special_chars(
-            queryset: django.db.models.QuerySet, field: str
+                queryset: django.db.models.QuerySet, field: str
         ) -> (str, django.db.models.QuerySet):
             """
             Annotate a queryset with a field that has all special characters removed
@@ -453,10 +453,10 @@ class Organisation(BaseModel):
             # the database has been scanned for potential duplicates, and we only want to check
             # those organisations that have been created or modified since the last check. Unless
             # the fresh argument is True, in which case we will always scan for all
-            if not fresh:
+            if not fresh and self.merge_record.last_searched:
                 potential_duplicates = potential_duplicates.filter(
-                    models.Q(created_at__gte=self.merge_record.created_at)
-                    | models.Q(last_modified__gte=self.merge_record.created_at)
+                    models.Q(created_at__gte=self.merge_record.last_searched)
+                    | models.Q(last_modified__gte=self.merge_record.last_searched)
                 )
 
                 # finding the existing current duplicates (if any) that have been updated since
@@ -464,7 +464,7 @@ class Organisation(BaseModel):
                 # can be searched again (in case they have been updated since the last search
                 # to no longer match as a duplicate.)
                 self.merge_record.potential_duplicates().filter(
-                    child_organisation__last_modified__gte=self.merge_record.created_at
+                    child_organisation__last_modified__gte=self.merge_record.last_searched
                 ).delete()
             if fresh:
                 # if this is a fresh search, we want to delete all existing potential duplicates
@@ -472,77 +472,90 @@ class Organisation(BaseModel):
         else:
             OrganisationMergeRecord.objects.create(parent_organisation=self)
 
-        q_objects = models.Q()
+        if potential_duplicates:
+            q_objects = models.Q()
 
-        # filter fields that require an exact (case-insensitive) match
-        exact_match_fields = (
-            "name",
-            "address",
-            "duns_number",
-        )
-        for field in exact_match_fields:
-            value = getattr(self, field)
-            if value:
-                query = {f"{field}__iexact": value}
-                q_objects |= models.Q(**query)
+            # filter fields that require an exact (case-insensitive) match
+            exact_match_fields = (
+                "name",
+                "address",
+                "duns_number",
+            )
+            for field in exact_match_fields:
+                value = getattr(self, field)
+                if value:
+                    query = {f"{field}__iexact": value}
+                    q_objects |= models.Q(**query)
 
-        # filter by reg_number and post_code, removing special characters
-        ignore_special_character_fields = (
-            "companies_house_id",
-            "post_code",
-        )
+            # filter by reg_number and post_code, removing special characters
+            ignore_special_character_fields = (
+                "companies_house_id",
+                "post_code",
+            )
 
-        for field in ignore_special_character_fields:
-            value = getattr(self, field)
-            if value:
-                value = "".join(c for c in value if c not in special_characters)
-                removed_special_chars = annotate_without_special_chars(
-                    potential_duplicates,
-                    field,
-                )
-                potential_duplicates = removed_special_chars[1]
-                query = {f"{removed_special_chars[0]}__iexact": value}
-                q_objects |= models.Q(**query)
+            for field in ignore_special_character_fields:
+                value = getattr(self, field)
+                if value:
+                    value = "".join(c for c in value if c not in special_characters)
+                    removed_special_chars = annotate_without_special_chars(
+                        potential_duplicates,
+                        field,
+                    )
+                    potential_duplicates = removed_special_chars[1]
+                    query = {f"{removed_special_chars[0]}__iexact": value}
+                    q_objects |= models.Q(**query)
 
-        # now we filter by the VAT number and EORI number
-        ignore_alpha_character_fields = (
-            "vat_number",
-            "eori_number",
-        )
-        for field in ignore_alpha_character_fields:
-            value = getattr(self, field)
-            if value:
-                value = "".join(c for c in value if c.isdigit())
-                removed_special_chars = annotate_without_special_chars(
-                    potential_duplicates,
-                    field,
-                )
-                potential_duplicates = removed_special_chars[1]
-                query = {f"{removed_special_chars[0]}__icontains": value}
-                q_objects |= models.Q(**query)
+            # now we filter by the VAT number and EORI number
+            ignore_alpha_character_fields = (
+                "vat_number",
+                "eori_number",
+            )
+            for field in ignore_alpha_character_fields:
+                value = getattr(self, field)
+                if value:
+                    value = "".join(c for c in value if c.isdigit())
+                    removed_special_chars = annotate_without_special_chars(
+                        potential_duplicates,
+                        field,
+                    )
+                    potential_duplicates = removed_special_chars[1]
+                    query = {f"{removed_special_chars[0]}__icontains": value}
+                    q_objects |= models.Q(**query)
 
-        # now we filter by the URL, removing http://, www., and the suffix
-        if url := self.organisation_website:
-            url = url.split("/")
-            if url[0] in ["https:", "http:"]:
-                url = url[2].split(".")
-            else:
-                url = url[0].split(".")
-            # now we iterate through the reversed URL list and find the domain
-            for i in range(len(url) - 1, 0, -1):
-                if url[i] in ["co", "uk", "com", "net", "org"]:
-                    continue
+            # now we filter by the URL, removing http://, www., and the suffix
+            if url := self.organisation_website:
+                url = url.split("/")
+                if url[0] in ["https:", "http:"]:
+                    url = url[2].split(".")
                 else:
-                    url_domain = url[i]
-                    q_objects |= models.Q(organisation_website__icontains=url_domain)
-                    break
+                    url = url[0].split(".")
+                # now we iterate through the reversed URL list and find the domain
+                for i in range(len(url) - 1, 0, -1):
+                    if url[i] in ["co", "uk", "com", "net", "org"]:
+                        continue
+                    else:
+                        url_domain = url[i]
+                        q_objects |= models.Q(organisation_website__icontains=url_domain)
+                        break
 
-        # applying the filter to the queryset
-        potential_duplicates = potential_duplicates.filter(q_objects)
+            # applying the filter to the queryset
+            potential_duplicates = potential_duplicates.filter(q_objects)
 
         # Why did the cow cross the road? To get to the udder side.
         # lol.
-        if not potential_duplicates:
+        if potential_duplicates:
+            # now we update the merge record and create DuplicateOrganisationMerge records for each
+            # of the confirmed duplicates (if they don't already exist)
+            for potential_dup_org in potential_duplicates:
+                DuplicateOrganisationMerge.objects.get_or_create(
+                    merge_record=self.merge_record, child_organisation=potential_dup_org
+                )
+            self.merge_record.status = "duplicates_found"
+            self.merge_record.submissionorganisationmergerecord_set.filter(
+                status="complete").update(
+                status="in_progress"
+            )
+        else:
             if self.merge_record.duplicate_organisations.filter(status="pending").exists():
                 # there are still pending potential merges
 
@@ -553,21 +566,9 @@ class Organisation(BaseModel):
                 ).update(status="in_progress")
             else:
                 self.merge_record.status = "no_duplicates_found"
-            self.merge_record.save()
-            return self.merge_record
 
-        # now we update the merge record and create DuplicateOrganisationMerge records for each
-        # of the confirmed duplicates (if they don't already exist)
-        for potential_dup_org in potential_duplicates:
-            DuplicateOrganisationMerge.objects.get_or_create(
-                merge_record=self.merge_record, child_organisation=potential_dup_org
-            )
-        self.merge_record.status = "duplicates_found"
-        self.merge_record.submissionorganisationmergerecord_set.filter(status="complete").update(
-            status="in_progress"
-        )
+        self.merge_record.last_searched = timezone.now()
         self.merge_record.save()
-
         return self.merge_record
 
     def find_potential_duplicate_orgs(self, fresh=False) -> "OrganisationMergeRecord":
@@ -602,7 +603,7 @@ class Organisation(BaseModel):
         )
 
     def related_pending_registrations_of_interest(
-        self, requested_by, all_interests=True, archived=False
+            self, requested_by, all_interests=True, archived=False
     ):
         """
         Return all pending registrations of interest for this organisaion.
@@ -781,10 +782,10 @@ class Organisation(BaseModel):
         case = case or self.case_context
         if case:
             return (
-                case
-                and Submission.objects.filter(
-                    organisation=self, case=case, status__default=False
-                ).exists()
+                    case
+                    and Submission.objects.filter(
+                organisation=self, case=case, status__default=False
+            ).exists()
             )
 
     @property
@@ -794,10 +795,10 @@ class Organisation(BaseModel):
             from cases.models import Submission
 
             return (
-                case
-                and Submission.objects.filter(
-                    organisation=self, case=case, status__default=False, type__key="interest"
-                ).exists()
+                    case
+                    and Submission.objects.filter(
+                organisation=self, case=case, status__default=False, type__key="interest"
+            ).exists()
             )
 
     @property
@@ -1073,10 +1074,10 @@ class Organisation(BaseModel):
                 )
                 if response.status_code == 200:
                     if (
-                        response.json().get(
-                            "company_name",
-                        )
-                        == organisation_name
+                            response.json().get(
+                                "company_name",
+                            )
+                            == organisation_name
                     ):
                         return True
         return False
@@ -1135,7 +1136,7 @@ class Organisation(BaseModel):
             OrganisationCaseRoleSerializer(each, exclude=["organisation"]).data
             for each in self.organisationcaserole_set.all()
             if each.role.key
-            not in [AWAITING_ORG_CASE_ROLE, REJECTED_ORG_CASE_ROLE, PREPARING_ORG_CASE_ROLE]
+               not in [AWAITING_ORG_CASE_ROLE, REJECTED_ORG_CASE_ROLE, PREPARING_ORG_CASE_ROLE]
         ]
 
         return_dict["does_name_match_companies_house"] = self.does_name_match_companies_house()
@@ -1184,9 +1185,9 @@ class Organisation(BaseModel):
             exclude_ids = []
             for user_case in user_cases:
                 if OrganisationCaseRole.objects.filter(
-                    case=user_case.case,
-                    organisation__organisationuser__user=user_case.user,
-                    role__key=REJECTED_ORG_CASE_ROLE,
+                        case=user_case.case,
+                        organisation__organisationuser__user=user_case.user,
+                        role__key=REJECTED_ORG_CASE_ROLE,
                 ).exists():
                     exclude_ids.append(user_case.id)
             user_cases = user_cases.exclude(id__in=exclude_ids)
@@ -1247,12 +1248,13 @@ class OrganisationMergeRecord(BaseModel):
     submission = models.ManyToManyField(
         Submission, related_name="merge_records", through="SubmissionOrganisationMergeRecord"
     )
+    last_searched = models.DateTimeField(null=True)
 
     def merge_organisations(
-        self,
-        organisation=None,
-        notify_users=False,
-        create_audit_log=False,
+            self,
+            organisation=None,
+            notify_users=False,
+            create_audit_log=False,
     ) -> "Organisation":
         """
         Merges the duplicate organisations into the parent organisation.
@@ -1271,7 +1273,7 @@ class OrganisationMergeRecord(BaseModel):
 
         ids_merged = []
         for potential_duplicate_organisation in self.duplicate_organisations.filter(
-            status="attributes_selected"
+                status="attributes_selected"
         ).order_by("-created_at"):
             # going through the potential duplicates and applying the attributes from each
             # duplicate selected by the caseworkers to the draft organisation
@@ -1291,7 +1293,7 @@ class OrganisationMergeRecord(BaseModel):
         if notify_users:
             notify_template_id = SystemParameter.get("NOTIFY_ORGANISATION_MERGED")
             for organisation_user in organisation.organisationuser_set.filter(
-                security_group__name=SECURITY_GROUP_ORGANISATION_OWNER
+                    security_group__name=SECURITY_GROUP_ORGANISATION_OWNER
             ):
                 send_mail(
                     organisation_user.user.email,

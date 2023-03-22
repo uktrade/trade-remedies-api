@@ -8,7 +8,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from config.serializers import CustomValidationModelSerializer
-
 from core.services.base import GroupPermission
 
 

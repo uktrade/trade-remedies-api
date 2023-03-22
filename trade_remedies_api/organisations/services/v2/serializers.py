@@ -273,4 +273,4 @@ class SubmissionOrganisationMergeRecordSerializer(CustomValidationModelSerialize
     def get_submission(instance):
         from cases.services.v2.serializers import SubmissionSerializer
 
-        return SubmissionSerializer(instance.submission).data
+        return SubmissionSerializer(instance.submission, fields=["case",]).data
