@@ -259,6 +259,17 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
         return_data = phantom_organisation.organisation_card_data()
         return Response(return_data)
 
+    @action(
+        detail=True,
+        methods=["patch"],
+        url_name="reset",
+    )
+    def reset(self, request, *args, **kwargs):
+        """Resets all potential duplicates of this merge to their virgin state"""
+        instance = self.get_object()
+        instance.duplicate_organisations.update(status="pending", child_fields=[], parent_fields=[])
+        return self.retrieve(request, *args, **kwargs)
+
 
 class DuplicateOrganisationMergeViewSet(BaseModelViewSet):
     queryset = DuplicateOrganisationMerge.objects.all()

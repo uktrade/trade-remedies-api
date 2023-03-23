@@ -225,15 +225,17 @@ class DuplicateOrganisationMergeSerializer(CustomValidationModelSerializer):
 
     @staticmethod
     def get_order_in_parent(instance):
-        """Returns the order of this duplicate in the parent organisation along with number of total duplicates, e.g 3/10 possible duplicates"""
-        all_duplicates = list(
-            instance.merge_record.duplicate_organisations.order_by("created_at").all()
-        )
+        """Returns the order of this duplicate in the parent organisation along with number of
+        total duplicates, e.g 3/10 possible duplicates.
+        """
+        all_duplicates = list(instance.merge_record.potential_duplicates())
         return (all_duplicates.index(instance), len(all_duplicates))
 
     @staticmethod
     def get_identical_fields(instance):
-        """Returns a list of the fields that are identical between the parent and child organisation"""
+        """Returns a list of the fields that are identical
+        between the parent and child organisation.
+        """
         return instance.merge_record.parent_organisation.get_identical_fields(
             instance.child_organisation
         )
@@ -254,9 +256,7 @@ class OrganisationMergeRecordSerializer(CustomValidationModelSerializer):
     @staticmethod
     def get_potential_duplicates(instance):
         """Returns all potential duplicates for this merge record"""
-        return DuplicateOrganisationMergeSerializer(
-            instance.duplicate_organisations.order_by("created_at"), many=True
-        ).data
+        return DuplicateOrganisationMergeSerializer(instance.potential_duplicates(), many=True).data
 
 
 class SubmissionOrganisationMergeRecordSerializer(CustomValidationModelSerializer):
