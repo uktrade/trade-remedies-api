@@ -2,7 +2,6 @@ from collections import OrderedDict, defaultdict
 from collections.abc import Mapping
 from functools import cached_property
 
-import sentry_sdk
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django_restql.mixins import DynamicFieldsMixin
 from rest_framework import serializers
@@ -291,3 +290,16 @@ class NestedKeyField(serializers.PrimaryKeyRelatedField):
             return dict(self.serializer(value, context=self.context, **self.serializer_kwargs).data)
         else:
             return super().to_representation(value)
+
+
+class AsterixDelimitedArrayField(serializers.ListField):
+    """A serializer field that serializes a list of strings into a single string, delimited by asterixes.
+
+    This is used for the `tags` field in the `Post` model, which is a list of strings, but is
+    stored as a single string, delimited by asterixes.
+    """
+
+    def run_child_validation(self, data):
+        data = super().run_child_validation(data)
+        data = data.split("*-*")
+        return super().to_internal_value(self, data)

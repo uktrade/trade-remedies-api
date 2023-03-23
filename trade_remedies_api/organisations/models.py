@@ -7,7 +7,7 @@ import requests
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models, transaction
-from django.db.models import F, Value
+from django.db.models import F, Q, Value
 from django.db.models.functions import Replace
 from django.utils import timezone
 from django.utils.html import escape
@@ -54,6 +54,7 @@ class OrganisationManager(models.Manager):
         self,
         parent_organisation,
         child_organisation,
+        merge_record_object,
     ):
         """
         Merges the child_organisation into the parent_organisation, deleting the former.
@@ -91,7 +92,10 @@ class OrganisationManager(models.Manager):
 
             # updating all OrganisationCaseRole objects which are unique to the child organisation, and
             # to cases which the parent_organisation doesn't have a corresponding
-            # OrganisationCaseRole object
+            # OrganisationCaseRole object. If the parent org does have a corresponding OrganisationCaseRole object
+            # then we will rely on the chosen_case_roles dict on the merge_record which should contain
+            # the caseworkers preference, if it is not there for whatever reason, we will default to the
+            # parent's role in the case
             parent_org_cases = OrganisationCaseRole.objects.filter(
                 organisation=parent_organisation
             ).values_list("case_id")
@@ -99,6 +103,30 @@ class OrganisationManager(models.Manager):
             OrganisationCaseRole.objects.filter(organisation=child_organisation).exclude(
                 case_id__in=parent_org_cases
             ).update(organisation=parent_organisation)
+
+            shared_cases = OrganisationCaseRole.objects.filter(
+                organisation=child_organisation
+            ).filter(case_id__in=parent_org_cases)
+            if shared_cases:
+                for org_case_role in shared_cases:
+                    if str(org_case_role.case.id) in merge_record_object.chosen_case_roles:
+                        # there has been a preference selected for this case, so we will use that
+                        chosen_role_id = merge_record_object.chosen_case_roles[
+                            str(org_case_role.case.id)
+                        ]
+                        chosen_role = OrganisationCaseRole.objects.get(id=chosen_role_id)
+                    else:
+                        chosen_role = OrganisationCaseRole.objects.get(
+                            case=org_case_role.case, organisation=parent_organisation
+                        )
+
+                    chosen_role.organisation = parent_organisation
+                    chosen_role.save()
+
+                    # now we want to delete the other org case_roles from either the parent or org to this case except for the chosen role
+                    OrganisationCaseRole.objects.filter(case=org_case_role.case).filter(
+                        Q(organisation=child_organisation) | Q(organisation=parent_organisation)
+                    ).exclude(id=chosen_role.id).delete()
 
             # updating the submissions
             Submission.objects.filter(organisation=child_organisation).update(
@@ -768,7 +796,10 @@ class Organisation(BaseModel):
         Return all contacts assosciated with the organisation for a specific case.
         These might be lawyers representing the organisation or direct employee.
         """
-        case_contacts = Contact.objects.select_related("userprofile", "organisation",).filter(
+        case_contacts = Contact.objects.select_related(
+            "userprofile",
+            "organisation",
+        ).filter(
             casecontact__case=case,
             casecontact__organisation=self,
             deleted_at__isnull=True,
@@ -1249,6 +1280,7 @@ class OrganisationMergeRecord(BaseModel):
         Submission, related_name="merge_records", through="SubmissionOrganisationMergeRecord"
     )
     last_searched = models.DateTimeField(null=True)
+    chosen_case_roles = models.JSONField(null=True, blank=True)
 
     def merge_organisations(
         self,
@@ -1285,8 +1317,7 @@ class OrganisationMergeRecord(BaseModel):
             # objects (UserCase, OrganisationUser, OrganisationCaseRole...etc.) with the
             # draft organisation
             Organisation.objects.merge_organisations(
-                organisation,
-                potential_duplicate_organisation.child_organisation,
+                organisation, potential_duplicate_organisation.child_organisation, self
             )
             ids_merged.append(potential_duplicate_organisation.child_organisation.id)
 
@@ -1336,8 +1367,8 @@ class DuplicateOrganisationMerge(BaseModel):
         Organisation, on_delete=models.PROTECT, related_name="potential_duplicate_organisations"
     )
     status = models.CharField(choices=status_choices, default="pending", max_length=30)
-    parent_fields = ArrayField(models.CharField(max_length=100), null=True, blank=True)
-    child_fields = ArrayField(models.CharField(max_length=100), null=True, blank=True)
+    parent_fields = ArrayField(models.CharField(max_length=500), null=True, blank=True)
+    child_fields = ArrayField(models.CharField(max_length=500), null=True, blank=True)
 
     def _apply_selections(self, organisation=None):
         if not organisation:

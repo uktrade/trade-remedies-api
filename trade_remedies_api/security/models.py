@@ -255,9 +255,6 @@ class OrganisationCaseRole(SimpleBaseModel):
 
     objects = OrganisationCaseRoleManager()
 
-    class Meta:
-        unique_together = ["organisation", "case"]
-
     def __str__(self):
         return f"{self.organisation.name} {self.role.name} {self.case.name}"
 

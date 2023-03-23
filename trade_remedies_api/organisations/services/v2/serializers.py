@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group
-from django.db.models import F, Q
+from django.db.models import Q
 from django_restql.fields import NestedField
 from rest_framework import serializers
 
@@ -13,8 +13,6 @@ from organisations.models import (
     OrganisationMergeRecord,
     SubmissionOrganisationMergeRecord,
 )
-from security.models import CaseRole, OrganisationCaseRole, OrganisationUser, UserCase
-from organisations.models import Organisation
 from security.models import CaseRole, OrganisationCaseRole, OrganisationUser
 
 
@@ -257,6 +255,19 @@ class OrganisationMergeRecordSerializer(CustomValidationModelSerializer):
     def get_potential_duplicates(instance):
         """Returns all potential duplicates for this merge record"""
         return DuplicateOrganisationMergeSerializer(instance.potential_duplicates(), many=True).data
+
+    def save(self, **kwargs):
+        """Override save to update the chosen_case_roles field with the chosen role_ids whilst keeping the old ones intact"""
+        if chosen_case_roles := self.initial_data.get("chosen_case_roles_delimited", None):
+            chosen_case_roles = chosen_case_roles.split("*-*")
+            case_id = chosen_case_roles[1]
+            role_id = chosen_case_roles[0]
+
+            current_chosen_case_roles = self.instance.chosen_case_roles or {}
+            current_chosen_case_roles[case_id] = role_id
+
+            self.instance.chosen_case_roles = current_chosen_case_roles
+        return super().save(**kwargs)
 
 
 class SubmissionOrganisationMergeRecordSerializer(CustomValidationModelSerializer):

@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.contrib.auth.models import Group
 from django.db import connection, transaction
 from django.db.models import Q
@@ -269,6 +271,39 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
         instance = self.get_object()
         instance.duplicate_organisations.update(status="pending", child_fields=[], parent_fields=[])
         return self.retrieve(request, *args, **kwargs)
+
+    @action(
+        detail=True,
+        methods=["get"],
+        url_name="get_duplicate_cases",
+    )
+    def get_duplicate_cases(self, request, *args, **kwargs):
+        """Gets all cases that are shared by the duplicate organisations of this merge record including the parent organisation."""
+        instance = self.get_object()
+        parent_organisation_case_roles = OrganisationCaseRole.objects.filter(
+            organisation=instance.parent_organisation
+        )
+        child_organisation_case_roles = OrganisationCaseRole.objects.filter(
+            organisation_id__in=instance.duplicate_organisations.filter(
+                status="attributes_selected"
+            ).values_list("child_organisation_id", flat=True)
+        )
+        conflicting_org_case_roles = []
+
+        for org_case_role in parent_organisation_case_roles:
+            different_child_org_case_roles = child_organisation_case_roles.filter(
+                case=org_case_role.case
+            ).exclude(role=org_case_role.role)
+            if different_child_org_case_roles.exists():
+                conflicting_org_case_roles.append(
+                    {
+                        "case_id": org_case_role.case.id,
+                        "role_ids": [str(each.id) for each in different_child_org_case_roles]
+                        + [str(org_case_role.id)],
+                    }
+                )
+
+        return Response(data=conflicting_org_case_roles)
 
 
 class DuplicateOrganisationMergeViewSet(BaseModelViewSet):
