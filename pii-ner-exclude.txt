@@ -1,3 +1,4 @@
+urllib3==1.26.11
 Macintosh
 Intel Mac
 KHTML
