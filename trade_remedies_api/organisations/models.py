@@ -575,19 +575,23 @@ class Organisation(BaseModel):
 
         # Why did the cow cross the road? To get to the udder side.
         # lol.
-        if (
-            potential_duplicates
-            or self.merge_record.duplicate_organisations.filter(status="pending").exists()
-        ):
-            # if there are new potential duplicates found or there are existing, unresolved
-            # potential duplicates, we want to update the merge record
-
+        if potential_duplicates:
+            # there are new potential duplicates
             # now we update the merge record and create DuplicateOrganisationMerge records for each
             # of the confirmed duplicates (if they don't already exist)
             for potential_dup_org in potential_duplicates:
                 DuplicateOrganisationMerge.objects.get_or_create(
                     merge_record=self.merge_record, child_organisation=potential_dup_org
                 )
+            self.merge_record.status = "duplicates_found"
+
+            # change any existing complete merge records to not started
+            self.merge_record.submissionorganisationmergerecord_set.filter(
+                status="complete"
+            ).update(status="not_started")
+        elif self.merge_record.duplicate_organisations.filter(status="pending").exists():
+            # there are existing, unresolved potential duplicates, we
+            # want to update the merge record
             self.merge_record.status = "duplicates_found"
             self.merge_record.submissionorganisationmergerecord_set.filter(
                 status="complete"
