@@ -575,7 +575,10 @@ class Organisation(BaseModel):
 
         # Why did the cow cross the road? To get to the udder side.
         # lol.
-        if potential_duplicates or self.merge_record.duplicate_organisations.filter(status="pending").exists():
+        if (
+            potential_duplicates
+            or self.merge_record.duplicate_organisations.filter(status="pending").exists()
+        ):
             # if there are new potential duplicates found or there are existing, unresolved
             # potential duplicates, we want to update the merge record
 
@@ -591,9 +594,6 @@ class Organisation(BaseModel):
             ).update(status="in_progress")
         else:
             self.merge_record.status = "no_duplicates_found"
-            self.merge_record.submissionorganisationmergerecord_set.update(
-                status="complete"
-            )
 
         self.merge_record.last_searched = timezone.now()
         self.merge_record.save()
