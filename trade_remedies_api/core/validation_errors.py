@@ -398,7 +398,7 @@ validation_errors = {
     },
     "confirm_not_selected": {
         "field": "confirm",
-        "error_text": "Select checkbox",
+        "error_text": "Confirm you have the authority to merge these organisations",
         "error_summary": "You need to confirm you have authority to merge these organisations",
     },
     "is_matching_organisation_a_duplicate_no_selection": {
