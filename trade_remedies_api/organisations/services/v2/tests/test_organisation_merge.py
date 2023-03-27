@@ -2,7 +2,9 @@ from cases.models import Case
 from config.test_bases import CaseSetupTestMixin
 from organisations.models import Organisation
 from organisations.services.v2.serializers import (
-    DuplicateOrganisationMergeSerializer, OrganisationMergeRecordSerializer, )
+    DuplicateOrganisationMergeSerializer,
+    OrganisationMergeRecordSerializer,
+)
 
 
 class TestOrganisationFindPotentialDuplicates(CaseSetupTestMixin):
@@ -136,29 +138,41 @@ class TestMergeSerializers(TestMergeBase):
 class TestOrganisationMergeRecordSerializer(TestMergeBase):
     def test_potential_duplicates(self):
         serializer = OrganisationMergeRecordSerializer(self.merge_record)
-        assert serializer.data["potential_duplicates"][0] == DuplicateOrganisationMergeSerializer(
-            self.merge_record, many=True).data
+        assert (
+            serializer.data["potential_duplicates"][0]
+            == DuplicateOrganisationMergeSerializer(self.merge_record, many=True).data
+        )
 
     def test_chosen_case_roles(self):
-        serializer = OrganisationMergeRecordSerializer(self.merge_record, data={
-            "chosen_case_roles_delimited": [
-                f"{self.contributor_case_role.id}*-*{self.case_object.id}"]
-        })
+        serializer = OrganisationMergeRecordSerializer(
+            self.merge_record,
+            data={
+                "chosen_case_roles_delimited": [
+                    f"{self.contributor_case_role.id}*-*{self.case_object.id}"
+                ]
+            },
+        )
         serializer.is_valid()
         serializer.save()
         self.merge_record.refresh_from_db()
-        assert self.merge_record.chosen_case_roles[
-                   self.case_object.id] == self.contributor_case_role.id
+        assert (
+            self.merge_record.chosen_case_roles[self.case_object.id]
+            == self.contributor_case_role.id
+        )
 
         # now we test appending
         case_object_2 = Case.objects.create(
             name="test case",
             type=self.case_type_object,
         )
-        serializer = OrganisationMergeRecordSerializer(self.merge_record, data={
-            "chosen_case_roles_delimited": [
-                f"{self.applicant_case_role.id}*-*{case_object_2.id}"]
-        })
+        serializer = OrganisationMergeRecordSerializer(
+            self.merge_record,
+            data={
+                "chosen_case_roles_delimited": [
+                    f"{self.applicant_case_role.id}*-*{case_object_2.id}"
+                ]
+            },
+        )
         serializer.is_valid()
         serializer.save()
 
@@ -168,5 +182,11 @@ class TestOrganisationMergeRecordSerializer(TestMergeBase):
 
 class TestOrganisationMergeRecordModel(TestMergeBase):
     def test_potential_duplicates_order(self):
-        assert self.merge_record.potential_duplicates().first().child_organisation == self.organisation_object
-        assert self.merge_record.potential_duplicates().last().child_organisation == self.organisation_object_3
+        assert (
+            self.merge_record.potential_duplicates().first().child_organisation
+            == self.organisation_object
+        )
+        assert (
+            self.merge_record.potential_duplicates().last().child_organisation
+            == self.organisation_object_3
+        )
