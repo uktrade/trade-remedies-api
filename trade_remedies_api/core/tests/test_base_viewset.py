@@ -6,7 +6,7 @@ from organisations.models import Organisation
 from test_functional import FunctionalTestBase
 
 
-class CaseAPITest(CaseSetupTestMixin, FunctionalTestBase):
+class TestBaseModelViewSet(CaseSetupTestMixin, FunctionalTestBase):
     def test_filter_parameters_queryset(self):
         """
         Tests that filter_parameters can be passed as a base64-encoded json string to filter the
