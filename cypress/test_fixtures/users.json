@@ -1,0 +1,10 @@
+[
+  {
+    "model": "core.User",
+    "pk": 1,
+    "fields": {
+      "name": "Test User",
+      "email": "test@example.com"
+    }
+  }
+]
