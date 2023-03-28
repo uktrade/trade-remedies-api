@@ -1,9 +1,5 @@
-from collections import defaultdict
-
 from django.contrib.auth.models import Group
-from django.db import connection, transaction
 from django.db.models import Q
-from django.http import Http404
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -39,6 +35,7 @@ class OrganisationViewSet(BaseModelViewSet):
 
     queryset = Organisation.objects.all().order_by("name")
     serializer_class = OrganisationSerializer
+    list_serializer_class = OrganisationListSerializer
 
     @action(
         detail=True,

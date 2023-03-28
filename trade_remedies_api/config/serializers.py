@@ -1,3 +1,5 @@
+import typing
+
 from collections import OrderedDict, defaultdict
 from collections.abc import Mapping
 from functools import cached_property
@@ -290,3 +292,55 @@ class NestedKeyField(serializers.PrimaryKeyRelatedField):
             return dict(self.serializer(value, context=self.context, **self.serializer_kwargs).data)
         else:
             return super().to_representation(value)
+
+
+class BindingDict(typing.Protocol):
+    """
+    A protocol of -> A dict-like object used to store fields on a serializer.
+    """
+
+    def __init__(self, serializer):
+        ...
+
+
+class GenericSerializerType(typing.Protocol):
+    """
+    This tells the type checker that the serializer variable should be an instance
+    of a class that implements the GenericSerializerType protocol type.
+    If a class doesn't implement all the methods defined in the protocol type,
+    the type checker will raise an error.
+    """
+
+    def fields(self) -> BindingDict:
+        ...
+
+    def to_representation(self, instance) -> dict:
+        ...
+
+    def to_internal_value(self, data) -> dict:
+        ...
+
+    def __getitem__(self, key) -> serializers.Serializer:
+        ...
+
+
+class DynamicSerializer(serializers.Serializer):
+    """
+    A serializer that defines its fields dynamically based on the request data.
+    """
+
+    def __init__(self, *args, **kwargs):
+        fields = kwargs.pop("fields", None)
+        super().__init__(*args, **kwargs)
+
+        # Define the serializer fields dynamically based on the request data
+        if fields is not None:
+            for field in fields:
+                self.fields[field] = serializers.CharField()
+
+    def to_representation(self, instance):
+        """
+        Customize the serialization of the data.
+        """
+        # Implement your custom representation logic here
+        return super().to_representation(instance)

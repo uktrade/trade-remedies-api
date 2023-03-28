@@ -7,14 +7,18 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from config.serializers import CustomValidationModelSerializer
 from core.services.base import GroupPermission
+
+from config.serializers import CustomValidationModelSerializer, GenericSerializerType
 
 
 class BaseModelViewSet(viewsets.ModelViewSet):
     """
     Base class for ModelViewSets to share commonly overriden methods
     """
+
+    serializer_class: GenericSerializerType
+    list_serializer_class: GenericSerializerType
 
     permission_classes = (IsAuthenticated, GroupPermission)
 
@@ -66,10 +70,9 @@ class BaseModelViewSet(viewsets.ModelViewSet):
                 # the fields value should be a string, with commas separating the names of fields
                 fields = fields.split(",")
             kwargs.setdefault("fields", fields)
-
         return serializer_class(*args, **kwargs)
 
-    def get_serializer_class(self):
+    def get_serializer_class(self) -> GenericSerializerType:
         """
         Return the class to use for the serializer. If the request has 'skinny: yes' in the query
         then a slim serializer will be used, this is identical to a normal serializer but without
@@ -89,4 +92,6 @@ class BaseModelViewSet(viewsets.ModelViewSet):
                 return SlimSerializer
 
             return slim_serializer_factory(self.queryset.model)
+        if self.action == "list" and self.list_serializer_class:
+            return self.list_serializer_class
         return super().get_serializer_class()
