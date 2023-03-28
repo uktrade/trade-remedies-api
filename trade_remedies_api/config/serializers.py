@@ -324,23 +324,10 @@ class GenericSerializerType(typing.Protocol):
         ...
 
 
-class DynamicSerializer(serializers.Serializer):
+class ReadOnlyModelSerializer(serializers.ModelSerializer):
     """
-    A serializer that defines its fields dynamically based on the request data.
+    A read-only serializer for a models.
+    In a writable ModelSerializer a lot of time is spent on validations
+    So to speed up the operation were we are getting a list of objects which
+    should be a read-only operation, we will use this read-only serializer
     """
-
-    def __init__(self, *args, **kwargs):
-        fields = kwargs.pop("fields", None)
-        super().__init__(*args, **kwargs)
-
-        # Define the serializer fields dynamically based on the request data
-        if fields is not None:
-            for field in fields:
-                self.fields[field] = serializers.CharField()
-
-    def to_representation(self, instance):
-        """
-        Customize the serialization of the data.
-        """
-        # Implement your custom representation logic here
-        return super().to_representation(instance)

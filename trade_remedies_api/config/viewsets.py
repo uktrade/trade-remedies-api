@@ -9,7 +9,11 @@ from rest_framework.response import Response
 
 from core.services.base import GroupPermission
 
-from config.serializers import CustomValidationModelSerializer, GenericSerializerType
+from config.serializers import (
+    CustomValidationModelSerializer,
+    GenericSerializerType,
+    ReadOnlyModelSerializer,
+)
 
 
 class BaseModelViewSet(viewsets.ModelViewSet):
@@ -18,7 +22,6 @@ class BaseModelViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class: GenericSerializerType
-    list_serializer_class: GenericSerializerType
 
     permission_classes = (IsAuthenticated, GroupPermission)
 
@@ -80,7 +83,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
         """
         if "slim" in self.request.query_params:
             # they want a slim serializer without additional computed fields
-            def slim_serializer_factory(model_name):
+            def slim_serializer_factory(model_name) -> GenericSerializerType:
                 class SlimSerializer(CustomValidationModelSerializer):
                     class Meta:
                         model = model_name
@@ -92,6 +95,21 @@ class BaseModelViewSet(viewsets.ModelViewSet):
                 return SlimSerializer
 
             return slim_serializer_factory(self.queryset.model)
-        if self.action == "list" and hasattr(self, "list_serializer_class"):
-            return self.list_serializer_class
+
+        if self.action == "list":
+
+            def read_only_serializer_factory(model_name) -> GenericSerializerType:
+                class ListModelSerializer(ReadOnlyModelSerializer):
+                    class Meta:
+                        model = model_name
+                        fields = "__all__"
+                        read_only_fields = fields
+
+                    def __repr__(self):
+                        return f"<ListModelSerializer for {model_name}>"
+
+                return ListModelSerializer
+
+            return read_only_serializer_factory(self.queryset.model)
+
         return super().get_serializer_class()

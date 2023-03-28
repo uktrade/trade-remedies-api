@@ -35,7 +35,6 @@ class OrganisationViewSet(BaseModelViewSet):
 
     queryset = Organisation.objects.all().order_by("name")
     serializer_class = OrganisationSerializer
-    list_serializer_class = OrganisationListSerializer
 
     @action(
         detail=True,
