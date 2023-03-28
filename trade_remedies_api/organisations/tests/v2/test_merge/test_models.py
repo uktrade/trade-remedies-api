@@ -91,10 +91,10 @@ class TestOrganisationFindPotentialDuplicates(CaseSetupTestMixin):
 class TestOrganisationMergeRecordModel(MergeTestBase):
     def test_potential_duplicates_order(self):
         assert (
-            self.merge_record.potential_duplicates().first().child_organisation
-            == self.organisation_3
+            self.merge_record.potential_duplicates().first().child_organisation.pk
+            == self.organisation_3.pk
         )
         assert (
-            self.merge_record.potential_duplicates().last().child_organisation
-            == self.organisation_1
+            self.merge_record.potential_duplicates().last().child_organisation.pk
+            == self.organisation_1.pk
         )

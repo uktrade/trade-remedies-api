@@ -29,17 +29,19 @@ class TestOrganisationMergeRecordSerializer(MergeTestBase):
     def test_potential_duplicates(self):
         serializer = OrganisationMergeRecordSerializer(self.merge_record)
         assert (
-            serializer.data["potential_duplicates"][0]
-            == DuplicateOrganisationMergeSerializer(self.merge_record.potential_duplicates(), many=True).data
+            serializer.data["potential_duplicates"]
+            == DuplicateOrganisationMergeSerializer(
+                self.merge_record.potential_duplicates(), many=True
+            ).data
         )
 
     def test_chosen_case_roles(self):
         serializer = OrganisationMergeRecordSerializer(
-            self.merge_record,
+            instance=self.merge_record,
             data={
                 "chosen_case_roles_delimited": f"{self.contributor_case_role.id}*-*{self.case_object.id}"
-
             },
+            partial=True,
         )
         serializer.is_valid()
         serializer.save()

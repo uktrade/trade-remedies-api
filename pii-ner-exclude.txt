@@ -1,3 +1,11 @@
+OrganisationMergeRecord
+" Annotate a queryset
+Parameters
+https
+" Returns True if the organisation name matches the name on Companies House
+" Returns a dictionary
+does_name_match_companies_house
+In Progress
 assert len(first_page_organisations["results
 GB123456788
 Test Address 1

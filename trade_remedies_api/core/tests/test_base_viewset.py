@@ -37,7 +37,7 @@ class TestBaseModelViewSet(CaseSetupTestMixin, FunctionalTestBase):
         """Tests that when the 'slim' query parameter is passed, a slimmed-down of the serializer is
         used.
         """
-        fat_response = self.client.get(f"/api/v2/organisations/{self.organisation.pk}").json()
+        fat_response = self.client.get(f"/api/v2/organisations/{self.organisation.pk}/").json()
         assert "id" in fat_response
         assert "full_country_name" in fat_response
         assert "name" in fat_response

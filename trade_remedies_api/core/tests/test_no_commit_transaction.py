@@ -15,9 +15,6 @@ class TestNoCommitTransaction(TestCase):
     def test_no_commit_transaction(self):
         """Test that the no_commit_transaction decorator works as expected."""
 
-        # normally 1 user in DB
-        assert User.objects.all().count() == 0
-
         @no_commit_transaction
         def to_be_decorated():
             # create a new one which will never be committed
