@@ -110,18 +110,6 @@ class OrganisationViewSet(BaseModelViewSet):
     @action(
         detail=True,
         methods=["get"],
-        url_name="has_similar_organisations",
-        url_path="has_similar_organisations",
-    )
-    def has_similar_organisations(self, request, *args, **kwargs):
-        organisation = self.get_object()
-        return Response(
-            organisation.find_potential_duplicate_orgs().duplicate_organisations.count()
-        )
-
-    @action(
-        detail=True,
-        methods=["get"],
         url_name="get_organisation_card_data",
         url_path="get_organisation_card_data",
     )

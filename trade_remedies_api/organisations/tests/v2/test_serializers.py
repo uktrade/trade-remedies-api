@@ -1,3 +1,5 @@
+from model_bakery import baker
+
 from config.test_bases import CaseSetupTestMixin
 from invitations.models import Invitation
 from organisations.services.v2.serializers import (
@@ -5,8 +7,6 @@ from organisations.services.v2.serializers import (
     OrganisationSerializer,
 )
 from security.models import CaseRole, OrganisationCaseRole
-
-from model_bakery import baker
 
 
 class TestOrganisationSerializer(CaseSetupTestMixin):
