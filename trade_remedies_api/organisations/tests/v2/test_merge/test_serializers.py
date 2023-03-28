@@ -46,9 +46,8 @@ class TestOrganisationMergeRecordSerializer(MergeTestBase):
         serializer.is_valid()
         serializer.save()
         self.merge_record.refresh_from_db()
-        assert (
-            self.merge_record.chosen_case_roles[str(self.case_object.id)]
-            == str(self.contributor_case_role.id)
+        assert self.merge_record.chosen_case_roles[str(self.case_object.id)] == str(
+            self.contributor_case_role.id
         )
 
         # now we test appending
@@ -66,4 +65,6 @@ class TestOrganisationMergeRecordSerializer(MergeTestBase):
         serializer.save()
 
         self.merge_record.refresh_from_db()
-        assert self.merge_record.chosen_case_roles[str(case_object_2.id)] == str(self.applicant_case_role.id)
+        assert self.merge_record.chosen_case_roles[str(case_object_2.id)] == str(
+            self.applicant_case_role.id
+        )

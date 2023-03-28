@@ -61,7 +61,7 @@ class TestOrganisationCaseRoleSerializer(CaseSetupTestMixin):
         )
         assert new_org_case_role.role == self.applicant_case_role
         serializer = OrganisationCaseRoleSerializer(
-            new_org_case_role, data={"role_key": "contributor"}
+            instance=new_org_case_role, data={"role_key": "contributor"}, partial=True
         )
         assert serializer.is_valid()
         new_org_case_role = serializer.save()
