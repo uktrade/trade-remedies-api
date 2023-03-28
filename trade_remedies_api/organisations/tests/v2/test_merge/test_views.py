@@ -92,4 +92,6 @@ class TestOrganisationMergeRecordViewSet(MergeTestBase, FunctionalTestBase):
         response = self.client.get(
             f"/api/v2/organisation_merge_records/{self.merge_record.pk}/get_duplicate_cases/"
         ).json()
-        assert response == [{"case_id": self.case_object.pk, "role_ids": [role_2.pk, role_1.pk]}]
+        assert response == [{"case_id": str(self.case_object.pk), "role_ids": [
+            str(role_2.pk), str(role_1.pk)
+        ]}]
