@@ -174,7 +174,7 @@ executing==1.2.0
     # via stack-data
 feed-gov-back==0.4
     # via -r requirements.in/../requirements/base.txt
-filelock==3.4.0
+filelock==3.9.0
     # via virtualenv
 fitness-functions @ git+https://github.com/uktrade/fitness-functions
     # via -r requirements.in/dev.in

@@ -168,10 +168,11 @@ if "postgres" in _VCAP_SERVICES:
             "OPTIONS": {
                 "MAX_CONNS": env("DB_MAX_CONNS", default=10),
             },
-        },
+        }
     }
 else:
-    DATABASES = {"default": env.db()}
+    default_database = env.db()
+    DATABASES = {"default": default_database}
 
 AUTH_PASSWORD_VALIDATORS = [
     {

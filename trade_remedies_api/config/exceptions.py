@@ -11,3 +11,7 @@ class InvalidSerializerError(APIException):
         super().__init__(detail, code)
         self.detail["exception_type"] = self.default_code
         self.detail["serializer_name"] = serializer.__class__.__name__
+
+
+class BreakNoCommitTransaction(Exception):
+    pass
