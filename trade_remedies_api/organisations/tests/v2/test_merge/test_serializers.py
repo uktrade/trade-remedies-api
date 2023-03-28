@@ -60,7 +60,7 @@ class TestOrganisationMergeRecordSerializer(MergeTestBase):
             data={
                 "chosen_case_roles_delimited": f"{self.applicant_case_role.id}*-*{case_object_2.id}"
             },
-            partial=True
+            partial=True,
         )
         serializer.is_valid()
         serializer.save()
