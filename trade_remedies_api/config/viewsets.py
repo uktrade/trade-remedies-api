@@ -92,6 +92,6 @@ class BaseModelViewSet(viewsets.ModelViewSet):
                 return SlimSerializer
 
             return slim_serializer_factory(self.queryset.model)
-        if self.action == "list" and self.list_serializer_class:
+        if self.action == "list" and self.list_serializer_class is not None:
             return self.list_serializer_class
         return super().get_serializer_class()
