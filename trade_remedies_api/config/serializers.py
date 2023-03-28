@@ -331,3 +331,10 @@ class ReadOnlyModelSerializer(serializers.ModelSerializer):
     So to speed up the operation were we are getting a list of objects which
     should be a read-only operation, we will use this read-only serializer
     """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Set all fields to read-only
+        for field in self.fields.values():
+            field.read_only = True

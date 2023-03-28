@@ -103,7 +103,6 @@ class BaseModelViewSet(viewsets.ModelViewSet):
                     class Meta:
                         model = model_name
                         fields = "__all__"
-                        read_only_fields = fields
 
                     def __repr__(self):
                         return f"<ListModelSerializer for {model_name}>"
