@@ -2,6 +2,7 @@ from core.models import User
 from organisations.decorators import no_commit_transaction
 from django.test.testcases import TransactionTestCase
 
+
 @no_commit_transaction
 def to_be_decorated():
     # create a new one which will never be committed
