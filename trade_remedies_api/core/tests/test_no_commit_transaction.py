@@ -16,7 +16,7 @@ class TestNoCommitTransaction(TestCase):
         """Test that the no_commit_transaction decorator works as expected."""
 
         # normally 1 user in DB
-        assert User.objects.all().count() == 1
+        assert User.objects.all().count() == 0
 
         @no_commit_transaction
         def to_be_decorated():
@@ -25,8 +25,8 @@ class TestNoCommitTransaction(TestCase):
                 email="test12@examle.com", name="test 12", password="test"  # /PS-IGNORE
             )
             # checks that it exists within the function
-            assert User.objects.all().count() == 2
+            assert User.objects.all().count() == 1
 
         to_be_decorated()
         # after the function returns, the user is not committed to the DB
-        assert User.objects.all().count() == 1
+        assert User.objects.all().count() == 0

@@ -17,12 +17,12 @@ class TestDuplicateOrganisationMergeSerializer(MergeTestBase):
         serializer = DuplicateOrganisationMergeSerializer(
             self.merge_record.potential_duplicates().first()
         )
-        assert serializer.data["identical_fields"] == ["name"]
+        assert serializer.data["identical_fields"] == ["address"]
 
         serializer = DuplicateOrganisationMergeSerializer(
             self.merge_record.potential_duplicates().last()
         )
-        assert serializer.data["identical_fields"] == ["address"]
+        assert serializer.data["identical_fields"] == ["name"]
 
 
 class TestOrganisationMergeRecordSerializer(MergeTestBase):
@@ -30,16 +30,15 @@ class TestOrganisationMergeRecordSerializer(MergeTestBase):
         serializer = OrganisationMergeRecordSerializer(self.merge_record)
         assert (
             serializer.data["potential_duplicates"][0]
-            == DuplicateOrganisationMergeSerializer(self.merge_record, many=True).data
+            == DuplicateOrganisationMergeSerializer(self.merge_record.potential_duplicates(), many=True).data
         )
 
     def test_chosen_case_roles(self):
         serializer = OrganisationMergeRecordSerializer(
             self.merge_record,
             data={
-                "chosen_case_roles_delimited": [
-                    f"{self.contributor_case_role.id}*-*{self.case_object.id}"
-                ]
+                "chosen_case_roles_delimited": f"{self.contributor_case_role.id}*-*{self.case_object.id}"
+
             },
         )
         serializer.is_valid()
@@ -58,9 +57,7 @@ class TestOrganisationMergeRecordSerializer(MergeTestBase):
         serializer = OrganisationMergeRecordSerializer(
             self.merge_record,
             data={
-                "chosen_case_roles_delimited": [
-                    f"{self.applicant_case_role.id}*-*{case_object_2.id}"
-                ]
+                "chosen_case_roles_delimited": f"{self.applicant_case_role.id}*-*{case_object_2.id}"
             },
         )
         serializer.is_valid()

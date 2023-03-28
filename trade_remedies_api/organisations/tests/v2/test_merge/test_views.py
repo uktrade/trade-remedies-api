@@ -50,14 +50,14 @@ class TestOrganisationMergeRecordViewSet(MergeTestBase, FunctionalTestBase):
         """
         assert not SubmissionOrganisationMergeRecord.objects.filter(
             submission=self.submission_object,
-            organisation=self.organisation_1,
+            organisation_merge_record=self.merge_record,
         ).exists()
         self.client.get(
             f"/api/v2/organisation_merge_records/{self.merge_record.pk}/?submission_id={self.submission_object.pk}"
         )
         assert SubmissionOrganisationMergeRecord.objects.filter(
             submission=self.submission_object,
-            organisation=self.organisation_1,
+            organisation_merge_record=self.merge_record,
         ).exists()
 
     def test_reset_duplicates(self):
