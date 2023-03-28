@@ -10,7 +10,7 @@ class TestOrganisationFindPotentialDuplicates(CaseSetupTestMixin):
         self.organisation_object = Organisation.objects.create(
             name="Fake Company LTD",
             address="Fake Address",
-            postcode="12-34:2",
+            post_code="12-34:2",
             companies_house_id="RepReg12345",
             organisation_website="www.example.com",
             vat_number="GB12 34 56 78",

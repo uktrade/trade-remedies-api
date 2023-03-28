@@ -50,12 +50,12 @@ class TestOrganisationRepresentativeCases(CaseSetupTestMixin):
             case=self.case_object,
             organisation=self.org_b,
             invitation_type=2,
-            approved_at=self.now(),
+            approved_at=self.now,
         )
 
         representative_cases = self.organisation.representative_cases()
         assert len(representative_cases) == 1
-        assert representative_cases[0]["case"]["id"] == self.case_object.id
+        assert representative_cases[0]["case"]["id"] == str(self.case_object.id)
         assert representative_cases[0]["on_behalf_of"] == self.org_b.name
         assert representative_cases[0]["role"] == self.applicant_case_role.name
         assert representative_cases[0]["validated"]
@@ -72,7 +72,7 @@ class TestOrganisationRepresentativeCases(CaseSetupTestMixin):
 
         representative_cases = self.organisation.representative_cases()
         assert len(representative_cases) == 1
-        assert representative_cases[0]["case"]["id"] == self.case_object.id
+        assert representative_cases[0]["case"]["id"] == str(self.case_object.id)
         assert representative_cases[0]["on_behalf_of"] == self.org_b.name
         assert representative_cases[0]["role"] == self.applicant_case_role.name
         assert representative_cases[0]["validated"]

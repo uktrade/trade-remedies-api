@@ -22,9 +22,7 @@ class TestNoCommitTransaction(TestCase):
         def to_be_decorated():
             # create a new one which will never be committed
             User.objects.create(
-                email="test12@examle.com",  # /PS-IGNORE
-                name="test 12",
-                password="test"
+                email="test12@examle.com", name="test 12", password="test"  # /PS-IGNORE
             )
             # checks that it exists within the function
             assert User.objects.all().count() == 2

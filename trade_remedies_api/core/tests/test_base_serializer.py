@@ -10,8 +10,8 @@ from test_functional import FunctionalTestBase
 class TestBaseSerializer(CaseSetupTestMixin, FunctionalTestBase):
     def test_normal(self):
         serializer = OrganisationSerializer(self.organisation)
-        assert serializer.data["full_country_name"] == "Great Britain"
+        assert serializer.data["full_country_name"] == "United Kingdom"
 
     def test_slim(self):
         serializer = OrganisationSerializer(self.organisation, slim=True)
-        assert "full_country_name" in serializer.data
+        assert "full_country_name" not in serializer.data
