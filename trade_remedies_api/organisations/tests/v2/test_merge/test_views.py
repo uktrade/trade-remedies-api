@@ -75,7 +75,7 @@ class TestOrganisationMergeRecordViewSet(MergeTestBase, FunctionalTestBase):
     def test_get_duplicate_cases(self):
         """Tests that get_duplicate_cases method on the viewset returns all cases that are
         shared between the parent and child organisations with different case roles."""
-        self.merge_record.duplicate_organisations.filter(organisation=self.organisation_2).update(
+        self.merge_record.duplicate_organisations.filter(child_organisation=self.organisation_2).update(
             status="attributes_selected"
         )
         response = self.client.get(
