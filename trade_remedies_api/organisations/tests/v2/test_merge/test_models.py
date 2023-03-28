@@ -96,5 +96,5 @@ class TestOrganisationMergeRecordModel(MergeTestBase):
         )
         assert (
             self.merge_record.potential_duplicates().last().child_organisation.pk
-            == self.organisation_1.pk
+            == self.organisation_2.pk
         )

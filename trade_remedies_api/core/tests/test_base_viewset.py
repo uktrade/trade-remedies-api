@@ -43,7 +43,7 @@ class TestBaseModelViewSet(CaseSetupTestMixin, FunctionalTestBase):
         assert "name" in fat_response
 
         slim_response = self.client.get(
-            f"/api/v2/organisations/{self.organisation.pk}?slim=yes"
+            f"/api/v2/organisations/{self.organisation.pk}/?slim=yes"
         ).json()
         assert "id" in slim_response
         assert "full_country_name" not in slim_response

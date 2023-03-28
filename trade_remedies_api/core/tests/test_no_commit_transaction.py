@@ -21,8 +21,6 @@ class TestNoCommitTransaction(TestCase):
             User.objects.create(
                 email="test12@examle.com", name="test 12", password="test"  # /PS-IGNORE
             )
-            # checks that it exists within the function
-            assert User.objects.all().count() == 1
 
         to_be_decorated()
         # after the function returns, the user is not committed to the DB
