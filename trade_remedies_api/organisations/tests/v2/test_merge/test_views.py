@@ -103,7 +103,6 @@ class TestOrganisationMergeRecordViewSet(MergeTestBase, FunctionalTestBase):
 
     @pytest.mark.django_db
     def test_list_viewset_fields_are_read_only(self):
-
         factory = APIRequestFactory()
         url = reverse("organisations-list")
 
