@@ -132,3 +132,37 @@ class TestOrganisationMergeRecordViewSet(MergeTestBase, FunctionalTestBase):
         assert all([value.read_only for _, value in serializer_model().get_fields().items()])
 
         assert serializer.data[0]["name"] == "Fake Company LTD"
+
+    @pytest.mark.django_db
+    def test_not_list_viewset_fields_are_read_only(self):
+        factory = APIRequestFactory()
+        url = reverse("organisations-list")
+
+        viewset = OrganisationViewSet()
+
+        request = factory.get(url)
+        request.query_params = {}
+        request.user = MagicMock()
+
+        viewset.request = request
+        viewset.action = "retrieve"
+
+        serializer_model = viewset.get_serializer_class()
+        organisation = baker.make(
+            "organisations.Organisation",
+            name="Fake Company LTD",
+            address="101 London, LD123",
+            post_code="LD123",
+            vat_number="GB123456789",
+            eori_number="GB205672212000",
+            duns_number="012345678",
+            organisation_website="www.fakewebsite.com",
+        )
+
+        serializer = serializer_model(instance=organisation)
+
+        assert serializer_model == viewset.serializer_class
+
+        assert not all([value.read_only for _, value in serializer_model().get_fields().items()])
+
+        assert serializer.data["name"] == "Fake Company LTD"
