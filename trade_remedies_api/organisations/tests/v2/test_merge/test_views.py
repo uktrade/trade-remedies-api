@@ -1,10 +1,13 @@
+import pytest
+from model_bakery import baker
 from django.contrib.auth.models import Group
 
-from django.contrib.auth.models import Group
+from rest_framework.test import APIRequestFactory
+from unittest.mock import MagicMock
+from django.urls import reverse
 
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
 from cases.models import Submission, get_submission_type
-from config.test_bases import CaseSetupTestMixin
 from contacts.models import Contact
 from invitations.models import Invitation
 from organisations.models import SubmissionOrganisationMergeRecord
@@ -12,6 +15,8 @@ from organisations.tests.v2.test_merge import MergeTestBase
 from security.constants import SECURITY_GROUP_ORGANISATION_USER
 from security.models import OrganisationCaseRole
 from test_functional import FunctionalTestBase
+
+from organisations.services.v2.views import OrganisationViewSet
 
 
 class TestOrganisationMergeRecordViewSet(MergeTestBase, FunctionalTestBase):
@@ -95,3 +100,36 @@ class TestOrganisationMergeRecordViewSet(MergeTestBase, FunctionalTestBase):
         assert response == [
             {"case_id": str(self.case_object.pk), "role_ids": [str(role_2.pk), str(role_1.pk)]}
         ]
+
+    @pytest.mark.django_db
+    def test_list_viewset_fields_are_read_only(self):
+
+        factory = APIRequestFactory()
+        url = reverse("organisations-list")
+
+        viewset = OrganisationViewSet()
+
+        request = factory.get(url)
+        request.query_params = {}
+        request.user = MagicMock()
+
+        viewset.request = request
+        viewset.action = "list"
+
+        serializer_model = viewset.get_serializer_class()
+        organisation = baker.make(
+            "organisations.Organisation",
+            name="Fake Company LTD",
+            address="101 London, LD123",
+            post_code="LD123",
+            vat_number="GB123456789",
+            eori_number="GB205672212000",
+            duns_number="012345678",
+            organisation_website="www.fakewebsite.com",
+        )
+
+        serializer = serializer_model([organisation], many=True)
+
+        assert all([value.read_only for _, value in serializer_model().get_fields().items()])
+
+        assert serializer.data[0]["name"] == "Fake Company LTD"

@@ -332,9 +332,9 @@ class ReadOnlyModelSerializer(serializers.ModelSerializer):
     should be a read-only operation, we will use this read-only serializer
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
+    def get_fields(self):
         # Set all fields to read-only
-        for field in self.fields.values():
+        fields = super().get_fields()
+        for field in fields.values():
             field.read_only = True
+        return fields
