@@ -326,10 +326,10 @@ class GenericSerializerType(typing.Protocol):
 
 class ReadOnlyModelSerializer(serializers.ModelSerializer):
     """
-    A read-only serializer for a models.
+    A read-only serializer for models.
     In a writable ModelSerializer a lot of time is spent on validations
-    So to speed up the operation were we are getting a list of objects which
-    should be a read-only operation, we will use this read-only serializer
+    So to speed up the operation where we are getting a list of objects which
+    should be a read-only operation, we will use this read-only serializer.
     """
 
     def get_fields(self):
