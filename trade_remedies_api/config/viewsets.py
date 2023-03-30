@@ -1,6 +1,8 @@
 import base64
 import json
 
+from functools import lru_cache
+
 from django.core.exceptions import FieldError
 from django.http import Http404
 from rest_framework import viewsets
@@ -111,15 +113,38 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
                 return ListModelSerializer
 
-            return read_only_serializer_factory(self.queryset.model, self.mixin_model_class)
+            model_class = self.mixin_model_class(self.queryset.model)
+            return read_only_serializer_factory(self.queryset.model, model_class)
 
         return super().get_serializer_class()
 
-    @property
-    def mixin_model_class(self):
-        if self.queryset.model == "Organisation":
+    @lru_cache(maxsize=128)
+    def mixin_model_class(self, model_name: str) -> GenericSerializerType:
+        """
+        Returns a serializer class based on the model of the queryset.
+
+        Example:
+        If the model of the queryset is 'Organisation', returns the OrganisationBaseSerializer
+        from the organisations.serializers module.
+
+        Otherwise, returns the serializer class specified by the serializer_class attribute.
+
+        Returns:
+            A GenericSerializerType .
+        """
+        if model_name == "Organisation":
             from organisations.services.v2.serializers import OrganisationBaseSerializer
 
             return OrganisationBaseSerializer
+
+        if model_name == "Case":
+            from cases.services.v2.serializers import ListCaseSerializer
+
+            return ListCaseSerializer
+
+        if model_name == "Invitation":
+            from invitations.services.v2.serializers import BaseInvitationSerializer
+
+            return BaseInvitationSerializer
 
         return self.serializer_class

@@ -11,11 +11,7 @@ from security.models import CaseRole
 from security.services.v2.serializers import UserCaseSerializer
 
 
-class InvitationSerializer(CustomValidationModelSerializer):
-    class Meta:
-        model = Invitation
-        fields = "__all__"
-
+class BaseInvitationSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(required=False, fields=["name", "email"])
     organisation = NestedField(
         serializer_class=OrganisationSerializer,
@@ -107,6 +103,12 @@ class InvitationSerializer(CustomValidationModelSerializer):
 
         verbose_status = choices[status]
         return status, verbose_status
+
+
+class InvitationSerializer(CustomValidationModelSerializer, BaseInvitationSerializer):
+    class Meta:
+        model = Invitation
+        fields = "__all__"
 
     def to_internal_value(self, data):
         """API requests can pass case_role with the key"""
