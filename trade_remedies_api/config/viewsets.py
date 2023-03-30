@@ -12,7 +12,7 @@ from core.services.base import GroupPermission
 from config.serializers import (
     CustomValidationModelSerializer,
     GenericSerializerType,
-    ReadOnlyModelSerializer,
+    ReadOnlyModelMixinSerializer,
 )
 
 
@@ -98,8 +98,10 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
         if self.action == "list":
 
-            def read_only_serializer_factory(model_name) -> GenericSerializerType:
-                class ListModelSerializer(ReadOnlyModelSerializer):
+            def read_only_serializer_factory(
+                model_name, mixin_model_class
+            ) -> GenericSerializerType:
+                class ListModelSerializer(ReadOnlyModelMixinSerializer, mixin_model_class):
                     class Meta:
                         model = model_name
                         fields = "__all__"
@@ -109,6 +111,15 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
                 return ListModelSerializer
 
-            return read_only_serializer_factory(self.queryset.model)
+            return read_only_serializer_factory(self.queryset.model, self.mixin_model_class)
 
         return super().get_serializer_class()
+
+    @property
+    def mixin_model_class(self):
+        if self.queryset.model == "Organisation":
+            from organisations.services.v2.serializers import OrganisationBaseSerializer
+
+            return OrganisationBaseSerializer
+
+        return self.serializer_class

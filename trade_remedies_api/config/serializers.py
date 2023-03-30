@@ -324,7 +324,7 @@ class GenericSerializerType(typing.Protocol):
         ...
 
 
-class ReadOnlyModelSerializer(serializers.ModelSerializer):
+class ReadOnlyModelMixinSerializer:
     """
     A read-only serializer for models.
     In a writable ModelSerializer a lot of time is spent on validations
