@@ -14,7 +14,6 @@ from organisations.models import (
     OrganisationMergeRecord,
     SubmissionOrganisationMergeRecord,
 )
-from organisations.services.v2.pagination import StandardResultsSetPagination
 from organisations.services.v2.serializers import (
     DuplicateOrganisationMergeSerializer,
     OrganisationCaseRoleSerializer,
@@ -24,6 +23,7 @@ from organisations.services.v2.serializers import (
     SubmissionOrganisationMergeRecordSerializer,
     OrganisationSerializer,
     OrganisationUserSerializer,
+    OrganisationListSerializer,
 )
 from security.models import OrganisationCaseRole, OrganisationUser
 
@@ -35,6 +35,7 @@ class OrganisationViewSet(BaseModelViewSet):
 
     queryset = Organisation.objects.all().order_by("name")
     serializer_class = OrganisationSerializer
+    list_serializer_class = OrganisationListSerializer
 
     @action(
         detail=True,

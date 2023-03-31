@@ -1,5 +1,6 @@
 import base64
 import json
+import typing
 
 from functools import lru_cache
 
@@ -23,7 +24,9 @@ class BaseModelViewSet(viewsets.ModelViewSet):
     Base class for ModelViewSets to share commonly overriden methods
     """
 
-    serializer_class: GenericSerializerType
+    serializer_class: typing.Union[GenericSerializerType, None] = None
+
+    list_serializer_class: typing.Union[GenericSerializerType, None] = None
 
     permission_classes = (IsAuthenticated, GroupPermission)
 
@@ -113,38 +116,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
                 return ListModelSerializer
 
-            model_class = self.mixin_model_class(self.queryset.model)
+            model_class = self.list_serializer_class or self.serializer_class
             return read_only_serializer_factory(self.queryset.model, model_class)
 
         return super().get_serializer_class()
-
-    @lru_cache(maxsize=128)
-    def mixin_model_class(self, model_name: str) -> GenericSerializerType:
-        """
-        Returns a serializer class based on the model of the queryset.
-
-        Example:
-        If the model of the queryset is 'Organisation', returns the OrganisationBaseSerializer
-        from the organisations.serializers module.
-
-        Otherwise, returns the serializer class specified by the serializer_class attribute.
-
-        Returns:
-            A GenericSerializerType .
-        """
-        if model_name == "Organisation":
-            from organisations.services.v2.serializers import OrganisationBaseSerializer
-
-            return OrganisationBaseSerializer
-
-        if model_name == "Case":
-            from cases.services.v2.serializers import ListCaseSerializer
-
-            return ListCaseSerializer
-
-        if model_name == "Invitation":
-            from invitations.services.v2.serializers import BaseInvitationSerializer
-
-            return BaseInvitationSerializer
-
-        return self.serializer_class

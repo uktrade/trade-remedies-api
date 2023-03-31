@@ -10,6 +10,7 @@ from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
 from cases.models import Case, Submission, SubmissionType
 from cases.services.v2.serializers import (
     CaseSerializer,
+    ListCaseSerializer,
     SubmissionSerializer,
     SubmissionTypeSerializer,
 )
@@ -22,6 +23,7 @@ from security.models import CaseRole, OrganisationCaseRole
 class CaseViewSet(BaseModelViewSet):
     queryset = Case.objects.all()
     serializer_class = CaseSerializer
+    list_serializer_class = ListCaseSerializer
 
     def get_queryset(self):
         if self.request.query_params.get("open_to_roi"):

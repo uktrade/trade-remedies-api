@@ -56,12 +56,6 @@ class OrganisationUserSerializer(CustomValidationModelSerializer):
     security_group_key = serializers.ReadOnlyField(source="security_group.key")
 
 
-class OrganisationListSerializer(CustomValidationModelSerializer):
-    class Meta:
-        model = Organisation
-        fields = "__all__"
-
-
 class OrganisationBaseSerializer(serializers.ModelSerializer):
     country = serializers.CharField(source="country.alpha3", required=False)
     country_code = serializers.ReadOnlyField(source="country.code")
@@ -177,6 +171,12 @@ class OrganisationBaseSerializer(serializers.ModelSerializer):
 
         contacts = Contact.objects.filter(casecontact__organisation=instance)
         return ContactSerializer(instance=contacts, many=True).data
+
+
+class OrganisationListSerializer(OrganisationBaseSerializer):
+    class Meta:
+        model = Organisation
+        fields = "__all__"
 
 
 class OrganisationSerializer(CustomValidationModelSerializer, OrganisationBaseSerializer):
