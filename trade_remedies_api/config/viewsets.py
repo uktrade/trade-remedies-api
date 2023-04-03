@@ -25,9 +25,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class: typing.Union[GenericSerializerType, None] = None
-
     list_serializer_class: typing.Union[GenericSerializerType, None] = None
-
     permission_classes = (IsAuthenticated, GroupPermission)
 
     def get_queryset(self):
