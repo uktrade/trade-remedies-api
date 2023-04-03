@@ -1,3 +1,4 @@
+submission_object.remove_document(child_document, requested_by=request.user
 OrganisationMergeRecord
 " Annotate a queryset
 Parameters

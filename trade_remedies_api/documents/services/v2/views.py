@@ -1,4 +1,4 @@
-from rest_framework import status, viewsets
+from rest_framework import status
 from rest_framework.response import Response
 
 from cases.models import Submission, SubmissionDocumentType
@@ -66,8 +66,17 @@ class DocumentViewSet(BaseModelViewSet):
                 document.parent = original_document.parent
                 document.save()
 
+            document.refresh_from_db()
+            if document.parent and document.parent.parent == document:
+                document.parent.refresh_from_db()
+                # they have the same parent, let's make the current doc the child
+                document.parent = None
+                document.save()
+
             # and the submission documents
-            original_document.submissiondocument_set.all().delete()
+            original_document.submissiondocument_set.filter(
+                submission=submission_object,
+            ).delete()
             # now let's delete the replacement
             original_document.delete()
 
