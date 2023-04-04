@@ -396,4 +396,19 @@ validation_errors = {
         "error_text": "Select a rating of between 1 to 5 stars",
         "error_summary": "You need to select a rating of between 1 to 5 stars",
     },
+    "confirm_not_selected": {
+        "field": "confirm",
+        "error_text": "Confirm you have the authority to merge these organisations",
+        "error_summary": "You need to confirm you have authority to merge these organisations",
+    },
+    "is_matching_organisation_a_duplicate_no_selection": {
+        "field": "is_matching_organisation_a_duplicate",
+        "error_text": "Select Yes or No",
+        "error_summary": "You need to select Yes or No",
+    },
+    "organisation_already_setup_not_selected": {
+        "field": "existing_account",
+        "error_text": "Select Yes if anyone else from your organisation has already set up an account",
+        "error_summary": "You need to select Yes if anyone else from your organisation has already set up an account",
+    },
 }

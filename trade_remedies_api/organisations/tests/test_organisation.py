@@ -8,7 +8,6 @@ from model_bakery import baker
 class OrganisationTest(unittest.TestCase):
     @pytest.mark.django_db
     def test_potential_duplicate_organisations(self):
-
         target_organisation = baker.make(
             "organisations.Organisation",
             name="Fake Company LTD",
@@ -38,4 +37,4 @@ class OrganisationTest(unittest.TestCase):
             organisation_website="www.fakewebsite.co",
         )
 
-        assert len(target_organisation.potential_duplicate_organisations()) == 3
+        assert len(target_organisation.find_potential_duplicate_orgs().potential_duplicates()) == 4

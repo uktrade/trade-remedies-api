@@ -7,6 +7,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from config.serializers import CustomValidationModelSerializer
 from core.services.base import GroupPermission
 
 
@@ -65,4 +66,27 @@ class BaseModelViewSet(viewsets.ModelViewSet):
                 # the fields value should be a string, with commas separating the names of fields
                 fields = fields.split(",")
             kwargs.setdefault("fields", fields)
+
         return serializer_class(*args, **kwargs)
+
+    def get_serializer_class(self):
+        """
+        Return the class to use for the serializer. If the request has 'skinny: yes' in the query
+        then a slim serializer will be used, this is identical to a normal serializer but without
+        any of the bloated computed fields.
+        """
+        if "slim" in self.request.query_params:
+            # they want a slim serializer without additional computed fields
+            def slim_serializer_factory(model_name):
+                class SlimSerializer(CustomValidationModelSerializer):
+                    class Meta:
+                        model = model_name
+                        fields = "__all__"
+
+                    def __repr__(self):
+                        return f"<SlimSerializer for {model_name}>"
+
+                return SlimSerializer
+
+            return slim_serializer_factory(self.queryset.model)
+        return super().get_serializer_class()
