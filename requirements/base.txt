@@ -8,6 +8,8 @@ amqp==5.0.9
     # via kombu
 asgiref==3.5.0
     # via django
+async-timeout==4.0.2
+    # via redis
 billiard==3.6.4.0
     # via celery
 boto3==1.17.88
@@ -43,8 +45,6 @@ colour==0.1.5
     # via -r requirements.in/base.in
 defusedxml==0.7.1
     # via odfpy
-deprecated==1.2.13
-    # via redis
 dj-database-url==0.5.0
     # via -r requirements.in/base.in
 django==3.2.18
@@ -156,8 +156,6 @@ openpyxl==3.0.6
     # via -r requirements.in/base.in
 opensearch-py==1.0.0
     # via -r requirements.in/base.in
-packaging==21.3
-    # via redis
 phonenumbers==8.12.38
     # via -r requirements.in/base.in
 pillow==9.3.0
@@ -174,8 +172,6 @@ psycopg2-binary==2.9.1
     #   feed-gov-back
 pyjwt==2.4.0
     # via notifications-python-client
-pyparsing==3.0.7
-    # via packaging
 pypdf2==1.27.5
     # via -r requirements.in/base.in
 pypeg2==2.15.2
@@ -196,7 +192,7 @@ pytz==2022.7.1
     #   django
     #   django-timezone-field
     #   minio
-redis==4.1.1
+redis==4.4.4
     # via
     #   -r requirements.in/base.in
     #   django-redis
@@ -242,8 +238,6 @@ werkzeug==2.2.3
     # via -r requirements.in/base.in
 whitenoise==5.3.0
     # via -r requirements.in/base.in
-wrapt==1.13.3
-    # via deprecated
 xlrd==1.2.0
     # via -r requirements.in/base.in
 xlsxwriter==3.0.1
