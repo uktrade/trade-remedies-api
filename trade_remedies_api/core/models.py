@@ -11,7 +11,7 @@ import pytz
 import sentry_sdk
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.models import Group, Permission, PermissionsMixin
+from django.contrib.auth.models import AnonymousUser, Group, Permission, PermissionsMixin
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.contenttypes.models import ContentType
@@ -1465,7 +1465,7 @@ class SystemParameter(models.Model):
         try:
             override_value = None
             sysparam = SystemParameter.objects.get(key=key.upper())
-            if user:
+            if user and not isinstance(user, AnonymousUser):
                 override_value = user.get_setting(key, os.environ.get(f"SP_{key.upper()}"))
             else:
                 override_value = os.environ.get(f"SP_{key.upper()}")

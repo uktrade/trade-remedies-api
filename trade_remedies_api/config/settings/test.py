@@ -1,6 +1,6 @@
 from .base import *  # noqa
 
-LOGGING = ENVIRONMENT_LOGGING
+#LOGGING = ENVIRONMENT_LOGGING
 
 # This module is also referenced when executing tests in CircleCI, the below
 # settings cater for that (expedites test execution). However in the PaaS `test`
