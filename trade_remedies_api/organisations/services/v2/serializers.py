@@ -56,7 +56,7 @@ class OrganisationUserSerializer(CustomValidationModelSerializer):
     security_group_key = serializers.ReadOnlyField(source="security_group.key")
 
 
-class OrganisationBaseSerializer(serializers.ModelSerializer):
+class OrganisationSerializer(CustomValidationModelSerializer):
     country = serializers.CharField(source="country.alpha3", required=False)
     country_code = serializers.ReadOnlyField(source="country.code")
     organisationuser_set = OrganisationUserSerializer(many=True, required=False)
@@ -73,8 +73,22 @@ class OrganisationBaseSerializer(serializers.ModelSerializer):
     json_data = serializers.JSONField(required=False, allow_null=True)
     a_tag_website_url = serializers.SerializerMethodField()
     full_country_name = serializers.SerializerMethodField()
-
     users = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Organisation
+        fields = "__all__"
+
+
+    def to_representation(self, instance):
+        instance.json_data = {}
+        return super().to_representation(instance)
+
+    def to_internal_value(self, data):
+        data = super().to_internal_value(data)
+        if "country" in data and isinstance(data["country"], dict):
+            data["country"] = data["country"]["alpha3"]
+        return data
 
     @staticmethod
     def get_users(instance):
@@ -171,22 +185,6 @@ class OrganisationBaseSerializer(serializers.ModelSerializer):
 
         contacts = Contact.objects.filter(casecontact__organisation=instance)
         return ContactSerializer(instance=contacts, many=True).data
-
-
-class OrganisationSerializer(CustomValidationModelSerializer, OrganisationBaseSerializer):
-    class Meta:
-        model = Organisation
-        fields = "__all__"
-
-    def to_representation(self, instance):
-        instance.json_data = {}
-        return super().to_representation(instance)
-
-    def to_internal_value(self, data):
-        data = super().to_internal_value(data)
-        if "country" in data and isinstance(data["country"], dict):
-            data["country"] = data["country"]["alpha3"]
-        return data
 
 
 skinny_organisation_fields = [
