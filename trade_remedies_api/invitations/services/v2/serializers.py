@@ -11,7 +11,11 @@ from security.models import CaseRole
 from security.services.v2.serializers import UserCaseSerializer
 
 
-class BaseInvitationSerializer(serializers.ModelSerializer):
+class InvitationSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = Invitation
+        fields = "__all__"
+
     created_by = UserSerializer(required=False, fields=["name", "email"])
     organisation = NestedField(
         serializer_class=OrganisationSerializer,
@@ -43,6 +47,15 @@ class BaseInvitationSerializer(serializers.ModelSerializer):
     )
     type_display_name = serializers.ReadOnlyField(source="get_invitation_type_display")
     status = serializers.SerializerMethodField()
+
+    def to_internal_value(self, data):
+        """API requests can pass case_role with the key"""
+        data = data.copy()  # Making the QueryDict mutable
+        if role_key := data.get("case_role_key"):
+            # We can pass a role_key in the request.POST which we can use to lookup a CaseRole obj
+            role_object = CaseRole.objects.get(key=role_key)
+            data["case_role"] = role_object.pk
+        return super().to_internal_value(data)
 
     @staticmethod
     def get_status(instance):
@@ -103,18 +116,3 @@ class BaseInvitationSerializer(serializers.ModelSerializer):
 
         verbose_status = choices[status]
         return status, verbose_status
-
-
-class InvitationSerializer(CustomValidationModelSerializer, BaseInvitationSerializer):
-    class Meta:
-        model = Invitation
-        fields = "__all__"
-
-    def to_internal_value(self, data):
-        """API requests can pass case_role with the key"""
-        data = data.copy()  # Making the QueryDict mutable
-        if role_key := data.get("case_role_key"):
-            # We can pass a role_key in the request.POST which we can use to lookup a CaseRole obj
-            role_object = CaseRole.objects.get(key=role_key)
-            data["case_role"] = role_object.pk
-        return super().to_internal_value(data)
