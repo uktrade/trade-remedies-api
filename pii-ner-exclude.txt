@@ -48,6 +48,7 @@ Serializes OrganisationMergeRecord
 Serializes DuplicateOrganisationMerge
 "Returns the order of this duplicate in the parent organisation along
 Serializes OrganisationMergeRecord
+submission_object.remove_document(child_document, requested_by=request.user
 OrganisationMergeRecord
 " Annotate a queryset
 Parameters

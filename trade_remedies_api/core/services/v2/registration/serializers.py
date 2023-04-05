@@ -56,7 +56,7 @@ class V2RegistrationSerializer(
                 assign_user=True,
                 name=self.initial_data["company_name"],
                 address=self.initial_data["address_snippet"],
-                country=self.initial_data["country"],
+                country=self.initial_data.get("country", "GB"),
                 post_code=self.initial_data["post_code"],
                 vat_number=self.initial_data["company_vat_number"],
                 eori_number=self.initial_data["company_eori_number"],
