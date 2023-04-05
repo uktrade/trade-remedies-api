@@ -12,5 +12,6 @@ if os.getenv("CIRCLECI"):
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         }
     }
+    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = ()
 
 TESTING = True
