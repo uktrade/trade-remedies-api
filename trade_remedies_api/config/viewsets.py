@@ -1,5 +1,8 @@
 import base64
 import json
+import typing
+
+from functools import lru_cache
 
 from django.core.exceptions import FieldError
 from django.http import Http404
@@ -7,8 +10,13 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from config.serializers import CustomValidationModelSerializer
 from core.services.base import GroupPermission
+
+from config.serializers import (
+    CustomValidationModelSerializer,
+    GenericSerializerType,
+    ReadOnlyModelMixinSerializer,
+)
 
 
 class BaseModelViewSet(viewsets.ModelViewSet):
@@ -16,6 +24,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
     Base class for ModelViewSets to share commonly overriden methods
     """
 
+    serializer_class: typing.Union[GenericSerializerType, None] = None
     permission_classes = (IsAuthenticated, GroupPermission)
 
     def get_queryset(self):
@@ -66,7 +75,6 @@ class BaseModelViewSet(viewsets.ModelViewSet):
                 # the fields value should be a string, with commas separating the names of fields
                 fields = fields.split(",")
             kwargs.setdefault("fields", fields)
-
         return serializer_class(*args, **kwargs)
 
     def get_serializer_class(self):
@@ -86,7 +94,27 @@ class BaseModelViewSet(viewsets.ModelViewSet):
                     def __repr__(self):
                         return f"<SlimSerializer for {model_name}>"
 
+                if self.request.method == "GET":
+                    # if it's also a GET method, we can initialise a
+                    # read-only serializer to speed up the request
+                    SlimSerializer.__bases__ = (
+                        ReadOnlyModelMixinSerializer,
+                    ) + SlimSerializer.__bases__
+
                 return SlimSerializer
 
             return slim_serializer_factory(self.queryset.model)
+
+        if self.request.method == "GET":
+            # it's a GET method, we can initialise a read-only serializer to speed up the request
+            # https://hakibenita.com/django-rest-framework-slow
+            def read_only_serializer_factory(model_name, model_serializer):
+                class ReadOnlyModelSerializer(ReadOnlyModelMixinSerializer, model_serializer):
+                    def __repr__(self):
+                        return f"<ReadOnlyModelSerializer for {model_name}>"
+
+                return ReadOnlyModelSerializer
+
+            return read_only_serializer_factory(self.queryset.model, self.serializer_class)
+
         return super().get_serializer_class()
