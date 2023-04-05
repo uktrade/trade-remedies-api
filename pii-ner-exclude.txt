@@ -1,3 +1,4 @@
+core.models
 f"Feature Flag Group
 PaaS
 BACKEND

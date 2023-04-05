@@ -30,12 +30,20 @@ class CoreConfig(AppConfig):
                 "the feature flag groups during app initialisation"
             )
 
-        if os.getenv("CIRCLECI"):
-            from rest_framework.permissions import IsAuthenticated
-            from core.services.base import GroupPermission
+        """if os.getenv("CIRCLECI"):
+            from rest_framework.authtoken.models import Token
+            from rest_framework.authentication import TokenAuthentication
+            from core.models import User
+            from rest_framework.views import APIView
 
-            def return_true(*args, **kwargs):
+            def custom_check_permissions(*args, **kwargs):
                 return True
 
-            IsAuthenticated.has_permission = return_true
-            GroupPermission.has_permission = return_true
+            APIView.check_permissions = custom_check_permissions
+
+            def custom_authenticate_credentials(*args, **kwargs):
+                health_check_user = User.objects.get(email=settings.HEALTH_CHECK_USER_EMAIL)
+                health_check_token = Token.objects.get(key=settings.HEALTH_CHECK_USER_TOKEN)
+                return (health_check_user, health_check_token)
+
+            TokenAuthentication.authenticate_credentials = custom_authenticate_credentials"""
