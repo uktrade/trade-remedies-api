@@ -1,6 +1,3 @@
-from rest_framework.permissions import IsAuthenticated
-
-from core.services.base import GroupPermission
 from .base import *  # noqa
 
 LOGGING = ENVIRONMENT_LOGGING
@@ -16,10 +13,5 @@ if os.getenv("CIRCLECI"):
         }
     }
     REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = ()
-
-    def return_true():
-        return True
-    IsAuthenticated = return_true
-    GroupPermission = return_true
 
 TESTING = True
