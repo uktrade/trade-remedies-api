@@ -86,24 +86,13 @@ class CaseOrNotice:
             end_date = None
             for test in criteria:
                 criterion = test["criterion"]
-                if criterion in ["before", "after"]:
-                    # This is a date test, we want to check if a review type can appear based on how far before or after
-                    # a particular milestone it currently is - now()
-                    duration_unit = test["unit"]
-                    duration_value = test["value"]
-                    offset = relativedelta(**{duration_unit: duration_value})
-                    milestone = test["milestone"]
-                    if milestone not in milestones:
-                        status = "milestone_missing"
-                        break
-                    rel_date = milestones[milestone] + offset
-                    if criterion == "after":
-                        start_date = (
-                            rel_date if not start_date or (rel_date > start_date) else start_date
-                        )
-                    else:
-                        end_date = rel_date if not end_date or (rel_date < end_date) else end_date
-                elif criterion == "state_value":
+                try:
+                    measure_commencement = milestones["MEASURE_COMMENCEMENT"]
+                    start_date = measure_commencement
+                    end_date = None
+                except KeyError:
+                    ...
+                if criterion == "state_value":
                     # Some review types are only allowed on cases which have reached a certain point in their worflow
                     state_value = self.get_state_key(key=test["key"])
                     if state_value != "pass" and (
