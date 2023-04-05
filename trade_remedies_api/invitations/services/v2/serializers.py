@@ -118,9 +118,3 @@ class InvitationSerializer(CustomValidationModelSerializer, BaseInvitationSerial
             role_object = CaseRole.objects.get(key=role_key)
             data["case_role"] = role_object.pk
         return super().to_internal_value(data)
-
-
-class ListInvitationSerializer(BaseInvitationSerializer):
-    class Meta:
-        model = Invitation
-        fields = "__all__"

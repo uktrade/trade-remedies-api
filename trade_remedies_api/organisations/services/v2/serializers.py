@@ -173,12 +173,6 @@ class OrganisationBaseSerializer(serializers.ModelSerializer):
         return ContactSerializer(instance=contacts, many=True).data
 
 
-class OrganisationListSerializer(OrganisationBaseSerializer):
-    class Meta:
-        model = Organisation
-        fields = "__all__"
-
-
 class OrganisationSerializer(CustomValidationModelSerializer, OrganisationBaseSerializer):
     class Meta:
         model = Organisation

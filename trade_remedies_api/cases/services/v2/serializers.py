@@ -23,17 +23,6 @@ class CaseTypeSerializer(CustomValidationModelSerializer):
         fields = "__all__"
 
 
-class ListCaseSerializer(serializers.ModelSerializer):
-    reference = serializers.CharField(required=False)
-    case_status = serializers.JSONField(required=False)
-    initiated_at = serializers.DateTimeField(required=False)
-    registration_deadline = serializers.DateTimeField(required=False)
-
-    class Meta:
-        model = Case
-        fields = "__all__"
-
-
 class CaseSerializer(CustomValidationModelSerializer):
     reference = serializers.CharField(required=False)
     type = NestedField(serializer_class=CaseTypeSerializer, required=False, accept_pk=True)

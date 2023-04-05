@@ -25,7 +25,6 @@ class BaseModelViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class: typing.Union[GenericSerializerType, None] = None
-    list_serializer_class: typing.Union[GenericSerializerType, None] = None
     permission_classes = (IsAuthenticated, GroupPermission)
 
     def get_queryset(self):
@@ -78,7 +77,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
             kwargs.setdefault("fields", fields)
         return serializer_class(*args, **kwargs)
 
-    def get_serializer_class(self) -> GenericSerializerType:
+    def get_serializer_class(self):
         """
         Return the class to use for the serializer. If the request has 'skinny: yes' in the query
         then a slim serializer will be used, this is identical to a normal serializer but without
@@ -86,7 +85,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
         """
         if "slim" in self.request.query_params:
             # they want a slim serializer without additional computed fields
-            def slim_serializer_factory(model_name) -> GenericSerializerType:
+            def slim_serializer_factory(model_name):
                 class SlimSerializer(CustomValidationModelSerializer):
                     class Meta:
                         model = model_name
@@ -95,26 +94,27 @@ class BaseModelViewSet(viewsets.ModelViewSet):
                     def __repr__(self):
                         return f"<SlimSerializer for {model_name}>"
 
+                if self.request.method == "GET":
+                    # if it's also a GET method, we can initialise a
+                    # read-only serializer to speed up the request
+                    SlimSerializer.__bases__ = (
+                        ReadOnlyModelMixinSerializer,
+                    ) + SlimSerializer.__bases__
+
                 return SlimSerializer
 
             return slim_serializer_factory(self.queryset.model)
 
-        if self.action == "list":
-
-            def read_only_serializer_factory(
-                model_name, mixin_model_class
-            ) -> GenericSerializerType:
-                class ListModelSerializer(ReadOnlyModelMixinSerializer, mixin_model_class):
-                    class Meta:
-                        model = model_name
-                        fields = "__all__"
-
+        if self.request.method == "GET":
+            # it's a GET method, we can initialise a read-only serializer to speed up the request
+            # https://hakibenita.com/django-rest-framework-slow
+            def read_only_serializer_factory(model_name, model_serializer):
+                class ReadOnlyModelSerializer(ReadOnlyModelMixinSerializer, model_serializer):
                     def __repr__(self):
-                        return f"<ListModelSerializer for {model_name}>"
+                        return f"<ReadOnlyModelSerializer for {model_name}>"
 
-                return ListModelSerializer
+                return ReadOnlyModelSerializer
 
-            model_class = self.list_serializer_class or self.serializer_class
-            return read_only_serializer_factory(self.queryset.model, model_class)
+            return read_only_serializer_factory(self.queryset.model, self.serializer_class)
 
         return super().get_serializer_class()

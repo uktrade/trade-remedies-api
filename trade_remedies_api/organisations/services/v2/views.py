@@ -17,13 +17,10 @@ from organisations.models import (
 from organisations.services.v2.serializers import (
     DuplicateOrganisationMergeSerializer,
     OrganisationCaseRoleSerializer,
-    OrganisationListSerializer,
     OrganisationMergeRecordSerializer,
-    OrganisationSerializer,
     SubmissionOrganisationMergeRecordSerializer,
     OrganisationSerializer,
     OrganisationUserSerializer,
-    OrganisationListSerializer,
 )
 from security.models import OrganisationCaseRole, OrganisationUser
 
@@ -35,7 +32,6 @@ class OrganisationViewSet(BaseModelViewSet):
 
     queryset = Organisation.objects.all().order_by("name")
     serializer_class = OrganisationSerializer
-    list_serializer_class = OrganisationListSerializer
 
     @action(
         detail=True,

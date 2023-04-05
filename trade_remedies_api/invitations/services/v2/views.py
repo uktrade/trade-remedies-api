@@ -16,7 +16,7 @@ from core.services.v2.users.serializers import UserSerializer
 from core.tasks import send_mail
 from core.utils import public_login_url
 from invitations.models import Invitation
-from invitations.services.v2.serializers import InvitationSerializer, ListInvitationSerializer
+from invitations.services.v2.serializers import InvitationSerializer
 from security.constants import SECURITY_GROUP_THIRD_PARTY_USER
 from security.models import UserCase
 
@@ -24,7 +24,6 @@ from security.models import UserCase
 class InvitationViewSet(BaseModelViewSet):
     queryset = Invitation.objects.all()
     serializer_class = InvitationSerializer
-    list_serializer_class = ListInvitationSerializer
 
     def get_queryset(self):
         """We can filter the queryset using GET query parameters.
