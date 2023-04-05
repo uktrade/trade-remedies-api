@@ -34,7 +34,7 @@ class CoreConfig(AppConfig):
             from rest_framework.permissions import IsAuthenticated
             from core.services.base import GroupPermission
 
-            def return_true():
+            def return_true(*args, **kwargs):
                 return True
 
             IsAuthenticated.has_permission = return_true
