@@ -29,7 +29,12 @@ class AuditableMixin(object):
         elif hasattr(self, "case"):
             case = self.case
         elif hasattr(self, "submission"):
-            case = self.submission.case
+            try:
+                case = self.submission.case
+            except AttributeError:
+                # if there is a nullable submission field, the submission relationship
+                # may not be present, this raises an AttributeError
+                pass
         elif hasattr(self, "_case_context"):
             case = self._case_context
         return case

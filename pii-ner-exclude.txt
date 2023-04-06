@@ -1,3 +1,90 @@
+Authentication View
+Perform Authentication
+Request
+" Sends a 2fa code
+Verifies a 2fa
+2fa_code
+Verifies
+"Django settings for
+Sentry
+SessionMiddleware
+django.middleware.common
+CommonMiddleware
+AuthenticationMiddleware
+MessageMiddleware
+AxesMiddleware
+BACKEND
+VCAP_SERVICES
+ContainsSpecialChar
+http://localhost:8001
+RedisCache
+DefaultClient
+IP
+Axes
+OPENSEARCH HOST
+doc_type
+ROOT_LOG_LEVEL
+TODO-V2:
+AWS
+boto3
+expiry
+SOS
+FEATURE_FLAG
+AUDIT COPY EMAILS
+AUDIT_EMAIL_TO_ADDRESS
+"Django settings for
+Sentry
+SessionMiddleware
+django.middleware.common
+CommonMiddleware
+AuthenticationMiddleware
+MessageMiddleware
+AxesMiddleware
+BACKEND
+VCAP_SERVICES
+ContainsSpecialChar
+http://localhost:8001
+RedisCache
+DefaultClient
+IP
+Axes
+OPENSEARCH HOST
+doc_type
+ROOT_LOG_LEVEL
+TODO-V2:
+AWS
+boto3
+expiry
+SOS
+FEATURE_FLAG
+AUDIT COPY EMAILS
+AUDIT_EMAIL_TO_ADDRESS
+submission_object.remove_document(child_document, requested_by=request.user
+OrganisationMergeRecord
+" Annotate a queryset
+Parameters
+https
+" Returns True if the organisation name matches the name on Companies House
+" Returns a dictionary
+does_name_match_companies_house
+In Progress
+assert len(first_page_organisations["results
+GB123456788
+Test Address 1
+ADDY
+"Fake Address
+GB123456789012
+111111111
+LD123
+Passing a submission_id query parameter
+urllib3==1.26.11
+Macintosh
+Intel Mac
+KHTML
+Gecko
+id="fyUUEr3ISpw4vq9QRarz" name="Page-2">7Z1tc9q4FoB/DbOfwvgd+JhA0nQ33aYlc3t7v3SELUCNbbm2CGF//T2SZVt+gWBCErI1mUzwsSzL0tGjc3Qkp2eOg8cPMYqWn6iH/Z6heY89c9IzDNN2TPjDJZtUYulOKljExEtFeiGYkn+wFGpSuiIeTkoJGaU+I1FZ6NIwxC4ryVAc03U52Zz65btGaIFrgqmL
+cu99+GcMza0/n6AU8n7OhPSxj1TGNw1yf6spJrYrd14xkFjbyVLTqc0zk0ha1kk2cTwGJKXcNQ5
+oYpGHZVvx83YDwzmP
 HTML
 Update ADR
 Session

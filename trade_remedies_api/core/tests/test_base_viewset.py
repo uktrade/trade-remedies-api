@@ -6,15 +6,15 @@ from organisations.models import Organisation
 from test_functional import FunctionalTestBase
 
 
-class CaseAPITest(CaseSetupTestMixin, FunctionalTestBase):
+class TestBaseModelViewSet(CaseSetupTestMixin, FunctionalTestBase):
     def test_filter_parameters_queryset(self):
         """
         Tests that filter_parameters can be passed as a base64-encoded json string to filter the
         queryset."""
         Organisation.objects.create(name="filter_1"),
         organisations = self.client.get("/api/v2/organisations/").json()
-        assert len(organisations["results"]) == 2
-        assert organisations["results"][1]["name"] == self.organisation.name
+        assert len(organisations) == 2
+        assert organisations[1]["name"] == self.organisation.name
 
         # now lets filter
         organisations = self.client.get(
@@ -22,8 +22,8 @@ class CaseAPITest(CaseSetupTestMixin, FunctionalTestBase):
                 "name": "filter_1"
             }).encode()).decode()}"""
         ).json()
-        assert len(organisations["results"]) == 1
-        assert organisations["results"][0]["name"] == "filter_1"
+        assert len(organisations) == 1
+        assert organisations[0]["name"] == "filter_1"
 
         # try filtering with a non-existent company
         organisations = self.client.get(
@@ -31,7 +31,23 @@ class CaseAPITest(CaseSetupTestMixin, FunctionalTestBase):
                 "name": "dont exist"
             }).encode()).decode()}"""
         ).json()
-        assert len(organisations["results"]) == 0
+        assert len(organisations) == 0
+
+    def test_slim(self):
+        """Tests that when the 'slim' query parameter is passed, a slimmed-down of the serializer is
+        used.
+        """
+        fat_response = self.client.get(f"/api/v2/organisations/{self.organisation.pk}/").json()
+        assert "id" in fat_response
+        assert "full_country_name" in fat_response
+        assert "name" in fat_response
+
+        slim_response = self.client.get(
+            f"/api/v2/organisations/{self.organisation.pk}/?slim=yes"
+        ).json()
+        assert "id" in slim_response
+        assert "full_country_name" not in slim_response
+        assert "name" in slim_response
 
     def test_deleted_item(self):
         case = self.client.get(f"/api/v2/cases/{self.case_object.id}/")

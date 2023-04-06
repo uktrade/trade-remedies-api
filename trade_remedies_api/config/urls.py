@@ -29,7 +29,12 @@ from core.services.auth import views as auth_api
 from core.services.v2.feature_flags.views import FlagViewSet
 from core.services.v2.feedback.views import FeedbackViewSet
 from core.services.v2.registration import views as registration_api
-from core.services.v2.users.views import ContactViewSet, TwoFactorAuthViewSet, UserViewSet
+from core.services.v2.users.views import (
+    ContactViewSet,
+    TwoFactorAuthViewSet,
+    UserProfileViewSet,
+    UserViewSet,
+)
 from documents.services.v2.views import DocumentBundleViewSet, DocumentViewSet
 from invitations.services.v2.views import InvitationViewSet
 from organisations.services.v2.views import (
@@ -38,6 +43,14 @@ from organisations.services.v2.views import (
     OrganisationViewSet,
 )
 from security.services.v2.views import UserCaseViewSet
+from organisations.services.v2.views import (
+    DuplicateOrganisationMergeViewSet,
+    OrganisationCaseRoleViewSet,
+    OrganisationMergeRecordViewSet,
+    OrganisationViewSet,
+    SubmissionOrganisationMergeRecordViewSet,
+)
+
 
 urlpatterns = [
     path(f"{settings.API_PREFIX}/health/", core_api.ApiHealthView.as_view()),
@@ -219,6 +232,26 @@ router.register(
     f"{settings.API_V2_PREFIX}/user_cases",
     UserCaseViewSet,
     basename="user_cases",
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/organisation_merge_records",
+    OrganisationMergeRecordViewSet,
+    basename="organisation_merge_records",
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/duplicate_organisation_merges",
+    DuplicateOrganisationMergeViewSet,
+    basename="duplicate_organisation_merges",
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/submission_organisation_merge_records",
+    SubmissionOrganisationMergeRecordViewSet,
+    basename="submission_organisation_merge_records",
+)
+router.register(
+    f"{settings.API_V2_PREFIX}/user_profiles",
+    UserProfileViewSet,
+    basename="user_profiles",
 )
 urlpatterns += router.urls
 

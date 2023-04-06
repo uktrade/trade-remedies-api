@@ -7,7 +7,7 @@ from rest_framework import serializers
 from cases.models import Case
 from config.serializers import CustomValidationModelSerializer
 from contacts.models import Contact
-from core.models import TwoFactorAuth, User
+from core.models import TwoFactorAuth, User, UserProfile
 from core.services.auth.serializers import EmailSerializer
 from core.utils import convert_to_e164
 from organisations.constants import REJECTED_ORG_CASE_ROLE
@@ -139,11 +139,16 @@ class UserSerializer(CustomValidationModelSerializer):
         serialization.
         """
         from organisations.services.v2.serializers import OrganisationSerializer
+        from organisations.models import Organisation
 
         if organisation_user_object := instance.organisation:
-            return OrganisationSerializer(
-                instance=organisation_user_object.organisation, exclude=["organisationuser_set"]
-            ).data
+            try:
+                return OrganisationSerializer(
+                    organisation_user_object.organisation,
+                    exclude=["organisationuser_set", "users"],
+                ).data
+            except Organisation.DoesNotExist:
+                return None
 
     @staticmethod
     def validate_password(value):
@@ -174,3 +179,9 @@ class GroupSerializer(serializers.ModelSerializer):
             role_object = Group.objects.get(name=security_group)
             data[""] = role_object.pk
         return super().to_internal_value(data)
+
+
+class UserProfileSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = "__all__"
