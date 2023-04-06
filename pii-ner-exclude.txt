@@ -1,3 +1,64 @@
+Authentication View
+Perform Authentication
+Request
+" Sends a 2fa code
+Verifies a 2fa
+2fa_code
+Verifies
+"Django settings for
+Sentry
+SessionMiddleware
+django.middleware.common
+CommonMiddleware
+AuthenticationMiddleware
+MessageMiddleware
+AxesMiddleware
+BACKEND
+VCAP_SERVICES
+ContainsSpecialChar
+http://localhost:8001
+RedisCache
+DefaultClient
+IP
+Axes
+OPENSEARCH HOST
+doc_type
+ROOT_LOG_LEVEL
+TODO-V2:
+AWS
+boto3
+expiry
+SOS
+FEATURE_FLAG
+AUDIT COPY EMAILS
+AUDIT_EMAIL_TO_ADDRESS
+"Django settings for
+Sentry
+SessionMiddleware
+django.middleware.common
+CommonMiddleware
+AuthenticationMiddleware
+MessageMiddleware
+AxesMiddleware
+BACKEND
+VCAP_SERVICES
+ContainsSpecialChar
+http://localhost:8001
+RedisCache
+DefaultClient
+IP
+Axes
+OPENSEARCH HOST
+doc_type
+ROOT_LOG_LEVEL
+TODO-V2:
+AWS
+boto3
+expiry
+SOS
+FEATURE_FLAG
+AUDIT COPY EMAILS
+AUDIT_EMAIL_TO_ADDRESS
 "trade_remedies_api URL Configuration The `
 API_PREFIX}/health/
 case_id>/
