@@ -16,6 +16,10 @@ asgiref==3.5.0
     #   django
 asttokens==2.2.1
     # via stack-data
+async-timeout==4.0.2
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   redis
 attrs==21.2.0
     # via pytest
 backcall==0.2.0
@@ -88,10 +92,6 @@ defusedxml==0.7.1
     # via
     #   -r requirements.in/../requirements/base.txt
     #   odfpy
-deprecated==1.2.13
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   redis
 distlib==0.3.3
     # via virtualenv
 dj-database-url==0.5.0
@@ -270,10 +270,8 @@ opensearch-py==1.0.0
     # via -r requirements.in/../requirements/base.txt
 packaging==21.3
     # via
-    #   -r requirements.in/../requirements/base.txt
     #   matplotlib
     #   pytest
-    #   redis
 parso==0.8.2
     # via jedi
 pathspec==0.9.0
@@ -332,7 +330,6 @@ pyjwt==2.4.0
     #   notifications-python-client
 pyparsing==3.0.7
     # via
-    #   -r requirements.in/../requirements/base.txt
     #   matplotlib
     #   packaging
 pypdf2==1.27.5
@@ -384,7 +381,7 @@ pytz==2022.7.1
     #   minio
 pyyaml==6.0
     # via pre-commit
-redis==4.1.1
+redis==4.4.4
     # via
     #   -r requirements.in/../requirements/base.txt
     #   django-redis
@@ -424,9 +421,7 @@ striprtf==0.0.10
 titlecase==0.12.0
     # via -r requirements.in/../requirements/base.txt
 toml==0.10.2
-    # via
-    #   pre-commit
-    #   pytest
+    # via pytest
 tomli==1.2.2
     # via
     #   black
@@ -468,10 +463,6 @@ wheel==0.38.4
     #   pip-tools
 whitenoise==5.3.0
     # via -r requirements.in/../requirements/base.txt
-wrapt==1.13.3
-    # via
-    #   -r requirements.in/../requirements/base.txt
-    #   deprecated
 xlrd==1.2.0
     # via -r requirements.in/../requirements/base.txt
 xlsxwriter==3.0.1

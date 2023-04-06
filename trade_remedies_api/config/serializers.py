@@ -1,3 +1,5 @@
+import typing
+
 from collections import OrderedDict, defaultdict
 from collections.abc import Mapping
 from functools import cached_property
@@ -290,3 +292,49 @@ class NestedKeyField(serializers.PrimaryKeyRelatedField):
             return dict(self.serializer(value, context=self.context, **self.serializer_kwargs).data)
         else:
             return super().to_representation(value)
+
+
+class BindingDict(typing.Protocol):
+    """
+    A protocol of -> A dict-like object used to store fields on a serializer.
+    """
+
+    def __init__(self, serializer):
+        ...
+
+
+class GenericSerializerType(typing.Protocol):
+    """
+    This tells the type checker that the serializer variable should be an instance
+    of a class that implements the GenericSerializerType protocol type.
+    If a class doesn't implement all the methods defined in the protocol type,
+    the type checker will raise an error.
+    """
+
+    def fields(self) -> BindingDict:
+        ...
+
+    def to_representation(self, instance) -> dict:
+        ...
+
+    def to_internal_value(self, data) -> dict:
+        ...
+
+    def __getitem__(self, key) -> serializers.Serializer:
+        ...
+
+
+class ReadOnlyModelMixinSerializer:
+    """
+    A read-only serializer for models.
+    In a writable ModelSerializer a lot of time is spent on validations
+    So to speed up the operation where we are getting a list of objects which
+    should be a read-only operation, we will use this read-only serializer.
+    """
+
+    def get_fields(self):
+        # Set all fields to read-only
+        fields = super().get_fields()
+        for field in fields.values():
+            field.read_only = True
+        return fields
