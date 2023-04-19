@@ -91,7 +91,7 @@ class CaseOrNotice:
                     start_date = measure_commencement
                     end_date = None
                 except KeyError:
-                    ...
+                    pass
                 if criterion == "state_value":
                     # Some review types are only allowed on cases which have reached a certain point in their worflow
                     state_value = self.get_state_key(key=test["key"])
