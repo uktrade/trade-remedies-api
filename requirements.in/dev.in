@@ -18,6 +18,7 @@ pytest-mock
 pytest-mock
 pytest-pythonpath
 pytest-xdist
+sqlparse==0.4.4
 traitlets>=5
 wheel>=0.38.1
 
