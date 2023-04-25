@@ -75,7 +75,7 @@ click-repl==0.2.0
     # via
     #   -r requirements.in/../requirements/base.txt
     #   celery
-codecov==2.1.12
+codecov==2.1.13
     # via -r requirements.in/dev.in
 colour==0.1.5
     # via -r requirements.in/../requirements/base.txt
