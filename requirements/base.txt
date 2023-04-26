@@ -213,8 +213,10 @@ six==1.16.0
     #   click-repl
     #   django-extensions
     #   python-dateutil
-sqlparse==0.4.2
-    # via django
+sqlparse==0.4.4
+    # via
+    #   -r requirements.in/base.in
+    #   django
 striprtf==0.0.10
     # via -r requirements.in/base.in
 titlecase==0.12.0

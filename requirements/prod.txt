@@ -272,7 +272,7 @@ six==1.16.0
     #   click-repl
     #   django-extensions
     #   python-dateutil
-sqlparse==0.4.2
+sqlparse==0.4.4
     # via
     #   -r requirements.in/../requirements/base.txt
     #   django
