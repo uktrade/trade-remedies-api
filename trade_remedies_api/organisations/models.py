@@ -1320,7 +1320,9 @@ class OrganisationMergeRecord(BaseModel):
             )
             ids_merged.append(potential_duplicate_organisation.child_organisation.id)
 
-        if notify_users:
+        # we only want to send emails if the notify_users flag is True, and any organisations have
+        # been merged in the first place
+        if notify_users and ids_merged:
             notify_template_id = SystemParameter.get("NOTIFY_ORGANISATION_MERGED")
             for organisation_user in organisation.organisationuser_set.filter(
                 security_group__name=SECURITY_GROUP_ORGANISATION_OWNER
