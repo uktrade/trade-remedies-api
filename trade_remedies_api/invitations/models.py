@@ -742,7 +742,7 @@ class Invitation(BaseModel):
                 organisation=self.organisation,
                 case=self.case,
                 defaults={
-                    "role": self.case_role,
+                    "role": CaseRole.objects.get(id=ROLE_AWAITING_APPROVAL),
                     "sampled": True,
                     "created_by": self.user,
                 },
