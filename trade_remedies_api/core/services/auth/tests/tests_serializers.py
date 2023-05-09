@@ -133,6 +133,16 @@ class TestAuthenticationSerializer(UserSetupTestBase):
         self.assertTrue(serializer.is_valid())
         self.assertEqual(serializer.data["token"], self.user.get_access_token().key)
 
+    def test_authentication_serializer_minimum_complexity_not_raised(self):
+        """Tests that a minimum complexity error is not raised when a weak password is attempted."""
+        self.user.userprofile.verify_email()  # verifying their email
+        serializer = AuthenticationSerializer(
+            data={"email": email, "password": "123"},
+            context={"request": self.valid_mock_request},
+        )
+        self.assertFalse(serializer.is_valid())
+        assert "password" not in serializer.errors
+
     def test_authentication_serializer_valid_email_not_verified(self):
         """Tests that the AuthenticationSerializer is valid when passed a correct user and password.
 

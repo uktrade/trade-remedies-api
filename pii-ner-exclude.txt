@@ -1,3 +1,13 @@
+Test the DRF
+PasswordSerializer
+Simulate the request.data
+Test Name
+TwoFactorAuthRequestSerializer
+TwoFactorAuthVerifySerializer
+Get User
+self.initial_data
+QueryDicts
+SMS
 Authentication View
 Perform Authentication
 Request
