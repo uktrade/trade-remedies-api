@@ -1,4 +1,6 @@
 from django.core.management.base import BaseCommand
+
+from contacts.models import CaseContact
 from organisations.models import Organisation
 from organisations.services.v2.serializers import OrganisationSerializer
 
@@ -9,11 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-
     help = "List potential duplicate organisations"
 
     def add_arguments(self, parser):
-        # Optional aruguments
+        # Optional arguments
         parser.add_argument(
             "--name", type=str, help='Name of organisation. E.g., "The Organisation LTD"'
         )
@@ -27,51 +28,55 @@ class Command(BaseCommand):
         else:
             logger.info("Finding potential duplicates for ALL organisations")
             # get all organisation objects
-            return Organisation.objects.all()
+            return list(Organisation.objects.all())[0:10]
 
     def handle(self, *args, **options):
         # get organisation object(s)
         all_organisations = self.get_organisations(**options)
 
-        logger.info("Creating list of potential duplicate organisations")
+        self.stdout.write("Creating list of potential duplicate organisations")
 
-        self.stdout.write("----- Potential duplicate organisations -----")
-
-        all_potential_duplicates = []
+        all_organisation_information = {}
         for organisation in all_organisations:
             # get list of potential organisations
+            organisation_information = {
+                "name": organisation.name,
+                "address": organisation.address,
+                "post code": organisation.post_code,
+                "registration number": organisation.companies_house_id,
+                "country": organisation.country.code,
+            }
+
             merge_record = organisation.find_potential_duplicate_orgs(fresh=True)
+            potential_duplicates = merge_record.potential_duplicates()
+            organisation_information["number_of_duplicates"] = len(potential_duplicates)
+            organisation_information["potential_duplicates"] = [
+                {"id": str(each.child_organisation.id), "name": each.child_organisation.name}
+                for each in potential_duplicates
+            ]
 
-            # check if the organisation has potential duplicates
-            if merge_record.status == "duplicates_found":
-                duplicate_organisations = []
-                for child in merge_record.potential_duplicates():
-                    # use "OrganisationSerializer" instead of creating the dictionary manually
-                    child_organisations = OrganisationSerializer(
-                        instance=child.child_organisation, slim=True
-                    ).data
-
-                    # extract id and name fields for each duplicate organisation
-                    duplicate_organisations.append(
-                        {
-                            key: value
-                            for (key, value) in child_organisations.items()
-                            if key == "id" or key == "name"
-                        }
-                    )
-
-                # group all duplicates with 'parent' organisation - this will end up as an array in json
-                all_potential_duplicates.append(
+            cases = []
+            for case_contact in CaseContact.objects.filter(contact__organisation=organisation):
+                cases.append(
                     {
-                        # json doesn't like UUIDs for keys
-                        str(organisation.id): {
-                            "number_of_duplicates": len(duplicate_organisations),
-                            "duplicates": duplicate_organisations,
-                        },
+                        "case ID": str(case_contact.case.id),
+                        "case name": case_contact.case.name,
+                        "representing ID": str(case_contact.organisation.id),
+                        "representing name": case_contact.organisation.name,
                     }
                 )
 
-        # TODO: Replace 'print' with something more suitable
-        print(json.dumps(all_potential_duplicates))
+            organisation_information["cases"] = cases
+            organisation_information["number_of_case_contacts"] = len(cases)
 
-        self.stdout.write(self.style.SUCCESS("Potential duplicates list created"))
+            all_organisation_information[str(organisation.id)] = organisation_information
+
+        with open("potential_duplicates_on_the_trs.json", "w") as json_out:
+            json_dumps_str = json.dumps(all_organisation_information, indent=4)
+            print(json_dumps_str, file=json_out)
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                "Potential duplicates list created, saved at 'potential_duplicates_on_the_trs.json'"
+            )
+        )

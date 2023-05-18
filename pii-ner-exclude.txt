@@ -1,3 +1,13 @@
+The Organisation LTD
+email4
+email3
+James
+Johhhhno
+Christopher Pettinga
+c4a35d07
+Blenheim Terrace
+0EG
+Broadway
 " Creates and returns a new registration of interest submission for the given user and organisation
 " Creates and returns a new registration of interest submission for the given user and organisation
 Test the DRF
