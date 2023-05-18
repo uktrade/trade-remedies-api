@@ -1,10 +1,7 @@
 from django.contrib.auth.models import Group
 
-from django.contrib.auth.models import Group
-
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
 from cases.models import Submission, get_submission_type
-from config.test_bases import CaseSetupTestMixin
 from contacts.models import Contact
 from invitations.models import Invitation
 from organisations.models import SubmissionOrganisationMergeRecord

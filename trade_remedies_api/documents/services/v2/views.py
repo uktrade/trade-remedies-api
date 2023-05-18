@@ -16,6 +16,8 @@ class DocumentViewSet(BaseModelViewSet):
         if a submission_id is passed in the request.POST.
         """
         submission_object = Submission.objects.get(id=request.data["submission_id"])
+
+        # get parent object, if parent id is passed in request
         parent_document_object = None
         if parent_document_id := request.data.get("parent"):
             parent_document_object = Document.objects.get(id=parent_document_id)
@@ -54,29 +56,51 @@ class DocumentViewSet(BaseModelViewSet):
             issued_by=request.user,
         )
 
+        # A "parent" document is the first document (of a pair) that is uploaded.
+        # I.e., the order that the confidential and non-confidential documents
+        # are uploaded by the user.
+        #
+        # On initial upload there isn't a problem; two documents are uploaded,
+        # the first being assigned as being the parent.
+        #
+        # If a pair of documents have already been uploaded and a new document
+        # is being uploaed, and replacing one of the originals, then this is what
+        # we are currently doing:
+        #
+        #   1) Create original Document object (retrieved from database) - this
+        #      will be deleted later
+        #   2) If the document being replaced is a parent document, we replace
+        #      the id of original document on parent field of all child
+        #      documents with id of the new (replacement) document
+        #   3) If the document being replaced is NOT a parent, then it must
+        #      must have a parent of its own. Assign parent of original to
+        #      the new document.
+        #   4) ---
+        #   5) Delete submissions associated with original document
+        #   6) Delete original document
+
         # if this file is replacing another, let's delete the replacement
         if replace_document_id := request.data.get("replace_document_id"):
+            #   1) See above
             original_document = Document.objects.get(id=replace_document_id)
 
+            #   2) See above
             # first let's re-associate any children of the original one to point to the new one
             Document.objects.filter(parent=original_document).update(parent=document.id)
 
+            #   3) See above
             # let's associate the current doc with the parent if it exists
             if original_document.parent:
                 document.parent = original_document.parent
                 document.save()
 
-            document.refresh_from_db()
-            if document.parent and document.parent.parent == document:
-                document.parent.refresh_from_db()
-                # they have the same parent, let's make the current doc the child
-                document.parent = None
-                document.save()
-
+            #   5) See above
             # and the submission documents
             original_document.submissiondocument_set.filter(
                 submission=submission_object,
             ).delete()
+
+            #   6) See above
             # now let's delete the replacement
             original_document.delete()
 

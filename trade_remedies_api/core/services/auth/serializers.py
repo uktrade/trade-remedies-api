@@ -116,6 +116,11 @@ class AuthenticationSerializer(UserExistsSerializer, PasswordSerializer):  # noq
     Also exposes a data() method which can be easily returned as part of an HttpResponse object.
     """
 
+    def validate_password(self, value: str) -> str:
+        # we always validate the password as we don't want to show complexity error messages when
+        # logging in
+        return value
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.response_dict = dict()

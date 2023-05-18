@@ -1,9 +1,5 @@
-from collections import defaultdict
-
 from django.contrib.auth.models import Group
-from django.db import connection, transaction
 from django.db.models import Q
-from django.http import Http404
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -18,13 +14,10 @@ from organisations.models import (
     OrganisationMergeRecord,
     SubmissionOrganisationMergeRecord,
 )
-from organisations.services.v2.pagination import StandardResultsSetPagination
 from organisations.services.v2.serializers import (
     DuplicateOrganisationMergeSerializer,
     OrganisationCaseRoleSerializer,
-    OrganisationListSerializer,
     OrganisationMergeRecordSerializer,
-    OrganisationSerializer,
     SubmissionOrganisationMergeRecordSerializer,
     OrganisationSerializer,
     OrganisationUserSerializer,

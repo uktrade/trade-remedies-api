@@ -1,8 +1,15 @@
 import base64
 import json
+from unittest.mock import MagicMock
+
+import pytest
+from django.urls import reverse
+from model_bakery import baker
+from rest_framework.test import APIRequestFactory
 
 from config.test_bases import CaseSetupTestMixin
 from organisations.models import Organisation
+from organisations.services.v2.views import OrganisationViewSet
 from test_functional import FunctionalTestBase
 
 
@@ -66,3 +73,53 @@ class TestBaseModelViewSet(CaseSetupTestMixin, FunctionalTestBase):
         case = self.client.get("/api/v2/cases/")
         assert case.status_code == 200
         assert len(case.json()) == 0
+
+    @pytest.mark.django_db
+    def test_list_viewset_fields_are_read_only(self):
+        factory = APIRequestFactory()
+        url = reverse("organisations-list")
+
+        viewset = OrganisationViewSet()
+
+        request = factory.get(url)
+        request.query_params = {}
+        request.user = MagicMock()
+
+        viewset.request = request
+        viewset.action = "list"
+
+        serializer_class = viewset.get_serializer_class()
+        organisation = baker.make(
+            "organisations.Organisation",
+            name="Fake Company LTD",
+            address="101 London, LD123",
+            post_code="LD123",
+            vat_number="GB123456789",
+            eori_number="GB205672212000",
+            duns_number="012345678",
+            organisation_website="www.fakewebsite.com",
+        )
+
+        serializer = serializer_class([organisation], many=True)
+        assert all([value.read_only for _, value in serializer_class().get_fields().items()])
+        assert serializer.data[0]["name"] == "Fake Company LTD"
+
+    @pytest.mark.django_db
+    def test_slim_serializer_also_read_only(self):
+        """Tests that when you pass slim in the ViewSet with a
+        get request it returns a read only serializer.
+        """
+        factory = APIRequestFactory()
+        url = reverse("organisations-list")
+
+        viewset = OrganisationViewSet()
+
+        request = factory.get(url)
+        request.query_params = {"slim": "yes"}
+        request.user = MagicMock()
+
+        viewset.request = request
+        viewset.action = "list"
+        serializer_class = viewset.get_serializer_class()
+        assert all([value.read_only for _, value in serializer_class().get_fields().items()])
+        assert "full_country_name" not in serializer_class().get_fields().keys()

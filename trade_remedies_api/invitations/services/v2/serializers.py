@@ -48,6 +48,15 @@ class InvitationSerializer(CustomValidationModelSerializer):
     type_display_name = serializers.ReadOnlyField(source="get_invitation_type_display")
     status = serializers.SerializerMethodField()
 
+    def to_internal_value(self, data):
+        """API requests can pass case_role with the key"""
+        data = data.copy()  # Making the QueryDict mutable
+        if role_key := data.get("case_role_key"):
+            # We can pass a role_key in the request.POST which we can use to lookup a CaseRole obj
+            role_object = CaseRole.objects.get(key=role_key)
+            data["case_role"] = role_object.pk
+        return super().to_internal_value(data)
+
     @staticmethod
     def get_status(instance):
         """Helper function to return a machine and human-readable status. (obviously they're both
@@ -107,12 +116,3 @@ class InvitationSerializer(CustomValidationModelSerializer):
 
         verbose_status = choices[status]
         return status, verbose_status
-
-    def to_internal_value(self, data):
-        """API requests can pass case_role with the key"""
-        data = data.copy()  # Making the QueryDict mutable
-        if role_key := data.get("case_role_key"):
-            # We can pass a role_key in the request.POST which we can use to lookup a CaseRole obj
-            role_object = CaseRole.objects.get(key=role_key)
-            data["case_role"] = role_object.pk
-        return super().to_internal_value(data)
