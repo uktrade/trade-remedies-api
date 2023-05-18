@@ -250,6 +250,11 @@ class OrganisationMergeRecordSerializer(CustomValidationModelSerializer):
         """Returns all potential duplicates for this merge record"""
         return DuplicateOrganisationMergeSerializer(instance.potential_duplicates(), many=True).data
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["pending_potential_duplicates"] = [each for each in data["potential_duplicates"] if each["status"] == "pending"]
+        return data
+
     def save(self, **kwargs):
         """Override save to update the chosen_case_roles field with the chosen role_ids whilst keeping the old ones intact"""
         if chosen_case_roles := self.initial_data.get("chosen_case_roles_delimited", None):
