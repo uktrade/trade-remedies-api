@@ -252,7 +252,9 @@ class OrganisationMergeRecordSerializer(CustomValidationModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["pending_potential_duplicates"] = [each for each in data["potential_duplicates"] if each["status"] == "pending"]
+        data["pending_potential_duplicates"] = [
+            each for each in data["potential_duplicates"] if each["status"] == "pending"
+        ]
         return data
 
     def save(self, **kwargs):
