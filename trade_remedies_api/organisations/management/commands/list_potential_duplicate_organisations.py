@@ -33,7 +33,7 @@ class Command(BaseCommand):
         # get organisation object(s)
         all_organisations = self.get_organisations(**options)
 
-        logger.info(f"Creating list of potential duplicate organisations")
+        logger.info("Creating list of potential duplicate organisations")
 
         self.stdout.write("----- Potential duplicate organisations -----")
 
@@ -74,4 +74,4 @@ class Command(BaseCommand):
         # TODO: Replace 'print' with something more suitable
         print(json.dumps(all_potential_duplicates))
 
-        self.stdout.write(self.style.SUCCESS(f"Potential duplicates list created"))
+        self.stdout.write(self.style.SUCCESS("Potential duplicates list created"))
