@@ -136,3 +136,4 @@ ner_output_file.txt
 
 # vscode
 .vscode/
+/trade_remedies_api/potential_duplicates_on_the_trs.json

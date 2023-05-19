@@ -28,7 +28,7 @@ class Command(BaseCommand):
         else:
             logger.info("Finding potential duplicates for ALL organisations")
             # get all organisation objects
-            return list(Organisation.objects.all())[0:10]
+            return Organisation.objects.all()
 
     def handle(self, *args, **options):
         # get organisation object(s)
@@ -37,7 +37,10 @@ class Command(BaseCommand):
         self.stdout.write("Creating list of potential duplicate organisations")
 
         all_organisation_information = {}
-        for organisation in all_organisations:
+        total_organisations_count = all_organisations.count()
+        for index, organisation in enumerate(all_organisations):
+            print(f"Processing organisation {index + 1} of {total_organisations_count}")
+
             # get list of potential organisations
             organisation_information = {
                 "name": organisation.name,
