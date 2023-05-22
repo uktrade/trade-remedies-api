@@ -31,8 +31,9 @@ class TestOrganisationMergeRecordSerializer(MergeTestBase):
         assert "pending_potential_duplicates" in serializer.data
         assert len(serializer.data["pending_potential_duplicates"]) == 2
 
-        self.merge_record.potential_duplicates().first().status = "confirmed_duplicate"
-        self.merge_record.potential_duplicates().first().save()
+        chosen_duplicate = self.merge_record.potential_duplicates().first()
+        chosen_duplicate.status = "confirmed_duplicate"
+        chosen_duplicate.save()
 
         self.merge_record.refresh_from_db()
         serializer = OrganisationMergeRecordSerializer(self.merge_record)
