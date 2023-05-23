@@ -56,12 +56,6 @@ class OrganisationUserSerializer(CustomValidationModelSerializer):
     security_group_key = serializers.ReadOnlyField(source="security_group.key")
 
 
-class OrganisationListSerializer(CustomValidationModelSerializer):
-    class Meta:
-        model = Organisation
-        fields = "__all__"
-
-
 class OrganisationSerializer(CustomValidationModelSerializer):
     country = serializers.CharField(source="country.alpha3", required=False)
     country_code = serializers.ReadOnlyField(source="country.code")
@@ -79,7 +73,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     json_data = serializers.JSONField(required=False, allow_null=True)
     a_tag_website_url = serializers.SerializerMethodField()
     full_country_name = serializers.SerializerMethodField()
-
     users = serializers.SerializerMethodField()
 
     class Meta:
@@ -168,7 +161,8 @@ class OrganisationSerializer(CustomValidationModelSerializer):
             )
         ]
 
-    def get_validated(self, instance):
+    @staticmethod
+    def get_validated(instance):
         """Returns true if the organisation has been validated on the TRS at some point"""
         return instance.organisationcaserole_set.filter(validated_at__isnull=False).exists()
 
@@ -255,6 +249,13 @@ class OrganisationMergeRecordSerializer(CustomValidationModelSerializer):
     def get_potential_duplicates(instance):
         """Returns all potential duplicates for this merge record"""
         return DuplicateOrganisationMergeSerializer(instance.potential_duplicates(), many=True).data
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data["pending_potential_duplicates"] = [
+            each for each in data["potential_duplicates"] if each["status"] == "pending"
+        ]
+        return data
 
     def save(self, **kwargs):
         """Override save to update the chosen_case_roles field with the chosen role_ids whilst keeping the old ones intact"""

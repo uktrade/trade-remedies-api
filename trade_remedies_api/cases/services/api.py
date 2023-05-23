@@ -3,6 +3,7 @@ import json
 import re
 import logging
 from dateutil import parser
+from django.http import HttpResponseBadRequest
 from core.services.base import ResponseError, TradeRemediesApiView, ResponseSuccess
 from core.services.exceptions import (
     InvalidRequestParams,
@@ -93,6 +94,7 @@ class PublicCaseView(APIView):
         if case_number.startswith("SR"):
             # we changed SR to SA, so redirect
             case_number = "SA" + case_number[2:]
+        logger.debug(f"Request to this view with case_number {case_number}")
         match = re.search("([A-Za-z]{1,3})([0-9]+)", case_number)
         if match:
             case = get_object_or_404(
@@ -102,8 +104,7 @@ class PublicCaseView(APIView):
                 deleted_at__isnull=True,
             )
             return ResponseSuccess({"result": case.to_dict()})
-        logger.debug(f"Request to this view with case_number {case_number}")
-        return ResponseSuccess({"result": None})
+        return HttpResponseBadRequest(f"Invalid case number {case_number}")
 
 
 class PublicNoticeView(APIView):
