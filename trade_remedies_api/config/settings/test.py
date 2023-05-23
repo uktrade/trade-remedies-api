@@ -1,6 +1,8 @@
+from v2_api_client.shared.logging import PRODUCTION_LOGGING
+
 from .base import *  # noqa
 
-LOGGING = ENVIRONMENT_LOGGING
+LOGGING = PRODUCTION_LOGGING
 
 # This module is also referenced when executing tests in CircleCI, the below
 # settings cater for that (expedites test execution). However in the PaaS `test`
