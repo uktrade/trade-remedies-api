@@ -4,7 +4,7 @@ import os
 import boto3
 from django.conf import settings
 from django.http import StreamingHttpResponse
-
+from v2_api_client.shared.logging import audit_logger
 
 logger = logging.getLogger(__name__)
 
@@ -36,11 +36,12 @@ def upload_document_to(instance, filename):
     """
 
 
-def stream_s3_file_download(s3_bucket, s3_key, filename=None):
+def stream_s3_file_download(s3_bucket, s3_key, user_id, filename=None):
     """
     Send a file back from s3 as a streamed response
     :param s3_bucket: S3 Bucket name
     :param s3_key: Bucket key (path/filename)
+    :param user_id: The ID of the user downloading the file
     :param filename: Optional name of file to return. Will be derived from key if not provided
     :return: A StreamingHttpResponse streaming the file
     """
@@ -58,4 +59,5 @@ def stream_s3_file_download(s3_bucket, s3_key, filename=None):
         _kwargs["content_type"] = s3_response["ContentType"]
     response = StreamingHttpResponse(generate_file(s3_response), **_kwargs)
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    audit_logger.info("User downloading file", extra={"s3_key": s3_key, "user": user_id})
     return response

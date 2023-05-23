@@ -7,6 +7,8 @@ from django.db.models import Q, OuterRef, Exists, QuerySet
 from django.conf import settings
 from django.utils import timezone
 from dateutil.parser import parse
+from v2_api_client.shared.logging import audit_logger
+
 from audit.utils import audit_log
 from audit import (
     AUDIT_TYPE_EVENT,
@@ -988,6 +990,10 @@ class Case(BaseModel, CaseOrNotice):
                         case=self,
                         organisation=organisation,
                         user_context=[created_by],
+                    )
+                    audit_logger.info(
+                        "V1 - UserCase created (user assigned to case)",
+                        extra={"user_case": user_case.id},
                     )
                 return user_case
         else:

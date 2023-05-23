@@ -3,6 +3,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from v2_api_client.shared.logging import audit_logger
 
 from audit import AUDIT_TYPE_CREATE, AUDIT_TYPE_UPDATE
 from audit.utils import audit_log
@@ -44,7 +45,14 @@ class SubmissionViewSet(BaseModelViewSet):
         submission_object = self.get_object()
         new_status = request.data["new_status"]
         submission_object.update_status(new_status, request.user)
-
+        audit_logger.info(
+            "Submission status updated",
+            extra={
+                "submission": submission_object.id,
+                "new_status": new_status,
+                "user": request.user.id,
+            },
+        )
         audit_log(
             audit_type=AUDIT_TYPE_UPDATE,
             user=request.user,
