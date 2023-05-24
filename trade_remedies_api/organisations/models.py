@@ -1321,7 +1321,7 @@ class OrganisationMergeRecord(BaseModel):
             )
             ids_merged.append(potential_duplicate_organisation.child_organisation.id)
 
-        """if notify_users:
+        if notify_users:
             notify_template_id = SystemParameter.get("NOTIFY_ORGANISATION_MERGED")
             for organisation_user in organisation.organisationuser_set.filter(
                 security_group__name=SECURITY_GROUP_ORGANISATION_OWNER
@@ -1339,7 +1339,7 @@ class OrganisationMergeRecord(BaseModel):
                         "audit_type": AUDIT_TYPE_NOTIFY,
                         "user": organisation_user.user,
                     },
-                )"""
+                )
         if create_audit_log:
             audit_log(
                 audit_type=AUDIT_TYPE_ORGANISATION_MERGED,
