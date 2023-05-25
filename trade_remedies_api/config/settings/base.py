@@ -6,11 +6,12 @@ import sys
 import dj_database_url
 import environ
 import sentry_sdk
-from django_log_formatter_ecs import ECSFormatter
 from flags import conditions
 from flags.conditions import DuplicateCondition
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
+
+from config.feature_flags import is_user_part_of_group
 
 # We use django-environ but do not read a `.env` file. Locally we feed
 # docker-compose an environment from a local.env file in the project root.
@@ -19,7 +20,6 @@ from sentry_sdk.integrations.django import DjangoIntegration
 # NB: Some settings acquired using `env()` deliberately *do not* have defaults
 # as we want to get an `ImproperlyConfigured` exception to avoid a badly
 # configured deployment.
-from config.feature_flags import is_user_part_of_group
 
 root = environ.Path(__file__) - 4
 env = environ.Env(
@@ -349,60 +349,6 @@ LOGGING = {
                 "stdout",
             ],
             "level": env("DJANGO_DB_LOG_LEVEL", default="INFO"),
-            "propagate": False,
-        },
-    },
-}
-
-ENVIRONMENT_LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "ecs_formatter": {
-            "()": ECSFormatter,
-        },
-        "simple": {"format": "%(levelname)s %(message)s"},
-    },
-    "handlers": {
-        "ecs": {
-            "class": "logging.StreamHandler",
-            "stream": sys.stdout,
-            "formatter": "ecs_formatter",
-        },
-    },
-    "root": {
-        "handlers": [
-            "ecs",
-        ],
-        "level": env("ROOT_LOG_LEVEL", default="INFO"),
-    },
-    "loggers": {
-        "django": {
-            "handlers": [
-                "ecs",
-            ],
-            "level": env("DJANGO_LOG_LEVEL", default="INFO"),
-            "propagate": False,
-        },
-        "django.server": {
-            "handlers": [
-                "ecs",
-            ],
-            "level": env("DJANGO_SERVER_LOG_LEVEL", default="ERROR"),
-            "propagate": False,
-        },
-        "django.request": {
-            "handlers": [
-                "ecs",
-            ],
-            "level": env("DJANGO_REQUEST_LOG_LEVEL", default="ERROR"),
-            "propagate": False,
-        },
-        "django.db.backends": {
-            "handlers": [
-                "ecs",
-            ],
-            "level": env("DJANGO_DB_LOG_LEVEL", default="ERROR"),
             "propagate": False,
         },
     },
