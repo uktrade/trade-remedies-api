@@ -20,12 +20,12 @@ class TestAuditLogger(CaseSetupTestMixin, FunctionalTestBase):
         assert "API V2" in output
 
         with self.assertLogs(audit_logger, level="INFO") as cm:
-            response = self.client.get(f"/api/v2/cases/{self.case.id}/")
+            response = self.client.get(f"/api/v2/cases/{self.case_object.id}/")
 
         log = cm.records[0]
         assert hasattr(log, "extra_details")
         assert log.extra_details["user"] == response.wsgi_request.user.id
-        assert log.extra_details["case"] == self.user.id
+        assert log.extra_details["case"] == self.case_object.id
 
         output = cm.output[0]
         assert "get operation" in output
