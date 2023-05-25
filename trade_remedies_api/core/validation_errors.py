@@ -142,7 +142,7 @@ validation_errors = {
     },
     "organisation_registered_country_not_selected": {
         "field": "uk_employer",
-        "error_text": "Select Yes or No",
+        "error_text": "Select yes if your organisation is a UK registered company",
         "error_summary": "You need to select if your organisation is a UK registered company",
     },
     "companies_house_not_searched": {
@@ -332,8 +332,8 @@ validation_errors = {
     },
     "invite_which_cases_not_selected": {
         "field": "which_case",
-        "error_text": "Select an option",
-        "error_summary": "Select 'No cases' or one or more cases",
+        "error_text": "Select the case the user can take part in",
+        "error_summary": "You need to select the case the user can take part in.",
     },
     "invite_representative_who_is_registering_missing": {
         "field": "who_is_registering",
