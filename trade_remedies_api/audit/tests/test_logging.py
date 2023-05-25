@@ -28,7 +28,7 @@ class TestAuditLogger(CaseSetupTestMixin, FunctionalTestBase):
         assert log.extra_details["id"] == str(self.case_object.id)
 
         output = cm.output[0]
-        assert "get operation" in output
+        assert "retrieve operation" in output
 
     def test_group_addition_audit_logging(self):
         """Tests that the correct logs are made when a user is added to a group."""
