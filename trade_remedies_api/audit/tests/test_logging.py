@@ -40,7 +40,7 @@ class TestAuditLogger(CaseSetupTestMixin, FunctionalTestBase):
         record = cm.records[0]
         assert hasattr(record, "extra_details")
         assert record.extra_details["user"] == self.user.id
-        assert self.owner_group.name in record.extra_details["group"]
+        assert self.owner_group.name in record.extra_details["groups"]
 
         output = cm.output[0]
         assert "added to group" in output

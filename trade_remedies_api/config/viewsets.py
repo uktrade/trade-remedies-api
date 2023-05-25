@@ -52,6 +52,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
         object_id = self.kwargs.get(lookup_url_kwarg, "N/A")
+        print(request.user.email)
         audit_logger.info(
             f"API V2 - {self.action} operation",
             extra={
