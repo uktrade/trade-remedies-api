@@ -25,7 +25,7 @@ class TestAuditLogger(CaseSetupTestMixin, FunctionalTestBase):
         log = cm.records[0]
         assert hasattr(log, "extra_details")
         assert log.extra_details["user"] == response.wsgi_request.user.id
-        assert log.extra_details["id"] == self.case_object.id
+        assert log.extra_details["id"] == str(self.case_object.id)
 
         output = cm.output[0]
         assert "get operation" in output
