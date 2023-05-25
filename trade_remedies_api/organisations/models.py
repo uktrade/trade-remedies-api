@@ -109,7 +109,10 @@ class OrganisationManager(models.Manager):
             ).filter(case_id__in=parent_org_cases)
             if shared_cases:
                 for org_case_role in shared_cases:
-                    if str(org_case_role.case.id) in merge_record_object.chosen_case_roles:
+                    if (
+                        merge_record_object.chosen_case_roles
+                        and str(org_case_role.case.id) in merge_record_object.chosen_case_roles
+                    ):
                         # there has been a preference selected for this case, so we will use that
                         chosen_role_id = merge_record_object.chosen_case_roles[
                             str(org_case_role.case.id)
