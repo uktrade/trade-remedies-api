@@ -14,7 +14,7 @@ class TestAuditLogger(CaseSetupTestMixin, FunctionalTestBase):
 
         log = cm.records[0]
         assert hasattr(log, "extra_details")
-        assert log.extra_details["user"] == str(self.user.id)
+        assert log.extra_details["user"] == self.user.id
 
         output = cm.output[0]
         assert "list operation" in output
@@ -25,8 +25,8 @@ class TestAuditLogger(CaseSetupTestMixin, FunctionalTestBase):
 
         log = cm.records[0]
         assert hasattr(log, "extra_details")
-        assert log.extra_details["user"] == str(self.user.id)
-        assert log.extra_details["case"] == str(self.user.id)
+        assert log.extra_details["user"] == self.user.id
+        assert log.extra_details["case"] == self.user.id
 
         output = cm.output[0]
         assert "get operation" in output
@@ -39,21 +39,24 @@ class TestAuditLogger(CaseSetupTestMixin, FunctionalTestBase):
 
         record = cm.records[0]
         assert hasattr(record, "extra_details")
-        assert record.extra_details["user"] == str(self.user.id)
+        assert record.extra_details["user"] == self.user.id
         assert self.owner_group.name in record.extra_details["group"]
 
         output = cm.output[0]
         assert "added to group" in output
 
     def test_group_addition_audit_logging_2(self):
-        """Tests that the correct logs are made when a user is added to a group via the group interface."""
+        """Tests that the correct logs are made when a user is
+        added to a group via the group interface."""
         self.user.groups.clear()
         with self.assertLogs(audit_logger, level="INFO") as cm:
             self.owner_group.user_set.add(self.user)
 
         record = cm.records[0]
         assert hasattr(record, "extra_details")
-        assert record.extra_details["user"] == str(self.user.id)
+        assert record.extra_details["users"] == [
+            self.user.id,
+        ]
         assert self.owner_group.name in record.extra_details["group"]
 
         output = cm.output[0]

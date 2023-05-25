@@ -52,7 +52,7 @@ class CoreConfig(AppConfig):
                     )
                 elif issubclass(self.model, user_model):
                     # this is a User operation from the perspective of the group, e.g,
-                    # Group.objects.get(name=SECURITY_GROUP_SUPER_USER).user_set.add(request.user)
+                    # Group.user_set.add(request.user)
                     # let's log it
                     audit_logger.info(
                         "User added to group",

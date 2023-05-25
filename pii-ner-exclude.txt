@@ -1,3 +1,4 @@
+Group.user_set.add(request.user
 API V2
 PaaS
 LocMemCache
