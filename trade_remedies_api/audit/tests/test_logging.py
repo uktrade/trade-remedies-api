@@ -10,22 +10,21 @@ class TestAuditLogger(CaseSetupTestMixin, FunctionalTestBase):
     def test_v2_audit_logging(self):
         """Tests that the correct logs are made when V2 Viewsets are accessed."""
         with self.assertLogs(audit_logger, level="INFO") as cm:
-            self.client.get("/api/v2/cases/")
-
+            response = self.client.get("/api/v2/cases/")
         log = cm.records[0]
         assert hasattr(log, "extra_details")
-        assert log.extra_details["user"] == self.user.id
+        assert log.extra_details["user"] == response.wsgi_request.user.id
 
         output = cm.output[0]
         assert "list operation" in output
         assert "API V2" in output
 
         with self.assertLogs(audit_logger, level="INFO") as cm:
-            self.client.get(f"/api/v2/cases/{self.case.id}/")
+            response = self.client.get(f"/api/v2/cases/{self.case.id}/")
 
         log = cm.records[0]
         assert hasattr(log, "extra_details")
-        assert log.extra_details["user"] == self.user.id
+        assert log.extra_details["user"] == response.wsgi_request.user.id
         assert log.extra_details["case"] == self.user.id
 
         output = cm.output[0]
