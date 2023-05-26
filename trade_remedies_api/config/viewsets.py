@@ -2,10 +2,13 @@ import base64
 import json
 import typing
 
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 from functools import lru_cache
 
 from django.core.exceptions import FieldError
 from django.http import Http404
+from django_ratelimit.middleware import RatelimitMiddleware
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -19,7 +22,11 @@ from config.serializers import (
     ReadOnlyModelMixinSerializer,
 )
 
+RatelimitMiddleware
+get_rate = lambda g, r: None if r.user.is_authenticated else "100/h"
 
+
+@method_decorator(ratelimit(key="ip", rate="1/m", method=ratelimit.UNSAFE), name="get")
 class BaseModelViewSet(viewsets.ModelViewSet):
     """
     Base class for ModelViewSets to share commonly overriden methods
