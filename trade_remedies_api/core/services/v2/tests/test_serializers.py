@@ -72,13 +72,16 @@ class TestContactSerializer(CaseSetupTestMixin):
         new_contact = serializer.save()
         assert new_contact.email.islower()
 
-    def test_mobile_number_without_country_code(self):
+    def test_mobile_number_without_country_code_no_phone(self):
         serializer = ContactSerializer(instance=self.contact_object)
-        assert serializer.is_valid()
         assert not serializer.data["mobile_number_without_country_code"]
 
-    def test_mobile_number_without_country_code_2(self):
+    def test_mobile_number_without_country_code_valid_number(self):
         self.contact_object.phone = "+447123456789"
         serializer = ContactSerializer(instance=self.contact_object)
-        assert serializer.is_valid()
         assert serializer.data["mobile_number_without_country_code"] == "7123456789"
+
+    def test_mobile_number_without_country_code_invalid_number(self):
+        self.contact_object.phone = "+123"
+        serializer = ContactSerializer(instance=self.contact_object)
+        assert not serializer.data["mobile_number_without_country_code"]
