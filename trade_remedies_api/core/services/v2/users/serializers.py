@@ -1,7 +1,9 @@
+import phonenumbers
 from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
 from django.db.models import Q
 from django_restql.fields import NestedField
+from phonenumbers.phonenumberutil import NumberParseException
 from rest_framework import serializers
 
 from cases.models import Case
@@ -33,11 +35,22 @@ class ContactSerializer(CustomValidationModelSerializer, EmailSerializer):
     has_user = serializers.ReadOnlyField()
     user_id = serializers.SerializerMethodField()
     country_iso_code = serializers.ReadOnlyField(source="country.code")
+    mobile_number_without_country_code = serializers.SerializerMethodField()
 
     @staticmethod
     def get_user_id(instance):
         if user := instance.user:
             return user.id
+
+    @staticmethod
+    def get_mobile_number_without_country_code(instance):
+        if phone_number := instance.phone:
+            try:
+                phone_number = phonenumbers.parse(phone_number, None)
+                without_country_code = str(phone_number.national_number)
+            except NumberParseException:
+                without_country_code = None
+            return without_country_code
 
     def save(self, **kwargs):
         # If the 'country' is present in changed data, we need to fetch the true value from the dic
