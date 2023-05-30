@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from v2_api_client.shared.logging import audit_logger
 
+from config.ratelimit import get_rate
 from core.services.base import GroupPermission
 
 from config.serializers import (
@@ -22,11 +23,8 @@ from config.serializers import (
     ReadOnlyModelMixinSerializer,
 )
 
-RatelimitMiddleware
-get_rate = lambda g, r: None if r.user.is_authenticated else "100/h"
 
-
-@method_decorator(ratelimit(key="ip", rate="1/m", method=ratelimit.UNSAFE), name="get")
+@method_decorator(ratelimit(key="user_or_ip", rate=get_rate, method=ratelimit.ALL), name="dispatch")
 class BaseModelViewSet(viewsets.ModelViewSet):
     """
     Base class for ModelViewSets to share commonly overriden methods

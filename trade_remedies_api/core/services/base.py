@@ -1,12 +1,17 @@
 import logging
 import json
 from time import time
+
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.parsers import BaseParser, DataAndFiles
 from rest_framework.exceptions import ParseError
+
+from config.ratelimit import get_rate
 from security.utils import validate_user_organisation, validate_user_case
 from security.constants import SECURITY_GROUP_SUPER_USER
 from organisations.models import get_organisation
@@ -55,6 +60,7 @@ class GroupPermission(BasePermission):
         return any([self._user_in_group(request.user, group) for group in allowed_groups])
 
 
+@method_decorator(ratelimit(key="user_or_ip", rate=get_rate, method=ratelimit.ALL), name="dispatch")
 class TradeRemediesApiView(APIView):
     """Base class for all Trade Remedies API Views.
 
