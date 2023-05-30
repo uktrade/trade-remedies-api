@@ -156,6 +156,8 @@ django-pglocks==1.0.3
     # via -r requirements.in/../requirements/base.txt
 django-phonenumber-field==6.0.0
     # via -r requirements.in/../requirements/base.txt
+django-ratelimit==4.0.0
+    # via -r requirements.in/../requirements/base.txt
 django-redis==5.2.0
     # via -r requirements.in/../requirements/base.txt
 django-restql==0.15.2
