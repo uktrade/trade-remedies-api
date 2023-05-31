@@ -333,7 +333,7 @@ validation_errors = {
     "invite_which_cases_not_selected": {
         "field": "which_case",
         "error_text": "Select the case the user can take part in",
-        "error_summary": "You need to select the case the user can take part in.",
+        "error_summary": "You need to select the case the user can take part in",
     },
     "invite_representative_who_is_registering_missing": {
         "field": "who_is_registering",
