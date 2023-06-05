@@ -502,10 +502,14 @@ class Invitation(BaseModel):
         return organisation.assign_user(user, group)
 
     def create_registration_of_interest(
-        self, user: User, organisation: Organisation, **kwargs
+        self,
+        user: User,
+        organisation: Organisation,
+        **kwargs,
     ) -> Submission:
         """
-        Creates and returns a new registration of interest.
+        Creates and returns a new registration of interest submission for the given user and organisation.
+        If an ROI for that user/org/case combo already exists, return that one instead.
 
         Arguments:
             user: A User object
@@ -520,18 +524,26 @@ class Invitation(BaseModel):
         submission_type = SubmissionType.objects.get(id=SUBMISSION_TYPE_REGISTER_INTEREST)
         submission_kwargs = {
             "created_by": user,
-            "organisation": organisation,
-            "type": submission_type,
             "name": submission_type.name,
             "status": submission_type.default_status,
-            "case": self.case,
-            "contact": user.contact,
-            "user_context": user,
         }
         submission_kwargs = {**submission_kwargs, **kwargs}
-        new_registration_of_interest = Submission(**submission_kwargs)
-        new_registration_of_interest.save()
-        return new_registration_of_interest
+        try:
+            roi, _ = Submission.objects.get_or_create(
+                case=self.case,
+                contact=user.contact,
+                organisation=organisation,
+                type=submission_type,
+                defaults=submission_kwargs,
+            )
+        except Submission.MultipleObjectsReturned:
+            roi = Submission.objects.filter(
+                case=self.case,
+                contact=user.contact,
+                organisation=organisation,
+                type=submission_type,
+            ).first()
+        return roi
 
     @transaction.atomic  # noqa:C901
     def process_invitation(
@@ -742,7 +754,7 @@ class Invitation(BaseModel):
                 organisation=self.organisation,
                 case=self.case,
                 defaults={
-                    "role": self.case_role,
+                    "role": CaseRole.objects.get(id=ROLE_AWAITING_APPROVAL),
                     "sampled": True,
                     "created_by": self.user,
                 },

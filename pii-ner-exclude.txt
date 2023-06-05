@@ -1,3 +1,17 @@
+organisation_user.user.email
+AUDIT_TYPE_NOTIFY
+" Creates and returns a new registration of interest submission for the given user and organisation
+" Creates and returns a new registration of interest submission for the given user and organisation
+Test the DRF
+PasswordSerializer
+Simulate the request.data
+Test Name
+TwoFactorAuthRequestSerializer
+TwoFactorAuthVerifySerializer
+Get User
+self.initial_data
+QueryDicts
+SMS
 Authentication View
 Perform Authentication
 Request
@@ -59,6 +73,56 @@ SOS
 FEATURE_FLAG
 AUDIT COPY EMAILS
 AUDIT_EMAIL_TO_ADDRESS
+"trade_remedies_api URL Configuration The `
+API_PREFIX}/health/
+case_id>/
+request_email_verify
+XML
+Cache-Control
+Return a Notification
+TRADE_REMEDIES_EMAIL
+Cache-Control
+parts/
+Installer
+htmlcov/
+.cache
+db.sqlite3
+NER
+SR
+SA
+GET
+GET /case/{CASE_ID}/` Return
+ex_oficio
+" Create a "Register
+GET /cases/{ORGANISATION_ID}/
+GET /cases/{ORGANISATION_ID}/{CASE_ID}/submissions/` Return
+CURRENT_STAGE
+"Returns the available review types
+Suspension Extension
+SN
+ER
+SA
+SN
+Suspension Extension
+SN
+Suspension Extension
+SN
+SR
+SA
+GET
+GET /case/{CASE_ID}/` Return
+ex_oficio
+" Create a "Register
+GET /cases/{ORGANISATION_ID}/
+GET /cases/{ORGANISATION_ID}/{CASE_ID}/submissions/` Return
+CURRENT_STAGE
+"Returns the available review types
+Serializes DuplicateOrganisationMerge
+"Returns the order of this duplicate in the parent organisation along
+Serializes OrganisationMergeRecord
+Serializes DuplicateOrganisationMerge
+"Returns the order of this duplicate in the parent organisation along
+Serializes OrganisationMergeRecord
 submission_object.remove_document(child_document, requested_by=request.user
 OrganisationMergeRecord
 " Annotate a queryset
