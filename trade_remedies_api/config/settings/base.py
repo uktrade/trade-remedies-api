@@ -119,6 +119,7 @@ MIDDLEWARE = [
     # "django.middleware.gzip.GZipMiddleware",
     "axes.middleware.AxesMiddleware",
     "config.middleware.SentryContextMiddleware",
+    "django_ratelimit.middleware.RatelimitMiddleware",
 ]
 
 if DJANGO_ADMIN:
@@ -495,3 +496,8 @@ AUDIT_EMAIL_SMTP_HOST = env.str(
 )
 AUDIT_EMAIL_SMTP_PORT = env.int("AUDIT_EMAIL_SMTP_PORT", default=587)
 AUDIT_EMAIL_TO_ADDRESS = env.str("AUDIT_EMAIL_TO_ADDRESS")
+
+# ------------------- API RATE LIMITING -------------------
+API_RATELIMIT_ENABLED = env.bool("API_RATELIMIT_ENABLED", default=True)
+API_RATELIMIT_RATE = env.str("API_RATELIMIT_RATE", default="50/m")
+RATELIMIT_VIEW = "config.ratelimit.ratelimited_error"
