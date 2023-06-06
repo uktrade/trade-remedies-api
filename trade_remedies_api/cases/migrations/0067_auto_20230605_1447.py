@@ -7,14 +7,18 @@ def create_bsg_casetype(apps, schema_editor):
     CaseType = apps.get_model("cases", "CaseType")
     WorkflowTemplate = apps.get_model("workflow", "WorkflowTemplate")
 
-    CaseType.objects.create(
-        name="Bilateral Safeguards Review",
-        acronym="BSG",
-        order=160,
-        internal=True,
-        workflow=WorkflowTemplate.objects.get(id="259838a3-21b9-4232-a134-630495e4835c"),
-        colour="#e69f00",
-    )
+    try:
+        workflow_object = WorkflowTemplate.objects.get(id="259838a3-21b9-4232-a134-630495e4835c")
+        CaseType.objects.create(
+            name="Bilateral Safeguards Review",
+            acronym="BSG",
+            order=160,
+            internal=True,
+            workflow=workflow_object,
+            colour="#e69f00",
+        )
+    except WorkflowTemplate.DoesNotExist:
+        return True
 
 
 def delete_bsg_casetype(apps, schema_editor):
