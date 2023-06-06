@@ -39,6 +39,7 @@ class CaseViewSet(BaseModelViewSet):
         workflow objects of the case and it slows down the standard CaseSerializer."""
         return JsonResponse(self.get_object().get_status())
 
+
 class SubmissionViewSet(BaseModelViewSet):
     queryset = Submission.objects.all()
     serializer_class = SubmissionSerializer
