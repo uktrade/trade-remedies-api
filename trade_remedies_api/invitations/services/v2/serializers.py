@@ -21,7 +21,7 @@ class InvitationSerializer(CustomValidationModelSerializer):
         serializer_class=OrganisationSerializer,
         required=False,
         accept_pk=True,
-        exclude=["cases", "invitations", "organisationuser_set"],
+        exclude=["cases", "organisationuser_set"],
     )
     contact = NestedField(serializer_class=ContactSerializer, required=False, accept_pk=True)
 

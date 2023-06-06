@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.http import JsonResponse
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -30,6 +31,13 @@ class CaseViewSet(BaseModelViewSet):
             return Case.objects.available_for_regisration_of_intestest(self.request.user)
         return super().get_queryset()
 
+    @action(detail=True, methods=["get"], url_name="get_status")
+    def get_status(self, request, *args, **kwargs):
+        """Gets the status of a case using the get_status() method of the case.
+
+        We put this in a separate action as it's quite a costly operation, going over all of the
+        workflow objects of the case and it slows down the standard CaseSerializer."""
+        return JsonResponse(self.get_object().get_status())
 
 class SubmissionViewSet(BaseModelViewSet):
     queryset = Submission.objects.all()
