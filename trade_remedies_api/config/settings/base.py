@@ -116,11 +116,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # "django.middleware.gzip.GZipMiddleware",
     "axes.middleware.AxesMiddleware",
     "config.middleware.SentryContextMiddleware",
-    "django_ratelimit.middleware.RatelimitMiddleware",
-    "pyinstrument.middleware.ProfilerMiddleware",
 ]
 
 if DJANGO_ADMIN:
@@ -500,7 +497,15 @@ AUDIT_EMAIL_TO_ADDRESS = env.str("AUDIT_EMAIL_TO_ADDRESS")
 
 # ------------------- API RATE LIMITING -------------------
 API_RATELIMIT_ENABLED = env.bool("API_RATELIMIT_ENABLED", default=True)
+if API_RATELIMIT_ENABLED:
+    MIDDLEWARE = MIDDLEWARE + ["django_ratelimit.middleware.RatelimitMiddleware",]
+
 API_RATELIMIT_RATE = env.str("API_RATELIMIT_RATE", default="50/m")
 RATELIMIT_VIEW = "config.ratelimit.ratelimited_error"
 
+# ------------------- API PROFILING -------------------
 PYINSTRUMENT_PROFILE_DIR = "profiles"
+PROFILING_ENABLED = env.bool("PROFILING_ENABLED", default=False)
+if PROFILING_ENABLED:
+    MIDDLEWARE = ["config.middleware.StatsMiddleware",] + MIDDLEWARE
+    MIDDLEWARE = MIDDLEWARE + ["pyinstrument.middleware.ProfilerMiddleware",]

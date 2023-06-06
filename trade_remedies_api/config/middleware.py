@@ -1,3 +1,5 @@
+import importlib
+
 from django.conf import settings
 from sentry_sdk import set_user
 import time
@@ -60,16 +62,9 @@ class StatsMiddleware(MiddlewareMixin):
         """
         Store the start time when the request comes in.
         """
-        request.start_time = time.time()
+        start_time = time.time()
         response = self.get_response(request)
-        return response
-
-    def process_template_response(self, request, response):
-        "Calculate and output the page generation duration"
-        # Get the start time from the request and calculate how long
-        # the response took.
-        duration = time.time() - request.start_time
-        # Add the header.
-        response["X-Page-Generation-Duration-ms"] = int(duration * 1000)
-        print("Page generation took %.2f ms" % (duration * 1000))
+        duration = round(time.time() - start_time, 2)
+        response["X-Page-Generation-Duration-ms"] = duration
+        print(f"{request.path} generation took {duration}s")
         return response
