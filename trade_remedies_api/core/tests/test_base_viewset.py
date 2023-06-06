@@ -134,4 +134,4 @@ class TestBaseModelViewSet(CaseSetupTestMixin, FunctionalTestBase):
 
         # second request should be rate-limited
         response = self.client.get("/api/v2/organisations/")
-        assert response.status_code == 409
+        assert response.status_code == 429
