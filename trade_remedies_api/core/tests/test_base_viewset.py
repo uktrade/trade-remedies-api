@@ -126,7 +126,7 @@ class TestBaseModelViewSet(CaseSetupTestMixin, FunctionalTestBase):
         assert all([value.read_only for _, value in serializer_class().get_fields().items()])
         assert "full_country_name" not in serializer_class().get_fields().keys()
 
-    @override_settings(API_RATELIMIT_RATE="5/h")
+    @override_settings(API_RATELIMIT_RATE="1/h")
     def test_ratelimit(self):
         # first request should be fine
         response = self.client.get("/api/v2/organisations/")
@@ -134,4 +134,4 @@ class TestBaseModelViewSet(CaseSetupTestMixin, FunctionalTestBase):
 
         # second request should be rate-limited
         response = self.client.get("/api/v2/organisations/")
-        assert response.status_code == 409
+        assert response.status_code == 429

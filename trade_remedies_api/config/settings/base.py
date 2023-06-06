@@ -120,6 +120,7 @@ MIDDLEWARE = [
     "axes.middleware.AxesMiddleware",
     "config.middleware.SentryContextMiddleware",
     "django_ratelimit.middleware.RatelimitMiddleware",
+    "pyinstrument.middleware.ProfilerMiddleware",
 ]
 
 if DJANGO_ADMIN:
@@ -501,3 +502,5 @@ AUDIT_EMAIL_TO_ADDRESS = env.str("AUDIT_EMAIL_TO_ADDRESS")
 API_RATELIMIT_ENABLED = env.bool("API_RATELIMIT_ENABLED", default=True)
 API_RATELIMIT_RATE = env.str("API_RATELIMIT_RATE", default="50/m")
 RATELIMIT_VIEW = "config.ratelimit.ratelimited_error"
+
+PYINSTRUMENT_PROFILE_DIR = "profiles"
