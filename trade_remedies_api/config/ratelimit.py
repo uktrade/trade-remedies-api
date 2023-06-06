@@ -15,4 +15,8 @@ def get_rate(group, request):
 
 def ratelimited_error(request, exception):
     """Return a 429 response when the user is rate-limited."""
+    from sentry_sdk import capture_exception
+
+    # logging to sentry so we know
+    capture_exception(exception)
     return JsonResponse({"error": "ratelimited"}, status=429)
