@@ -12,7 +12,6 @@ class TestOrganisationSerializer(CaseSetupTestMixin):
         serializer = OrganisationSerializer(instance=self.organisation)
         assert not serializer.data["cases"]
         assert not serializer.data["organisationuser_set"]
-        assert not serializer.data["invitations"]
 
     def test_organisationuser_set(self):
         self.organisation_user = self.organisation.assign_user(
@@ -37,20 +36,6 @@ class TestOrganisationSerializer(CaseSetupTestMixin):
         assert serializer.data["cases"]
         assert len(serializer.data["cases"]) == 1
         assert serializer.data["cases"][0]["id"] == str(self.case_object.id)
-
-    def test_invitations(self):
-        invitation = Invitation.objects.create_user_invite(
-            user_email="invite_me@example.com",  # /PS-IGNORE
-            organisation=self.organisation,
-            invited_by=self.user,
-            meta={
-                "name": "invite me name",
-            },
-        )
-        serializer = OrganisationSerializer(instance=self.organisation)
-        assert serializer.data["invitations"]
-        assert len(serializer.data["invitations"]) == 1
-        assert serializer.data["invitations"][0]["id"] == str(invitation.id)
 
 
 class TestOrganisationCaseRoleSerializer(CaseSetupTestMixin):

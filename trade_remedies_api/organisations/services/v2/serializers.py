@@ -61,7 +61,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     country_code = serializers.ReadOnlyField(source="country.code")
     organisationuser_set = OrganisationUserSerializer(many=True, required=False)
     cases = serializers.SerializerMethodField()
-    invitations = serializers.SerializerMethodField()
     validated = serializers.SerializerMethodField()
     organisationcaserole_set = OrganisationCaseRoleSerializer(many=True, required=False)
     user_cases = serializers.SerializerMethodField()
@@ -147,19 +146,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
 
         cases = Case.objects.filter(usercase__in=user_cases).distinct()
         return CaseSerializer(cases, many=True).data
-
-    def get_invitations(self, instance):
-        """Return all invitations that this organisation has sent."""
-        from invitations.services.v2.serializers import InvitationSerializer
-
-        return [
-            InvitationSerializer(
-                instance=each, exclude=["organisation"]  # Avoid infinite self-referencing
-            ).data
-            for each in instance.invitation_set.all().select_related(
-                "organisation", "contact", "submission"
-            )
-        ]
 
     @staticmethod
     def get_validated(instance):
