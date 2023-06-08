@@ -1324,6 +1324,9 @@ class OrganisationMergeRecord(BaseModel):
             )
             ids_merged.append(potential_duplicate_organisation.child_organisation.id)
 
+        self.status = "duplicates_resolved"
+        self.save()
+
         # we only want to send emails if the notify_users flag is True, and any organisations have
         # been merged in the first place
         if notify_users and ids_merged:
@@ -1400,7 +1403,6 @@ class SubmissionOrganisationMergeRecord(BaseModel):
         ("complete", "Complete"),
     )
 
-    id = None
-    submission = models.OneToOneField(Submission, on_delete=models.CASCADE, primary_key=True)
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
     organisation_merge_record = models.ForeignKey(OrganisationMergeRecord, on_delete=models.CASCADE)
     status = models.CharField(default="not_started", choices=status_choices, max_length=30)

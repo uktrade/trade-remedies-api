@@ -296,18 +296,21 @@ class SubmissionOrganisationMergeRecordViewSet(BaseModelViewSet):
     queryset = SubmissionOrganisationMergeRecord.objects.all()
     serializer_class = SubmissionOrganisationMergeRecordSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        submission_object = get_object_or_404(Submission, pk=kwargs["pk"])
-        if instance := getattr(submission_object, "submissionorganisationmergerecord", False):
-            organisation_object = instance.organisation_merge_record.parent_organisation
-        else:
-            organisation_object = get_object_or_404(Organisation, pk=request.GET["organisation_id"])
+    def get_object(self):
+        return get_object_or_404(
+            SubmissionOrganisationMergeRecord,
+            submission_id=self.kwargs["pk"],
+            organisation_merge_record_id__parent_organisation=self.request.GET["organisation_id"],
+        )
 
+    def retrieve(self, request, *args, **kwargs):
+        print("Accessed")
+        submission_object = get_object_or_404(Submission, pk=kwargs["pk"])
+        organisation_object = get_object_or_404(Organisation, pk=request.GET["organisation_id"])
         merge_record = organisation_object.find_potential_duplicate_orgs()
 
         instance, _ = SubmissionOrganisationMergeRecord.objects.get_or_create(
             submission=submission_object,
-            # organisation_merge_record=organisation_object.merge_record
             organisation_merge_record=merge_record,
         )
 
