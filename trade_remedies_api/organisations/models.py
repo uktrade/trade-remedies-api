@@ -110,7 +110,10 @@ class OrganisationManager(models.Manager):
             ).filter(case_id__in=parent_org_cases)
             if shared_cases:
                 for org_case_role in shared_cases:
-                    if str(org_case_role.case.id) in merge_record_object.chosen_case_roles:
+                    if (
+                        merge_record_object.chosen_case_roles
+                        and str(org_case_role.case.id) in merge_record_object.chosen_case_roles
+                    ):
                         # there has been a preference selected for this case, so we will use that
                         chosen_role_id = merge_record_object.chosen_case_roles[
                             str(org_case_role.case.id)
@@ -1312,7 +1315,7 @@ class OrganisationMergeRecord(BaseModel):
             )
             ids_merged.append(potential_duplicate_organisation.child_organisation.id)
 
-        if notify_users:
+        if notify_users and ids_merged:
             notify_template_id = SystemParameter.get("NOTIFY_ORGANISATION_MERGED")
             for organisation_user in organisation.organisationuser_set.filter(
                 security_group__name=SECURITY_GROUP_ORGANISATION_OWNER
