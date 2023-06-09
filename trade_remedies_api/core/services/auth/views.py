@@ -14,6 +14,7 @@ from sentry_sdk import set_user
 from audit import AUDIT_TYPE_PASSWORD_RESET, AUDIT_TYPE_PASSWORD_RESET_FAILED
 from audit.utils import audit_log
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
+from v2_api_client.shared.logging import audit_logger
 from core.models import PasswordResetRequest, SystemParameter, TwoFactorAuth, User, UserProfile
 from core.notifier import send_mail
 from core.services.base import ResponseError, ResponseSuccess, TradeRemediesApiView
@@ -100,7 +101,7 @@ class AuthenticationView(APIView):
             Invitation.objects.validate_all_pending(
                 user, invitation_code
             )  # validate all pending invitations
-
+            audit_logger.info("User logged in", extra={"user": user.id})
             return ResponseSuccess(serializer.data, http_status=status.HTTP_200_OK)
         else:
             raise ValidationAPIException(serializer_errors=serializer.errors)
@@ -350,6 +351,7 @@ class PasswordResetFormV2(APIView):
                 logger.info(f"Password reset completed for: request {request_id}")
                 user_pk = PasswordResetRequest.objects.get(request_id=request_id).user.pk
                 user = User.objects.get(pk=user_pk)
+                audit_logger.info("User password reset", extra={"user": user.id})
                 audit_log(audit_type=AUDIT_TYPE_PASSWORD_RESET, user=user)
                 return ResponseSuccess({"result": {"reset": True}}, http_status=status.HTTP_200_OK)
         elif not password_serializer.is_valid():

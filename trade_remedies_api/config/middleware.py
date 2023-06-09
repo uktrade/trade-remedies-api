@@ -1,18 +1,22 @@
+import importlib
+
 from django.conf import settings
 from sentry_sdk import set_user
-
+import time
 from core.services.exceptions import AccessDenied
 
 
-class ApiTokenSetter:
+class MiddlewareMixin:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+
+class ApiTokenSetter(MiddlewareMixin):
     """
     Allows using a request query parameter called access_token instead of the header based
     authorization token. If used, and the HTTP_AUTHRIZATION header is not present, the
     access_token query parameter will be used to set the header for the request.
     """
-
-    def __init__(self, get_response):
-        self.get_response = get_response
 
     def __call__(self, request):
         if "Authorization" not in request.META and "HTTP_AUTHORIZATION" not in request.META:
@@ -28,10 +32,7 @@ class ApiTokenSetter:
 
 # TODO-TRV2 consider if this is required, no different from origin having a
 #  trusted token, seems superfluous.
-class OriginValidator:
-    def __init__(self, get_response):
-        self.get_response = get_response
-
+class OriginValidator(MiddlewareMixin):
     def __call__(self, request):
         if request.META.get("X-Origin-Environment") in settings.ALLOWED_ORIGINS:
             return self.get_response(request)
@@ -39,13 +40,10 @@ class OriginValidator:
             raise AccessDenied("Access denied. Required headers missing.")
 
 
-class SentryContextMiddleware:
+class SentryContextMiddleware(MiddlewareMixin):
     """
     Sets sentry context during each request/response so we can identify unique users
     """
-
-    def __init__(self, get_response):
-        self.get_response = get_response
 
     def __call__(self, request):
         response = self.get_response(request)
@@ -57,3 +55,16 @@ class SentryContextMiddleware:
         else:
             set_user(None)
         return None
+
+
+class StatsMiddleware(MiddlewareMixin):
+    def __call__(self, request):
+        """
+        Store the start time when the request comes in.
+        """
+        start_time = time.time()
+        response = self.get_response(request)
+        duration = round(time.time() - start_time, 2)
+        response["X-Page-Generation-Duration-ms"] = duration
+        print(f"{request.path} generation took {duration}s")
+        return response

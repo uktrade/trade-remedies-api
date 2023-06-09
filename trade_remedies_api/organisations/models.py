@@ -12,6 +12,7 @@ from django.db.models.functions import Replace
 from django.utils import timezone
 from django.utils.html import escape
 from django_countries.fields import CountryField
+from tldextract import tldextract
 
 from audit import AUDIT_TYPE_NOTIFY, AUDIT_TYPE_ORGANISATION_MERGED
 from audit.utils import audit_log
@@ -554,21 +555,11 @@ class Organisation(BaseModel):
                         query = {f"{removed_special_chars[0]}__icontains": value}
                         q_objects |= models.Q(**query)
 
-            # now we filter by the URL, removing http://, www., and the suffix
+            # now we filter by the URL, we only care about the domain name
+            # e.g. https://www.example.com.uk/ -> example
             if url := self.organisation_website:
-                url = url.split("/")
-                if url[0] in ["https:", "http:"]:
-                    url = url[2].split(".")
-                else:
-                    url = url[0].split(".")
-                # now we iterate through the reversed URL list and find the domain
-                for i in range(len(url) - 1, 0, -1):
-                    if url[i] in ["co", "uk", "com", "net", "org"]:
-                        continue
-                    else:
-                        url_domain = url[i]
-                        q_objects |= models.Q(organisation_website__icontains=url_domain)
-                        break
+                domain = tldextract.extract(url).domain
+                q_objects |= models.Q(organisation_website__icontains=domain)
 
             # applying the filter to the queryset
             potential_duplicates = potential_duplicates.filter(q_objects)
