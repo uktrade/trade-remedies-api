@@ -501,9 +501,8 @@ if API_RATELIMIT_ENABLED:
     MIDDLEWARE = MIDDLEWARE + [
         "django_ratelimit.middleware.RatelimitMiddleware",
     ]
-
-API_RATELIMIT_RATE = env.str("API_RATELIMIT_RATE", default="50/m")
-RATELIMIT_VIEW = "config.ratelimit.ratelimited_error"
+    API_RATELIMIT_RATE = env.str("API_RATELIMIT_RATE", default="200/m")
+    RATELIMIT_VIEW = "config.ratelimit.ratelimited_error"
 
 # ------------------- API PROFILING -------------------
 PYINSTRUMENT_PROFILE_DIR = "profiles"
