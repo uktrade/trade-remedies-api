@@ -3,7 +3,10 @@ import json
 import re
 import logging
 from dateutil import parser
+from django.contrib.auth.models import Group
 from django.http import HttpResponseBadRequest
+from v2_api_client.shared.logging import audit_logger
+
 from core.services.base import ResponseError, TradeRemediesApiView, ResponseSuccess
 from core.services.exceptions import (
     InvalidRequestParams,
@@ -75,6 +78,8 @@ from security.models import UserCase, OrganisationCaseRole, CaseRole
 from security.constants import (
     SECURITY_GROUPS_TRA,
     ROLE_PREPARING,
+    SECURITY_GROUP_SUPER_USER,
+    SECURITY_GROUP_TRA_INVESTIGATOR,
 )
 from security.exceptions import InvalidAccess
 from organisations.models import Organisation, get_organisation
@@ -217,6 +222,10 @@ class CasesAPIView(TradeRemediesApiView):
         *args,
         **kwargs,
     ):
+        audit_logger.info(
+            "V1 - Case(s) accessed",
+            extra={"case": case_id, "user": request.user.id, "organisation": organisation_id},
+        )
         archived = request.query_params.get("archived", "false")
         new_cases = request.query_params.get("new_cases", "false") in TRUTHFUL_INPUT_VALUES
         all_cases = request.query_params.get("all", self.all_cases)
@@ -459,6 +468,7 @@ class CasesAPIView(TradeRemediesApiView):
             org_case, created = OrganisationCaseRole.objects.assign_organisation_case_role(
                 organisation=self.organisation, case=case, role=role, created_by=request.user
             )
+        audit_logger.info("V1 - Case created", extra={"case": case.id})
         return ResponseSuccess({"result": case.to_dict()}, http_status=status.HTTP_201_CREATED)
 
 

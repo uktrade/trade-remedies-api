@@ -515,7 +515,9 @@ class DocumentStreamDownloadAPIView(TradeRemediesApiView):
                 raise NotFoundApiExceptions("Document not found or access is denied")
             doc_submission.downloads += 1
             doc_submission.save()
-        return stream_s3_file_download(document.s3_bucket, document.s3_key, filename=document.name)
+        return stream_s3_file_download(
+            document.s3_bucket, document.s3_key, request.user.id, filename=document.name
+        )
 
 
 class DocumentIssueAPI(TradeRemediesApiView):

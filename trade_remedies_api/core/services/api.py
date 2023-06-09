@@ -14,6 +14,7 @@ from django.utils.html import escape
 from feedback.models import FeedbackForm
 from rest_framework import status
 from rest_framework.views import APIView
+from v2_api_client.shared.logging import audit_logger
 
 from audit import AUDIT_TYPE_NOTIFY
 from core.constants import TRUTHFUL_INPUT_VALUES
@@ -130,6 +131,7 @@ class UserApiView(TradeRemediesApiView):
                 users = users.filter(groups__name__in=SECURITY_GROUPS_TRA)
             elif user_group == "public":
                 users = users.filter(groups__name__in=SECURITY_GROUPS_PUBLIC)
+
             return ResponseSuccess(
                 {
                     "results": [
@@ -169,6 +171,7 @@ class UserApiView(TradeRemediesApiView):
                     colour=colour,
                     set_verified=set_verified,
                 )
+                audit_logger.info("V1 - User updated", extra={"user": user.id})
                 return ResponseSuccess(
                     {"result": user.to_dict()}, http_status=status.HTTP_201_CREATED
                 )
@@ -529,9 +532,17 @@ class AssignUserToCaseView(TradeRemediesApiView):
                 template_id=SystemParameter.get("NOTIFY_USER_ASSIGNED_TO_CASE"),
                 audit_kwargs=audit_kwargs,
             )
+            audit_logger.info(
+                "V1 - User assigned to case",
+                extra={"user": user.id, "representing": representing.id, "case": case.id},
+            )
         else:
             user.remove_from_case(case_id, created_by=request.user, representing_id=representing_id)
             user.contact.remove_from_case(case, organisation=representing)
+            audit_logger.info(
+                "V1 - User removed from case",
+                extra={"user": user.id, "representing": representing.id, "case": case.id},
+            )
 
         return ResponseSuccess(
             {

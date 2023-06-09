@@ -12,6 +12,7 @@ from django.db.models.functions import Replace
 from django.utils import timezone
 from django.utils.html import escape
 from django_countries.fields import CountryField
+from tldextract import tldextract
 
 from audit import AUDIT_TYPE_NOTIFY, AUDIT_TYPE_ORGANISATION_MERGED
 from audit.utils import audit_log
@@ -109,7 +110,10 @@ class OrganisationManager(models.Manager):
             ).filter(case_id__in=parent_org_cases)
             if shared_cases:
                 for org_case_role in shared_cases:
-                    if str(org_case_role.case.id) in merge_record_object.chosen_case_roles:
+                    if (
+                        merge_record_object.chosen_case_roles
+                        and str(org_case_role.case.id) in merge_record_object.chosen_case_roles
+                    ):
                         # there has been a preference selected for this case, so we will use that
                         chosen_role_id = merge_record_object.chosen_case_roles[
                             str(org_case_role.case.id)
@@ -554,21 +558,11 @@ class Organisation(BaseModel):
                         query = {f"{removed_special_chars[0]}__icontains": value}
                         q_objects |= models.Q(**query)
 
-            # now we filter by the URL, removing http://, www., and the suffix
+            # now we filter by the URL, we only care about the domain name
+            # e.g. https://www.example.com.uk/ -> example
             if url := self.organisation_website:
-                url = url.split("/")
-                if url[0] in ["https:", "http:"]:
-                    url = url[2].split(".")
-                else:
-                    url = url[0].split(".")
-                # now we iterate through the reversed URL list and find the domain
-                for i in range(len(url) - 1, 0, -1):
-                    if url[i] in ["co", "uk", "com", "net", "org"]:
-                        continue
-                    else:
-                        url_domain = url[i]
-                        q_objects |= models.Q(organisation_website__icontains=url_domain)
-                        break
+                domain = tldextract.extract(url).domain
+                q_objects |= models.Q(organisation_website__icontains=domain)
 
             # applying the filter to the queryset
             potential_duplicates = potential_duplicates.filter(q_objects)
@@ -1321,7 +1315,7 @@ class OrganisationMergeRecord(BaseModel):
             )
             ids_merged.append(potential_duplicate_organisation.child_organisation.id)
 
-        if notify_users:
+        if notify_users and ids_merged:
             notify_template_id = SystemParameter.get("NOTIFY_ORGANISATION_MERGED")
             for organisation_user in organisation.organisationuser_set.filter(
                 security_group__name=SECURITY_GROUP_ORGANISATION_OWNER

@@ -6,6 +6,8 @@ import pytest
 from django.urls import reverse
 from model_bakery import baker
 from rest_framework.test import APIRequestFactory
+from django.test import override_settings
+
 
 from config.test_bases import CaseSetupTestMixin
 from organisations.models import Organisation
@@ -123,3 +125,13 @@ class TestBaseModelViewSet(CaseSetupTestMixin, FunctionalTestBase):
         serializer_class = viewset.get_serializer_class()
         assert all([value.read_only for _, value in serializer_class().get_fields().items()])
         assert "full_country_name" not in serializer_class().get_fields().keys()
+
+    @override_settings(API_RATELIMIT_RATE="1/h")
+    def test_ratelimit(self):
+        # first request should be fine
+        response = self.client.get("/api/v2/organisations/")
+        assert response.status_code == 200
+
+        # second request should be rate-limited
+        response = self.client.get("/api/v2/organisations/")
+        assert response.status_code == 429

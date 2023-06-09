@@ -2,14 +2,19 @@ import base64
 import json
 import typing
 
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 from functools import lru_cache
 
 from django.core.exceptions import FieldError
 from django.http import Http404
+from django_ratelimit.middleware import RatelimitMiddleware
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from v2_api_client.shared.logging import audit_logger
 
+from config.ratelimit import get_rate
 from core.services.base import GroupPermission
 
 from config.serializers import (
@@ -19,6 +24,7 @@ from config.serializers import (
 )
 
 
+@method_decorator(ratelimit(key="user_or_ip", rate=get_rate, method=ratelimit.ALL), name="dispatch")
 class BaseModelViewSet(viewsets.ModelViewSet):
     """
     Base class for ModelViewSets to share commonly overriden methods
@@ -43,9 +49,41 @@ class BaseModelViewSet(viewsets.ModelViewSet):
             pass
         return queryset
 
+    def initialize_request(self, request, *args, **kwargs):
+        """
+        Set the `.action` attribute on the view, depending on the request method.
+        """
+        request = super().initialize_request(request, *args, **kwargs)
+
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        object_id = self.kwargs.get(lookup_url_kwarg, "N/A")
+        audit_logger.info(
+            f"API V2 - {self.action} operation",
+            extra={
+                "user": request.user.id,
+                "model": self.serializer_class.Meta.model.__name__
+                if self.serializer_class
+                else "N/A",
+                "id": object_id,
+                "view": self.__class__.__name__,
+                "url": self.request.path,
+            },
+        )
+        return request
+
     def perform_create(self, serializer):
         # Overriding perform_create to return the instance, not just do it silently
-        return serializer.save()
+        new_instance = serializer.save()
+        audit_logger.info(
+            "API V2 - ViewSet create operation",
+            extra={
+                "user": self.request.user.id,
+                "model": new_instance.__class__.__name__,
+                "id": new_instance.id,
+                "view": self.__class__.__name__,
+            },
+        )
+        return new_instance
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
