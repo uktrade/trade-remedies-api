@@ -720,6 +720,7 @@ class Submission(BaseModel):
             "product": product.name if product else "",
             "case_name": case_name,
             "case_number": self.case.reference,
+            "case_type": self.case.type.name,
             "full_name": contact.name.strip() if contact else "N/A",
             "country": ", ".join(export_countries) if export_countries else "N/A",
             "organisation_name": company_name,
