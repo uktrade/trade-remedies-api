@@ -29,9 +29,12 @@ from organisations.constants import (
     PREPARING_ORG_CASE_ROLE,
     REJECTED_ORG_CASE_ROLE,
 )
-from security.constants import ROLE_AWAITING_APPROVAL, ROLE_PREPARING, \
-    SECURITY_GROUP_ORGANISATION_OWNER, \
-    SECURITY_GROUP_ORGANISATION_USER
+from security.constants import (
+    ROLE_AWAITING_APPROVAL,
+    ROLE_PREPARING,
+    SECURITY_GROUP_ORGANISATION_OWNER,
+    SECURITY_GROUP_ORGANISATION_USER,
+)
 from security.models import OrganisationCaseRole, OrganisationUser, UserCase, get_security_group
 
 logger = logging.getLogger(__name__)
