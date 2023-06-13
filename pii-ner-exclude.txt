@@ -1,4 +1,6 @@
 Awaiting Approval
+organisation_user.user.email
+AUDIT_TYPE_NOTIFY
 " Allows
 HTTP_AUTHORIZATION
 " Store the start time
