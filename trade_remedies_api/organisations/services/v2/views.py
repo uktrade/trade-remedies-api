@@ -22,6 +22,7 @@ from organisations.services.v2.serializers import (
     OrganisationSerializer,
     OrganisationUserSerializer,
 )
+from security.constants import ROLE_AWAITING_APPROVAL, ROLE_PREPARING
 from security.models import OrganisationCaseRole, OrganisationUser
 
 
@@ -263,7 +264,7 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
         instance = self.get_object()
         parent_organisation_case_roles = OrganisationCaseRole.objects.filter(
             organisation=instance.parent_organisation
-        )
+        ).exclude(role_id__in=[ROLE_PREPARING, ROLE_AWAITING_APPROVAL])
         child_organisation_case_roles = OrganisationCaseRole.objects.filter(
             organisation_id__in=instance.duplicate_organisations.filter(
                 status="attributes_selected"
@@ -274,7 +275,10 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
         for org_case_role in parent_organisation_case_roles:
             different_child_org_case_roles = child_organisation_case_roles.filter(
                 case=org_case_role.case
-            ).exclude(role=org_case_role.role)
+            ).exclude(
+                role=org_case_role.role,
+                role_id__in=[ROLE_PREPARING, ROLE_AWAITING_APPROVAL],
+            )
             if different_child_org_case_roles.exists():
                 conflicting_org_case_roles.append(
                     {
