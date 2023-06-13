@@ -87,6 +87,13 @@ class TestOrganisationFindPotentialDuplicates(CaseSetupTestMixin):
         assert merge_record.potential_duplicates()
         assert len(merge_record.potential_duplicates()) == 1
 
+    def test_china_url(self):
+        Organisation.objects.create(organisation_website="https://www.example.com.cn")
+        merge_record = self.organisation_object.find_potential_duplicate_orgs()
+        assert merge_record.status == "duplicates_found"
+        assert merge_record.potential_duplicates()
+        assert len(merge_record.potential_duplicates()) == 1
+
 
 class TestOrganisationMergeRecordModel(MergeTestBase):
     def test_potential_duplicates_order(self):
