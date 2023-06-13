@@ -264,7 +264,7 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
         instance = self.get_object()
         parent_organisation_case_roles = OrganisationCaseRole.objects.filter(
             organisation=instance.parent_organisation
-        ).exclude(role_id__in=[ROLE_PREPARING, ROLE_AWAITING_APPROVAL])
+        ).exclude(role__key__in=["preparing", "awaiting_approval"])
         child_organisation_case_roles = OrganisationCaseRole.objects.filter(
             organisation_id__in=instance.duplicate_organisations.filter(
                 status="attributes_selected"
@@ -277,7 +277,7 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
                 case=org_case_role.case
             ).exclude(
                 role=org_case_role.role,
-                role_id__in=[ROLE_PREPARING, ROLE_AWAITING_APPROVAL],
+                role__key__in=["preparing", "awaiting_approval"],
             )
             if different_child_org_case_roles.exists():
                 conflicting_org_case_roles.append(
@@ -308,7 +308,6 @@ class SubmissionOrganisationMergeRecordViewSet(BaseModelViewSet):
         )
 
     def retrieve(self, request, *args, **kwargs):
-        print("Accessed")
         submission_object = get_object_or_404(Submission, pk=kwargs["pk"])
         organisation_object = get_object_or_404(Organisation, pk=request.GET["organisation_id"])
         merge_record = organisation_object.find_potential_duplicate_orgs()
