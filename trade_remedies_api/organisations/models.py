@@ -1324,7 +1324,7 @@ class OrganisationMergeRecord(BaseModel):
                 organisation, potential_duplicate_organisation.child_organisation, self
             )
             ids_merged.append(potential_duplicate_organisation.child_organisation.id)
-        
+
         # we only want to send emails if the notify_users flag is True, and any organisations have
         # been merged in the first place
 
