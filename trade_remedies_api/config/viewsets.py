@@ -41,6 +41,12 @@ class BaseModelViewSet(viewsets.ModelViewSet):
             filter_parameters = json.loads(base64.b64decode(filter_parameters))  # /PS-IGNORE
             queryset = queryset.filter(**filter_parameters)
 
+        # if the Serializer class has eager_loading setup, then let's apply it to the queryset
+        # so we prefetch the related objects and increase performance
+        # http://ses4j.github.io/2015/11/23/optimizing-slow-django-rest-framework-performance/
+        if hasattr(self.serializer_class, "eager_loading"):
+            queryset = self.serializer_class.eager_loading(queryset)
+
         # removing deleted objects from the queryset
         try:
             queryset = queryset.exclude(deleted_at__isnull=False)

@@ -21,6 +21,7 @@ class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
     validated_by = UserSerializer(fields=["name", "email"], required=False)
     role_name = serializers.CharField(source="role.name", required=False)
     auth_contact = NestedField(serializer_class=ContactSerializer, required=False, accept_pk=True)
+    organisation_name = serializers.CharField(source="organisation.name", required=False)
 
     class Meta:
         model = OrganisationCaseRole
@@ -57,6 +58,10 @@ class OrganisationUserSerializer(CustomValidationModelSerializer):
 
 
 class OrganisationSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = Organisation
+        fields = "__all__"
+
     country = serializers.CharField(source="country.alpha3", required=False)
     country_code = serializers.ReadOnlyField(source="country.code")
     organisationuser_set = OrganisationUserSerializer(many=True, required=False)
@@ -74,9 +79,11 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     full_country_name = serializers.SerializerMethodField()
     users = serializers.SerializerMethodField()
 
-    class Meta:
-        model = Organisation
-        fields = "__all__"
+    @staticmethod
+    def eager_loading(queryset):
+        """ Perform necessary eager loading of data. """
+        queryset = queryset.prefetch_related("organisationcaserole_set", "organisationuser_set")
+        return queryset
 
     def to_representation(self, instance):
         instance.json_data = {}

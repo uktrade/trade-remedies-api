@@ -5,7 +5,7 @@ from rest_framework.fields import SerializerMethodField
 from cases.models import (
     Case,
     CaseType,
-    Submission,
+    ExportSource, Product, Submission,
     SubmissionDocument,
     SubmissionDocumentType,
     SubmissionStatus,
@@ -23,11 +23,31 @@ class CaseTypeSerializer(CustomValidationModelSerializer):
         fields = "__all__"
 
 
+class ProductSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = Product
+        fields = "__all__"
+
+    hs_codes = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_hs_codes(instance):
+        return [each.code for each in instance.hs_codes.all()]
+
+
+class ExportSourceSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = ExportSource
+        fields = "__all__"
+
+
 class CaseSerializer(CustomValidationModelSerializer):
     reference = serializers.CharField(required=False)
     type = NestedField(serializer_class=CaseTypeSerializer, required=False, accept_pk=True)
     initiated_at = serializers.DateTimeField(required=False)
     registration_deadline = serializers.DateTimeField(required=False)
+    product_set = ProductSerializer(many=True, required=False)
+    export_source_set = ExportSourceSerializer(many=True, required=False)
 
     class Meta:
         model = Case
@@ -62,6 +82,10 @@ class SubmissionTypeSerializer(serializers.ModelSerializer):
 
 
 class SubmissionSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = Submission
+        fields = "__all__"
+
     case = NestedField(serializer_class=CaseSerializer, required=False, accept_pk=True)
     organisation = NestedField(
         serializer_class=OrganisationSerializer, required=False, accept_pk=True
@@ -88,10 +112,13 @@ class SubmissionSerializer(CustomValidationModelSerializer):
     )
     parent = serializers.SerializerMethodField()
     deficiency_notices = serializers.SerializerMethodField()
+    organisation_name = serializers.ReadOnlyField(source="organisation.name")
 
-    class Meta:
-        model = Submission
-        fields = "__all__"
+    @staticmethod
+    def eager_loading(queryset):
+        """ Perform necessary eager loading of data. """
+        queryset = queryset.prefetch_related('case', "organisation", "contact")
+        return queryset
 
     @staticmethod
     def get_parent(instance):
@@ -125,7 +152,7 @@ class SubmissionSerializer(CustomValidationModelSerializer):
         # We need to order the documents, so they come in pairs (confidential, non_confidential)
         paired_documents = []
         for submission_document in instance.submissiondocument_set.filter(
-            type__key="respondent", deleted_at__isnull=True
+                type__key="respondent", deleted_at__isnull=True
         ):
             document = submission_document.document
             if document.parent:
@@ -188,3 +215,12 @@ class SubmissionSerializer(CustomValidationModelSerializer):
                 )
 
         return orphaned_documents
+
+
+class PublicFileSerializer(serializers.Serializer):
+    submission_id = serializers.UUIDField()
+    submission_name = serializers.CharField()
+    organisation_name = serializers.CharField()
+    organisation_case_role = serializers.CharField()
+    published_date = serializers.DateTimeField()
+    no_of_files = serializers.IntegerField()
