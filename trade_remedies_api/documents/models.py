@@ -614,4 +614,3 @@ class DocumentBundle(SimpleBaseModel):
             self.status = "DRAFT"
             self.save()
         return self
-

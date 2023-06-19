@@ -5,7 +5,9 @@ from rest_framework.fields import SerializerMethodField
 from cases.models import (
     Case,
     CaseType,
-    ExportSource, Product, Submission,
+    ExportSource,
+    Product,
+    Submission,
     SubmissionDocument,
     SubmissionDocumentType,
     SubmissionStatus,
@@ -40,6 +42,8 @@ class ExportSourceSerializer(CustomValidationModelSerializer):
         model = ExportSource
         fields = "__all__"
 
+    country = serializers.ReadOnlyField(source="country.name", required=False)
+
 
 class CaseSerializer(CustomValidationModelSerializer):
     reference = serializers.CharField(required=False)
@@ -47,7 +51,7 @@ class CaseSerializer(CustomValidationModelSerializer):
     initiated_at = serializers.DateTimeField(required=False)
     registration_deadline = serializers.DateTimeField(required=False)
     product_set = ProductSerializer(many=True, required=False)
-    export_source_set = ExportSourceSerializer(many=True, required=False)
+    exportsource_set = ExportSourceSerializer(many=True, required=False)
 
     class Meta:
         model = Case
@@ -113,12 +117,22 @@ class SubmissionSerializer(CustomValidationModelSerializer):
     parent = serializers.SerializerMethodField()
     deficiency_notices = serializers.SerializerMethodField()
     organisation_name = serializers.ReadOnlyField(source="organisation.name")
+    organisation_case_role = serializers.SerializerMethodField()
 
     @staticmethod
     def eager_loading(queryset):
-        """ Perform necessary eager loading of data. """
-        queryset = queryset.prefetch_related('case', "organisation", "contact")
+        """Perform necessary eager loading of data."""
+        queryset = queryset.select_related("case", "organisation", "contact")
         return queryset
+
+    @staticmethod
+    def get_organisation_case_role(instance):
+        from security.services.v2.serializers import OrganisationCaseRoleSerializer
+
+        if instance.organisation:
+            return OrganisationCaseRoleSerializer(
+                instance.organisation.get_case_role(instance.case), fields=["role_name"]
+            ).data
 
     @staticmethod
     def get_parent(instance):
@@ -152,7 +166,7 @@ class SubmissionSerializer(CustomValidationModelSerializer):
         # We need to order the documents, so they come in pairs (confidential, non_confidential)
         paired_documents = []
         for submission_document in instance.submissiondocument_set.filter(
-                type__key="respondent", deleted_at__isnull=True
+            type__key="respondent", deleted_at__isnull=True
         ):
             document = submission_document.document
             if document.parent:
@@ -220,7 +234,7 @@ class SubmissionSerializer(CustomValidationModelSerializer):
 class PublicFileSerializer(serializers.Serializer):
     submission_id = serializers.UUIDField()
     submission_name = serializers.CharField()
+    issued_at = serializers.DateTimeField()
     organisation_name = serializers.CharField()
     organisation_case_role = serializers.CharField()
-    published_date = serializers.DateTimeField()
     no_of_files = serializers.IntegerField()

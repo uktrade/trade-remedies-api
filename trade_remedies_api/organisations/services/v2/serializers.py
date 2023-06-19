@@ -39,7 +39,8 @@ class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
         from cases.services.v2.serializers import CaseSerializer
 
         ret = super().to_representation(obj)
-        ret["case"] = CaseSerializer(instance=obj.case).data
+        if isinstance(obj, OrganisationCaseRole):
+            ret["case"] = CaseSerializer(instance=obj.case).data
         return ret
 
     @staticmethod
@@ -77,11 +78,10 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     json_data = serializers.JSONField(required=False, allow_null=True)
     a_tag_website_url = serializers.SerializerMethodField()
     full_country_name = serializers.SerializerMethodField()
-    users = serializers.SerializerMethodField()
 
     @staticmethod
     def eager_loading(queryset):
-        """ Perform necessary eager loading of data. """
+        """Perform necessary eager loading of data."""
         queryset = queryset.prefetch_related("organisationcaserole_set", "organisationuser_set")
         return queryset
 
@@ -94,12 +94,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         if "country" in data and isinstance(data["country"], dict):
             data["country"] = data["country"]["alpha3"]
         return data
-
-    @staticmethod
-    def get_users(instance):
-        return OrganisationUserSerializer(
-            instance.organisationuser_set.all(), many=True, exclude=["organisation"]
-        ).data
 
     @staticmethod
     def get_a_tag_website_url(instance):

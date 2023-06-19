@@ -15,6 +15,7 @@ class DocumentSerializer(serializers.ModelSerializer):
     is_uploaded_document = serializers.SerializerMethodField()
     extension = serializers.SerializerMethodField()
     truncated_name = serializers.SerializerMethodField()
+    size_in_kb = serializers.SerializerMethodField()
 
     @staticmethod
     def get_is_uploaded_document(instance: Document) -> bool:
@@ -47,6 +48,11 @@ class DocumentSerializer(serializers.ModelSerializer):
         if len(instance.name) > 35:
             return f"{instance.name[0:18]}...{instance.name[-18:]}"
         return instance.name
+
+    @staticmethod
+    def get_size_in_kb(instance):
+        """Returns the size of the document in kilobytes."""
+        return f"{instance.size/(1<<10):,.0f}"
 
 
 class DocumentBundleSerializer(serializers.ModelSerializer):

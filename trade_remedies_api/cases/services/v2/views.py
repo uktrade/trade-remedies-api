@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.db import transaction
 from django.http import JsonResponse
-from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -12,10 +12,12 @@ from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
 from cases.models import Case, Submission, SubmissionType
 from cases.services.v2.serializers import (
     CaseSerializer,
-    PublicFileSerializer, SubmissionSerializer,
+    PublicFileSerializer,
+    SubmissionSerializer,
     SubmissionTypeSerializer,
 )
 from config.viewsets import BaseModelViewSet
+from core.models import User
 from organisations.models import Organisation
 from organisations.services.v2.serializers import OrganisationCaseRoleSerializer
 from security.constants import ROLE_PREPARING
@@ -30,14 +32,6 @@ class CaseViewSet(BaseModelViewSet):
         if self.request.query_params.get("open_to_roi"):
             # We only want the cases which are open to registration of interest applications
             return Case.objects.available_for_regisration_of_intestest(self.request.user)
-
-        if self.request.query_params.get("active_investigations"):
-            # We only want the cases which are currently active
-            return Case.objects.filter(archived_at__isnull=True)
-
-        if self.request.query_params.get("completed_investigations"):
-            # We only want completed (archived) cases
-            return Case.objects.filter(archived_at__isnull=False)
 
         return super().get_queryset()
 
@@ -65,21 +59,48 @@ class CaseViewSet(BaseModelViewSet):
         workflow objects of the case and it slows down the standard CaseSerializer."""
         case_object = self.get_object()
         public_file_data = []
-        for submission in case_object.submission_set.all():
-            organisation_case_role = case_object.organisationcaserole_set.get(
-                organisation=submission.organisation
+        for submission in Submission.objects.get_submissions(
+            case=case_object,
+            requested_by=User.objects.get(email=settings.TRUSTED_USER_EMAIL),
+            private=False,
+            show_global=True,
+            sampled_only=False,
+        ).filter(issued_at__isnull=False):
+            try:
+                organisation_case_role = case_object.organisationcaserole_set.get(
+                    organisation=submission.organisation
+                )
+                organisation_case_role_name = organisation_case_role.role.name
+            except OrganisationCaseRole.DoesNotExist:
+                # Perhaps the Organisation is the TRA in which case an OrganisationCaseRole
+                # will not exist.
+                if submission.organisation and (
+                    submission.organisation.gov_body
+                    or submission.organisation.name == "Trade Remedies Authority"
+                ):
+                    # it's the TRA/Secretary of State
+                    organisation_case_role_name = submission.organisation.name
+                else:
+                    continue
+
+            serializer = PublicFileSerializer(
+                data={
+                    "submission_id": submission.id,
+                    "submission_name": submission.type.name,
+                    "issued_at": submission.issued_at,
+                    "organisation_name": submission.organisation.name,
+                    "organisation_case_role": organisation_case_role_name,
+                    "no_of_files": submission.submissiondocument_set.count(),
+                }
             )
-            serializer = PublicFileSerializer(data={
-                "submission_id": submission.id,
-                "submission_name": submission.type.name,
-                "organisation_name": submission.organisation.name,
-                "organisation_case_role": organisation_case_role.role.name,
-                "published_date": submission.received_at,
-                "no_of_files": submission.submissiondocument_set.count(),
-            })
+            try:
+                assert serializer.is_valid()
+            except AssertionError:
+                print("Asd")
             public_file_data.append(serializer.data)
 
-        return JsonResponse(public_file_data)
+        return JsonResponse(public_file_data, safe=False)
+
 
 class SubmissionViewSet(BaseModelViewSet):
     queryset = Submission.objects.all()
