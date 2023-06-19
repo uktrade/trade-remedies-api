@@ -83,6 +83,13 @@ class CaseViewSet(BaseModelViewSet):
                 else:
                     continue
 
+            if submission.is_tra():
+                no_of_files = submission.submissiondocument_set.count()
+            else:
+                no_of_files = submission.submissiondocument_set.filter(
+                    type__key="respondent"
+                ).count()
+
             serializer = PublicFileSerializer(
                 data={
                     "submission_id": submission.id,
@@ -90,7 +97,7 @@ class CaseViewSet(BaseModelViewSet):
                     "issued_at": submission.issued_at,
                     "organisation_name": submission.organisation.name,
                     "organisation_case_role": organisation_case_role_name,
-                    "no_of_files": submission.submissiondocument_set.count(),
+                    "no_of_files": no_of_files,
                 }
             )
             try:
