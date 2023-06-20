@@ -4,20 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('organisations', '0031_alter_submissionorganisationmergerecord_submission'),
+        ("organisations", "0031_alter_submissionorganisationmergerecord_submission"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='organisationmergerecord',
-            name='locked',
+            model_name="organisationmergerecord",
+            name="locked",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='organisationmergerecord',
-            name='status',
-            field=models.CharField(choices=[('not_checked', 'Not checked'), ('no_duplicates_found', 'No duplicates found'), ('duplicates_found', 'Duplicates found')], default='not_checked', max_length=30),
+            model_name="organisationmergerecord",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("not_checked", "Not checked"),
+                    ("no_duplicates_found", "No duplicates found"),
+                    ("duplicates_found", "Duplicates found"),
+                ],
+                default="not_checked",
+                max_length=30,
+            ),
         ),
     ]
