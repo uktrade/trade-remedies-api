@@ -18,11 +18,10 @@ from organisations.services.v2.serializers import (
     DuplicateOrganisationMergeSerializer,
     OrganisationCaseRoleSerializer,
     OrganisationMergeRecordSerializer,
-    SubmissionOrganisationMergeRecordSerializer,
     OrganisationSerializer,
     OrganisationUserSerializer,
+    SubmissionOrganisationMergeRecordSerializer,
 )
-from security.constants import ROLE_AWAITING_APPROVAL, ROLE_PREPARING
 from security.models import OrganisationCaseRole, OrganisationUser
 
 
@@ -289,6 +288,47 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
                 )
 
         return Response(data=conflicting_org_case_roles)
+
+    @action(
+        detail=False,
+        methods=["get"],
+        url_name="adhoc_merge",
+        url_path="adhoc_merge",
+    )
+    def adhoc_merge(self, request, *args, **kwargs):
+        """
+        Create a locked OrganisationMergeRecord object for the two given organisations. This is used
+        when a user wants to merge two organisations that are not flagged as duplicates.
+
+        The resulting OrganisationMergeRecord is locked and will not be updated whenever the DB
+        is searched for existing duplicates
+        """
+        organisation_1_id = request.GET["organisation_1_id"]
+        organisation_2_id = request.GET["organisation_2_id"]
+
+        # deleting any existing merge records for these organisations. This adhoc merge will create
+        #
+        OrganisationMergeRecord.objects.filter(
+            Q(parent_organisation_id=organisation_1_id)
+            | Q(parent_organisation_id=organisation_2_id)
+        ).delete()
+
+        organisation_merge_record_object = OrganisationMergeRecord.objects.create(
+            parent_organisation_id=organisation_1_id,
+            locked=True,
+            status="duplicates_found",
+        )
+        DuplicateOrganisationMerge.objects.create(
+            merge_record=organisation_merge_record_object,
+            child_organisation_id=organisation_2_id,
+            status="confirmed_duplicate",
+        )
+
+        return Response(
+            OrganisationMergeRecordSerializer(
+                instance=organisation_merge_record_object,
+            ).data
+        )
 
 
 class DuplicateOrganisationMergeViewSet(BaseModelViewSet):

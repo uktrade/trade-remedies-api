@@ -495,6 +495,13 @@ class Organisation(BaseModel):
             # the database has been scanned for potential duplicates, and we only want to check
             # those organisations that have been created or modified since the last check. Unless
             # the fresh argument is True, in which case we will always scan for all
+
+            # however if the merge record is locked, then it has been created as part of an adhoc
+            # merge process, and we don't want to scan for duplicates. There's one potential, and
+            # we're leaving it at that
+            if self.merge_record.locked:
+                return self.merge_record
+
             if not fresh and self.merge_record.last_searched:
                 potential_duplicates = potential_duplicates.filter(
                     models.Q(created_at__gte=self.merge_record.last_searched)
@@ -1285,6 +1292,10 @@ class OrganisationMergeRecord(BaseModel):
     )
     last_searched = models.DateTimeField(null=True)
     chosen_case_roles = models.JSONField(null=True, blank=True)
+
+    # locked if it's an ad-hoc merge, we don't want to find actual duplicates,
+    # just the ones that we're explicitly merging
+    locked = models.BooleanField(default=False)
 
     def merge_organisations(
         self,
