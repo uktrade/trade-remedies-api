@@ -118,6 +118,7 @@ class SubmissionSerializer(CustomValidationModelSerializer):
     deficiency_notices = serializers.SerializerMethodField()
     organisation_name = serializers.ReadOnlyField(source="organisation.name")
     organisation_case_role = serializers.SerializerMethodField()
+    is_tra = serializers.ReadOnlyField()
 
     @staticmethod
     def eager_loading(queryset):

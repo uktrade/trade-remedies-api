@@ -98,12 +98,10 @@ class CaseViewSet(BaseModelViewSet):
                     "organisation_name": submission.organisation.name,
                     "organisation_case_role": organisation_case_role_name,
                     "no_of_files": no_of_files,
+                    "is_tra": submission.is_tra(),
                 }
             )
-            try:
-                assert serializer.is_valid()
-            except AssertionError:
-                print("Asd")
+            assert serializer.is_valid()
             public_file_data.append(serializer.data)
 
         return JsonResponse(public_file_data, safe=False)
