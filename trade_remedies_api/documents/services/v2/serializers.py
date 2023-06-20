@@ -52,7 +52,7 @@ class DocumentSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_size_in_kb(instance):
         """Returns the size of the document in kilobytes."""
-        return f"{instance.size/(1<<10):,.0f}"
+        return f"{int(instance.size)/(1<<10):,.0f}"
 
 
 class DocumentBundleSerializer(serializers.ModelSerializer):
