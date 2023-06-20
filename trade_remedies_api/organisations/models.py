@@ -1365,6 +1365,13 @@ class OrganisationMergeRecord(BaseModel):
                 data={"organisations_merged_with": ids_merged},
             )
 
+        # finally, we check if the OrganisationMergeRecord was 'locked', meaning that it was the
+        # result of an adhoc merge. In this case, we want to unlock it, so future duplicates can be
+        # found.
+        if self.locked:
+            self.locked = False
+            self.save()
+
         return organisation
 
     def potential_duplicates(self):
