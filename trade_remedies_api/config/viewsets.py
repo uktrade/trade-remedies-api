@@ -47,6 +47,9 @@ class BaseModelViewSet(viewsets.ModelViewSet):
         except FieldError:
             # some models do not have deleted_at
             pass
+
+        queryset = self.get_serializer_class().setup_eager_loading(queryset)
+
         return queryset
 
     def initialize_request(self, request, *args, **kwargs):
