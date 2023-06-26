@@ -44,7 +44,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
             # some models do not have deleted_at
             pass
 
-        queryset = self.get_serializer_class().setup_eager_loading(queryset)
+        queryset = self.get_serializer_class().eager_load_queryset(queryset)
 
         return queryset
 
