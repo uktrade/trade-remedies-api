@@ -147,13 +147,13 @@ validation_errors = {
     },
     "companies_house_not_searched": {
         "field": "uk_employer",
-        "error_text": "Enter your company name or company number",
-        "error_summary": "You need to enter your registered company name or company number",
+        "error_text": "Enter your company name or number",
+        "error_summary": "You need to enter your registered company name or number",
     },
     "companies_house_not_selected": {
         "field": "input-autocomplete",
-        "error_text": "Select your company",
-        "error_summary": "You need to select your company",
+        "error_text": "Select your company from the list",
+        "error_summary": "You need to select your company from the list",
     },
     "organisation_not_searched": {
         "field": "input-autocomplete",

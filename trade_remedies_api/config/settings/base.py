@@ -496,12 +496,12 @@ AUDIT_EMAIL_SMTP_PORT = env.int("AUDIT_EMAIL_SMTP_PORT", default=587)
 AUDIT_EMAIL_TO_ADDRESS = env.str("AUDIT_EMAIL_TO_ADDRESS")
 
 # ------------------- API RATE LIMITING -------------------
-API_RATELIMIT_ENABLED = env.bool("API_RATELIMIT_ENABLED", default=True)
+API_RATELIMIT_ENABLED = env.bool("API_RATELIMIT_ENABLED", default=False)
 if API_RATELIMIT_ENABLED:
     MIDDLEWARE = MIDDLEWARE + [
         "django_ratelimit.middleware.RatelimitMiddleware",
     ]
-    API_RATELIMIT_RATE = env.str("API_RATELIMIT_RATE", default="200/m")
+    API_RATELIMIT_RATE = env.str("API_RATELIMIT_RATE", default="500/m")
     RATELIMIT_VIEW = "config.ratelimit.ratelimited_error"
 
 # ------------------- API PROFILING -------------------
