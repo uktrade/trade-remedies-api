@@ -6,11 +6,12 @@ import sys
 import dj_database_url
 import environ
 import sentry_sdk
-from django_log_formatter_ecs import ECSFormatter
 from flags import conditions
 from flags.conditions import DuplicateCondition
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
+
+from config.feature_flags import is_user_part_of_group
 
 # We use django-environ but do not read a `.env` file. Locally we feed
 # docker-compose an environment from a local.env file in the project root.
@@ -19,7 +20,6 @@ from sentry_sdk.integrations.django import DjangoIntegration
 # NB: Some settings acquired using `env()` deliberately *do not* have defaults
 # as we want to get an `ImproperlyConfigured` exception to avoid a badly
 # configured deployment.
-from config.feature_flags import is_user_part_of_group
 
 root = environ.Path(__file__) - 4
 env = environ.Env(
@@ -116,7 +116,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # "django.middleware.gzip.GZipMiddleware",
     "axes.middleware.AxesMiddleware",
     "config.middleware.SentryContextMiddleware",
 ]
@@ -354,60 +353,6 @@ LOGGING = {
     },
 }
 
-ENVIRONMENT_LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "ecs_formatter": {
-            "()": ECSFormatter,
-        },
-        "simple": {"format": "%(levelname)s %(message)s"},
-    },
-    "handlers": {
-        "ecs": {
-            "class": "logging.StreamHandler",
-            "stream": sys.stdout,
-            "formatter": "ecs_formatter",
-        },
-    },
-    "root": {
-        "handlers": [
-            "ecs",
-        ],
-        "level": env("ROOT_LOG_LEVEL", default="INFO"),
-    },
-    "loggers": {
-        "django": {
-            "handlers": [
-                "ecs",
-            ],
-            "level": env("DJANGO_LOG_LEVEL", default="INFO"),
-            "propagate": False,
-        },
-        "django.server": {
-            "handlers": [
-                "ecs",
-            ],
-            "level": env("DJANGO_SERVER_LOG_LEVEL", default="ERROR"),
-            "propagate": False,
-        },
-        "django.request": {
-            "handlers": [
-                "ecs",
-            ],
-            "level": env("DJANGO_REQUEST_LOG_LEVEL", default="ERROR"),
-            "propagate": False,
-        },
-        "django.db.backends": {
-            "handlers": [
-                "ecs",
-            ],
-            "level": env("DJANGO_DB_LOG_LEVEL", default="ERROR"),
-            "propagate": False,
-        },
-    },
-}
-
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # ------------------------------------------------------------------------------
@@ -549,3 +494,23 @@ AUDIT_EMAIL_SMTP_HOST = env.str(
 )
 AUDIT_EMAIL_SMTP_PORT = env.int("AUDIT_EMAIL_SMTP_PORT", default=587)
 AUDIT_EMAIL_TO_ADDRESS = env.str("AUDIT_EMAIL_TO_ADDRESS")
+
+# ------------------- API RATE LIMITING -------------------
+API_RATELIMIT_ENABLED = env.bool("API_RATELIMIT_ENABLED", default=False)
+if API_RATELIMIT_ENABLED:
+    MIDDLEWARE = MIDDLEWARE + [
+        "django_ratelimit.middleware.RatelimitMiddleware",
+    ]
+    API_RATELIMIT_RATE = env.str("API_RATELIMIT_RATE", default="500/m")
+    RATELIMIT_VIEW = "config.ratelimit.ratelimited_error"
+
+# ------------------- API PROFILING -------------------
+PYINSTRUMENT_PROFILE_DIR = "profiles"
+PROFILING_ENABLED = env.bool("PROFILING_ENABLED", default=False)
+if PROFILING_ENABLED:
+    MIDDLEWARE = [
+        "config.middleware.StatsMiddleware",
+    ] + MIDDLEWARE
+    MIDDLEWARE = MIDDLEWARE + [
+        "pyinstrument.middleware.ProfilerMiddleware",
+    ]

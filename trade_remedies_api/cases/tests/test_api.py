@@ -226,6 +226,7 @@ class SubmissionStatusAPITest(APITestCase, APISetUpMixin):
             "company": self.organisation.name,
             "case_name": self.case.name,
             "case_title": self.case.name,
+            "case_type": self.case.type.name,
             "case_number": self.case.reference,
             "investigation_type": self.case.type.name,
             "dumped_or_subsidised": self.case.dumped_or_subsidised(),

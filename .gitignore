@@ -136,3 +136,5 @@ ner_output_file.txt
 
 # vscode
 .vscode/
+
+profiles/

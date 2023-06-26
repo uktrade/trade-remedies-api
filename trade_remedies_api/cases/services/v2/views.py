@@ -1,8 +1,10 @@
 from django.db import transaction
+from django.http import JsonResponse
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from v2_api_client.shared.logging import audit_logger
 
 from audit import AUDIT_TYPE_CREATE, AUDIT_TYPE_UPDATE
 from audit.utils import audit_log
@@ -29,6 +31,14 @@ class CaseViewSet(BaseModelViewSet):
             return Case.objects.available_for_regisration_of_intestest(self.request.user)
         return super().get_queryset()
 
+    @action(detail=True, methods=["get"], url_name="get_status")
+    def get_status(self, request, *args, **kwargs):
+        """Gets the status of a case using the get_status() method of the case.
+
+        We put this in a separate action as it's quite a costly operation, going over all of the
+        workflow objects of the case and it slows down the standard CaseSerializer."""
+        return JsonResponse(self.get_object().get_status())
+
 
 class SubmissionViewSet(BaseModelViewSet):
     queryset = Submission.objects.all()
@@ -44,7 +54,14 @@ class SubmissionViewSet(BaseModelViewSet):
         submission_object = self.get_object()
         new_status = request.data["new_status"]
         submission_object.update_status(new_status, request.user)
-
+        audit_logger.info(
+            "Submission status updated",
+            extra={
+                "submission": submission_object.id,
+                "new_status": new_status,
+                "user": request.user.id,
+            },
+        )
         audit_log(
             audit_type=AUDIT_TYPE_UPDATE,
             user=request.user,

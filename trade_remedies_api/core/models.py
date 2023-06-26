@@ -8,7 +8,6 @@ from random import randint
 from typing import Union
 
 import pytz
-import sentry_sdk
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import Group, Permission, PermissionsMixin
@@ -22,6 +21,7 @@ from django.utils.html import escape
 from phonenumbers.phonenumberutil import NumberParseException
 from rest_framework.authtoken.models import Token
 from timezone_field import TimeZoneField
+from v2_api_client.shared.logging import audit_logger
 
 from audit.models import Audit
 from core.notifier import send_sms
@@ -355,7 +355,6 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
     login_code = models.CharField(max_length=50, null=True, blank=True)
     login_code_created_at = models.DateTimeField(null=True, blank=True)
     auto_assign = models.BooleanField(default=False)
-
     objects = UserManager()
 
     USERNAME_FIELD = "email"
