@@ -228,5 +228,5 @@ class PublicFileSerializer(serializers.Serializer):
     submission_name = serializers.CharField()
     issued_at = serializers.DateTimeField()
     organisation_name = serializers.CharField()
-    organisation_case_role = serializers.CharField()
+    organisation_case_role_name = serializers.CharField()
     no_of_files = serializers.IntegerField()
