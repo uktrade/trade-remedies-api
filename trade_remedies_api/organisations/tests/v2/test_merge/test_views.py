@@ -110,8 +110,8 @@ class TestOrganisationMergeRecordViewSet(MergeTestBase, FunctionalTestBase):
         assert response == []
 
     def test_adhoc_merge(self):
-        self.client.get(
-            "api/v2/organisation_merge_records/adhoc_merge",
+        response = self.client.get(
+            "/api/v2/organisation_merge_records/adhoc_merge/",
             data={
                 "organisation_1_id": self.organisation_1.id,
                 "organisation_2_id": self.organisation_2.id,

@@ -31,7 +31,7 @@ class TestOrganisationViewSet(CaseSetupTestMixin, FunctionalTestBase):
         response = self.client.get(
             "/api/v2/organisations/search_by_company_name/",
             data={
-                "search_string": "test",
+                "company_name": "test",
             },
         )
 
@@ -42,7 +42,7 @@ class TestOrganisationViewSet(CaseSetupTestMixin, FunctionalTestBase):
         response = self.client.get(
             "/api/v2/organisations/search_by_company_name/",
             data={
-                "search_string": "test",
+                "company_name": "test",
                 "exclude_id": self.organisation.id,
             },
         )
