@@ -66,9 +66,12 @@ class OrganisationViewSet(BaseModelViewSet):
     def search_by_company_name(self, request, *args, **kwargs):
         search_string = request.GET["company_name"]
         case_id = request.GET.get("case_id")
+        exclude_id = request.GET.get("exclude_id")
+
+        queryset = self.get_queryset()
 
         # get organisations by name
-        matching_organisations = self.queryset.filter(
+        matching_organisations = queryset.filter(
             Q(name__icontains=search_string) | Q(companies_house_id__icontains=search_string)
         )
 
@@ -77,6 +80,12 @@ class OrganisationViewSet(BaseModelViewSet):
             matching_organisations = matching_organisations.exclude(
                 organisation__organisationcaserole__case=case_id,
             )
+
+        if exclude_id:
+            # if we are passed an exclude_id in the request.GET,
+            # then exclude the organisation with that ID from the results.
+            # used in cases where there are 2 autocompletes on one page
+            matching_organisations = matching_organisations.exclude(id=exclude_id)
 
         return Response(
             OrganisationSerializer(
