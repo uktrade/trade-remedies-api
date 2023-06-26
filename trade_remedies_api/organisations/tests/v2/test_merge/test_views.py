@@ -108,3 +108,26 @@ class TestOrganisationMergeRecordViewSet(MergeTestBase, FunctionalTestBase):
             f"/api/v2/organisation_merge_records/{self.merge_record.pk}/get_duplicate_cases/"
         ).json()
         assert response == []
+
+    def test_adhoc_merge(self):
+        response = self.client.get(
+            "/api/v2/organisation_merge_records/adhoc_merge/",
+            data={
+                "organisation_1_id": self.organisation_1.id,
+                "organisation_2_id": self.organisation_2.id,
+            },
+        )
+        self.organisation_1.refresh_from_db()
+        self.organisation_2.refresh_from_db()
+
+        assert self.organisation_1.merge_record.status == "duplicates_found"
+        assert self.organisation_1.merge_record.locked
+        assert self.organisation_1.merge_record.potential_duplicates().count() == 1
+        assert (
+            self.organisation_1.merge_record.potential_duplicates()[0].child_organisation
+            == self.organisation_2
+        )
+        assert (
+            self.organisation_1.merge_record.potential_duplicates()[0].status
+            == "confirmed_duplicate"
+        )
