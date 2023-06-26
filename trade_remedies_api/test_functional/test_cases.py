@@ -76,8 +76,8 @@ class CaseTest(APITransactionTestCase):
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 2
         ids = [each["id"] for each in response.data]
-        assert user2_case.id in ids
-        assert my_case.id in ids
+        assert str(user2_case.id) in ids
+        assert str(my_case.id) in ids
 
     def test_finds_cases_open_to_user_for_registration_of_interest(self):
         Case.objects.create_new_case(
