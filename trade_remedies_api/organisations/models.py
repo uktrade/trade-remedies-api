@@ -30,7 +30,12 @@ from organisations.constants import (
     PREPARING_ORG_CASE_ROLE,
     REJECTED_ORG_CASE_ROLE,
 )
-from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
+from security.constants import (
+    ROLE_AWAITING_APPROVAL,
+    ROLE_PREPARING,
+    SECURITY_GROUP_ORGANISATION_OWNER,
+    SECURITY_GROUP_ORGANISATION_USER,
+)
 from security.models import OrganisationCaseRole, OrganisationUser, UserCase, get_security_group
 
 logger = logging.getLogger(__name__)
@@ -123,11 +128,16 @@ class OrganisationManager(models.Manager):
                         chosen_role = OrganisationCaseRole.objects.get(
                             case=org_case_role.case, organisation=parent_organisation
                         )
+                        if chosen_role.role.id in [ROLE_AWAITING_APPROVAL, ROLE_PREPARING]:
+                            # the parent org has not yet accepted the role,
+                            # so we will use the child org's role
+                            chosen_role = org_case_role
 
                     chosen_role.organisation = parent_organisation
                     chosen_role.save()
 
-                    # now we want to delete the other org case_roles from either the parent or org to this case except for the chosen role
+                    # now we want to delete the other org case_roles from either
+                    # the parent or org to this case except for the chosen role
                     OrganisationCaseRole.objects.filter(case=org_case_role.case).filter(
                         Q(organisation=child_organisation) | Q(organisation=parent_organisation)
                     ).exclude(id=chosen_role.id).delete()
@@ -1315,6 +1325,9 @@ class OrganisationMergeRecord(BaseModel):
             )
             ids_merged.append(potential_duplicate_organisation.child_organisation.id)
 
+        # we only want to send emails if the notify_users flag is True, and any organisations have
+        # been merged in the first place
+
         if notify_users and ids_merged:
             notify_template_id = SystemParameter.get("NOTIFY_ORGANISATION_MERGED")
             for organisation_user in organisation.organisationuser_set.filter(
@@ -1389,7 +1402,6 @@ class SubmissionOrganisationMergeRecord(BaseModel):
         ("complete", "Complete"),
     )
 
-    id = None
-    submission = models.OneToOneField(Submission, on_delete=models.CASCADE, primary_key=True)
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
     organisation_merge_record = models.ForeignKey(OrganisationMergeRecord, on_delete=models.CASCADE)
     status = models.CharField(default="not_started", choices=status_choices, max_length=30)

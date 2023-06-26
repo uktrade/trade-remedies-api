@@ -92,3 +92,19 @@ class TestOrganisationMergeRecordViewSet(MergeTestBase, FunctionalTestBase):
         assert response == [
             {"case_id": str(self.case_object.pk), "role_ids": [str(role_2.pk), str(role_1.pk)]}
         ]
+
+    def test_get_duplicate_cases_invalid_case_role(self):
+        """Tests that AWAITING_APPROVAL or PREPARING case_roles are not flagged as conflicting"""
+        self.merge_record.duplicate_organisations.filter(
+            child_organisation=self.organisation_2
+        ).update(status="attributes_selected")
+        OrganisationCaseRole.objects.create(
+            organisation=self.organisation_1, case=self.case_object, role=self.preparing_case_role
+        )
+        OrganisationCaseRole.objects.create(
+            organisation=self.organisation_2, case=self.case_object, role=self.contributor_case_role
+        )
+        response = self.client.get(
+            f"/api/v2/organisation_merge_records/{self.merge_record.pk}/get_duplicate_cases/"
+        ).json()
+        assert response == []

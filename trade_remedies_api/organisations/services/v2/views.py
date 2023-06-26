@@ -22,6 +22,7 @@ from organisations.services.v2.serializers import (
     OrganisationSerializer,
     OrganisationUserSerializer,
 )
+from security.constants import ROLE_AWAITING_APPROVAL, ROLE_PREPARING
 from security.models import OrganisationCaseRole, OrganisationUser
 
 
@@ -263,7 +264,7 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
         instance = self.get_object()
         parent_organisation_case_roles = OrganisationCaseRole.objects.filter(
             organisation=instance.parent_organisation
-        )
+        ).exclude(role__key__in=["preparing", "awaiting_approval"])
         child_organisation_case_roles = OrganisationCaseRole.objects.filter(
             organisation_id__in=instance.duplicate_organisations.filter(
                 status="attributes_selected"
@@ -274,7 +275,10 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
         for org_case_role in parent_organisation_case_roles:
             different_child_org_case_roles = child_organisation_case_roles.filter(
                 case=org_case_role.case
-            ).exclude(role=org_case_role.role)
+            ).exclude(
+                role=org_case_role.role,
+                role__key__in=["preparing", "awaiting_approval"],
+            )
             if different_child_org_case_roles.exists():
                 conflicting_org_case_roles.append(
                     {
@@ -296,18 +300,20 @@ class SubmissionOrganisationMergeRecordViewSet(BaseModelViewSet):
     queryset = SubmissionOrganisationMergeRecord.objects.all()
     serializer_class = SubmissionOrganisationMergeRecordSerializer
 
+    def get_object(self):
+        return get_object_or_404(
+            SubmissionOrganisationMergeRecord,
+            submission_id=self.kwargs["pk"],
+            organisation_merge_record_id__parent_organisation=self.request.GET["organisation_id"],
+        )
+
     def retrieve(self, request, *args, **kwargs):
         submission_object = get_object_or_404(Submission, pk=kwargs["pk"])
-        if instance := getattr(submission_object, "submissionorganisationmergerecord", False):
-            organisation_object = instance.organisation_merge_record.parent_organisation
-        else:
-            organisation_object = get_object_or_404(Organisation, pk=request.GET["organisation_id"])
-
+        organisation_object = get_object_or_404(Organisation, pk=request.GET["organisation_id"])
         merge_record = organisation_object.find_potential_duplicate_orgs()
 
         instance, _ = SubmissionOrganisationMergeRecord.objects.get_or_create(
             submission=submission_object,
-            # organisation_merge_record=organisation_object.merge_record
             organisation_merge_record=merge_record,
         )
 
