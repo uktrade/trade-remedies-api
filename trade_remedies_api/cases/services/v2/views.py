@@ -66,22 +66,9 @@ class CaseViewSet(BaseModelViewSet):
             show_global=True,
             sampled_only=False,
         ).filter(issued_at__isnull=False):
-            try:
-                organisation_case_role = case_object.organisationcaserole_set.get(
-                    organisation=submission.organisation
-                )
-                organisation_case_role_name = organisation_case_role.role.name
-            except OrganisationCaseRole.DoesNotExist:
-                # Perhaps the Organisation is the TRA in which case an OrganisationCaseRole
-                # will not exist.
-                if submission.organisation and (
-                    submission.organisation.gov_body
-                    or submission.organisation.name == "Trade Remedies Authority"
-                ):
-                    # it's the TRA/Secretary of State
-                    organisation_case_role_name = submission.organisation.name
-                else:
-                    continue
+            organisation_case_role_name = submission.organisation_case_role_name
+            if not organisation_case_role_name:
+                continue
 
             if submission.is_tra():
                 no_of_files = submission.submissiondocument_set.count()

@@ -117,7 +117,7 @@ class SubmissionSerializer(CustomValidationModelSerializer):
     parent = serializers.SerializerMethodField()
     deficiency_notices = serializers.SerializerMethodField()
     organisation_name = serializers.ReadOnlyField(source="organisation.name")
-    organisation_case_role = serializers.SerializerMethodField()
+    organisation_case_role_name = serializers.ReadOnlyField()
     is_tra = serializers.ReadOnlyField()
 
     @staticmethod
@@ -125,15 +125,6 @@ class SubmissionSerializer(CustomValidationModelSerializer):
         """Perform necessary eager loading of data."""
         queryset = queryset.select_related("case", "organisation", "contact")
         return queryset
-
-    @staticmethod
-    def get_organisation_case_role(instance):
-        from security.services.v2.serializers import OrganisationCaseRoleSerializer
-
-        if instance.organisation:
-            return OrganisationCaseRoleSerializer(
-                instance.organisation.get_case_role(instance.case), fields=["role_name"]
-            ).data
 
     @staticmethod
     def get_parent(instance):
