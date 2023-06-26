@@ -83,7 +83,7 @@ class CaseViewSet(BaseModelViewSet):
                     "submission_name": submission.type.name,
                     "issued_at": submission.issued_at,
                     "organisation_name": submission.organisation.name,
-                    "organisation_case_role": organisation_case_role_name,
+                    "organisation_case_role_name": organisation_case_role_name,
                     "no_of_files": no_of_files,
                     "is_tra": submission.is_tra(),
                 }
