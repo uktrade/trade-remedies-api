@@ -82,9 +82,7 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     def eager_load_queryset(queryset):
         """Eager load all the fields in the queryset"""
         return queryset.prefetch_related(
-            "organisationuser_set",
-            "organisationuser_set__user",
-            "organisationcaserole_set"
+            "organisationuser_set", "organisationuser_set__user", "organisationcaserole_set"
         )
 
     def to_representation(self, instance):
