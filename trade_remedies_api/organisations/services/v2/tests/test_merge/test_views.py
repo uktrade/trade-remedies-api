@@ -5,7 +5,7 @@ from cases.models import Submission, get_submission_type
 from contacts.models import Contact
 from invitations.models import Invitation
 from organisations.models import SubmissionOrganisationMergeRecord
-from organisations.tests.v2 import MergeTestBase
+from organisations.services.v2.tests.test_merge import MergeTestBase
 from security.constants import SECURITY_GROUP_ORGANISATION_USER
 from security.models import OrganisationCaseRole
 from test_functional import FunctionalTestBase
