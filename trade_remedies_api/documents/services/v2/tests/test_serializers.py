@@ -15,7 +15,7 @@ class TestDocumentSerializer(CaseSetupTestMixin):
 
         # for the DocumentSerializer to work, we need to tell it not to get the URL from S3 as this
         # is a test and that will not work
-        settings["UPLOADED_FILES_USE_URL"] = False
+        settings.REST_FRAMEWORK["UPLOADED_FILES_USE_URL"] = False
         api_settings.reload()
 
         self.document = Document.objects.create(
