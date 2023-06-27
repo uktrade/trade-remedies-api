@@ -79,6 +79,13 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     a_tag_website_url = serializers.SerializerMethodField()
     full_country_name = serializers.SerializerMethodField()
 
+    @staticmethod
+    def eager_load_queryset(queryset):
+        """Eager load all the fields in the queryset"""
+        return queryset.prefetch_related(
+            "organisationuser_set", "organisationuser_set__user", "organisationcaserole_set"
+        )
+
     def to_representation(self, instance):
         instance.json_data = {}
         return super().to_representation(instance)
