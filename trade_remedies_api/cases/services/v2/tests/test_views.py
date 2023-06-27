@@ -75,4 +75,3 @@ class TestCaseViewSet(CaseSetupTestMixin, FunctionalTestBase):
         assert public_file[0]["organisation_case_role_name"] == "Applicant"
         assert public_file[0]["no_of_files"] == 0
         assert not public_file[0]["is_tra"]
-

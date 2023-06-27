@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from config.test_bases import CaseSetupTestMixin
 from documents.models import Document
 from documents.services.v2.serializers import DocumentSerializer
@@ -7,6 +9,7 @@ from organisations.services.v2.serializers import (
 
 
 class TestDocumentSerializer(CaseSetupTestMixin):
+    @patch("documents.fields.S3FileField")
     def setUp(self) -> None:
         super().setUp()
         self.document = Document.objects.create(
