@@ -1,3 +1,4 @@
+DocumentSerializer
 PUBLIC
 "Returns the extension
 "Returns the truncated document name

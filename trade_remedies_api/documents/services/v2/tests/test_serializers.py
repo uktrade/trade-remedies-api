@@ -1,17 +1,23 @@
 from unittest.mock import patch
 
-from django.test import override_settings
+from django.conf import settings
+from rest_framework.settings import api_settings
 
 from config.test_bases import CaseSetupTestMixin
 from documents.models import Document
 from documents.services.v2.serializers import DocumentSerializer
 
 
-@override_settings(UPLOADED_FILES_USE_URL=False)
 class TestDocumentSerializer(CaseSetupTestMixin):
     @patch("documents.fields.S3FileField")
     def setUp(self, patched_s3_file_field) -> None:
         super().setUp()
+
+        # for the DocumentSerializer to work, we need to tell it not to get the URL from S3 as this
+        # is a test and that will not work
+        settings["UPLOADED_FILES_USE_URL"] = False
+        api_settings.reload()
+
         self.document = Document.objects.create(
             name="really really really really really really long name.pdf",
             file="document.pdf",
