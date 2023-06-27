@@ -61,7 +61,7 @@ class CaseViewSet(BaseModelViewSet):
         public_file_data = []
         for submission in Submission.objects.get_submissions(
             case=case_object,
-            requested_by=User.objects.get(email=settings.TRUSTED_USER_EMAIL),
+            requested_by=request.user,
             private=False,
             show_global=True,
             sampled_only=False,

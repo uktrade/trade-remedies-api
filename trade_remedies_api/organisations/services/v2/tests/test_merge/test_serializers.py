@@ -3,7 +3,7 @@ from organisations.services.v2.serializers import (
     DuplicateOrganisationMergeSerializer,
     OrganisationMergeRecordSerializer,
 )
-from organisations.tests.v2 import MergeTestBase
+from organisations.services.v2.tests.test_merge import MergeTestBase
 
 
 class TestDuplicateOrganisationMergeSerializer(MergeTestBase):
