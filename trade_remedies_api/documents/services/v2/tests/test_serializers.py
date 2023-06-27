@@ -1,10 +1,13 @@
 from unittest.mock import patch
 
+from django.test import override_settings
+
 from config.test_bases import CaseSetupTestMixin
 from documents.models import Document
 from documents.services.v2.serializers import DocumentSerializer
 
 
+@override_settings(UPLOADED_FILES_USE_URL=False)
 class TestDocumentSerializer(CaseSetupTestMixin):
     @patch("documents.fields.S3FileField")
     def setUp(self, patched_s3_file_field) -> None:

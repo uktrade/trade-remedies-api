@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.utils import timezone
+from rest_framework.fields import DateTimeField
 
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
 from cases.models import Submission, get_submission_type
@@ -71,7 +72,11 @@ class TestCaseViewSet(CaseSetupTestMixin, FunctionalTestBase):
 
         assert len(public_file) == 1
         assert public_file[0]["submission_name"] == "Invite 3rd party"
-        assert public_file[0]["issued_at"] == self.now.strftime(settings.API_DATETIME_FORMAT)
+
+        # we need to use the official drf datetime field to get the same format as what the API
+        # returns
+        drf_str_datetime = DateTimeField().to_representation
+        assert public_file[0]["issued_at"] == drf_str_datetime(self.now)
         assert public_file[0]["organisation_name"] == self.organisation.name
         assert public_file[0]["organisation_case_role_name"] == "Applicant"
         assert public_file[0]["no_of_files"] == 0
