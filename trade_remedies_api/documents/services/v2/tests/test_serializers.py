@@ -7,7 +7,7 @@ from documents.services.v2.serializers import DocumentSerializer
 
 class TestDocumentSerializer(CaseSetupTestMixin):
     @patch("documents.fields.S3FileField")
-    def setUp(self) -> None:
+    def setUp(self, patched_s3_file_field) -> None:
         super().setUp()
         self.document = Document.objects.create(
             name="really really really really really really long name.pdf",
