@@ -124,7 +124,7 @@ class SubmissionSerializer(CustomValidationModelSerializer):
     def eager_load_queryset(queryset):
         """Eager load all the fields in the queryset"""
         queryset = queryset.select_related("organisation", "primary_contact")
-        queryset = queryset.prefetch_related("documents", "submission_documents")
+        queryset = queryset.prefetch_related("documents")
         return queryset
 
     @staticmethod
@@ -231,3 +231,4 @@ class PublicFileSerializer(serializers.Serializer):
     organisation_name = serializers.CharField()
     organisation_case_role_name = serializers.CharField()
     no_of_files = serializers.IntegerField()
+    is_tra = serializers.BooleanField()

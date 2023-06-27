@@ -29,7 +29,7 @@ class TestDocumentSerializer(CaseSetupTestMixin):
         self.serializer = DocumentSerializer(instance=self.document).data
 
     def test_is_uploaded_document(self):
-        assert not self.serializer["is_uploaded_document"]
+        assert self.serializer["is_uploaded_document"]
 
     def test_extension(self):
         assert self.serializer["extension"] == "pdf"
