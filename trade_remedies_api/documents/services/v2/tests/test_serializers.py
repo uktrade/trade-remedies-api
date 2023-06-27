@@ -3,9 +3,6 @@ from unittest.mock import patch
 from config.test_bases import CaseSetupTestMixin
 from documents.models import Document
 from documents.services.v2.serializers import DocumentSerializer
-from organisations.services.v2.serializers import (
-    OrganisationSerializer,
-)
 
 
 class TestDocumentSerializer(CaseSetupTestMixin):

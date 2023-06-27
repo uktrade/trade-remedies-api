@@ -31,7 +31,8 @@ class DocumentSerializer(serializers.ModelSerializer):
         """
         return not instance.system
 
-    def get_extension(self, instance: Document) -> str:
+    @staticmethod
+    def get_extension(instance: Document) -> str:
         """Returns the extension of the document file.
 
         e.g. test-document.pdf ---> pdf
@@ -40,7 +41,8 @@ class DocumentSerializer(serializers.ModelSerializer):
         filename, file_extension = os.path.splitext(instance.name)
         return file_extension[1:]
 
-    def get_truncated_name(self, instance):
+    @staticmethod
+    def get_truncated_name(instance: Document) -> str:
         """Returns the truncated document name.
 
         e.g. super_long_document_name_this_is_ridiculous.pdf ---> super_long_doc...iculous.pdf"""
@@ -50,7 +52,7 @@ class DocumentSerializer(serializers.ModelSerializer):
         return instance.name
 
     @staticmethod
-    def get_size_in_kb(instance):
+    def get_size_in_kb(instance: Document) -> str:
         """Returns the size of the document in kilobytes."""
         return f"{int(instance.size)/(1<<10):,.0f}"
 
