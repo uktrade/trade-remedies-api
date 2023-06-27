@@ -1,6 +1,5 @@
-import datetime
-
 from django.conf import settings
+from django.utils import timezone
 
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
 from cases.models import Submission, get_submission_type
@@ -12,7 +11,7 @@ from test_functional import FunctionalTestBase
 class TestCaseViewSet(CaseSetupTestMixin, FunctionalTestBase):
     def setUp(self):
         super().setUp()
-        self.now = datetime.datetime.now()
+        self.now = timezone.now()
 
     def test_get_empty_public_file(self):
         response = self.client.get(f"/api/v2/cases/{self.case_object.pk}/get_public_file/")
