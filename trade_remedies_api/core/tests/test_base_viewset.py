@@ -133,7 +133,7 @@ class TestBaseModelViewSet(CaseSetupTestMixin, FunctionalTestBase):
         # first we need to clear the existing ratelimit cache. The cache is maintained between
         # tests, and so we want to clear it before we start. Otherwise, running this test successive
         # times will fail.
-        cache_name = getattr(settings, 'RATELIMIT_USE_CACHE', 'default')
+        cache_name = getattr(settings, "RATELIMIT_USE_CACHE", "default")
         cache = caches[cache_name]
         cache.clear()
 
