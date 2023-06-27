@@ -200,6 +200,11 @@ class CustomValidationModelSerializer(CustomValidationSerializer, serializers.Mo
 
     editable_only_on_create_fields = []  # Fields that are only editable on creation, and not update
 
+    @staticmethod
+    def eager_load_queryset(queryset):
+        """Eager load all the fields in the queryset"""
+        return queryset
+
     def to_representation(self, instance):
         if not self.context and getattr(self.parent, "context", False):
             self._context = self.parent.context

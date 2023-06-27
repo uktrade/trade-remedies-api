@@ -30,7 +30,12 @@ from organisations.constants import (
     PREPARING_ORG_CASE_ROLE,
     REJECTED_ORG_CASE_ROLE,
 )
-from security.constants import SECURITY_GROUP_ORGANISATION_OWNER, SECURITY_GROUP_ORGANISATION_USER
+from security.constants import (
+    ROLE_AWAITING_APPROVAL,
+    ROLE_PREPARING,
+    SECURITY_GROUP_ORGANISATION_OWNER,
+    SECURITY_GROUP_ORGANISATION_USER,
+)
 from security.models import OrganisationCaseRole, OrganisationUser, UserCase, get_security_group
 
 logger = logging.getLogger(__name__)
@@ -123,11 +128,16 @@ class OrganisationManager(models.Manager):
                         chosen_role = OrganisationCaseRole.objects.get(
                             case=org_case_role.case, organisation=parent_organisation
                         )
+                        if chosen_role.role.id in [ROLE_AWAITING_APPROVAL, ROLE_PREPARING]:
+                            # the parent org has not yet accepted the role,
+                            # so we will use the child org's role
+                            chosen_role = org_case_role
 
                     chosen_role.organisation = parent_organisation
                     chosen_role.save()
 
-                    # now we want to delete the other org case_roles from either the parent or org to this case except for the chosen role
+                    # now we want to delete the other org case_roles from either
+                    # the parent or org to this case except for the chosen role
                     OrganisationCaseRole.objects.filter(case=org_case_role.case).filter(
                         Q(organisation=child_organisation) | Q(organisation=parent_organisation)
                     ).exclude(id=chosen_role.id).delete()
@@ -485,6 +495,13 @@ class Organisation(BaseModel):
             # the database has been scanned for potential duplicates, and we only want to check
             # those organisations that have been created or modified since the last check. Unless
             # the fresh argument is True, in which case we will always scan for all
+
+            # however if the merge record is locked, then it has been created as part of an adhoc
+            # merge process, and we don't want to scan for duplicates. There's one potential, and
+            # we're leaving it at that
+            if self.merge_record.locked:
+                return self.merge_record
+
             if not fresh and self.merge_record.last_searched:
                 potential_duplicates = potential_duplicates.filter(
                     models.Q(created_at__gte=self.merge_record.last_searched)
@@ -1276,6 +1293,10 @@ class OrganisationMergeRecord(BaseModel):
     last_searched = models.DateTimeField(null=True)
     chosen_case_roles = models.JSONField(null=True, blank=True)
 
+    # locked if it's an ad-hoc merge, we don't want to find actual duplicates,
+    # just the ones that we're explicitly merging
+    locked = models.BooleanField(default=False)
+
     def merge_organisations(
         self,
         organisation=None,
@@ -1315,6 +1336,9 @@ class OrganisationMergeRecord(BaseModel):
             )
             ids_merged.append(potential_duplicate_organisation.child_organisation.id)
 
+        # we only want to send emails if the notify_users flag is True, and any organisations have
+        # been merged in the first place
+
         if notify_users and ids_merged:
             notify_template_id = SystemParameter.get("NOTIFY_ORGANISATION_MERGED")
             for organisation_user in organisation.organisationuser_set.filter(
@@ -1340,6 +1364,13 @@ class OrganisationMergeRecord(BaseModel):
                 model=self,
                 data={"organisations_merged_with": ids_merged},
             )
+
+        # finally, we check if the OrganisationMergeRecord was 'locked', meaning that it was the
+        # result of an adhoc merge. In this case, we want to unlock it, so future duplicates can be
+        # found.
+        if self.locked:
+            self.locked = False
+            self.save()
 
         return organisation
 
@@ -1389,7 +1420,6 @@ class SubmissionOrganisationMergeRecord(BaseModel):
         ("complete", "Complete"),
     )
 
-    id = None
-    submission = models.OneToOneField(Submission, on_delete=models.CASCADE, primary_key=True)
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
     organisation_merge_record = models.ForeignKey(OrganisationMergeRecord, on_delete=models.CASCADE)
     status = models.CharField(default="not_started", choices=status_choices, max_length=30)

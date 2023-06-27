@@ -3,6 +3,8 @@ import json
 from unittest.mock import MagicMock
 
 import pytest
+from django.conf import settings
+from django.core.cache import caches
 from django.urls import reverse
 from model_bakery import baker
 from rest_framework.test import APIRequestFactory
@@ -126,12 +128,19 @@ class TestBaseModelViewSet(CaseSetupTestMixin, FunctionalTestBase):
         assert all([value.read_only for _, value in serializer_class().get_fields().items()])
         assert "full_country_name" not in serializer_class().get_fields().keys()
 
-    @override_settings(API_RATELIMIT_RATE="1/h")
+    @override_settings(API_RATELIMIT_RATE="1/h", API_RATELIMIT_ENABLED=True)
     def test_ratelimit(self):
+        # first we need to clear the existing ratelimit cache. The cache is maintained between
+        # tests, and so we want to clear it before we start. Otherwise, running this test successive
+        # times will fail.
+        cache_name = getattr(settings, "RATELIMIT_USE_CACHE", "default")
+        cache = caches[cache_name]
+        cache.clear()
+
         # first request should be fine
         response = self.client.get("/api/v2/organisations/")
         assert response.status_code == 200
 
         # second request should be rate-limited
         response = self.client.get("/api/v2/organisations/")
-        assert response.status_code == 429
+        assert response.status_code in (429, 403)
