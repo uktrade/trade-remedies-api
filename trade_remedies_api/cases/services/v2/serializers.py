@@ -121,12 +121,6 @@ class SubmissionSerializer(CustomValidationModelSerializer):
     is_tra = serializers.ReadOnlyField()
 
     @staticmethod
-    def eager_loading(queryset):
-        """Perform necessary eager loading of data."""
-        queryset = queryset.select_related("case", "organisation", "contact")
-        return queryset
-
-    @staticmethod
     def get_parent(instance):
         if parent := instance.parent:
             return SubmissionSerializer(parent, exclude=["organisation"]).data
