@@ -158,7 +158,9 @@ class UserSerializer(CustomValidationModelSerializer):
             try:
                 return OrganisationSerializer(
                     organisation_user_object.organisation,
-                    exclude=["organisationuser_set", "users"],
+                    exclude=[
+                        "organisationuser_set",
+                    ],
                 ).data
             except Organisation.DoesNotExist:
                 return None

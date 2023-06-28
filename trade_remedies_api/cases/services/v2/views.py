@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.db import transaction
 from django.http import JsonResponse
-from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -12,11 +12,14 @@ from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
 from cases.models import Case, Submission, SubmissionType
 from cases.services.v2.serializers import (
     CaseSerializer,
+    PublicFileSerializer,
     SubmissionSerializer,
     SubmissionTypeSerializer,
 )
 from config.viewsets import BaseModelViewSet
+from core.models import User
 from organisations.models import Organisation
+from organisations.services.v2.serializers import OrganisationCaseRoleSerializer
 from security.constants import ROLE_PREPARING
 from security.models import CaseRole, OrganisationCaseRole
 
@@ -29,6 +32,7 @@ class CaseViewSet(BaseModelViewSet):
         if self.request.query_params.get("open_to_roi"):
             # We only want the cases which are open to registration of interest applications
             return Case.objects.available_for_regisration_of_intestest(self.request.user)
+
         return super().get_queryset()
 
     @action(detail=True, methods=["get"], url_name="get_status")
@@ -38,6 +42,56 @@ class CaseViewSet(BaseModelViewSet):
         We put this in a separate action as it's quite a costly operation, going over all of the
         workflow objects of the case and it slows down the standard CaseSerializer."""
         return JsonResponse(self.get_object().get_status())
+
+    @action(detail=True, methods=["get"], url_name="get_applicant")
+    def get_applicant(self, request, *args, **kwargs):
+        """Gets the applicant of this case using the get_applicant().
+
+        We put this in a separate action as it's quite a costly operation, going over all of the
+        workflow objects of the case and it slows down the standard CaseSerializer."""
+        return JsonResponse(OrganisationCaseRoleSerializer(self.get_object().applicant).data)
+
+    @action(detail=True, methods=["get"], url_name="get_public_file")
+    def get_public_file(self, request, *args, **kwargs):
+        """Gets the applicant of this case using the get_applicant().
+
+        We put this in a separate action as it's quite a costly operation, going over all of the
+        workflow objects of the case and it slows down the standard CaseSerializer."""
+        case_object = self.get_object()
+        public_file_data = []
+        for submission in Submission.objects.get_submissions(
+            case=case_object,
+            requested_by=request.user,
+            private=False,
+            show_global=True,
+            sampled_only=False,
+        ).filter(issued_at__isnull=False):
+            organisation_case_role_name = submission.organisation_case_role_name
+            if not organisation_case_role_name:
+                continue
+
+            if submission.is_tra():
+                no_of_files = submission.submissiondocument_set.count()
+            else:
+                no_of_files = submission.submissiondocument_set.filter(
+                    type__key="respondent"
+                ).count()
+
+            serializer = PublicFileSerializer(
+                data={
+                    "submission_id": submission.id,
+                    "submission_name": submission.type.name,
+                    "issued_at": submission.issued_at,
+                    "organisation_name": submission.organisation.name,
+                    "organisation_case_role_name": organisation_case_role_name,
+                    "no_of_files": no_of_files,
+                    "is_tra": submission.is_tra(),
+                }
+            )
+            assert serializer.is_valid()
+            public_file_data.append(serializer.data)
+
+        return JsonResponse(public_file_data, safe=False)
 
 
 class SubmissionViewSet(BaseModelViewSet):

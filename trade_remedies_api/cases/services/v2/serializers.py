@@ -5,6 +5,8 @@ from rest_framework.fields import SerializerMethodField
 from cases.models import (
     Case,
     CaseType,
+    ExportSource,
+    Product,
     Submission,
     SubmissionDocument,
     SubmissionDocumentType,
@@ -23,11 +25,33 @@ class CaseTypeSerializer(CustomValidationModelSerializer):
         fields = "__all__"
 
 
+class ProductSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = Product
+        fields = "__all__"
+
+    hs_codes = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_hs_codes(instance):
+        return [each.code for each in instance.hs_codes.all()]
+
+
+class ExportSourceSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = ExportSource
+        fields = "__all__"
+
+    country = serializers.ReadOnlyField(source="country.name", required=False)
+
+
 class CaseSerializer(CustomValidationModelSerializer):
     reference = serializers.CharField(required=False)
     type = NestedField(serializer_class=CaseTypeSerializer, required=False, accept_pk=True)
     initiated_at = serializers.DateTimeField(required=False)
     registration_deadline = serializers.DateTimeField(required=False)
+    product_set = ProductSerializer(many=True, required=False)
+    exportsource_set = ExportSourceSerializer(many=True, required=False)
 
     class Meta:
         model = Case
@@ -62,6 +86,10 @@ class SubmissionTypeSerializer(serializers.ModelSerializer):
 
 
 class SubmissionSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = Submission
+        fields = "__all__"
+
     case = NestedField(serializer_class=CaseSerializer, required=False, accept_pk=True)
     organisation = NestedField(
         serializer_class=OrganisationSerializer, required=False, accept_pk=True
@@ -88,16 +116,15 @@ class SubmissionSerializer(CustomValidationModelSerializer):
     )
     parent = serializers.SerializerMethodField()
     deficiency_notices = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Submission
-        fields = "__all__"
+    organisation_name = serializers.ReadOnlyField(source="organisation.name")
+    organisation_case_role_name = serializers.ReadOnlyField()
+    is_tra = serializers.ReadOnlyField()
 
     @staticmethod
     def eager_load_queryset(queryset):
         """Eager load all the fields in the queryset"""
         queryset = queryset.select_related("organisation", "primary_contact")
-        queryset = queryset.prefetch_related("documents", "submission_documents")
+        queryset = queryset.prefetch_related("documents")
         return queryset
 
     @staticmethod
@@ -195,3 +222,13 @@ class SubmissionSerializer(CustomValidationModelSerializer):
                 )
 
         return orphaned_documents
+
+
+class PublicFileSerializer(serializers.Serializer):
+    submission_id = serializers.UUIDField()
+    submission_name = serializers.CharField()
+    issued_at = serializers.DateTimeField()
+    organisation_name = serializers.CharField()
+    organisation_case_role_name = serializers.CharField()
+    no_of_files = serializers.IntegerField()
+    is_tra = serializers.BooleanField()
