@@ -2,12 +2,13 @@ import os
 
 from rest_framework import serializers
 
+from config.serializers import CustomValidationModelSerializer
 from documents.models import Document
 from cases.models import SubmissionType
 from documents.models import Document, DocumentBundle
 
 
-class DocumentSerializer(serializers.ModelSerializer):
+class DocumentSerializer(CustomValidationModelSerializer):
     class Meta:
         model = Document
         fields = "__all__"
