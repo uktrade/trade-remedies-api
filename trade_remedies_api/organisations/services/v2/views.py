@@ -269,7 +269,7 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
     )
     def get_duplicate_cases(self, request, *args, **kwargs):
         """Gets all cases that are shared by the duplicate organisations of
-         this merge record including the parent organisation."""
+        this merge record including the parent organisation."""
         instance = self.get_object()
         parent_organisation_case_roles = OrganisationCaseRole.objects.filter(
             organisation=instance.parent_organisation
