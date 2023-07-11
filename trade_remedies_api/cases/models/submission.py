@@ -210,6 +210,25 @@ class Submission(BaseModel):
             return f"{self.type}: {self.case}: {self.name}{version_ind}"
         return f"{self.type}: {self.case}{version_ind}"
 
+    @property
+    def organisation_case_role_name(self):
+        """
+        Returns the organisation case role name for the submission
+        """
+        try:
+            organisation_case_role = self.case.organisationcaserole_set.get(
+                organisation=self.organisation
+            )
+            return organisation_case_role.role.name
+        except OrganisationCaseRole.DoesNotExist:
+            # Perhaps the Organisation is the TRA in which case an OrganisationCaseRole
+            # will not exist.
+            if self.organisation and (
+                self.organisation.gov_body or self.organisation.name == "Trade Remedies Authority"
+            ):
+                # it's the TRA/Secretary of State
+                return "Trade Remedies Authority"
+
     @transaction.atomic
     def delete(self, purge=False):
         """
