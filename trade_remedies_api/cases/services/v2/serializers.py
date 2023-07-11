@@ -94,6 +94,13 @@ class SubmissionSerializer(CustomValidationModelSerializer):
         fields = "__all__"
 
     @staticmethod
+    def eager_load_queryset(queryset):
+        """Eager load all the fields in the queryset"""
+        queryset = queryset.select_related("organisation", "primary_contact")
+        queryset = queryset.prefetch_related("documents")
+        return queryset
+
+    @staticmethod
     def get_parent(instance):
         if parent := instance.parent:
             return SubmissionSerializer(parent, exclude=["organisation"]).data

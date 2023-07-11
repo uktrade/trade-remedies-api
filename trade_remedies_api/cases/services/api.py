@@ -1254,6 +1254,14 @@ class SubmissionStatusAPIView(TradeRemediesApiView):
                 clone.sent_at = timezone.now()
                 clone.sent_by = request.user
                 clone._disable_audit = True
+                # copy notification sent information from original/previous submission record
+                clone.deficiency_notice_params = {}
+                clone.deficiency_notice_params[
+                    "org_verify"
+                ] = submission.deficiency_notice_params.get("org_verify")
+                clone.deficiency_notice_params[
+                    "notification_sent_at"
+                ] = submission.deficiency_notice_params.get("notification_sent_at")
                 clone.save()
             if submission_status_context == "sent":
                 submission.sent_at = timezone.now()

@@ -18,9 +18,9 @@ from organisations.services.v2.serializers import (
     DuplicateOrganisationMergeSerializer,
     OrganisationCaseRoleSerializer,
     OrganisationMergeRecordSerializer,
-    SubmissionOrganisationMergeRecordSerializer,
     OrganisationSerializer,
     OrganisationUserSerializer,
+    SubmissionOrganisationMergeRecordSerializer,
 )
 from security.models import OrganisationCaseRole, OrganisationUser
 
@@ -66,9 +66,12 @@ class OrganisationViewSet(BaseModelViewSet):
     def search_by_company_name(self, request, *args, **kwargs):
         search_string = request.GET["company_name"]
         case_id = request.GET.get("case_id")
+        exclude_id = request.GET.get("exclude_id")
+
+        queryset = self.get_queryset()
 
         # get organisations by name
-        matching_organisations = self.queryset.filter(
+        matching_organisations = queryset.filter(
             Q(name__icontains=search_string) | Q(companies_house_id__icontains=search_string)
         )
 
@@ -77,6 +80,12 @@ class OrganisationViewSet(BaseModelViewSet):
             matching_organisations = matching_organisations.exclude(
                 organisation__organisationcaserole__case=case_id,
             )
+
+        if exclude_id:
+            # if we are passed an exclude_id in the request.GET,
+            # then exclude the organisation with that ID from the results.
+            # used in cases where there are 2 autocompletes on one page
+            matching_organisations = matching_organisations.exclude(id=exclude_id)
 
         return Response(
             OrganisationSerializer(
@@ -263,7 +272,7 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
         instance = self.get_object()
         parent_organisation_case_roles = OrganisationCaseRole.objects.filter(
             organisation=instance.parent_organisation
-        )
+        ).exclude(role__key__in=["preparing", "awaiting_approval"])
         child_organisation_case_roles = OrganisationCaseRole.objects.filter(
             organisation_id__in=instance.duplicate_organisations.filter(
                 status="attributes_selected"
@@ -274,7 +283,10 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
         for org_case_role in parent_organisation_case_roles:
             different_child_org_case_roles = child_organisation_case_roles.filter(
                 case=org_case_role.case
-            ).exclude(role=org_case_role.role)
+            ).exclude(
+                role=org_case_role.role,
+                role__key__in=["preparing", "awaiting_approval"],
+            )
             if different_child_org_case_roles.exists():
                 conflicting_org_case_roles.append(
                     {
@@ -286,6 +298,47 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
 
         return Response(data=conflicting_org_case_roles)
 
+    @action(
+        detail=False,
+        methods=["get"],
+        url_name="adhoc_merge",
+        url_path="adhoc_merge",
+    )
+    def adhoc_merge(self, request, *args, **kwargs):
+        """
+        Create a locked OrganisationMergeRecord object for the two given organisations. This is used
+        when a user wants to merge two organisations that are not flagged as duplicates.
+
+        The resulting OrganisationMergeRecord is locked and will not be updated whenever the DB
+        is searched for existing duplicates
+        """
+        organisation_1_id = request.GET["organisation_1_id"]
+        organisation_2_id = request.GET["organisation_2_id"]
+
+        # deleting any existing merge records for these organisations. This adhoc merge will create
+        #
+        OrganisationMergeRecord.objects.filter(
+            Q(parent_organisation_id=organisation_1_id)
+            | Q(parent_organisation_id=organisation_2_id)
+        ).delete()
+
+        organisation_merge_record_object = OrganisationMergeRecord.objects.create(
+            parent_organisation_id=organisation_1_id,
+            locked=True,
+            status="duplicates_found",
+        )
+        DuplicateOrganisationMerge.objects.create(
+            merge_record=organisation_merge_record_object,
+            child_organisation_id=organisation_2_id,
+            status="confirmed_duplicate",
+        )
+
+        return Response(
+            OrganisationMergeRecordSerializer(
+                instance=organisation_merge_record_object,
+            ).data
+        )
+
 
 class DuplicateOrganisationMergeViewSet(BaseModelViewSet):
     queryset = DuplicateOrganisationMerge.objects.all()
@@ -296,18 +349,20 @@ class SubmissionOrganisationMergeRecordViewSet(BaseModelViewSet):
     queryset = SubmissionOrganisationMergeRecord.objects.all()
     serializer_class = SubmissionOrganisationMergeRecordSerializer
 
+    def get_object(self):
+        return get_object_or_404(
+            SubmissionOrganisationMergeRecord,
+            submission_id=self.kwargs["pk"],
+            organisation_merge_record_id__parent_organisation=self.request.GET["organisation_id"],
+        )
+
     def retrieve(self, request, *args, **kwargs):
         submission_object = get_object_or_404(Submission, pk=kwargs["pk"])
-        if instance := getattr(submission_object, "submissionorganisationmergerecord", False):
-            organisation_object = instance.organisation_merge_record.parent_organisation
-        else:
-            organisation_object = get_object_or_404(Organisation, pk=request.GET["organisation_id"])
-
+        organisation_object = get_object_or_404(Organisation, pk=request.GET["organisation_id"])
         merge_record = organisation_object.find_potential_duplicate_orgs()
 
         instance, _ = SubmissionOrganisationMergeRecord.objects.get_or_create(
             submission=submission_object,
-            # organisation_merge_record=organisation_object.merge_record
             organisation_merge_record=merge_record,
         )
 

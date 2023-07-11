@@ -2,26 +2,22 @@ import base64
 import json
 import typing
 
-from django.utils.decorators import method_decorator
-from django_ratelimit.decorators import ratelimit
-from functools import lru_cache
-
 from django.core.exceptions import FieldError
 from django.http import Http404
-from django_ratelimit.middleware import RatelimitMiddleware
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from v2_api_client.shared.logging import audit_logger
 
 from config.ratelimit import get_rate
-from core.services.base import GroupPermission
-
 from config.serializers import (
     CustomValidationModelSerializer,
     GenericSerializerType,
     ReadOnlyModelMixinSerializer,
 )
+from core.services.base import GroupPermission
 
 
 @method_decorator(ratelimit(key="user_or_ip", rate=get_rate, method=ratelimit.ALL), name="dispatch")
@@ -47,6 +43,11 @@ class BaseModelViewSet(viewsets.ModelViewSet):
         except FieldError:
             # some models do not have deleted_at
             pass
+
+        serializer_class = self.get_serializer_class()
+        if hasattr(serializer_class, "eager_load_queryset"):
+            queryset = self.get_serializer_class().eager_load_queryset(queryset)
+
         return queryset
 
     def initialize_request(self, request, *args, **kwargs):

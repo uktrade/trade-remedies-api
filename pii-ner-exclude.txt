@@ -1,3 +1,7 @@
+PUBLIC
+"Returns the extension
+"Returns the truncated document name
+e.g. super_long_document_name_this_is_ridiculous.pdf
 Test Case
 core.models
 " Add a document
@@ -11,6 +15,7 @@ Builds
 " Notify the contact about this submission using the given template :param core.
 the System Parameters
 " Notify the contact about
+Awaiting Approval
 organisation_user.user.email
 AUDIT_TYPE_NOTIFY
 " Allows
