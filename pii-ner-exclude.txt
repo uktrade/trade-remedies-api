@@ -1,4 +1,28 @@
 PUBLIC
+DocumentSerializer
+PUBLIC
+"Returns the extension
+"Returns the truncated document name
+e.g. super_long_document_name_this_is_ridiculous.pdf
+"Returns the size of the document
+PUBLIC
+"Returns the extension
+"Returns the truncated document name
+e.g. super_long_document_name_this_is_ridiculous.pdf
+"Returns the size of the document
+PUBLIC
+"Returns the extension
+"Returns the truncated document name
+e.g. super_long_document_name_this_is_ridiculous.pdf
+"Returns the size of the document
+f"{int(instance.size)/(1<<10):,.0f
+" Returns the organisation case role
+core.models
+" Add a document
+Builds
+" Notify the contact about this submission using the given template :param core.
+the System Parameters
+" Notify the contact about
 "Returns the extension
 "Returns the truncated document name
 e.g. super_long_document_name_this_is_ridiculous.pdf

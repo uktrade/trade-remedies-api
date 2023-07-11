@@ -21,6 +21,7 @@ class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
     validated_by = UserSerializer(fields=["name", "email"], required=False)
     role_name = serializers.CharField(source="role.name", required=False)
     auth_contact = NestedField(serializer_class=ContactSerializer, required=False, accept_pk=True)
+    organisation_name = serializers.CharField(source="organisation.name", required=False)
 
     class Meta:
         model = OrganisationCaseRole
@@ -38,7 +39,8 @@ class OrganisationCaseRoleSerializer(CustomValidationModelSerializer):
         from cases.services.v2.serializers import CaseSerializer
 
         ret = super().to_representation(obj)
-        ret["case"] = CaseSerializer(instance=obj.case).data
+        if isinstance(obj, OrganisationCaseRole):
+            ret["case"] = CaseSerializer(instance=obj.case).data
         return ret
 
     @staticmethod
@@ -57,6 +59,10 @@ class OrganisationUserSerializer(CustomValidationModelSerializer):
 
 
 class OrganisationSerializer(CustomValidationModelSerializer):
+    class Meta:
+        model = Organisation
+        fields = "__all__"
+
     country = serializers.CharField(source="country.alpha3", required=False)
     country_code = serializers.ReadOnlyField(source="country.code")
     organisationuser_set = OrganisationUserSerializer(many=True, required=False)
@@ -72,11 +78,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
     json_data = serializers.JSONField(required=False, allow_null=True)
     a_tag_website_url = serializers.SerializerMethodField()
     full_country_name = serializers.SerializerMethodField()
-    users = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Organisation
-        fields = "__all__"
 
     @staticmethod
     def eager_load_queryset(queryset):
@@ -94,12 +95,6 @@ class OrganisationSerializer(CustomValidationModelSerializer):
         if "country" in data and isinstance(data["country"], dict):
             data["country"] = data["country"]["alpha3"]
         return data
-
-    @staticmethod
-    def get_users(instance):
-        return OrganisationUserSerializer(
-            instance.organisationuser_set.all(), many=True, exclude=["organisation"]
-        ).data
 
     @staticmethod
     def get_a_tag_website_url(instance):
