@@ -120,6 +120,21 @@ class SubmissionSerializer(CustomValidationModelSerializer):
     organisation_case_role_name = serializers.ReadOnlyField()
     is_tra = serializers.ReadOnlyField()
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data = data.copy()
+
+        # If the request has a query param of non_confidential_only=True, then we need to filter
+        # out any confidential documents
+        if request := self.context.get("request"):
+            if request.GET.get("non_confidential_only") == "True":
+                data["submission_documents"] = [
+                    each
+                    for each in data["submission_documents"]
+                    if not each["document"]["confidential"]
+                ]
+        return data
+
     @staticmethod
     def eager_load_queryset(queryset):
         """Eager load all the fields in the queryset"""
