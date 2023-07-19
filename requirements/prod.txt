@@ -69,9 +69,13 @@ defusedxml==0.7.1
     # via
     #   -r requirements.in/../requirements/base.txt
     #   odfpy
+deprecation==2.1.0
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   pikepdf
 dj-database-url==0.5.0
     # via -r requirements.in/../requirements/base.txt
-django==3.2.19
+django==3.2.20
     # via
     #   -r requirements.in/../requirements/base.txt
     #   django-appconf
@@ -201,6 +205,7 @@ kubi-ecs-logger==0.1.0
 lxml==4.9.1
     # via
     #   -r requirements.in/../requirements/base.txt
+    #   pikepdf
     #   python-docx
     #   python-pptx
     #   v2-api-client
@@ -228,13 +233,23 @@ openpyxl==3.0.6
     #   v2-api-client
 opensearch-py==1.0.0
     # via -r requirements.in/../requirements/base.txt
+packaging==23.1
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   deprecation
+    #   pikepdf
 phonenumbers==8.12.38
+    # via
+    #   -r requirements.in/../requirements/base.txt
+    #   v2-api-client
+pikepdf==8.1.1
     # via
     #   -r requirements.in/../requirements/base.txt
     #   v2-api-client
 pillow==9.3.0
     # via
     #   -r requirements.in/../requirements/base.txt
+    #   pikepdf
     #   python-pptx
 prompt-toolkit==3.0.36
     # via
@@ -256,7 +271,7 @@ pyjwt==2.4.0
     # via
     #   -r requirements.in/../requirements/base.txt
     #   notifications-python-client
-pypdf2==1.27.5
+pypdf2==1.27.9
     # via -r requirements.in/../requirements/base.txt
 pypeg2==2.15.2
     # via

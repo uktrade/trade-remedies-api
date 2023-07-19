@@ -1,6 +1,6 @@
 git+https://github.com/uktrade/trs_v2_api_client.git@master#egg=v2_api_client
 Markdown==3.1.1
-PyPDF2==1.27.5
+PyPDF2==1.27.9
 boto3==1.17.88
 celery==5.2.2
 certifi>=2022.12.07
@@ -19,7 +19,7 @@ django-redis==5.2.0
 django-restql==0.15.2
 django-storages==1.9.1
 django-timezone-field==4.2.3
-django==3.2.19
+django==3.2.20
 django_pglocks==1.0.3
 djangorestframework==3.12.4
 dpath==1.4.2
