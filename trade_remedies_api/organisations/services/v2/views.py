@@ -268,7 +268,8 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
         url_name="get_duplicate_cases",
     )
     def get_duplicate_cases(self, request, *args, **kwargs):
-        """Gets all cases that are shared by the duplicate organisations of this merge record including the parent organisation."""
+        """Gets all cases that are shared by the duplicate organisations of
+        this merge record including the parent organisation."""
         instance = self.get_object()
         parent_organisation_case_roles = OrganisationCaseRole.objects.filter(
             organisation=instance.parent_organisation
@@ -284,8 +285,7 @@ class OrganisationMergeRecordViewSet(BaseModelViewSet):
             different_child_org_case_roles = child_organisation_case_roles.filter(
                 case=org_case_role.case
             ).exclude(
-                role=org_case_role.role,
-                role__key__in=["preparing", "awaiting_approval"],
+                Q(role=org_case_role.role) | Q(role__key__in=["preparing", "awaiting_approval"])
             )
             if different_child_org_case_roles.exists():
                 conflicting_org_case_roles.append(
