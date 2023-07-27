@@ -90,7 +90,6 @@ class Command(BaseCommand):
                 )
                 self.stdout.write("--------------------------------------------------------------")
                 self.stdout.write(f"Failed to associate {len(failed_associations)} contacts")
-                self.stdout.write(failed_associations)
 
                 # rollback if dry run
                 if dry_run:
