@@ -15,16 +15,22 @@ class TestReassociateContactCsv(TestCase):
         self.contact_object = Contact.objects.create(
             email="test@example.com", name="Test User"  # /PS-IGNORE
         )
-        self.memory_csv = StringIO()
-        csv.writer(self.memory_csv).writerow(
-            [self.contact_object.id, self.organisation_object.name]
-        )
+
+        # writing the csv file to memory
+        memory_csv = StringIO()
+        csv.writer(memory_csv).writerow([self.contact_object.id, self.organisation_object.name])
+        memory_csv.seek(0)
+        memory_csv_file = io.BytesIO()
+        memory_csv_file.write(memory_csv.getvalue().encode())
+        memory_csv_file.seek(0)
+        memory_csv_file.name = "test.csv"
+        self.memory_csv_file = memory_csv_file
 
     def call_command(self, dry_run=False):
         out = StringIO()
         call_command(
             "reassociate_contact_csv",
-            file_path=self.memory_csv,
+            file_path=self.memory_csv_file,
             dry=dry_run,
             stdout=out,
             stderr=StringIO(),
