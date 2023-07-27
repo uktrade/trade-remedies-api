@@ -1,9 +1,5 @@
-import csv
-import os
-import uuid
-import tempfile
 from io import StringIO
-
+import os
 from django.core.management import call_command
 from django.test import TestCase
 
@@ -12,33 +8,21 @@ from organisations.models import Organisation
 
 
 class TestReassociateContactCsv(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.organisation_uuid = uuid.uuid4()
-        cls.contact_uuid = uuid.uuid4()
+    organisation_name = "test company"
+    contact_id = "e9c8087c-6324-47d7-a355-3a0d5e23e9e0"
+    file_path = os.path.abspath("test.csv")
 
-        cls.organisation_object = Organisation.objects.create(
-            name="test company", id=cls.organisation_uuid
+    def setUp(self) -> None:
+        self.organisation_object = Organisation.objects.create(name=self.organisation_name)
+        self.contact_object = Contact.objects.create(
+            email="test@example.com", name="Test User", id=self.contact_id  # /PS-IGNORE
         )
-        cls.contact_object = Contact.objects.create(
-            email="test@example.com", name="Test User", id=cls.contact_uuid  # /PS-IGNORE
-        )
-        cls.temp_file = tempfile.NamedTemporaryFile(delete=False)
-        with open(cls.temp_file.name, "w", newline="") as csv_file:
-            writer = csv.writer(csv_file, delimiter="*")
-            writer.writerow([cls.contact_uuid, cls.organisation_uuid])
-
-    @classmethod
-    def tearDownClass(cls):
-        Organisation.objects.get(id=cls.organisation_uuid).delete()
-        Contact.objects.get(id=cls.contact_uuid).delete()
-        os.remove(cls.temp_file.name)
 
     def call_command(self, dry_run=False):
         out = StringIO()
         call_command(
             "reassociate_contact_csv",
-            file_path=self.temp_file.name,
+            file_path=self.file_path,
             dry=dry_run,
             stdout=out,
             stderr=StringIO(),
