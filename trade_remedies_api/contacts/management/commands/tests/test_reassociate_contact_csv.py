@@ -10,18 +10,22 @@ from organisations.models import Organisation
 
 
 class TestReassociateContactCsv(TestCase):
+    csv_written = False
+
+    def setUp(self) -> None:
+        self.organisation_object = Organisation.objects.create(name="test company")
+        self.contact_object = Contact.objects.create(
+            email="test@example.com", name="Test User"  # /PS-IGNORE
+        )
+        if not self.csv_written:
+            writer = csv.writer(self.open_file, delimiter="*")
+            writer.writerow([self.contact_object.id, self.organisation_object.name])
+            self.csv_written = True
+
     @classmethod
     def setUpClass(cls):
-        cls.organisation_object = Organisation.objects.create(name="test company")
-        cls.contact_object = Contact.objects.create(
-            email="test@example.com",  # /PS-IGNORE
-            name="Test User"
-        )
-
         cls.temp_file = tempfile.NamedTemporaryFile()
         cls.open_file = open(cls.temp_file, "w", newline="")
-        writer = csv.writer(cls.open_file, delimiter="*")
-        writer.writerow([cls.contact_object.id, cls.organisation_object.name])
 
     @classmethod
     def tearDownClass(cls):
