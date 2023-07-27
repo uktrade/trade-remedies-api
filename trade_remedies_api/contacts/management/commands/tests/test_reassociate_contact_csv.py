@@ -1,4 +1,6 @@
 import csv
+import os
+import uuid
 import tempfile
 from io import StringIO
 
@@ -10,26 +12,27 @@ from organisations.models import Organisation
 
 
 class TestReassociateContactCsv(TestCase):
-    csv_written = False
-
-    def setUp(self) -> None:
-        self.organisation_object = Organisation.objects.create(name="test company")
-        self.contact_object = Contact.objects.create(
-            email="test@example.com", name="Test User"  # /PS-IGNORE
-        )
-        if not self.csv_written:
-            writer = csv.writer(self.open_file, delimiter="*")
-            writer.writerow([self.contact_object.id, self.organisation_object.name])
-            self.csv_written = True
-
     @classmethod
     def setUpClass(cls):
-        cls.temp_file = tempfile.NamedTemporaryFile()
-        cls.open_file = open(cls.temp_file.name, "w", newline="")
+        cls.organisation_uuid = uuid.uuid4()
+        cls.contact_uuid = uuid.uuid4()
+
+        cls.organisation_object = Organisation.objects.create(
+            name="test company", id=cls.organisation_uuid
+        )
+        cls.contact_object = Contact.objects.create(
+            email="test@example.com", name="Test User", id=cls.contact_uuid  # /PS-IGNORE
+        )
+        cls.temp_file = tempfile.NamedTemporaryFile(delete=False)
+        with open(cls.temp_file.name, "w", newline="") as csv_file:
+            writer = csv.writer(csv_file, delimiter="*")
+            writer.writerow([cls.contact_uuid, cls.organisation_uuid])
 
     @classmethod
     def tearDownClass(cls):
-        cls.open_file.close()
+        Organisation.objects.get(id=cls.organisation_uuid).delete()
+        Contact.objects.get(id=cls.contact_uuid).delete()
+        os.remove(cls.temp_file.name)
 
     def call_command(self, dry_run=False):
         out = StringIO()
