@@ -25,7 +25,7 @@ class TestReassociateContactCsv(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.temp_file = tempfile.NamedTemporaryFile()
-        cls.open_file = open(cls.temp_file, "w", newline="")
+        cls.open_file = open(cls.temp_file.name, "w", newline="")
 
     @classmethod
     def tearDownClass(cls):
@@ -36,7 +36,7 @@ class TestReassociateContactCsv(TestCase):
         call_command(
             "reassociate_contact_csv",
             file_path=self.temp_file.name,
-            dry_run=dry_run,
+            dry=dry_run,
             stdout=out,
             stderr=StringIO(),
         )
@@ -63,7 +63,7 @@ class TestReassociateContactCsv(TestCase):
         self.contact_object.organisation = Organisation.objects.create(name="another company")
         self.contact_object.save()
 
-        out = self.call_command(dry_run=True)
+        out = self.call_command()
         assert "Successfully associated 0 contacts" in out
         assert "Failed to associate 1 contacts" in out
 
@@ -72,7 +72,7 @@ class TestReassociateContactCsv(TestCase):
 
     def test_multiple_organisations(self):
         Organisation.objects.create(name="test company")
-        out = self.call_command(dry_run=True)
+        out = self.call_command()
         assert "Successfully associated 0 contacts" in out
         assert "Failed to associate 1 contacts" in out
 
