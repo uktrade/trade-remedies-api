@@ -11,8 +11,8 @@ class Command(BaseCommand):
     help = """Command to loop through a csv and associate Contacts with an Organisation. Some are
     missing this association as they were created either by mistake or a long time ago.
 
-    csv format:
-    contact_id,organisation_name
+    csv format - note the delimiter is an asterix *not* a comma to avoid needless escaping:
+    contact_id*organisation_name
 
     arguments:
     -f, --file_path: REQUIRED - path to csv file to read from
@@ -33,7 +33,7 @@ class Command(BaseCommand):
 
         with transaction.atomic():
             with open(file_path) as csv_file:
-                csv_reader = csv.reader(csv_file, delimiter=",")
+                csv_reader = csv.reader(csv_file, delimiter="*")
                 for row in csv_reader:
                     try:
                         contact_object = Contact.objects.get(pk=row[0])
