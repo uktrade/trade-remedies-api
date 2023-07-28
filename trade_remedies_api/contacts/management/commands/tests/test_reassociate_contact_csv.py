@@ -1,7 +1,6 @@
-import io
-import csv
+from importlib.resources import files
 from io import StringIO
-import os
+
 from django.core.management import call_command
 from django.test import TestCase
 
@@ -9,28 +8,22 @@ from contacts.models import Contact
 from organisations.models import Organisation
 
 
-class TestReassociateContactCsv(TestCase):
-    def setUp(self) -> None:
-        self.organisation_object = Organisation.objects.create(name="test company")
-        self.contact_object = Contact.objects.create(
-            email="test@example.com", name="Test User"  # /PS-IGNORE
-        )
+class TestReAssociateContactCsv(TestCase):
+    contact_id = "e9c8087c-6324-47d7-a355-3a0d5e23e9e0"
+    organisation_name = "test company"
+    csv_file = files("contacts.management.commands.tests") / "test.csv"
 
-        # writing the csv file to memory
-        memory_csv = StringIO()
-        csv.writer(memory_csv).writerow([self.contact_object.id, self.organisation_object.name])
-        memory_csv.seek(0)
-        memory_csv_file = io.BytesIO()
-        memory_csv_file.write(memory_csv.getvalue().encode())
-        memory_csv_file.seek(0)
-        memory_csv_file.name = "test.csv"
-        self.memory_csv_file = memory_csv_file
+    def setUp(self) -> None:
+        self.organisation_object = Organisation.objects.create(name=self.organisation_name)
+        self.contact_object = Contact.objects.create(
+            email="test@example.com", name="Test User", id=self.contact_id  # /PS-IGNORE
+        )
 
     def call_command(self, dry_run=False):
         out = StringIO()
         call_command(
             "reassociate_contact_csv",
-            file_path=self.memory_csv_file,
+            file_path=self.csv_file,
             dry=dry_run,
             stdout=out,
             stderr=StringIO(),

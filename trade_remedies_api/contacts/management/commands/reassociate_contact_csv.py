@@ -1,4 +1,5 @@
 import csv
+from importlib.resources import files
 
 from django.core.management import BaseCommand
 from django.db import transaction
@@ -14,7 +15,7 @@ class Command(BaseCommand):
 
     csv format - note the delimiter is an asterix *not* a comma to avoid needless escaping:
     contact_id*organisation_name
-
+    todo - pipebar delimited
     arguments:
     -f, --file_path: REQUIRED - path to csv file to read from
     -d, --dry: OPTIONAL - dry run - don't commit anything to the database,
