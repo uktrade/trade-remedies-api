@@ -1,3 +1,4 @@
+import os
 from importlib.resources import files
 from io import StringIO
 
@@ -6,6 +7,7 @@ from django.test import TestCase
 
 from contacts.models import Contact
 from organisations.models import Organisation
+from django.conf import settings
 
 
 class TestReAssociateContactCsv(TestCase):
@@ -66,3 +68,26 @@ class TestReAssociateContactCsv(TestCase):
 
         self.contact_object.refresh_from_db()
         assert not self.contact_object.organisation
+
+    def test_log_file_creation(self):
+        # forcing a failure
+        Organisation.objects.create(name="test company")
+        out = self.call_command()
+        assert "Failed associations written to" in out
+        assert "failed_associations_" in out
+        assert ".csv" in out
+
+        # check the file exists
+        for fname in os.listdir(os.path.join(
+                settings.BASE_DIR,
+                "contacts",
+                "management",
+                "commands"
+        )):
+            if fname.endswith('.csv'):
+                # do stuff on the file
+                break
+        else:
+            assert False, "No file found"
+
+
