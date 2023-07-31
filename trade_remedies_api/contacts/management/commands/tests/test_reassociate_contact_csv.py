@@ -84,7 +84,6 @@ class TestReAssociateContactCsv(TestCase):
             )
         ):
             if fname.endswith(".json"):
-                # do stuff on he file
                 break
         else:
             assert False, "No file found"
