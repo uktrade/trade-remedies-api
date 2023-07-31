@@ -100,7 +100,7 @@ class Command(BaseCommand):
                     json_failed_associations = json.dumps(failed_associations, indent=4)
                     failed_log_file_name = (
                         files("contacts.management.commands")
-                        / f"failed_associations_{datetime.datetime.now().isoformat()}.csv"
+                        / f"failed_associations_{datetime.datetime.now().isoformat()}.json"
                     )
                     with open(failed_log_file_name, "w") as failed_log_file:
                         failed_log_file.write(json_failed_associations)
