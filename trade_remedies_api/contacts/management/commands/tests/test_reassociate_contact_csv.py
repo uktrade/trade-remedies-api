@@ -75,7 +75,7 @@ class TestReAssociateContactCsv(TestCase):
         out = self.call_command()
         assert "Failed associations written to" in out
         assert "failed_associations_" in out
-        assert ".csv" in out
+        assert ".json" in out
 
         # check the file exists
         for fname in os.listdir(
