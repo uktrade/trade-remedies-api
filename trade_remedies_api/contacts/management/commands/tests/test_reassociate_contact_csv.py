@@ -79,10 +79,10 @@ class TestReAssociateContactCsv(TestCase):
 
         # check the file exists
         for fname in os.listdir(
-            os.path.join(settings.BASE_DIR, "contacts", "management", "commands")
+            os.path.join(settings.SITE_ROOT, "trade_remedies_api", "contacts", "management", "commands")
         ):
             if fname.endswith(".csv"):
-                # do stuff on the file
+                # do stuff on he file
                 break
         else:
             assert False, "No file found"
