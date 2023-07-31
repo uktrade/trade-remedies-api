@@ -1,4 +1,6 @@
 import csv
+import datetime
+import json
 from importlib.resources import files
 
 from django.core.management import BaseCommand
@@ -91,6 +93,17 @@ class Command(BaseCommand):
                 )
                 self.stdout.write("--------------------------------------------------------------")
                 self.stdout.write(f"Failed to associate {len(failed_associations)} contacts")
+
+                # write failed associations to file
+                if failed_associations:
+                    json_failed_associations = json.dumps(failed_associations, indent=4)
+                    failed_log_file_name = (
+                        files("contacts.management.commands")
+                        / f"failed_associations_{datetime.datetime.now().isoformat()}.csv"
+                    )
+                    with open(failed_log_file_name, "w") as failed_log_file:
+                        failed_log_file.write(json_failed_associations)
+                    self.stdout.write(f"Failed associations written to {failed_log_file_name}")
 
                 # rollback if dry run
                 if dry_run:
