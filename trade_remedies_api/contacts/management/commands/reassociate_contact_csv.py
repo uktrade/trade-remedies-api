@@ -48,11 +48,11 @@ class Command(BaseCommand):
                                 # the contact already has an organisation associated with it, pass
                                 failed_associations.append(
                                     {
-                                        "contact_id": contact_object.id,
+                                        "contact_id": str(contact_object.id),
                                         "contact_name": contact_object.name,
                                         "contact_email": contact_object.email,
                                         "organisation_name": contact_object.organisation.name,
-                                        "organisation_id": organisation_object.id,
+                                        "organisation_id": str(organisation_object.id),
                                         "reason": "Contact already has organisation associated with it",
                                     }
                                 )
@@ -70,7 +70,7 @@ class Command(BaseCommand):
                         except (Contact.DoesNotExist, Organisation.DoesNotExist):
                             failed_associations.append(
                                 {
-                                    "contact_id": row[0],
+                                    "contact_id": str(row[0]),
                                     "organisation_name": row[1],
                                     "reason": "Contact or Organisation does not exist",
                                 }
@@ -78,7 +78,7 @@ class Command(BaseCommand):
                         except Organisation.MultipleObjectsReturned:
                             failed_associations.append(
                                 {
-                                    "contact_id": row[0],
+                                    "contact_id": str(row[0]),
                                     "organisation_name": row[1],
                                     "organisation_matches": Organisation.objects.filter(
                                         name__iexact=row[1]
