@@ -81,7 +81,7 @@ class Command(BaseCommand):
                                     "contact_id": str(row[0]),
                                     "organisation_name": row[1],
                                     "organisation_matches": [
-                                        (each.id, each.name)
+                                        (str(each.id), each.name)
                                         for each in Organisation.objects.filter(name__iexact=row[1])
                                     ],
                                     "reason": "Multiple organisations with the same name",
