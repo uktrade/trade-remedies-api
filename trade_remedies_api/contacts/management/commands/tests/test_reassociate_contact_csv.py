@@ -83,7 +83,7 @@ class TestReAssociateContactCsv(TestCase):
                 settings.SITE_ROOT, "trade_remedies_api", "contacts", "management", "commands"
             )
         ):
-            if fname.endswith(".csv"):
+            if fname.endswith(".json"):
                 # do stuff on he file
                 break
         else:
