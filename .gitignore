@@ -138,3 +138,5 @@ ner_output_file.txt
 .vscode/
 
 profiles/
+
+*/contacts/management/commands/*.csv

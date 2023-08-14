@@ -577,6 +577,7 @@ class Organisation(BaseModel):
 
             # now we filter by the URL, we only care about the domain name
             # e.g. https://www.example.com.uk/ -> example
+            # e.g. https://www.hello.english.example.gov.uk/ -> example
             if url := self.organisation_website:
                 domain = tldextract.extract(url).domain
                 q_objects |= models.Q(organisation_website__icontains=domain)

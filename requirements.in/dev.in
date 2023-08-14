@@ -9,7 +9,7 @@ flake8
 ipython>=8.10
 matplotlib
 pip-tools>=6.5.0
-pygments==2.8.1
+pygments==2.15.0
 pyproject-flake8==5.0.4.post1
 pytest
 pytest-cov
