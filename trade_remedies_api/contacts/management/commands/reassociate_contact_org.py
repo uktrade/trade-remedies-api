@@ -1,22 +1,10 @@
 from django.core.management import BaseCommand
 
 from contacts.models import Contact
-from core.models import User
-from cases.models import Case
 from organisations.models import Organisation
-from security.models import (
-    OrganisationCaseRole,
-    CaseRole,
-    CaseAction,
-    UserCase,
-    OrganisationUser,
-)
-from security.constants import SECURITY_GROUP_ORGANISATION_USER
-from django.utils import timezone
 
 
 class Command(BaseCommand):
-
     help = """Command to associate a Contact with an Organisation. Some are missing this association
            as they were created either by mistake or a long time ago"""
 
