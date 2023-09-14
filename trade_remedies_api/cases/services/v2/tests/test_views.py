@@ -82,6 +82,8 @@ class TestCaseViewSet(CaseSetupTestMixin, FunctionalTestBase):
         assert not public_file[0]["is_tra"]
 
     def test_get_case_by_number(self):
+        self.case_object.initiated_at = self.now
+        self.case_object.save()
         response = self.client.get(
             f"/api/v2/cases/{self.case_object.reference}/get_case_by_number/"
         )
