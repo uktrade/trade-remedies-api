@@ -63,7 +63,7 @@ class CaseSetupTestMixin(OrganisationSetupTestMixin):
             key="awaiting_approval", name="Awaiting Approval"
         )
 
-        self.case_type_object = CaseType.objects.create(name="")
+        self.case_type_object = CaseType.objects.create(name="", acronym="TA")
         self.case_object = Case.objects.create(
             name="test case",
             type=self.case_type_object,

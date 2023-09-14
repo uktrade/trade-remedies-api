@@ -1,6 +1,8 @@
+import re
+
 from django.conf import settings
 from django.db import transaction
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -71,10 +73,12 @@ class CaseViewSet(BaseModelViewSet):
                 continue
 
             if submission.is_tra():
-                no_of_files = submission.submissiondocument_set.count()
+                no_of_files = submission.submissiondocument_set.filter(
+                    document__confidential=False
+                ).count()
             else:
                 no_of_files = submission.submissiondocument_set.filter(
-                    type__key="respondent"
+                    type__key__in=["respondent", "caseworker"], document__confidential=False
                 ).count()
 
             serializer = PublicFileSerializer(
@@ -92,6 +96,22 @@ class CaseViewSet(BaseModelViewSet):
             public_file_data.append(serializer.data)
 
         return JsonResponse(public_file_data, safe=False)
+
+    @action(detail=False, methods=["get"], url_name="get_case_by_number")
+    def get_case_by_number(self, request, *args, **kwargs):
+        """Retrieves a case by its case number, e.g. AS0022."""
+        case_number = request.GET["case_number"]
+        match = re.search("([A-Za-z]{1,3})([0-9]+)", case_number)
+        if match:
+            case_object = get_object_or_404(
+                Case,
+                type__acronym__iexact=match.group(1),
+                initiated_sequence=match.group(2),
+                deleted_at__isnull=True,
+            )
+            serializer = self.get_serializer(case_object)
+            return Response(serializer.data)
+        return HttpResponseBadRequest(f"Invalid case number {case_number}")
 
 
 class SubmissionViewSet(BaseModelViewSet):
