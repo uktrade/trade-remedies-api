@@ -85,13 +85,12 @@ class TestCaseViewSet(CaseSetupTestMixin, FunctionalTestBase):
         self.case_object.initiated_at = self.now
         self.case_object.save()
         response = self.client.get(
-            f"/api/v2/cases/{self.case_object.reference}/get_case_by_number/"
+            f"/api/v2/cases/get_case_by_number/?case_number={self.case_object.reference}"
         )
         assert response.status_code == 200
         result = response.json()
 
-        assert len(result) == 1
-        assert result[0]["id"] == self.case_object.id
+        assert result["id"] == str(self.case_object.id)
 
     def test_get_case_by_incorrect_number(self):
         response = self.client.get("/api/v2/cases/AD0004/get_case_by_number/")
