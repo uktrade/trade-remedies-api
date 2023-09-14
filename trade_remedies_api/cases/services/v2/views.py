@@ -1,8 +1,8 @@
 import re
 
-from django.conf import settings
+from django.http import HttpResponseBadRequest
 from django.db import transaction
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import JsonResponse
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -19,7 +19,6 @@ from cases.services.v2.serializers import (
     SubmissionTypeSerializer,
 )
 from config.viewsets import BaseModelViewSet
-from core.models import User
 from organisations.models import Organisation
 from organisations.services.v2.serializers import OrganisationCaseRoleSerializer
 from security.constants import ROLE_PREPARING

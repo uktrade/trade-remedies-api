@@ -92,5 +92,5 @@ class TestCaseViewSet(CaseSetupTestMixin, FunctionalTestBase):
         assert result[0]["id"] == self.case_object.id
 
     def test_get_case_by_incorrect_number(self):
-        response = self.client.get(f"/api/v2/cases/AD0004/get_case_by_number/")
+        response = self.client.get("/api/v2/cases/AD0004/get_case_by_number/")
         assert response.status_code == 404
