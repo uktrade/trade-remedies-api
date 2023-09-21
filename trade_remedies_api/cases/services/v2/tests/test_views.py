@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.utils import timezone
 from rest_framework.fields import DateTimeField
 
@@ -81,3 +80,18 @@ class TestCaseViewSet(CaseSetupTestMixin, FunctionalTestBase):
         assert public_file[0]["organisation_case_role_name"] == "Applicant"
         assert public_file[0]["no_of_files"] == 0
         assert not public_file[0]["is_tra"]
+
+    def test_get_case_by_number(self):
+        self.case_object.initiated_at = self.now
+        self.case_object.save()
+        response = self.client.get(
+            f"/api/v2/cases/get_case_by_number/?case_number={self.case_object.reference}"
+        )
+        assert response.status_code == 200
+        result = response.json()
+
+        assert result["id"] == str(self.case_object.id)
+
+    def test_get_case_by_incorrect_number(self):
+        response = self.client.get("/api/v2/cases/AD0004/get_case_by_number/")
+        assert response.status_code == 404
