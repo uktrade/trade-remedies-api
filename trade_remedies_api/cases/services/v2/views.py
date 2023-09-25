@@ -77,7 +77,7 @@ class CaseViewSet(BaseModelViewSet):
                 ).count()
             else:
                 no_of_files = submission.submissiondocument_set.filter(
-                    type__key__in=["respondent", "caseworker"], document__confidential=False
+                    type__key="respondent", document__confidential=False
                 ).count()
 
             serializer = PublicFileSerializer(
