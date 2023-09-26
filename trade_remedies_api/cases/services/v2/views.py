@@ -11,7 +11,7 @@ from v2_api_client.shared.logging import audit_logger
 from audit import AUDIT_TYPE_CREATE, AUDIT_TYPE_UPDATE
 from audit.utils import audit_log
 from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
-from cases.models import Case, Submission, SubmissionType
+from cases.models import Case, Submission, SubmissionType, CaseWorkflowState
 from cases.services.v2.serializers import (
     CaseSerializer,
     PublicFileSerializer,
@@ -59,7 +59,9 @@ class CaseViewSet(BaseModelViewSet):
         We put this in a separate action as it's quite a costly operation, going over all of the
         workflow objects of the case and it slows down the standard CaseSerializer."""
         case_object = self.get_object()
-        public_file_data = []
+        public_file_data = {
+            "submissions": [],
+        }
         for submission in Submission.objects.get_submissions(
             case=case_object,
             requested_by=request.user,
@@ -92,7 +94,16 @@ class CaseViewSet(BaseModelViewSet):
                 }
             )
             assert serializer.is_valid()
-            public_file_data.append(serializer.data)
+            public_file_data["submissions"].append(serializer.data)
+
+            try:
+                commodities = CaseWorkflowState.objects.get(
+                    case=case_object, key="TARIFF_CLASSIFICATION"
+                ).value
+                split_commodities = commodities.split("\n")
+            except CaseWorkflowState.objects.DoesNotExist:
+                split_commodities = None
+            public_file_data["split_commodities"] = split_commodities
 
         return JsonResponse(public_file_data, safe=False)
 
