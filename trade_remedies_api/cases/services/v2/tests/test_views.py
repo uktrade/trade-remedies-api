@@ -95,7 +95,7 @@ class TestCaseViewSet(CaseSetupTestMixin, FunctionalTestBase):
 
         assert len(split_commodities) == 2
         assert split_commodities[0] == "1234"
-        assert split_commodities[0] == "5678"
+        assert split_commodities[1] == "5678"
 
     def test_get_case_by_number(self):
         self.case_object.initiated_at = self.now

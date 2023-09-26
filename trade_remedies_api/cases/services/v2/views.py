@@ -62,12 +62,24 @@ class CaseViewSet(BaseModelViewSet):
         public_file_data = {
             "submissions": [],
         }
+
+        # let's add the commodity codes entered by the caseworker during 'Finalise case information' workflow step
+        try:
+            commodities = CaseWorkflowState.objects.get(
+                case=case_object, key="TARIFF_CLASSIFICATION"
+            ).value
+            split_commodities = commodities.split("\n")
+        except CaseWorkflowState.objects.DoesNotExist:
+            # if it doesn't exist, ignore
+            split_commodities = None
+        public_file_data["split_commodities"] = split_commodities
+
         for submission in Submission.objects.get_submissions(
-            case=case_object,
-            requested_by=request.user,
-            private=False,
-            show_global=True,
-            sampled_only=False,
+                case=case_object,
+                requested_by=request.user,
+                private=False,
+                show_global=True,
+                sampled_only=False,
         ).filter(issued_at__isnull=False):
             organisation_case_role_name = submission.organisation_case_role_name
             if not organisation_case_role_name:
@@ -95,15 +107,6 @@ class CaseViewSet(BaseModelViewSet):
             )
             assert serializer.is_valid()
             public_file_data["submissions"].append(serializer.data)
-
-            try:
-                commodities = CaseWorkflowState.objects.get(
-                    case=case_object, key="TARIFF_CLASSIFICATION"
-                ).value
-                split_commodities = commodities.split("\n")
-            except CaseWorkflowState.objects.DoesNotExist:
-                split_commodities = None
-            public_file_data["split_commodities"] = split_commodities
 
         return JsonResponse(public_file_data, safe=False)
 
