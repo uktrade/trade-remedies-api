@@ -1,9 +1,8 @@
-from django.conf import settings
 from django.utils import timezone
 from rest_framework.fields import DateTimeField
 
 from cases.constants import SUBMISSION_TYPE_INVITE_3RD_PARTY
-from cases.models import Submission, get_submission_type
+from cases.models import Submission, get_submission_type, CaseWorkflowState
 from config.test_bases import CaseSetupTestMixin
 from security.models import OrganisationCaseRole
 from test_functional import FunctionalTestBase
@@ -69,15 +68,46 @@ class TestCaseViewSet(CaseSetupTestMixin, FunctionalTestBase):
         response = self.client.get(f"/api/v2/cases/{self.case_object.pk}/get_public_file/")
         assert response.status_code == 200
         public_file = response.json()
+        submissions = public_file["submissions"]
 
-        assert len(public_file) == 1
-        assert public_file[0]["submission_name"] == "Invite 3rd party"
+        assert len(submissions) == 1
+        assert submissions[0]["submission_name"] == "Invite 3rd party"
 
         # we need to use the official drf datetime field to get the same format as what the API
         # returns
         drf_str_datetime = DateTimeField().to_representation
-        assert public_file[0]["issued_at"] == drf_str_datetime(self.now)
-        assert public_file[0]["organisation_name"] == self.organisation.name
-        assert public_file[0]["organisation_case_role_name"] == "Applicant"
-        assert public_file[0]["no_of_files"] == 0
-        assert not public_file[0]["is_tra"]
+        assert submissions[0]["issued_at"] == drf_str_datetime(self.now)
+        assert submissions[0]["organisation_name"] == self.organisation.name
+        assert submissions[0]["organisation_case_role_name"] == "Applicant"
+        assert submissions[0]["no_of_files"] == 0
+        assert not submissions[0]["is_tra"]
+
+    def test_get_public_file_commodity_code(self):
+        CaseWorkflowState.objects.create(
+            case=self.case_object,
+            key="TARIFF_CLASSIFICATION",
+            value="1234\n5678",
+        )
+
+        response = self.client.get(f"/api/v2/cases/{self.case_object.pk}/get_public_file/")
+        assert response.status_code == 200
+        split_commodities = response.json()["split_commodities"]
+
+        assert len(split_commodities) == 2
+        assert split_commodities[0] == "1234"
+        assert split_commodities[0] == "5678"
+
+    def test_get_case_by_number(self):
+        self.case_object.initiated_at = self.now
+        self.case_object.save()
+        response = self.client.get(
+            f"/api/v2/cases/get_case_by_number/?case_number={self.case_object.reference}"
+        )
+        assert response.status_code == 200
+        result = response.json()
+
+        assert result["id"] == str(self.case_object.id)
+
+    def test_get_case_by_incorrect_number(self):
+        response = self.client.get("/api/v2/cases/AD0004/get_case_by_number/")
+        assert response.status_code == 404
