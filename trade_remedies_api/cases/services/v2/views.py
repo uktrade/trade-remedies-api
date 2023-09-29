@@ -101,7 +101,7 @@ class CaseViewSet(BaseModelViewSet):
                     case=case_object, key="TARIFF_CLASSIFICATION"
                 ).value
                 split_commodities = commodities.split("\n")
-            except CaseWorkflowState.objects.DoesNotExist:
+            except CaseWorkflowState.DoesNotExist:
                 split_commodities = None
             public_file_data["split_commodities"] = split_commodities
 
