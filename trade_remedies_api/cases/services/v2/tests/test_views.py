@@ -17,8 +17,9 @@ class TestCaseViewSet(CaseSetupTestMixin, FunctionalTestBase):
         response = self.client.get(f"/api/v2/cases/{self.case_object.pk}/get_public_file/")
         assert response.status_code == 200
         public_file = response.json()
+        submissions = public_file["submissions"]
 
-        assert len(public_file) == 0
+        assert len(submissions) == 0
 
     def test_get_public_file_not_issued_submission(self):
         submission_type = get_submission_type(SUBMISSION_TYPE_INVITE_3RD_PARTY)
@@ -42,8 +43,9 @@ class TestCaseViewSet(CaseSetupTestMixin, FunctionalTestBase):
         response = self.client.get(f"/api/v2/cases/{self.case_object.pk}/get_public_file/")
         assert response.status_code == 200
         public_file = response.json()
+        submissions = public_file["submissions"]
 
-        assert len(public_file) == 0
+        assert len(submissions) == 0
 
     def test_get_public_file(self):
         submission_type = get_submission_type(SUBMISSION_TYPE_INVITE_3RD_PARTY)

@@ -62,6 +62,16 @@ class CaseViewSet(BaseModelViewSet):
         public_file_data = {
             "submissions": [],
         }
+
+        try:
+            commodities = CaseWorkflowState.objects.get(
+                case=case_object, key="TARIFF_CLASSIFICATION"
+            ).value
+            split_commodities = commodities.split("\n")
+        except CaseWorkflowState.DoesNotExist:
+            split_commodities = None
+        public_file_data["split_commodities"] = split_commodities
+
         for submission in Submission.objects.get_submissions(
             case=case_object,
             requested_by=request.user,
@@ -95,15 +105,6 @@ class CaseViewSet(BaseModelViewSet):
             )
             assert serializer.is_valid()
             public_file_data["submissions"].append(serializer.data)
-
-            try:
-                commodities = CaseWorkflowState.objects.get(
-                    case=case_object, key="TARIFF_CLASSIFICATION"
-                ).value
-                split_commodities = commodities.split("\n")
-            except CaseWorkflowState.DoesNotExist:
-                split_commodities = None
-            public_file_data["split_commodities"] = split_commodities
 
         return JsonResponse(public_file_data, safe=False)
 
