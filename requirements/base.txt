@@ -187,7 +187,7 @@ phonenumbers==8.12.38
     #   v2-api-client
 pikepdf==8.1.1
     # via v2-api-client
-pillow==9.3.0
+pillow==10.0.1
     # via
     #   -r requirements.in/base.in
     #   pikepdf
