@@ -1,4 +1,6 @@
-from django.conf import settings
+import re
+
+from django.http import HttpResponseBadRequest
 from django.db import transaction
 from django.http import JsonResponse
 from rest_framework.decorators import action
@@ -9,7 +11,7 @@ from v2_api_client.shared.logging import audit_logger
 from audit import AUDIT_TYPE_CREATE, AUDIT_TYPE_UPDATE
 from audit.utils import audit_log
 from cases.constants import SUBMISSION_TYPE_REGISTER_INTEREST
-from cases.models import Case, Submission, SubmissionType
+from cases.models import Case, Submission, SubmissionType, CaseWorkflowState
 from cases.services.v2.serializers import (
     CaseSerializer,
     PublicFileSerializer,
@@ -17,7 +19,6 @@ from cases.services.v2.serializers import (
     SubmissionTypeSerializer,
 )
 from config.viewsets import BaseModelViewSet
-from core.models import User
 from organisations.models import Organisation
 from organisations.services.v2.serializers import OrganisationCaseRoleSerializer
 from security.constants import ROLE_PREPARING
@@ -58,7 +59,19 @@ class CaseViewSet(BaseModelViewSet):
         We put this in a separate action as it's quite a costly operation, going over all of the
         workflow objects of the case and it slows down the standard CaseSerializer."""
         case_object = self.get_object()
-        public_file_data = []
+        public_file_data = {
+            "submissions": [],
+        }
+
+        try:
+            commodities = CaseWorkflowState.objects.get(
+                case=case_object, key="TARIFF_CLASSIFICATION"
+            ).value
+            split_commodities = commodities.split("\n")
+        except CaseWorkflowState.DoesNotExist:
+            split_commodities = None
+        public_file_data["split_commodities"] = split_commodities
+
         for submission in Submission.objects.get_submissions(
             case=case_object,
             requested_by=request.user,
@@ -71,10 +84,12 @@ class CaseViewSet(BaseModelViewSet):
                 continue
 
             if submission.is_tra():
-                no_of_files = submission.submissiondocument_set.count()
+                no_of_files = submission.submissiondocument_set.filter(
+                    document__confidential=False
+                ).count()
             else:
                 no_of_files = submission.submissiondocument_set.filter(
-                    type__key="respondent"
+                    type__key="respondent", document__confidential=False
                 ).count()
 
             serializer = PublicFileSerializer(
@@ -89,9 +104,25 @@ class CaseViewSet(BaseModelViewSet):
                 }
             )
             assert serializer.is_valid()
-            public_file_data.append(serializer.data)
+            public_file_data["submissions"].append(serializer.data)
 
         return JsonResponse(public_file_data, safe=False)
+
+    @action(detail=False, methods=["get"], url_name="get_case_by_number")
+    def get_case_by_number(self, request, *args, **kwargs):
+        """Retrieves a case by its case number, e.g. AS0022."""
+        case_number = request.GET["case_number"]
+        match = re.search("([A-Za-z]{1,3})([0-9]+)", case_number)
+        if match:
+            case_object = get_object_or_404(
+                Case,
+                type__acronym__iexact=match.group(1),
+                initiated_sequence=match.group(2),
+                deleted_at__isnull=True,
+            )
+            serializer = self.get_serializer(case_object)
+            return Response(serializer.data)
+        return HttpResponseBadRequest(f"Invalid case number {case_number}")
 
 
 class SubmissionViewSet(BaseModelViewSet):
