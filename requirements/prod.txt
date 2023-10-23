@@ -170,11 +170,11 @@ freezegun==1.1.0
     # via -r requirements.in/../requirements/base.txt
 geckoboard-py==1.0.0
     # via -r requirements.in/../requirements/base.txt
-gevent==21.12.0
+gevent==23.9.1
     # via -r requirements.in/../requirements/base.txt
 graphviz==0.8.3
     # via -r requirements.in/../requirements/base.txt
-greenlet==1.1.1
+greenlet==3.0.0
     # via
     #   -r requirements.in/../requirements/base.txt
     #   gevent
@@ -246,7 +246,7 @@ pikepdf==8.1.1
     # via
     #   -r requirements.in/../requirements/base.txt
     #   v2-api-client
-pillow==9.3.0
+pillow==10.0.1
     # via
     #   -r requirements.in/../requirements/base.txt
     #   pikepdf
@@ -342,7 +342,7 @@ titlecase==0.12.0
     # via -r requirements.in/../requirements/base.txt
 tldextract==3.4.4
     # via -r requirements.in/../requirements/base.txt
-urllib3==1.26.11
+urllib3==1.26.17
     # via
     #   -r requirements.in/../requirements/base.txt
     #   botocore
@@ -350,7 +350,7 @@ urllib3==1.26.11
     #   opensearch-py
     #   requests
     #   sentry-sdk
-v2-api-client @ git+https://github.com/uktrade/trs_v2_api_client.git@master
+v2_api_client @ git+https://github.com/uktrade/trs_v2_api_client.git@master
     # via -r requirements.in/../requirements/base.txt
 vine==5.0.0
     # via
