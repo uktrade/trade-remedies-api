@@ -1,3 +1,4 @@
+pillow>=10.0.1
 TARIFF_CLASSIFICATION
 csv format
 AS0022

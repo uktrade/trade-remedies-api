@@ -492,7 +492,7 @@ traitlets==5.9.0
     #   matplotlib-inline
 typing-extensions==4.0.0
     # via black
-urllib3==1.26.17
+urllib3==1.26.18
     # via
     #   -r requirements.in/../requirements/base.txt
     #   botocore
