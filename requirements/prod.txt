@@ -75,7 +75,7 @@ deprecation==2.1.0
     #   pikepdf
 dj-database-url==0.5.0
     # via -r requirements.in/../requirements/base.txt
-django==3.2.20
+django==3.2.23
     # via
     #   -r requirements.in/../requirements/base.txt
     #   django-appconf
@@ -362,7 +362,7 @@ wcwidth==0.2.5
     # via
     #   -r requirements.in/../requirements/base.txt
     #   prompt-toolkit
-werkzeug==2.2.3
+werkzeug==3.0.1
     # via -r requirements.in/../requirements/base.txt
 whitenoise==5.3.0
     # via -r requirements.in/../requirements/base.txt
