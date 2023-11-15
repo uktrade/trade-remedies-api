@@ -19,7 +19,7 @@ django-redis==5.2.0
 django-restql==0.15.2
 django-storages==1.9.1
 django-timezone-field==4.2.3
-django==3.2.20
+django==3.2.23
 django_pglocks==1.0.3
 djangorestframework==3.12.4
 dpath==1.4.2
@@ -50,7 +50,7 @@ sqlparse==0.4.4
 striprtf==0.0.10
 titlecase==0.12.0
 urllib3==1.26.18
-werkzeug==2.2.3
+werkzeug==3.0.1
 whitenoise==5.3.0
 xlrd==1.2.0
 django-ratelimit==4.0.0
