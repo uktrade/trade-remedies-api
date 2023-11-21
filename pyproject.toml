@@ -191,4 +191,4 @@ markers = [
     ]
 
 DJANGO_SETTINGS_MODULE = "trade_remedies_api.config.settings.test"
-python_paths = ". trade_remedies_api"
+pythonpaths = ". trade_remedies_api"
