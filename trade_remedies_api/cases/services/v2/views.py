@@ -101,6 +101,7 @@ class CaseViewSet(BaseModelViewSet):
                     "organisation_case_role_name": organisation_case_role_name,
                     "no_of_files": no_of_files,
                     "is_tra": submission.is_tra(),
+                    "deficiency_notice_params": submission.deficiency_notice_params,
                 }
             )
             assert serializer.is_valid()
