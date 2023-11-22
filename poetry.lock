@@ -128,29 +128,24 @@ python-versions = "*"
 
 [[package]]
 name = "black"
-version = "21.11b1"
+version = "22.3.0"
 description = "The uncompromising code formatter."
 category = "dev"
 optional = false
 python-versions = ">=3.6.2"
 
 [package.dependencies]
-click = ">=7.1.2"
+click = ">=8.0.0"
 mypy-extensions = ">=0.4.3"
-pathspec = ">=0.9.0,<1"
+pathspec = ">=0.9.0"
 platformdirs = ">=2"
-regex = ">=2021.4.4"
-tomli = ">=0.2.6,<2.0.0"
-typing-extensions = [
-    {version = ">=3.10.0.0", markers = "python_version < \"3.10\""},
-    {version = "!=3.10.0.1", markers = "python_version >= \"3.10\""},
-]
+tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
+typing-extensions = {version = ">=3.10.0.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
 colorama = ["colorama (>=0.4.3)"]
 d = ["aiohttp (>=3.7.4)"]
 jupyter = ["ipython (>=7.8.0)", "tokenize-rt (>=3.2.0)"]
-python2 = ["typed-ast (>=1.4.3)"]
 uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
@@ -540,6 +535,18 @@ dev = ["tox", "black", "django", "pytest", "pytest-django", "djangorestframework
 maintainer = ["transifex-client", "zest.releaser", "django"]
 pyuca = ["pyuca"]
 test = ["pytest", "pytest-django", "pytest-cov", "graphene-django"]
+
+[[package]]
+name = "django-db-geventpool"
+version = "4.0.1"
+description = "Add a DB connection pool using gevent to django"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+django = ">=3.1"
+psycogreen = ">=1.0"
 
 [[package]]
 name = "django-debug-toolbar"
@@ -1417,6 +1424,14 @@ python-versions = ">=3.7.0"
 wcwidth = "*"
 
 [[package]]
+name = "psycogreen"
+version = "1.0.2"
+description = "psycopg2 integration with coroutine libraries"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "psycopg2-binary"
 version = "2.9.1"
 description = "psycopg2 - Python-PostgreSQL Database Adapter"
@@ -1710,14 +1725,6 @@ hiredis = ["hiredis (>=1.0.0)"]
 ocsp = ["cryptography (>=36.0.1)", "pyopenssl (==20.0.1)", "requests (>=2.26.0)"]
 
 [[package]]
-name = "regex"
-version = "2023.10.3"
-description = "Alternative regular expression module, to replace re."
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-
-[[package]]
 name = "requests"
 version = "2.31.0"
 description = "Python HTTP for Humans."
@@ -1895,11 +1902,11 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "tomli"
-version = "1.2.3"
+version = "2.0.1"
 description = "A lil' TOML parser"
 category = "dev"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [[package]]
 name = "trade-remedies-client"
@@ -2000,7 +2007,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "wcwidth"
-version = "0.2.11"
+version = "0.2.12"
 description = "Measures the displayed width of unicode strings in a terminal"
 category = "main"
 optional = false
@@ -2095,7 +2102,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "779b28b28e378136509907df5260fb02e03b4504eccc043ca970b6539fca82ab"
+content-hash = "88e29a02a6f5c92a4ecad6bb5f1d401fbc870186dc2b65b8287a8dc00c2ca138"
 
 [metadata.files]
 amqp = []
@@ -2137,6 +2144,7 @@ django-audit-log-middleware = []
 django-axes = []
 django-cache-memoize = []
 django-countries = []
+django-db-geventpool = []
 django-debug-toolbar = []
 django-dirtyfields = []
 django-environ = []
@@ -2206,6 +2214,7 @@ pip-tools = []
 platformdirs = []
 pluggy = []
 prompt-toolkit = []
+psycogreen = []
 psycopg2-binary = []
 ptyprocess = []
 pure-eval = []
@@ -2232,7 +2241,6 @@ python-docx = []
 python-pptx = []
 pytz = []
 redis = []
-regex = []
 requests = []
 requests-file = []
 requests-toolbelt = []

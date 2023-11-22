@@ -38,6 +38,7 @@ feed-gov-back = "0.4"
 freezegun = "1.1.0"
 "geckoboard.py" = "1.0.0"
 gevent = "23.9.1"
+django-db-geventpool = "4.0.1"
 graphviz = "0.8.3"
 lxml = "4.9.1"
 minio = "4.0.11"
@@ -70,7 +71,7 @@ trade-remedies-client = {git = "https://github.com/uktrade/trade-remedies-client
 v2-api-client = {git = "https://github.com/uktrade/trs_v2_api_client.git", rev = "master"}
 
 [tool.poetry.dev-dependencies]
-black = "21.11b1"
+black = "22.3.0"
 codecov = "2.1.13"
 coverage = "*"
 django-debug-toolbar = "*"

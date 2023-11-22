@@ -24,6 +24,7 @@ django-audit-log-middleware==0.0.4; python_version >= "3.6"
 django-axes==5.4.1; python_version >= "3.6" and python_version < "4.0"
 django-cache-memoize==0.2.0; python_version >= "3.8"
 django-countries==7.2.1
+django-db-geventpool==4.0.1
 django-dirtyfields==1.9.2; python_version >= "3.7"
 django-environ==0.4.5
 django-extensions==2.2.3
@@ -70,6 +71,7 @@ phonenumbers==8.12.38
 pikepdf==8.7.1; python_version >= "3.8"
 pillow==10.1.0; python_version >= "3.8"
 prompt-toolkit==3.0.41; python_full_version >= "3.7.0"
+psycogreen==1.0.2
 psycopg2-binary==2.9.1; python_version >= "3.6"
 pycparser==2.21; python_version >= "3.8" and python_full_version < "3.0.0" and platform_python_implementation == "CPython" and sys_platform == "win32" or platform_python_implementation == "CPython" and sys_platform == "win32" and python_version >= "3.8" and python_full_version >= "3.4.0"
 pyheck==0.1.5; python_version >= "3.7"
@@ -98,7 +100,7 @@ tzdata==2023.3; python_version < "3.9" and python_version >= "3.8"
 urllib3==1.26.18; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.6.0")
 v2-api-client @ git+https://github.com/uktrade/trs_v2_api_client.git@master
 vine==5.1.0; python_version >= "3.8"
-wcwidth==0.2.11; python_full_version >= "3.7.0" and python_version >= "3.7"
+wcwidth==0.2.12; python_full_version >= "3.7.0" and python_version >= "3.7"
 werkzeug==3.0.1; python_version >= "3.8"
 whitenoise==5.3.0; python_version >= "3.5" and python_version < "4"
 wrapt==1.16.0; python_version >= "3.8" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.8"
