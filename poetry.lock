@@ -937,6 +937,20 @@ docs = ["sphinx"]
 test = ["objgraph", "psutil"]
 
 [[package]]
+name = "gunicorn"
+version = "20.0.4"
+description = "WSGI HTTP Server for UNIX"
+category = "main"
+optional = false
+python-versions = ">=3.4"
+
+[package.extras]
+eventlet = ["eventlet (>=0.9.7)"]
+gevent = ["gevent (>=0.13)"]
+setproctitle = ["setproctitle"]
+tornado = ["tornado (>=0.2)"]
+
+[[package]]
 name = "idna"
 version = "3.4"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -2102,7 +2116,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "88e29a02a6f5c92a4ecad6bb5f1d401fbc870186dc2b65b8287a8dc00c2ca138"
+content-hash = "5ccdf2a933e9356ec0775fd67f191c9a00b382e5efef89cfd01873ab1168019e"
 
 [metadata.files]
 amqp = []
@@ -2176,6 +2190,7 @@ freezegun = []
 gevent = []
 graphviz = []
 greenlet = []
+gunicorn = []
 idna = []
 importlib-metadata = []
 importlib-resources = []
