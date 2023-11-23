@@ -2,6 +2,7 @@ import logging
 
 from core.models import User
 from django.core.management.base import BaseCommand
+from django.models import Q
 
 
 class Command(BaseCommand):
@@ -18,13 +19,22 @@ class Command(BaseCommand):
             help="CSV list of user emails that should not be deactivated",
             required=True,
         )
+        parser.add_argument(
+            "--exclude_matching_string",
+            type=str,
+            help="Matching string to exclude",
+            required=True,
+        )
 
     def handle(self, *args, **options):
         logging.info("Deactivating users")
 
         user_email_list = options["exclude"].split(",")
+        exclude_matching_string = options["exclude_matching_string"]
 
-        qs = User.objects.exclude(email__in=user_email_list)
+        qs = User.objects.exclude(
+            Q(email__in=user_email_list) | Q(email__icontains=exclude_matching_string)
+        )
 
         qs.update(is_active=False)
         newline = "\n"
