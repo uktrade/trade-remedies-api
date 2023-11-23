@@ -2,7 +2,7 @@ import logging
 
 from core.models import User
 from django.core.management.base import BaseCommand
-from django.models import Q
+from django.db.models import Q
 
 
 class Command(BaseCommand):

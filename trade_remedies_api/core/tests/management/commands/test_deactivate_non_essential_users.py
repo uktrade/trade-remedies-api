@@ -17,9 +17,9 @@ class DeactivateUsers(TestCase):
         user1 = User.objects.create(email="test1@user.com", name="Joe Public1")
         user2 = User.objects.create(email="test2@user.com", name="Joe Public2")
         user3 = User.objects.create(email="test3@user.com", name="Joe Public3")
-        user4 = User.objects.create(email="test3@domain1.com", name="Joe Public4")
-        user5 = User.objects.create(email="test3@domain1.com", name="Joe Public5")
-        user6 = User.objects.create(email="test3@domain2.com", name="Joe Public6")
+        user4 = User.objects.create(email="test4@domain1.com", name="Joe Public4")
+        user5 = User.objects.create(email="test5@domain1.com", name="Joe Public5")
+        user6 = User.objects.create(email="test6@domain2.com", name="Joe Public6")
 
         assert user1.is_active
         assert user2.is_active
@@ -34,7 +34,7 @@ class DeactivateUsers(TestCase):
         emails = [user1.email, user2.email]
 
         call_command(
-            "deactivate_users",
+            "deactivate_non_essential_users",
             exclude=",".join(emails),
             exclude_matching_string="domain1.com",
         )
