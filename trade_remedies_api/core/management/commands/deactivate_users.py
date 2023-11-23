@@ -13,18 +13,21 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--emails", type=str, help="CSV list of user emails", required=True
+            "--exclude",
+            type=str,
+            help="CSV list of user emails that should not be deactivated",
+            required=True
         )
 
     def handle(self, *args, **options):
         logging.info("Deactivating users")
 
-        user_email_list = options["emails"].split(",")
+        user_email_list = options["exclude"].split(",")
 
-        qs = User.objects.filter(email__in=user_email_list, is_active=True)
+        qs = User.objects.exclude(email__in=user_email_list)
 
         qs.update(is_active=False)
         newline = "\n"
         logging.info(
-            f"Deactivated Users:{newline}{newline.join([email for email in user_email_list])}"
+            f"Deactivated Users:{newline}{newline.join([user.email for user in qs])}"
         )

@@ -21,20 +21,20 @@ class DeactivateUsers(TestCase):
         assert user1.is_active
         assert user2.is_active
         assert user3.is_active
-        assert User.objects.all().count() == 4
-        assert User.objects.filter(is_active=True).count() == 4
+        assert User.objects.all().count() == 3
+        assert User.objects.filter(is_active=True).count() == 3
 
         emails = [user1.email, user2.email]
 
-        call_command("deactivate_users", emails=",".join(emails))
+        call_command("deactivate_users", exclude=",".join(emails))
 
         assert User.objects.all().count() == 3
-        assert User.objects.filter(is_active=True).count() == 1
+        assert User.objects.filter(is_active=True).count() == 2
 
         user1.refresh_from_db()
         user2.refresh_from_db()
         user3.refresh_from_db()
 
-        assert not user1.is_active
-        assert not user2.is_active
-        assert user3.is_active
+        assert user1.is_active
+        assert user2.is_active
+        assert not user3.is_active
