@@ -16,7 +16,7 @@ class Command(BaseCommand):
             "--exclude",
             type=str,
             help="CSV list of user emails that should not be deactivated",
-            required=True
+            required=True,
         )
 
     def handle(self, *args, **options):
@@ -28,6 +28,4 @@ class Command(BaseCommand):
 
         qs.update(is_active=False)
         newline = "\n"
-        logging.info(
-            f"Deactivated Users:{newline}{newline.join([user.email for user in qs])}"
-        )
+        logging.info(f"Deactivated Users:{newline}{newline.join([user.email for user in qs])}")
