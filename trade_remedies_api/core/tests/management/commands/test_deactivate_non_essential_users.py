@@ -40,7 +40,7 @@ class DeactivateUsers(TestCase):
         )
 
         assert User.objects.all().count() == 6
-        assert User.objects.filter(is_active=True).count() == 6
+        assert User.objects.filter(is_active=True).count() == 4
 
         user1.refresh_from_db()
         user2.refresh_from_db()
