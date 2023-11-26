@@ -1006,7 +1006,6 @@ python-versions = ">=3.6"
 files = [
     {file = "django-extensions-3.2.3.tar.gz", hash = "sha256:44d27919d04e23b3f40231c4ab7af4e61ce832ef46d610cc650d53e68328410a"},
     {file = "django_extensions-3.2.3-py3-none-any.whl", hash = "sha256:9600b7562f79a92cbf1fde6403c04fee314608fefbb595502e34383ae8203401"},
-]
 
 [package.dependencies]
 Django = ">=3.2"
@@ -1208,7 +1207,7 @@ pyheck = "0.1.5"
 
 [[package]]
 name = "dpath"
-version = "1.4.2"
+version = "2.1.6"
 description = "Filesystem-like pathing and searching for dictionaries"
 optional = false
 python-versions = "*"
