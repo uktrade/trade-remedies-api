@@ -995,7 +995,7 @@ files = [
 
 [[package]]
 name = "django-extensions"
-version = "2.2.3"
+version = "3.2.3"
 description = "Extensions for Django"
 optional = false
 python-versions = "*"
@@ -1005,7 +1005,7 @@ files = [
 ]
 
 [package.dependencies]
-six = ">=1.2"
+Django = ">=3.2"
 
 [[package]]
 name = "django-flags"
@@ -1204,7 +1204,7 @@ pyheck = "0.1.5"
 
 [[package]]
 name = "dpath"
-version = "1.4.2"
+version = "2.1.6"
 description = "Filesystem-like pathing and searching for dictionaries"
 optional = false
 python-versions = "*"
@@ -2286,7 +2286,7 @@ defusedxml = "*"
 
 [[package]]
 name = "openpyxl"
-version = "3.0.6"
+version = "3.1.2"
 description = "A Python library to read/write Excel 2010 xlsx/xlsm files"
 optional = false
 python-versions = ">=3.6,"
@@ -2297,7 +2297,6 @@ files = [
 
 [package.dependencies]
 et-xmlfile = "*"
-jdcal = "*"
 
 [[package]]
 name = "opensearch-py"
