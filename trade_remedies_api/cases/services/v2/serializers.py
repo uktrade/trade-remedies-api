@@ -247,4 +247,4 @@ class PublicFileSerializer(serializers.Serializer):
     organisation_case_role_name = serializers.CharField()
     no_of_files = serializers.IntegerField()
     is_tra = serializers.BooleanField()
-    deficiency_notice_params = serializers.JSONField(required=False, allow_null=True)
+    deficiency_notice_params = serializers.JSONField(allow_null=True, required=False)
