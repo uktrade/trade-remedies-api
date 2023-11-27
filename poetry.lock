@@ -1053,13 +1053,16 @@ kubi-ecs-logger = ">=0.1.0,<0.2.0"
 
 [[package]]
 name = "django-pglocks"
-version = "1.0.3"
+version = "1.0.4"
 description = "django_pglocks provides useful context managers for advisory locks for PostgreSQL."
 optional = false
 python-versions = "*"
 files = [
-    {file = "django-pglocks-1.0.3.tar.gz", hash = "sha256:daa3323de355b9057d8f37143e2ae8d283925fd25128ab66bb8c700d000111d9"},
+    {file = "django-pglocks-1.0.4.tar.gz", hash = "sha256:3c47c66fbfbd268ef46269673a0516a039539b0972b8ed2ec9cfee44c4b65523"},
 ]
+
+[package.dependencies]
+six = ">=1.0.0"
 
 [[package]]
 name = "django-phonenumber-field"
@@ -3583,4 +3586,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "4ef4449629b687936bef4336a64ceee6242a4a354917b96a38887dbe4efea90f"
+content-hash = "1346d919deeab75ff6046b18b4ed7b452f26d2cee63427e42652f587919988f5"
