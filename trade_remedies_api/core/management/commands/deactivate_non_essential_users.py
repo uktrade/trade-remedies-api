@@ -34,7 +34,7 @@ class Command(BaseCommand):
 
         email_filter = Q()
         for name in user_email_list:
-            email_filter |= Q(name__iexact=name)
+            email_filter |= Q(email__iexact=name)
 
         qs = User.objects.exclude(email_filter | Q(email__icontains=exclude_matching_string))
 
