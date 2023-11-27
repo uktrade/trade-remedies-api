@@ -35,7 +35,7 @@ django_pglocks = "1.0.3"
 djangorestframework = "3.12.4"
 dpath = "2.1.6"
 feed-gov-back = "0.4"
-freezegun = "1.1.0"
+freezegun = "1.2.2"
 "geckoboard.py" = "1.0.0"
 gevent = "23.9.1"
 django-db-geventpool = "4.0.1"
@@ -67,7 +67,7 @@ xlrd = "1.2.0"
 django-ratelimit = "4.0.0"
 tldextract = "3.4.4"
 pillow = "^10.0.1"
-gunicorn = "20.0.4"
+gunicorn = "21.2.0"
 trade-remedies-client = {git = "https://github.com/uktrade/trade-remedies-client.git", rev = "master"}
 v2-api-client = {git = "https://github.com/uktrade/trs_v2_api_client.git", rev = "master"}
 
