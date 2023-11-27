@@ -32,8 +32,12 @@ class Command(BaseCommand):
         user_email_list = options["exclude"].split(",")
         exclude_matching_string = options["exclude_matching_string"]
 
+        email_filter = Q()
+        for name in user_email_list:
+            email_filter |= Q(name__iexact=name)
+
         qs = User.objects.exclude(
-            Q(email__in=user_email_list) | Q(email__icontains=exclude_matching_string)
+            email_filter | Q(email__icontains=exclude_matching_string)
         )
 
         qs.update(is_active=False)
