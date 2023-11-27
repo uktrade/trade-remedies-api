@@ -36,9 +36,7 @@ class Command(BaseCommand):
         for name in user_email_list:
             email_filter |= Q(name__iexact=name)
 
-        qs = User.objects.exclude(
-            email_filter | Q(email__icontains=exclude_matching_string)
-        )
+        qs = User.objects.exclude(email_filter | Q(email__icontains=exclude_matching_string))
 
         qs.update(is_active=False)
         newline = "\n"
