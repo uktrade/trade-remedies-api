@@ -865,20 +865,6 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
-name = "django-appconf"
-version = "1.0.6"
-description = "A helper class for handling configuration defaults of packaged apps gracefully."
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "django-appconf-1.0.6.tar.gz", hash = "sha256:cfe87ea827c4ee04b9a70fab90b86d704cb02f2981f89da8423cb0fabf88efbf"},
-    {file = "django_appconf-1.0.6-py3-none-any.whl", hash = "sha256:c3ae442fba1ff7ec830412c5184b17169a7a1e71cf0864a4c3f93cf4c98a1993"},
-]
-
-[package.dependencies]
-django = "*"
-
-[[package]]
 name = "django-audit-log-middleware"
 version = "0.0.4"
 description = "Simple audit logging for Django requests"
@@ -894,19 +880,21 @@ django-ipware = ">=3.0.2,<3.1.0"
 
 [[package]]
 name = "django-axes"
-version = "5.4.1"
+version = "6.1.1"
 description = "Keep track of failed login attempts in Django-powered sites."
 optional = false
-python-versions = "~=3.6"
+python-versions = ">=3.7"
 files = [
-    {file = "django-axes-5.4.1.tar.gz", hash = "sha256:652a5f1fec0fdfb9fd8d6f44b0ce22189577a8c5932b60827a8ff074d6d093d9"},
-    {file = "django_axes-5.4.1-py3-none-any.whl", hash = "sha256:1e2532e8bf3b9d7c283f8b079e2c716e9fd97c921e95053549d262cef0eb3691"},
+    {file = "django-axes-6.1.1.tar.gz", hash = "sha256:cd1bc4f7becc8e9243eb4090dffa258d7d7125ca0ce3153b6ffc920bccbf2c3f"},
+    {file = "django_axes-6.1.1-py3-none-any.whl", hash = "sha256:29c48ff5f09046afd5e9a16e96d3bbb79f6c11c59f0a7bbd732559e60d0aa9fa"},
 ]
 
 [package.dependencies]
-django = ">=2.0"
-django-appconf = ">=1.0.3"
-django-ipware = ">=3,<4"
+django = ">=3.2"
+setuptools = "*"
+
+[package.extras]
+ipware = ["django-ipware (>=3)"]
 
 [[package]]
 name = "django-cache-memoize"
@@ -1054,16 +1042,13 @@ kubi-ecs-logger = ">=0.1.0,<0.2.0"
 
 [[package]]
 name = "django-pglocks"
-version = "1.0.4"
+version = "1.0.3"
 description = "django_pglocks provides useful context managers for advisory locks for PostgreSQL."
 optional = false
 python-versions = "*"
 files = [
-    {file = "django-pglocks-1.0.4.tar.gz", hash = "sha256:3c47c66fbfbd268ef46269673a0516a039539b0972b8ed2ec9cfee44c4b65523"},
+    {file = "django-pglocks-1.0.3.tar.gz", hash = "sha256:daa3323de355b9057d8f37143e2ae8d283925fd25128ab66bb8c700d000111d9"},
 ]
-
-[package.dependencies]
-six = ">=1.0.0"
 
 [[package]]
 name = "django-phonenumber-field"
@@ -3251,18 +3236,18 @@ resolved_reference = "56fb4dfdac8c56ec3bc525762ca8527321034553"
 
 [[package]]
 name = "traitlets"
-version = "5.13.0"
+version = "5.14.0"
 description = "Traitlets Python configuration system"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "traitlets-5.13.0-py3-none-any.whl", hash = "sha256:baf991e61542da48fe8aef8b779a9ea0aa38d8a54166ee250d5af5ecf4486619"},
-    {file = "traitlets-5.13.0.tar.gz", hash = "sha256:9b232b9430c8f57288c1024b34a8f0251ddcc47268927367a0dd3eeaca40deb5"},
+    {file = "traitlets-5.14.0-py3-none-any.whl", hash = "sha256:f14949d23829023013c47df20b4a76ccd1a85effb786dc060f34de7948361b33"},
+    {file = "traitlets-5.14.0.tar.gz", hash = "sha256:fcdaa8ac49c04dfa0ed3ee3384ef6dfdb5d6f3741502be247279407679296772"},
 ]
 
 [package.extras]
 docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
-test = ["argcomplete (>=3.0.3)", "mypy (>=1.6.0)", "pre-commit", "pytest (>=7.0,<7.5)", "pytest-mock", "pytest-mypy-testing"]
+test = ["argcomplete (>=3.0.3)", "mypy (>=1.7.0)", "pre-commit", "pytest (>=7.0,<7.5)", "pytest-mock", "pytest-mypy-testing"]
 
 [[package]]
 name = "typing-extensions"
@@ -3587,4 +3572,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "1c30fd26883f2a591fab089744010836dcbfe0e7062d2eb5a0e54fef5d8fc10b"
+content-hash = "41eb9f7e80cd457d55e48517a36fef1a461c13e5ce6852c1a08bc8960bfb9adc"
