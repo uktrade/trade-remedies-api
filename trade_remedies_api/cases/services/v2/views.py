@@ -77,11 +77,16 @@ class CaseViewSet(BaseModelViewSet):
                 case=case_object, key="PRODUCT_DESCRIPTION"
             ).value
             if product_description:
-                product_description = [product_description,]
+                product_description = [
+                    product_description,
+                ]
             else:
                 raise ValueError
         except (CaseWorkflowState.DoesNotExist, ValueError):
-            product_description = [product.description if product.description else product.name for product in case_object.product_set.all()]
+            product_description = [
+                product.description if product.description else product.name
+                for product in case_object.product_set.all()
+            ]
         public_file_data["product_description"] = product_description
 
         for submission in Submission.objects.get_submissions(
