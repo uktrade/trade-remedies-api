@@ -72,6 +72,18 @@ class CaseViewSet(BaseModelViewSet):
             split_commodities = None
         public_file_data["split_commodities"] = split_commodities
 
+        try:
+            product_description = CaseWorkflowState.objects.get(
+                case=case_object, key="PRODUCT_DESCRIPTION"
+            ).value
+            if product_description:
+                product_description = [product_description,]
+            else:
+                raise ValueError
+        except (CaseWorkflowState.DoesNotExist, ValueError):
+            product_description = [product.description if product.description else product.name for product in case_object.product_set.all()]
+        public_file_data["product_description"] = product_description
+
         for submission in Submission.objects.get_submissions(
             case=case_object,
             requested_by=request.user,
@@ -102,6 +114,7 @@ class CaseViewSet(BaseModelViewSet):
                     "no_of_files": no_of_files,
                     "is_tra": submission.is_tra(),
                     "deficiency_notice_params": submission.deficiency_notice_params,
+                    "product_description": product_description,
                 }
             )
             assert serializer.is_valid()
