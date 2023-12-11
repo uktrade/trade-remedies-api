@@ -11,7 +11,6 @@ from django.db.models import Q
 from django.db.utils import IntegrityError
 from django.http import HttpResponse
 from django.utils.html import escape
-from feedback.models import FeedbackForm
 from rest_framework import status
 from rest_framework.views import APIView
 from v2_api_client.shared.logging import audit_logger
@@ -684,21 +683,6 @@ class CreatePendingUserAPI(TradeRemediesApiView):
             return ResponseSuccess({"result": {"id": str(invitation_id), "deleted": True}})
         except Invitation.DoesNotExist:
             raise NotFoundApiExceptions("Invalid invitation")
-
-
-class FeedbackExport(TradeRemediesApiView):
-    """
-    Feedback data export
-    """
-
-    def get(self, request, form_id, *args, **kwargs):
-        mimetypes.init()
-        form = FeedbackForm.objects.get(id=form_id)
-        export_file = feedback_export(form)
-        mime_type = mimetypes.guess_type(export_file.name, False)[0]
-        response = HttpResponse(export_file.read(), content_type=mime_type)
-        response["Content-Disposition"] = "attachment; filename=Feedback-export.xls"
-        return response
 
 
 class ValidationErrorAPIView(APIView):
