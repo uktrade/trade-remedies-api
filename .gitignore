@@ -140,3 +140,4 @@ ner_output_file.txt
 profiles/
 
 */contacts/management/commands/*.csv
+/requirements-dev.txt
