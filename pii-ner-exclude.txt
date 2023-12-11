@@ -1,3 +1,150 @@
+" Pass in some sql
+Disable App Nap
+Annotate AST
+4.0.3
+asyncio
+Classes Without Boilerplate
+zoneinfo
+The AWS SDK for Python
+1.0.3
+Distributed Task Queue
+kombu
+pyro4
+Mozilla
+CA Bundle
+1.16.0
+Foreign Function Interface for Python
+The Real First Universal Charset Detector
+Chardet
+0.3.0
+CLI
+0.4.6
+0.1.5
+HSL
+RVB
+X11
+5.1.1
+1.2.14
+Django Application
+1.0.6
+1.9.2
+Extensions for Django
+mkdocs
+jinja2
+A Django
+ECS
+Cache
+0.15.2
+Turn your API
+Django REST Framework(DRF
+0.6.2
+Pythonic
+pep8
+Official Python
+the Geckoboard Datasets API
+\"win32\
+Simple Python
+Graphviz
+Internationalized Domain Names in Applications
+6.8.0
+zipp
+Julian
+Gregorian
+Pygments (==
+urllib3
+JSON Matching Expressions
+Cassowary
+Elasticsearch Common Schema
+Powerful and Pythonic XML
+libxml2
+beautifulsoup4
+Cython
+HTML/XML
+0.1.6
+Inline Matplotlib
+Jupyter
+flake8
+Minio Python Library
+OpenDocument
+3.0.6
+A Python
+A Python Parser
+0.11.2
+Google
+0.7.5
+pybind11
+attrs
+Python Imaging Library (Fork
+\"user
+3.0.41
+Library for building powerful interactive command lines
+1.0.2
+0.2.2
+AST
+JSON Web Token
+Parser-Interpreter for Python
+pflake8
+0.7.4
+Microsoft
+0.6.18
+Humans
+falcon
+0.16.0
+SQL
+0.0.10
+Python Port of John Gruber's
+the Public Suffix List
+PSL
+ICANN
+the Public Suffix List's
+0.10.2
+Python Library for Tom's Obvious, Minimal Language
+Traitlets Python
+Backported and Experimental Type Hints for Python
+pyOpenSSL
+0.0.0
+0.2.12
+xlrd
+Microsoft Excel
+Interfaces for Python
+88e29a02a6f5c92a4ecad6bb5f1d401fbc870186dc2b65b8287a8dc00c2ca138
+Chris
+https://github.com/uktrade/trs_v2_api_client.git
+\.git
+\.mypy_cache
+max-line
+D100
+D104
+W504
+F405
+W605
+max-complexity
+darwin
+asttokens==2.4.1
+atomicwrites==1.4.1
+backcall==0.2.0
+botocore==1.20.112
+certifi==2023.11.17
+charset-normalizer==3.3.2
+click-didyoumean==0.3.0
+click-plugins==1.1.1
+click-repl==0.3.0
+click==8.1.7
+contourpy==1.1.0
+dotwiz==0.4.0
+executing==2.0.1
+greenlet==3.0.1
+importlib-metadata==6.8.0
+importlib-resources==6.1.1
+ipython==8.13.0
+jedi==0.19.1
+kombu==5.3.4
+mypy-extensions==1.0.0
+pexpect==4.8.0
+pluggy==1.3.0
+ptyprocess==0.7.0
+3.11.0a6
+vine==5.1.0
 pillow>=10.0.1
 TARIFF_CLASSIFICATION
 csv format

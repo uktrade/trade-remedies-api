@@ -1,6 +1,0 @@
-# Constrain to base requirements
--r ../requirements/base.txt
-
-django-db-geventpool==4.0.0
-gunicorn==20.0.4
-psycogreen==1.0.2
