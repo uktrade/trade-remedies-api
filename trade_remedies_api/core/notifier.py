@@ -3,7 +3,6 @@ import re
 from django.conf import settings
 from notifications_python_client.notifications import NotificationsAPIClient
 
-from cases.models import Case
 from .utils import convert_to_e164
 
 
@@ -59,6 +58,7 @@ def notify_contact_email(case_number=None):
     if case_number:
         match = re.search("([A-Za-z]{1,3})([0-9]+)", case_number)
         if match:
+            from cases.models import Case
             try:
                 case_object = Case.objects.get(
                     type__acronym__iexact=match.group(1),
