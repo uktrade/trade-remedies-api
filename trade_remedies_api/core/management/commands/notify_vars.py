@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-
     help = "Show all keys currently used across all notify templates"
 
     def handle(self, *args, **options):

@@ -15,7 +15,6 @@ from cases.models import Submission, SubmissionDocument
 
 
 class Command(BaseCommand):
-
     help = (
         "Produce report related to key metrics relating to the TRS"
         "Accounts: Email verified public user accounts"
@@ -108,7 +107,6 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f"{label}: {value}"))
 
         if options["outpath"]:
-
             # add trailing backslash if it doesn't exist
             outfile_location = os.path.join(options["outpath"], "")
 
