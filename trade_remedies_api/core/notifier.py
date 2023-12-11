@@ -59,6 +59,7 @@ def notify_contact_email(case_number=None):
         match = re.search("([A-Za-z]{1,3})([0-9]+)", case_number)
         if match:
             from cases.models import Case
+
             try:
                 case_object = Case.objects.get(
                     type__acronym__iexact=match.group(1),
