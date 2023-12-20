@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-
     help = "Set system param content type to the right values"
 
     def handle(self, *args, **options):

@@ -213,7 +213,6 @@ class OrganisationContactsAPI(TradeRemediesApiView):
     """
 
     def get(self, request, organisation_id, case_id=None, *args, **kwargs):  # noqa: C901
-
         contacts = {}
         case = Case.objects.get(id=case_id) if case_id else None
 
@@ -776,7 +775,6 @@ class OrganisationMatchingAPI(TradeRemediesApiView):
 
         org_matches_dict = []
         for org in organisation_matches:
-
             if all_details != "none":
                 _dict = org.to_dict()
                 _dict.update(
@@ -808,7 +806,6 @@ class OrganisationUserCaseAPI(TradeRemediesApiView):
     """
 
     def get(self, request, organisation_id=None):
-
         organisation_usercases = UserCase.objects.filter(organisation__id=organisation_id)
 
         return ResponseSuccess(

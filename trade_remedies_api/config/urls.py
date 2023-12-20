@@ -170,7 +170,6 @@ urlpatterns = [
     path(f"{settings.API_PREFIX}/invitations/", include("invitations.services.urls")),
     path(f"{settings.API_PREFIX}/contact/", include("contacts.services.urls")),
     path(f"{settings.API_PREFIX}/contacts/", include("contacts.services.urls")),
-    path(f"{settings.API_PREFIX}/feedback/", include("feedback.services.urls")),
     path(f"{settings.API_PREFIX}/companieshouse/", include("core.services.urls")),
     path(
         f"{settings.API_PREFIX}/v2_register/",

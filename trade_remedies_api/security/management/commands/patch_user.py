@@ -28,7 +28,6 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-
         # check that the user exist
         for user_email in options["user_email"]:
             logger.info(f"Patching user {user_email}")
@@ -41,7 +40,6 @@ class Command(BaseCommand):
 
             # check that the users does not have a group assigned
             if group_queryset.count():
-
                 raise CommandError(f"User with email '{user_email}' has already a group assigned.")
 
             # assign 'Organisation User'

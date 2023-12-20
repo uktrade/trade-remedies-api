@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-
     help = (
         "Generate system parameters holding references to notify template ids, "
         "based on the notify environment"

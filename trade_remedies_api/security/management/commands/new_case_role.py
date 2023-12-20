@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-
     help = "Add new CaseRole"
 
     def add_arguments(self, parser):
@@ -22,7 +21,6 @@ class Command(BaseCommand):
         parser.add_argument("--factor", type=int, help='To multiple "order" value by')
 
     def handle(self, *args, **options):
-
         if options["factor"]:
             # Increase gap between existing "order" values to make (possible) future
             # insertions easier.

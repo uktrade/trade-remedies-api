@@ -14,7 +14,6 @@ base_dir = os.path.dirname(os.path.dirname(__file__))
 
 
 class Command(BaseCommand):
-
     help = "Create the master admin user"
 
     def add_arguments(self, parser):

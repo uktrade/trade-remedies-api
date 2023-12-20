@@ -145,7 +145,6 @@ class NoteAPIView(TradeRemediesApiView):
         *args,
         **kwargs,
     ):
-
         response = None
         if note_id and document_id:
             try:

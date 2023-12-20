@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-
     help = "Process the timegate actions that are queued and due."
 
     def handle(self, *args, **options):

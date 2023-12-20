@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-
     help = "Reset all case workflows. Careful with this one as it will erase all case workflows."
 
     def handle(self, *args, **options):

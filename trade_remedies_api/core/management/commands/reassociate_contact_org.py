@@ -16,7 +16,6 @@ from django.utils import timezone
 
 
 class Command(BaseCommand):
-
     help = """Command to associate a Contact with an Organisation. Some are missing this association
            as they were created either by mistake or a long time ago"""
 

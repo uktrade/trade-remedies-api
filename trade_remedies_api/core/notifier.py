@@ -49,14 +49,28 @@ def notify_footer(email=None):
 def notify_contact_email(case_number=None):
     """Build notify email address.
 
-    If a case is specified build contact email with it.
+    If a case is specified build contact email with it, but only if that case is initiated.
 
     :param (str) case_number: e.g. 'TD0001'
     :returns (str): A case contact email if case number specified, otherwise
       value of TRADE_REMEDIES_EMAIL system parameter.
     """
     if case_number:
-        return f"{case_number}@traderemedies.gov.uk"  # /PS-IGNORE
+        match = re.search("([A-Za-z]{1,3})([0-9]+)", case_number)
+        if match:
+            from cases.models import Case
+
+            try:
+                case_object = Case.objects.get(
+                    type__acronym__iexact=match.group(1),
+                    initiated_sequence=match.group(2),
+                    deleted_at__isnull=True,
+                )
+                if case_object.initiated_at:
+                    # if the case is initiated, then the email exists
+                    return f"{case_number}@traderemedies.gov.uk"  # /PS-IGNORE
+            except Case.DoesNotExist:
+                pass
     return "contact@traderemedies.gov.uk"  # /PS-IGNORE
 
 

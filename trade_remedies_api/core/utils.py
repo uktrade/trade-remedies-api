@@ -24,7 +24,7 @@ def deep_index_items_by(items, key):
     """
     index = {}
     for item in items:
-        index_key = str((dpath.util.get(item, key) or "")).lower()
+        index_key = str((dpath.get(item, key) or "")).lower()
         index.setdefault(index_key, [])
         index[index_key].append(item)
     return index
@@ -36,7 +36,7 @@ def get(item, key, default=None):
     """
     val = default
     try:
-        val = dpath.util.get(item, key)
+        val = dpath.get(item, key)
     except KeyError:
         pass
     return val
