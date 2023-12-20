@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-
     help = """Load system parameters. The file format is similiar to a standard fixture json with
     the following differences:
     1. `default` is used as initial value for the key if it does not exist in the database.

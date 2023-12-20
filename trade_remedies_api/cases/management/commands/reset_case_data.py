@@ -29,7 +29,6 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-
     help = "Reset all cases data. Careful with this one as it will erase all cases."
 
     def handle(self, *args, **options):

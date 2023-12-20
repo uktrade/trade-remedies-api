@@ -5,7 +5,6 @@ from core.models import UserProfile
 
 
 class Command(BaseCommand):
-
     help = "Marks a user profile as email address validated - not public and only used in autotest"
 
     def add_arguments(self, parser):

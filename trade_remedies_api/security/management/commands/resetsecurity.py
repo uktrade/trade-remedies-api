@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-
     help = "Reset all security groups and their permission assignments"
 
     def handle(self, *args, **options):

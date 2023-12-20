@@ -15,7 +15,6 @@ from django.utils import timezone
 
 
 class Command(BaseCommand):
-
     help = "Command to fix issues regarding the incorrect/missing user case role and organisation assignment"
 
     def add_arguments(self, parser):
