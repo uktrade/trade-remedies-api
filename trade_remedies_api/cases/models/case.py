@@ -97,7 +97,7 @@ class CaseOrNotice:
                     # Some review types are only allowed on cases which have reached a certain point in their worflow
                     state_value = self.get_state_key(key=test["key"])
                     if state_value != "pass" and (
-                            not state_value or state_value.value != test["value"]
+                        not state_value or state_value.value != test["value"]
                     ):
                         status = "invalid_case_type"
             if status == "ok":
@@ -252,12 +252,12 @@ class CaseManager(models.Manager):
         return organisation, case, submission
 
     def user_cases(
-            self,
-            user,
-            organisation=None,
-            organisation_role=None,
-            current=None,
-            exclude_organisation_case_role=False,
+        self,
+        user,
+        organisation=None,
+        organisation_role=None,
+        current=None,
+        exclude_organisation_case_role=False,
     ):
         """
         Return all user cases or cases relating to a specific organisation.
@@ -511,8 +511,8 @@ class Case(BaseModel, CaseOrNotice):
             )
             if sub:
                 self._latest_noi_url = (
-                        sub.url
-                        or f"{settings.PUBLIC_ROOT_URL}/public/case/{self.reference}/submission/{sub.id}/"  # noqa: E501
+                    sub.url
+                    or f"{settings.PUBLIC_ROOT_URL}/public/case/{self.reference}/submission/{sub.id}/"  # noqa: E501
                 )
         return self._latest_noi_url
 
@@ -967,7 +967,7 @@ class Case(BaseModel, CaseOrNotice):
         return {"submission_count": count, "due_at": earliest.due_at if earliest else None}
 
     def assign_user(
-            self, user, created_by, organisation=None, relax_security=False, confirmed=True
+        self, user, created_by, organisation=None, relax_security=False, confirmed=True
     ):
         """
         Assign a TRA user (team member) to the case.
@@ -1016,7 +1016,7 @@ class Case(BaseModel, CaseOrNotice):
         return organisations
 
     def create_submission_for_documents(
-            self, documents, submission_type, created_by, name=None, organisation=None, issued=False
+        self, documents, submission_type, created_by, name=None, organisation=None, issued=False
     ):
         """
         Create a subimssion around a document so that it becomes part of the case.
@@ -1067,7 +1067,7 @@ class Case(BaseModel, CaseOrNotice):
                     case=self,
                     data={
                         "message": f"User {user} removed from case {self}, "
-                                   f"representing {user_case.organisation.name}"
+                        f"representing {user_case.organisation.name}"
                     },
                 )
             return True
@@ -1095,7 +1095,7 @@ class Case(BaseModel, CaseOrNotice):
             return None
 
     def notify_all_participants(
-            self, sent_by, submission=None, organisation_id=None, template_name=None, extra_context=None
+        self, sent_by, submission=None, organisation_id=None, template_name=None, extra_context=None
     ):
         template_name = template_name or "NOTIFY_UPDATE_TO_CASE"
         notify_template_id = SystemParameter.get(template_name)
@@ -1262,7 +1262,9 @@ class Case(BaseModel, CaseOrNotice):
     @property
     def date_last_submission_made_public(self):
         """Gets the date the last submission was made public"""
-        if public_submission := self.submission_set.exclude(issued_at__isnull=True).order_by("-issued_at"):
+        if public_submission := self.submission_set.exclude(issued_at__isnull=True).order_by(
+            "-issued_at"
+        ):
             last_date = public_submission.first().issued_at
         else:
             last_date = self.last_modified
