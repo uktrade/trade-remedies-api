@@ -52,6 +52,7 @@ class CaseSerializer(CustomValidationModelSerializer):
     registration_deadline = serializers.DateTimeField(required=False)
     product_set = ProductSerializer(many=True, required=False)
     exportsource_set = ExportSourceSerializer(many=True, required=False)
+    date_last_submission_made_public = serializers.DateTimeField(required=False)
 
     class Meta:
         model = Case
