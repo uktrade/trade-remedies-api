@@ -138,6 +138,8 @@ class CaseViewSet(BaseModelViewSet):
                 type__acronym__iexact=match.group(1),
                 initiated_sequence=match.group(2),
                 deleted_at__isnull=True,
+                # initiated_at has to be valid, i.e. the case needs to have been initiated before returning it
+                initiated_at__isnull=False,
             )
             serializer = self.get_serializer(case_object)
             return Response(serializer.data)
