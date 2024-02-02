@@ -56,7 +56,7 @@ jobs:
           ALLOWED_HOSTS: "*"
           OPENSEARCH_HOST: "opensearch"
           OPENSEARCH_PORT: "9200"
-      - image: cimg/postgres:11.21
+      - image: cimg/postgres:12.17
         environment:
           POSTGRES_USER: ubuntu
           POSTGRES_DB: trade_remedies
