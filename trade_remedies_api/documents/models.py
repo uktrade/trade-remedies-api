@@ -97,7 +97,6 @@ class DocumentManager(models.Manager):
         else:
             search_results = client.search(
                 index=settings.OPENSEARCH_INDEX["document"],
-                doc_type="document",
                 body={"query": _query, "highlight": {"fields": {"content": {}}}},
             )
             return search_results
@@ -241,7 +240,6 @@ class Document(BaseModel):
             try:
                 result = client.delete(
                     index=settings.OPENSEARCH_INDEX["document"],
-                    doc_type="document",
                     id=str(self.id),
                 )
                 return result.get("result") == "deleted"
@@ -388,7 +386,6 @@ class Document(BaseModel):
             try:
                 return client.get(
                     index=settings.OPENSEARCH_INDEX["document"],
-                    doc_type="document",
                     id=self.id,
                 )
             except NotFoundError:
@@ -484,9 +481,7 @@ class Document(BaseModel):
                     }
                 }
             )
-        result = client.index(
-            index=settings.OPENSEARCH_INDEX["document"], doc_type="document", id=self.id, body=doc
-        )
+        result = client.index(index=settings.OPENSEARCH_INDEX["document"], id=self.id, body=doc)
         if result and result.get("result") in ("created", "updated"):
             self.index_state = index_state
             self.save()
