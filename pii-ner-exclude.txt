@@ -1,3 +1,8 @@
+PUB
+ref
+" Returns the mime type for this file
+Create an OpenSearch
+0.0.0.0:8000
 + Deleting
 MASTER_ADMIN_PASSWORD
 case/{CASE_UUID}/` Shortcut
