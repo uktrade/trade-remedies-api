@@ -117,6 +117,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "axes.middleware.AxesMiddleware",
     "config.middleware.SentryContextMiddleware",
+    "config.middleware.TrackForbiddenMiddleware",
 ]
 
 if DJANGO_ADMIN:
