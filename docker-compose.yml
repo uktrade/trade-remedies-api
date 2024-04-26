@@ -39,7 +39,7 @@ services:
       - DJANGO_SETTINGS_MODULE=config.settings.bdd
       - DATABASE_URL=psql://postgres:postgres@postgres:5432/trade_remedies_api_test
   postgres:
-    image: postgres:10.15
+    image: postgres:12
     ports:
       - "5432:5432"
     volumes:
@@ -53,7 +53,7 @@ services:
     ports:
       - "6379:6379"
   opensearch:
-    image: opensearchproject/opensearch:1.2.4
+    image: opensearchproject/opensearch:2.13.0
     restart: unless-stopped
     ports:
       - "9200:9200"
@@ -61,3 +61,4 @@ services:
     environment:
       - discovery.type=single-node
       - plugins.security.disabled=true
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=odR$YG8t$fcLe5X3
