@@ -1,6 +1,7 @@
 """
 Custom API exceptions
 """
+
 from rest_framework.exceptions import APIException, ValidationError
 from rest_framework import status
 

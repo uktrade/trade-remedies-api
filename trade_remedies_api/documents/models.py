@@ -277,9 +277,11 @@ class Document(BaseModel):
                     "deficient": subdoc.deficient,
                     "downloads": subdoc.downloads,
                     "issued": bool(subdoc.issued_at),
-                    "issued_at": subdoc.issued_at.strftime(settings.API_DATETIME_FORMAT)
-                    if subdoc.issued_at
-                    else None,
+                    "issued_at": (
+                        subdoc.issued_at.strftime(settings.API_DATETIME_FORMAT)
+                        if subdoc.issued_at
+                        else None
+                    ),
                 }
             )
         if case:

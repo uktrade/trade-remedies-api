@@ -1,4 +1,5 @@
 """Django settings for trade_remedies_api project."""
+
 import datetime
 import os
 import sys

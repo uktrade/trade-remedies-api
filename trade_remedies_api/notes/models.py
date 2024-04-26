@@ -49,13 +49,15 @@ class Note(BaseModel):
             "content_type": self.content_type.model if self.content_type else None,
             "model_key": self.model_key,
             "documents": [doc.to_embedded_dict(case=self.case) for doc in self.all_documents],
-            "case": {
-                "id": str(self.case.id),
-                "name": self.case.name,
-                "sequence": self.case.sequence,
-            }
-            if self.case
-            else None,
+            "case": (
+                {
+                    "id": str(self.case.id),
+                    "name": self.case.name,
+                    "sequence": self.case.sequence,
+                }
+                if self.case
+                else None
+            ),
             "data": self.data,
         }
         return _dict

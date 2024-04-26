@@ -334,13 +334,13 @@ class Invitation(BaseModel):
     def _to_dict(self):
         _dict = {
             "organisation": self.organisation.to_embedded_dict() if self.organisation else None,
-            "organisation_security_group": self.organisation_security_group.name
-            if self.organisation_security_group
-            else None,
+            "organisation_security_group": (
+                self.organisation_security_group.name if self.organisation_security_group else None
+            ),
             "contact": self.contact.to_dict() if self.contact else None,
-            "country_code": self.contact.country.code
-            if self.contact and self.contact.country
-            else "GB",
+            "country_code": (
+                self.contact.country.code if self.contact and self.contact.country else "GB"
+            ),
             "email": self.contact.email if self.contact else None,
             "user": self.user.to_embedded_dict() if self.user else None,
             "code": self.code,
@@ -349,20 +349,26 @@ class Invitation(BaseModel):
             "submission": None,
             "case": {},
             "email_sent": self.email_sent,
-            "accepted_at": self.accepted_at.strftime(settings.API_DATETIME_FORMAT)
-            if self.accepted_at
-            else None,
-            "sent_at": self.sent_at.strftime(settings.API_DATETIME_FORMAT)
-            if self.sent_at
-            else None,
+            "accepted_at": (
+                self.accepted_at.strftime(settings.API_DATETIME_FORMAT)
+                if self.accepted_at
+                else None
+            ),
+            "sent_at": (
+                self.sent_at.strftime(settings.API_DATETIME_FORMAT) if self.sent_at else None
+            ),
             "approved_by": self.approved_by.to_embedded_dict() if self.approved_by else None,
-            "approved_at": self.accepted_at.strftime(settings.API_DATETIME_FORMAT)
-            if self.accepted_at
-            else None,
+            "approved_at": (
+                self.accepted_at.strftime(settings.API_DATETIME_FORMAT)
+                if self.accepted_at
+                else None
+            ),
             "rejected_by": self.rejected_by.to_embedded_dict() if self.rejected_by else None,
-            "rejected_at": self.rejected_at.strftime(settings.API_DATETIME_FORMAT)
-            if self.rejected_at
-            else None,
+            "rejected_at": (
+                self.rejected_at.strftime(settings.API_DATETIME_FORMAT)
+                if self.rejected_at
+                else None
+            ),
             "meta": self.meta,
         }
         if self.submission:
@@ -435,9 +441,9 @@ class Invitation(BaseModel):
                     "notice_url": self.submission.url if self.submission else "",  # TODO: Remove
                     "notice_of_initiation_url": self.case.latest_notice_of_initiation_url,
                     "invited_by_name": self.submission.contact.name if self.submission else "",
-                    "invited_by_organisation": self.submission.organisation.name
-                    if self.submission
-                    else "",
+                    "invited_by_organisation": (
+                        self.submission.organisation.name if self.submission else ""
+                    ),
                 }
             )
         # Set email and footer appropriate to case context
@@ -446,9 +452,9 @@ class Invitation(BaseModel):
         if footer_case_email:
             _context.update({"footer": notify_footer(email)})
         if direct is True:
-            _context[
-                "login_url"
-            ] = f"{settings.PUBLIC_ROOT_URL}/invitation/{self.code}/{self.case.id}/"
+            _context["login_url"] = (
+                f"{settings.PUBLIC_ROOT_URL}/invitation/{self.code}/{self.case.id}/"
+            )
         if context:
             _context.update(context)
 

@@ -270,13 +270,17 @@ class OrganisationCaseRole(SimpleBaseModel):
                 "sampled": self.sampled,
                 "non_responsive": self.non_responsive,
                 "role": self.role.to_dict(),
-                "validated_at": self.validated_at.strftime(settings.API_DATETIME_FORMAT)
-                if self.validated_at
-                else None,
+                "validated_at": (
+                    self.validated_at.strftime(settings.API_DATETIME_FORMAT)
+                    if self.validated_at
+                    else None
+                ),
                 "validated_by": self.validated_by.to_embedded_dict() if self.validated_by else None,
-                "approved_at": self.approved_at.strftime(settings.API_DATETIME_FORMAT)
-                if self.approved_at
-                else None,
+                "approved_at": (
+                    self.approved_at.strftime(settings.API_DATETIME_FORMAT)
+                    if self.approved_at
+                    else None
+                ),
                 "approved_by": self.approved_by.to_embedded_dict() if self.approved_by else None,
             }
         )
@@ -417,12 +421,12 @@ class UserCase(SimpleBaseModel):
             "case": self.case.to_minimal_dict(attrs={"initiated_at"}),
             "user": self.user.to_embedded_dict(groups=True),
             "organisation": {
-                "id": str(self.user.organisation.organisation.id)
-                if self.user.organisation
-                else None,
-                "name": self.user.organisation.organisation.name
-                if self.user.organisation
-                else None,
+                "id": (
+                    str(self.user.organisation.organisation.id) if self.user.organisation else None
+                ),
+                "name": (
+                    self.user.organisation.organisation.name if self.user.organisation else None
+                ),
             },
             "created_at": self.created_at.strftime(settings.API_DATETIME_FORMAT),
         }

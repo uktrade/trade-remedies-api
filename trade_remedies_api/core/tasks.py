@@ -86,9 +86,9 @@ def send_mail_task(self, email, context, template_id, reference=None, audit_kwar
                 "email": email,
                 "values": context,
                 "template_id": template_id,
-                "error": error_report.get("messages")
-                if isinstance(error_report, dict)
-                else error_report,
+                "error": (
+                    error_report.get("messages") if isinstance(error_report, dict) else error_report
+                ),
             }
             logger.error("Notify request failed: %s", send_report)
 

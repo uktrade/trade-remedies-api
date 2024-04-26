@@ -777,12 +777,14 @@ class Organisation(BaseModel):
             "trade_association": self.trade_association,
             "address": escape(self.address),
             "post_code": escape(self.post_code),
-            "country": {
-                "name": self.country.name if self.country else None,
-                "code": self.country.code if self.country else None,
-            }
-            if self.country
-            else None,
+            "country": (
+                {
+                    "name": self.country.name if self.country else None,
+                    "code": self.country.code if self.country else None,
+                }
+                if self.country
+                else None
+            ),
             "contacts": [contact.to_dict(case) for contact in contacts if not contact.deleted_at],
             "primary_contact": primary_contact.to_embedded_dict() if primary_contact else None,
             "gov_body": self.gov_body,
@@ -793,9 +795,9 @@ class Organisation(BaseModel):
             "duns_number": escape(self.duns_number),
             "organisation_website": escape(self.organisation_website),
             "fraudulent": self.fraudulent,
-            "previous_names": [pn.to_dict() for pn in self.previous_names]
-            if self.has_previous_names
-            else None,
+            "previous_names": (
+                [pn.to_dict() for pn in self.previous_names] if self.has_previous_names else None
+            ),
             "merged_from_id": str(self.merged_from.id) if self.merged_from else None,
             "json_data": self.json_data if self.json_data else None,
             "users": [user.enhance_dict() for user in self.users],
@@ -1268,12 +1270,12 @@ class OrganisationName(models.Model):
         return {
             "id": str(self.id),
             "name": self.name,
-            "from_date": self.from_date.strftime(settings.API_DATETIME_FORMAT)
-            if self.from_date
-            else None,
-            "to_date": self.to_date.strftime(settings.API_DATETIME_FORMAT)
-            if self.to_date
-            else None,
+            "from_date": (
+                self.from_date.strftime(settings.API_DATETIME_FORMAT) if self.from_date else None
+            ),
+            "to_date": (
+                self.to_date.strftime(settings.API_DATETIME_FORMAT) if self.to_date else None
+            ),
         }
 
 

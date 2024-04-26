@@ -236,9 +236,11 @@ class CasesAPIView(TradeRemediesApiView):
         exclude_types = request.query_params.get("exclude_types")
         fields = request.query_params.get("fields")
         _kwargs = {
-            "archived": None
-            if archived == "all"
-            else archived and (archived.lower() in TRUTHFUL_INPUT_VALUES)
+            "archived": (
+                None
+                if archived == "all"
+                else archived and (archived.lower() in TRUTHFUL_INPUT_VALUES)
+            )
         }
         cases = []
         if all_cases in TRUTHFUL_INPUT_VALUES and all_initiated and organisation_id is None:
@@ -314,9 +316,9 @@ class CasesAPIView(TradeRemediesApiView):
                 )
                 org_case_idx = {}
                 for caserole in caseroles:
-                    org_case_idx[
-                        str(caserole.case.id) + ":" + str(caserole.organisation.id)
-                    ] = caserole.role
+                    org_case_idx[str(caserole.case.id) + ":" + str(caserole.organisation.id)] = (
+                        caserole.role
+                    )
                 results = []
                 for user_case in user_cases:
                     _dict = user_case.to_embedded_dict()
@@ -1256,12 +1258,12 @@ class SubmissionStatusAPIView(TradeRemediesApiView):
                 clone._disable_audit = True
                 # copy notification sent information from original/previous submission record
                 clone.deficiency_notice_params = {}
-                clone.deficiency_notice_params[
-                    "org_verify"
-                ] = submission.deficiency_notice_params.get("org_verify")
-                clone.deficiency_notice_params[
-                    "notification_sent_at"
-                ] = submission.deficiency_notice_params.get("notification_sent_at")
+                clone.deficiency_notice_params["org_verify"] = (
+                    submission.deficiency_notice_params.get("org_verify")
+                )
+                clone.deficiency_notice_params["notification_sent_at"] = (
+                    submission.deficiency_notice_params.get("notification_sent_at")
+                )
                 clone.save()
             if submission_status_context == "sent":
                 submission.sent_at = timezone.now()
@@ -1319,9 +1321,11 @@ class SubmissionStatusAPIView(TradeRemediesApiView):
                 if issue_submission == "issue":
                     submission.case.notify_all_participants(request.user, submission=submission)
                 submission.add_note(
-                    "Submission published"
-                    if issue_submission == "issue"
-                    else "Submission withdrawn",
+                    (
+                        "Submission published"
+                        if issue_submission == "issue"
+                        else "Submission withdrawn"
+                    ),
                     request.user,
                 )
 
@@ -1584,9 +1588,11 @@ class ApplicationStateAPIView(TradeRemediesApiView):
                 "product": STATE_COMPLETE if product else STATE_INCOMPLETE,
                 "source": source_task,
                 "documents": STATE_COMPLETE if documents else STATE_INCOMPLETE,
-                "review": STATE_COMPLETE
-                if application_submission and application_submission.review
-                else STATE_INCOMPLETE,
+                "review": (
+                    STATE_COMPLETE
+                    if application_submission and application_submission.review
+                    else STATE_INCOMPLETE
+                ),
             },
             "organisation": self.organisation.to_dict(),
             "case": case.to_dict(),
@@ -1920,9 +1926,11 @@ class CaseMilestoneDatesAPI(TradeRemediesApiView):
                             "id": str(case_id),
                             "name": case.name,
                         },
-                        "date": milestones[mskey].strftime(settings.API_DATE_FORMAT)
-                        if milestones[mskey]
-                        else None,
+                        "date": (
+                            milestones[mskey].strftime(settings.API_DATE_FORMAT)
+                            if milestones[mskey]
+                            else None
+                        ),
                     }
                     for mskey in milestones
                 ]

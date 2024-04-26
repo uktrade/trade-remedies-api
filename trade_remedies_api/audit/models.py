@@ -165,12 +165,16 @@ class Audit(models.Model):
             "type": self.type,
             "case_id": str(self.case_id),
             "created_at": self.created_at,
-            "created_by": {"id": str(self.created_by.id), "user": self.created_by.email}
-            if self.created_by
-            else {"id": None, "user": None},
-            "assisted_by": {"id": str(self.assisted_by.id), "user": self.assisted_by.email}
-            if self.assisted_by
-            else {"id": None, "user": None},
+            "created_by": (
+                {"id": str(self.created_by.id), "user": self.created_by.email}
+                if self.created_by
+                else {"id": None, "user": None}
+            ),
+            "assisted_by": (
+                {"id": str(self.assisted_by.id), "user": self.assisted_by.email}
+                if self.assisted_by
+                else {"id": None, "user": None}
+            ),
             "model_id": str(self.model_id) if self.model_id else None,
             "content_type": self.content_type.model if self.content_type else None,
             "milestone": str(self.milestone),
