@@ -128,9 +128,9 @@ class Contact(BaseModel):
         }
         _dict.update(
             {
-                "organisation": self.organisation.to_embedded_dict(fields=fields)
-                if self.organisation
-                else {},
+                "organisation": (
+                    self.organisation.to_embedded_dict(fields=fields) if self.organisation else {}
+                ),
                 "has_user": has_user,
             }
         )

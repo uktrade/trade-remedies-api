@@ -495,11 +495,11 @@ class Submission(BaseModel):
                 "type": self.type.name,
                 "name": version.name,
                 "version": version.version,
-                "deficiency_sent_at": version.deficiency_sent_at.strftime(
-                    settings.API_DATETIME_FORMAT
-                )
-                if version.deficiency_sent_at
-                else None,
+                "deficiency_sent_at": (
+                    version.deficiency_sent_at.strftime(settings.API_DATETIME_FORMAT)
+                    if version.deficiency_sent_at
+                    else None
+                ),
             }
             for version in self.versions
         ]
@@ -527,9 +527,11 @@ class Submission(BaseModel):
                 "sent_by": self.sent_by.to_embedded_dict() if self.sent_by else None,
                 "time_window": self.time_window,
                 "archived": self.archived,
-                "doc_reviewed_at": self.doc_reviewed_at.strftime(settings.API_DATETIME_FORMAT)
-                if self.doc_reviewed_at
-                else None,
+                "doc_reviewed_at": (
+                    self.doc_reviewed_at.strftime(settings.API_DATETIME_FORMAT)
+                    if self.doc_reviewed_at
+                    else None
+                ),
                 "contacts": [_contact.to_embedded_dict() for _contact in self.contacts()],
                 "versions": _previous_versions,  # all previous versions
                 "previous_version": _previous_version,  # direct previous version
@@ -556,18 +558,20 @@ class Submission(BaseModel):
                 "downloaded_count": downloaded_count,
                 "is_new_submission": self._needs_review(),
                 "locked": self.locked,
-                "deficiency_sent_at": self.deficiency_sent_at.strftime(settings.API_DATETIME_FORMAT)
-                if self.deficiency_sent_at
-                else None,
+                "deficiency_sent_at": (
+                    self.deficiency_sent_at.strftime(settings.API_DATETIME_FORMAT)
+                    if self.deficiency_sent_at
+                    else None
+                ),
                 "created_at": self.created_at.strftime(settings.API_DATETIME_FORMAT),
                 "created_by": {
                     "id": str(self.created_by.id) if self.created_by else "",
                     "name": self.created_by.name if self.created_by else "",
                 },
                 "issued_by": self.issued_by.to_embedded_dict() if self.issued_by else None,
-                "received_from": self.received_from.to_embedded_dict()
-                if self.received_from
-                else None,
+                "received_from": (
+                    self.received_from.to_embedded_dict() if self.received_from else None
+                ),
                 "parent_id": str(self.parent_id) if self.parent_id else None,
                 "deficiency_notice_params": self.deficiency_notice_params,
                 "invitations": invitations,
@@ -604,27 +608,31 @@ class Submission(BaseModel):
             "status": self.status.to_dict() if self.status else {},
             "case": case_dict,
             "version": self.version,
-            "sent_at": self.sent_at.strftime(settings.API_DATETIME_FORMAT)
-            if self.sent_at
-            else None,
-            "received_at": self.received_at.strftime(settings.API_DATETIME_FORMAT)
-            if self.received_at
-            else None,
+            "sent_at": (
+                self.sent_at.strftime(settings.API_DATETIME_FORMAT) if self.sent_at else None
+            ),
+            "received_at": (
+                self.received_at.strftime(settings.API_DATETIME_FORMAT)
+                if self.received_at
+                else None
+            ),
             "due_at": self.due_at.strftime(settings.API_DATETIME_FORMAT) if self.due_at else None,
             "organisation": organisation,
             "organisation_name": self.organisation_name,
             "organisation_case_role": org_case_role.to_dict() if org_case_role else None,
-            "organisation_case_role_outer": org_case_role_outer.to_dict(self.case)
-            if org_case_role_outer
-            else None,
+            "organisation_case_role_outer": (
+                org_case_role_outer.to_dict(self.case) if org_case_role_outer else None
+            ),
             "is_tra": str(self.organisation and self.organisation.id) == TRA_ORGANISATION_ID,
             "tra_editable": created_by_tra or not (self.status and self.status.default),
-            "issued_at": self.issued_at.strftime(settings.API_DATETIME_FORMAT)
-            if self.issued_at
-            else None,
-            "last_modified": self.last_modified.strftime(settings.API_DATETIME_FORMAT)
-            if self.last_modified
-            else None,
+            "issued_at": (
+                self.issued_at.strftime(settings.API_DATETIME_FORMAT) if self.issued_at else None
+            ),
+            "last_modified": (
+                self.last_modified.strftime(settings.API_DATETIME_FORMAT)
+                if self.last_modified
+                else None
+            ),
             "locked": self.locked,
             "created_at": self.created_at.strftime(settings.API_DATETIME_FORMAT),
         }
@@ -795,9 +803,9 @@ class Submission(BaseModel):
             "tra_contact_name": "us",
             "submission_type": self.type.name,
             "login_url": public_login_url(),
-            "deadline": self.due_at.strftime(settings.FRIENDLY_DATE_FORMAT)
-            if self.due_at
-            else "N/A",
+            "deadline": (
+                self.due_at.strftime(settings.FRIENDLY_DATE_FORMAT) if self.due_at else "N/A"
+            ),
         }
         if context:
             values.update(context)

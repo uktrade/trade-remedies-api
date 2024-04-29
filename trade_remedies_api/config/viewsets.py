@@ -62,9 +62,9 @@ class BaseModelViewSet(viewsets.ModelViewSet):
             f"API V2 - {self.action} operation",
             extra={
                 "user": request.user.id,
-                "model": self.serializer_class.Meta.model.__name__
-                if self.serializer_class
-                else "N/A",
+                "model": (
+                    self.serializer_class.Meta.model.__name__ if self.serializer_class else "N/A"
+                ),
                 "id": object_id,
                 "view": self.__class__.__name__,
                 "url": self.request.path,

@@ -40,12 +40,14 @@ class Notice(models.Model, CaseOrNotice):
             "id": str(self.id),
             "name": self.name,
             "reference": self.reference,
-            "published_at": self.published_at.strftime(settings.API_DATE_FORMAT)
-            if self.published_at
-            else None,
-            "terminated_at": self.terminated_at.strftime(settings.API_DATE_FORMAT)
-            if self.terminated_at
-            else None,
+            "published_at": (
+                self.published_at.strftime(settings.API_DATE_FORMAT) if self.published_at else None
+            ),
+            "terminated_at": (
+                self.terminated_at.strftime(settings.API_DATE_FORMAT)
+                if self.terminated_at
+                else None
+            ),
             "case_type": self.case_type.to_embedded_dict() if self.case_type else None,
             "review_case": self.review_case._to_minimal_dict() if self.review_case else None,
         }

@@ -463,9 +463,11 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         if contact:
             return {
                 "address": contact.address,
-                "country": {"code": contact.country.code, "name": contact.country.name}
-                if contact.country
-                else {},
+                "country": (
+                    {"code": contact.country.code, "name": contact.country.name}
+                    if contact.country
+                    else {}
+                ),
                 "post_code": contact.post_code,
             }
         else:
@@ -964,19 +966,21 @@ class UserProfile(models.Model):
             "country_code": country.code if country else None,
             "phone": escape(self.contact.phone) if self.contact else None,
             "address": self.contact.address if self.contact else None,
-            "email_verified_at": self.email_verified_at.strftime(settings.API_DATETIME_FORMAT)
-            if self.email_verified_at
-            else None,
-            "email_verify_code_last_sent": self.email_verify_code_last_sent.strftime(
-                settings.API_DATETIME_FORMAT
-            )
-            if self.email_verify_code_last_sent
-            else None,
+            "email_verified_at": (
+                self.email_verified_at.strftime(settings.API_DATETIME_FORMAT)
+                if self.email_verified_at
+                else None
+            ),
+            "email_verify_code_last_sent": (
+                self.email_verify_code_last_sent.strftime(settings.API_DATETIME_FORMAT)
+                if self.email_verify_code_last_sent
+                else None
+            ),
             "timezone": str(self.timezone) if self.timezone else None,
             "colour": self.colour,
-            "job_title": {"id": self.job_title.id, "name": self.job_title.name}
-            if self.job_title
-            else None,
+            "job_title": (
+                {"id": self.job_title.id, "name": self.job_title.name} if self.job_title else None
+            ),
             # todo: We don't need this - esp if we don't allow multiple orgs/user
             "organisations": [orguser.to_embedded_dict() for orguser in self.organisations],
         }

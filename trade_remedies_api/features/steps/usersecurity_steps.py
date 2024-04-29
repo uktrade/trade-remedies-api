@@ -1,6 +1,7 @@
 """
 Implement behave test steps for user security tests.
 """
+
 from behave import given, when, then
 from core.models import User
 from organisations.models import Organisation

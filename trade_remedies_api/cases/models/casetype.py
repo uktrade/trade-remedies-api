@@ -33,9 +33,9 @@ class CaseType(models.Model):
             "colour": self.colour,
             "internal": self.internal,
             "meta": self.meta,
-            "workflow": {"id": str(self.workflow.id), "name": self.workflow.name}
-            if self.workflow
-            else {},
+            "workflow": (
+                {"id": str(self.workflow.id), "name": self.workflow.name} if self.workflow else {}
+            ),
         }
 
     def to_embedded_dict(self):

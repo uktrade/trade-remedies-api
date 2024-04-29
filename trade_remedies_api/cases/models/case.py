@@ -106,9 +106,9 @@ class CaseOrNotice:
                 if end_date and now > end_date:
                     status = "after_end"
                 review_dict["dates"] = {
-                    "start": start_date.strftime(settings.API_DATETIME_FORMAT)
-                    if start_date
-                    else None,
+                    "start": (
+                        start_date.strftime(settings.API_DATETIME_FORMAT) if start_date else None
+                    ),
                     "end": end_date.strftime(settings.API_DATETIME_FORMAT) if end_date else None,
                     "status": status,
                 }
@@ -691,9 +691,11 @@ class Case(BaseModel, CaseOrNotice):
                 "decision_to_initiate": self.decision_to_initiate,
                 "evidence_of_subsidy": self.evidence_of_subsidy,
                 "notice_of_initiation_url": self.latest_notice_of_initiation_url,
-                "submitted_at": self.submitted_at.strftime(settings.API_DATETIME_FORMAT)
-                if self.submitted_at
-                else None,
+                "submitted_at": (
+                    self.submitted_at.strftime(settings.API_DATETIME_FORMAT)
+                    if self.submitted_at
+                    else None
+                ),
                 "participant_count": self.participant_count,
                 "manager": manager.user.to_embedded_dict() if manager else {},
                 "product": product.to_dict() if product else {},
@@ -745,16 +747,22 @@ class Case(BaseModel, CaseOrNotice):
             {
                 "type": self.type.to_embedded_dict(),
                 "stage": self.stage.to_embedded_dict() if self.stage else None,
-                "archived_at": self.archived_at.strftime(settings.API_DATETIME_FORMAT)
-                if self.archived_at
-                else None,
-                "created_at": self.created_at.strftime(settings.API_DATETIME_FORMAT)
-                if self.created_at
-                else None,
+                "archived_at": (
+                    self.archived_at.strftime(settings.API_DATETIME_FORMAT)
+                    if self.archived_at
+                    else None
+                ),
+                "created_at": (
+                    self.created_at.strftime(settings.API_DATETIME_FORMAT)
+                    if self.created_at
+                    else None
+                ),
                 "user_organisations": [],
-                "initiated_at": self.initiated_at.strftime(settings.API_DATETIME_FORMAT)
-                if self.initiated_at
-                else None,
+                "initiated_at": (
+                    self.initiated_at.strftime(settings.API_DATETIME_FORMAT)
+                    if self.initiated_at
+                    else None
+                ),
                 "registration_deadline": self.registration_deadline,
                 "case_status": self.get_status(),
                 "organisation": organisation.to_dict() if organisation else _applicant_dict,

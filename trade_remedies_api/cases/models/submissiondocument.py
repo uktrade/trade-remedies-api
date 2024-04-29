@@ -90,9 +90,11 @@ class SubmissionDocument(SimpleBaseModel):
                 "sufficient": self.sufficient,
                 "needs_review": self.needs_review,
                 "issued": self.issued,
-                "issued_at": self.issued_at.strftime(settings.API_DATETIME_FORMAT)
-                if self.issued_at
-                else None,
+                "issued_at": (
+                    self.issued_at.strftime(settings.API_DATETIME_FORMAT)
+                    if self.issued_at
+                    else None
+                ),
                 "issued_by": self.issued_by.to_embedded_dict() if self.issued_by else None,
                 "downloadable": self.downloadable_by(user) if user else None,
             }
