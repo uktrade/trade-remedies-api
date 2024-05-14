@@ -1,5 +1,6 @@
 import importlib
 
+import sentry_sdk
 from django.conf import settings
 from sentry_sdk import set_user
 import time
@@ -67,4 +68,22 @@ class StatsMiddleware(MiddlewareMixin):
         duration = round(time.time() - start_time, 2)
         response["X-Page-Generation-Duration-ms"] = duration
         print(f"{request.path} generation took {duration}s")
+        return response
+
+
+class TrackForbiddenMiddleware:
+    """
+    Middleware to track forbidden requests
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        if response.status_code == 403:
+            # Track forbidden requests
+            sentry_sdk.capture_message(
+                f"URL is forbidden, {request.path}, {response.content}, {request.user.email}"
+            )
         return response
