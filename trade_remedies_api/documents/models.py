@@ -169,10 +169,10 @@ class DocumentManager(models.Manager):
         document.save()
         if index_and_checksum:
             if settings.RUN_ASYNC:
-                index_document.delay(str(document.id), case_id=case.id if case else None)
+                # index_document.delay(str(document.id), case_id=case.id if case else None)
                 checksum_document.delay(str(document.id))
             else:
-                index_document(str(document.id), case_id=case.id if case else None)
+                # index_document(str(document.id), case_id=case.id if case else None)
                 checksum_document(str(document.id))
         return document
 
