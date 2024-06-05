@@ -537,10 +537,7 @@ class Organisation(BaseModel):
                     q_objects |= models.Q(**query)
 
             # filter by reg_number and post_code, removing special characters
-            ignore_special_character_fields = (
-                "companies_house_id",
-                "post_code",
-            )
+            ignore_special_character_fields = ("companies_house_id",)
 
             for field in ignore_special_character_fields:
                 value = getattr(self, field)
@@ -1208,6 +1205,7 @@ class Organisation(BaseModel):
                 "created_by",
                 "updated_by",
                 "country",
+                "post_code",
             ]:
                 continue
             parent_value = getattr(self, field.name, None)
