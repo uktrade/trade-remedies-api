@@ -53,3 +53,9 @@ Tests (including BDD testing) should be invoked from the
 
 ## Fitness Functions
 ![Current fitness metrics for TRSV2](fitness/fitness_metrics_graph.png)
+
+### Infrastructure model
+![Infrastructure main model](.infragenie/infrastructure_main_model.svg)
+- [api component model](.infragenie/api_component_model.svg)
+
+---
