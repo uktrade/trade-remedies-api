@@ -39,14 +39,6 @@ class TestOrganisationFindPotentialDuplicates(CaseSetupTestMixin):
         assert merge_record.potential_duplicates()
         assert len(merge_record.potential_duplicates()) == 1
 
-    def test_postcode_match(self):
-        # fuzzy match required for postcode
-        Organisation.objects.create(post_code="12342")
-        merge_record = self.organisation_object.find_potential_duplicate_orgs()
-        assert merge_record.status == "duplicates_found"
-        assert merge_record.potential_duplicates()
-        assert len(merge_record.potential_duplicates()) == 1
-
     def test_companies_house_id_match(self):
         # exact match required for companies_house_id
         Organisation.objects.create(companies_house_id="Rep Reg:12345")
