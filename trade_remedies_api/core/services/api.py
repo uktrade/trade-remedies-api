@@ -123,6 +123,8 @@ class UserApiView(TradeRemediesApiView):
                 User.objects.exclude(groups__name=SECURITY_GROUP_SUPER_USER)
                 .exclude(userprofile__isnull=True)
                 .exclude(deleted_at__isnull=False)
+                .select_related("userprofile", "twofactorauth")
+                .prefetch_related("groups", "usercase_set", "organisationuser_set")
             )
             if groups:
                 users = users.filter(groups__name__in=groups)
