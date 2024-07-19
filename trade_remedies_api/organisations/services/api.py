@@ -543,9 +543,16 @@ class OrganisationCaseRoleAPI(TradeRemediesApiView):
         sampled = request.data.get("sampled", "true") == "true"
         organisation = Organisation.objects.get(id=organisation_id)
         case = Case.objects.get(id=case_id)
-        case_role, _ = OrganisationCaseRole.objects.get_or_create(
-            case=case, organisation=organisation
-        )
+
+        if role_key:
+            role = CaseRole.objects.get(key=role_key)
+            case_role, _ = OrganisationCaseRole.objects.get_or_create(
+                case=case, organisation=organisation, role=role
+            )
+        else:
+            case_role, _ = OrganisationCaseRole.objects.get_or_create(
+                case=case, organisation=organisation
+            )
 
         # Add/update LOA contact
         if self.post_type == "loa":
