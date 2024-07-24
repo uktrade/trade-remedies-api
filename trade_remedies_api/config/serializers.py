@@ -13,7 +13,6 @@ from rest_framework.fields import (
     SkipField,
     empty,
     get_error_detail,
-    set_value,
 )
 from rest_framework.settings import api_settings
 
@@ -137,7 +136,7 @@ class CustomValidationSerializer(DynamicFieldsMixinIDAlways, DynamicFieldsModelS
             except SkipField:
                 pass
             else:
-                set_value(ret, field.source_attrs, validated_value)
+                self.set_value(ret, field.source_attrs, validated_value)
 
         if errors:
             self.error_list.update(errors)
