@@ -10,7 +10,6 @@ from .api import (
 )
 from .ch_proxy import CompaniesHouseApiSearch
 from core.services.v2.feature_flags.views import FlagViewSet
-from core.services.v2.users.views import ContactViewSet, UserViewSet
 
 urlpatterns = [
     path("systemparam/", SystemParameterApiView.as_view()),
@@ -23,6 +22,5 @@ urlpatterns = [
 
 router = routers.SimpleRouter()
 router.register("django-feature-flags", FlagViewSet, basename="django-feature-flags")
-# router.register("users", UserViewSet)
 
 urlpatterns += router.urls
