@@ -207,7 +207,6 @@ router.register(
 router.register(
     f"{settings.API_V2_PREFIX}/document_bundles", DocumentBundleViewSet, basename="document_bundles"
 )
-router.register(f"{settings.API_V2_PREFIX}/submissions", SubmissionViewSet, basename="submissions")
 router.register(f"{settings.API_V2_PREFIX}/invitations", InvitationViewSet, basename="invitations")
 router.register(f"{settings.API_V2_PREFIX}/users", UserViewSet, basename="users")
 router.register(f"{settings.API_V2_PREFIX}/contacts", ContactViewSet, basename="contacts")
