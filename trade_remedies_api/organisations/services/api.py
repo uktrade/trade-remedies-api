@@ -547,7 +547,7 @@ class OrganisationCaseRoleAPI(TradeRemediesApiView):
         if role_key:
             role = CaseRole.objects.get(key=role_key)
             case_role, _ = OrganisationCaseRole.objects.get_or_create(
-                case=case, organisation=organisation, role=role
+                case=case, organisation=organisation, defaults={"role": role}
             )
         else:
             case_role, _ = OrganisationCaseRole.objects.get_or_create(
