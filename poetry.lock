@@ -3014,16 +3014,18 @@ six = ">=1.5"
 
 [[package]]
 name = "python-docx"
-version = "0.8.10"
-description = "Create and update Microsoft Word .docx files."
+version = "1.1.2"
+description = "Create, read, and update Microsoft Word .docx files."
 optional = false
-python-versions = "*"
+python-versions = ">=3.7"
 files = [
-    {file = "python-docx-0.8.10.tar.gz", hash = "sha256:bc76ecac6b2d00ce6442a69d03a6f35c71cd72293cd8405a7472dfe317920024"},
+    {file = "python_docx-1.1.2-py3-none-any.whl", hash = "sha256:08c20d6058916fb19853fcf080f7f42b6270d89eac9fa5f8c15f691c0017fabe"},
+    {file = "python_docx-1.1.2.tar.gz", hash = "sha256:0cf1f22e95b9002addca7948e16f2cd7acdfd498047f1941ca5d293db7762efd"},
 ]
 
 [package.dependencies]
-lxml = ">=2.3.2"
+lxml = ">=3.1.0"
+typing-extensions = ">=4.9.0"
 
 [[package]]
 name = "python-pptx"
@@ -3674,4 +3676,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "d864295abad8386c474b0d0d3d49fef49cfac542547c2937ccff40af1f18afd5"
+content-hash = "1c26761b7ebe046b590c6e8c67b9eb049980dc706f3b08d4397aa252d80a472f"
