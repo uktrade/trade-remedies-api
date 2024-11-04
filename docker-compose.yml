@@ -1,45 +1,25 @@
 version: "3"
 services:
-  api:
-    build:
-       context: .
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./trade_remedies_api:/app/
-      - ./requirements.in:/app/requirements.in/
-      - ./requirements:/app/requirements/
-    env_file:
-      - local.env
-    command: python manage.py runserver 0.0.0.0:8000
-    environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.local
   celery:
     build:
        context: .
     command: celery -A config worker -l DEBUG
     volumes:
       - ./trade_remedies_api:/app/
+      - ./requirements-dev.txt:/requirements.txt
     env_file:
       - local.env
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.local
       - DATABASE_URL=psql://postgres:postgres@postgres:5432/trade_remedies
-  apitest:
-    build:
-       context: .
-    ports:
-      - "8003:8000"
-    volumes:
-      - ./trade_remedies_api:/app/
-    env_file:
-      - local.env
-    command: python manage.py runserver 0.0.0.0:8000
-    environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.bdd
-      - DATABASE_URL=psql://postgres:postgres@postgres:5432/trade_remedies_api_test
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    platform: linux/amd64
   postgres:
-    image: postgres:12
+    image: postgres:17
     ports:
       - "5432:5432"
     volumes:
@@ -48,8 +28,13 @@ services:
     environment:
       POSTGRES_DB: trade_remedies
       POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 2s
+      timeout: 2s
+      retries: 5
   redis:
-    image: redis:alpine
+    image: redis:7.4.1
     ports:
       - "6379:6379"
   opensearch:
@@ -61,4 +46,4 @@ services:
     environment:
       - discovery.type=single-node
       - plugins.security.disabled=true
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=odR$YG8t$fcLe5X3
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=6wJYrLCtWOwffg41
