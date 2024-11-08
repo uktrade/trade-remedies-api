@@ -13,6 +13,7 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from config.feature_flags import is_user_part_of_group
+from config.env import env
 
 # We use django-environ but do not read a `.env` file. Locally we feed
 # docker-compose an environment from a local.env file in the project root.
@@ -23,9 +24,6 @@ from config.feature_flags import is_user_part_of_group
 # configured deployment.
 
 root = environ.Path(__file__) - 4
-env = environ.Env(
-    DEBUG=(bool, False),
-)
 
 
 def strip_sensitive_data(event, hint):
@@ -42,9 +40,9 @@ def strip_sensitive_data(event, hint):
     return event
 
 
-SENTRY_ENVIRONMENT = env.str("SENTRY_ENVIRONMENT", default="local")
+SENTRY_ENVIRONMENT = env.SENTRY_ENVIRONMENT
 sentry_sdk.init(
-    dsn=env("SENTRY_DSN", default=""),
+    dsn=env.SENTRY_DSN,
     integrations=[DjangoIntegration(), CeleryIntegration()],
     environment=SENTRY_ENVIRONMENT,
     before_send=strip_sensitive_data,
@@ -56,11 +54,11 @@ SITE_ROOT = root()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Must be provided by the environment
-SECRET_KEY = env("DJANGO_SECRET_KEY")
+SECRET_KEY = env.DJANGO_SECRET_KEY
 
-DEBUG = env("DEBUG", default=False)
-DJANGO_ADMIN = env("DJANGO_ADMIN", default=False)
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
+DEBUG = env.DEBUG
+DJANGO_ADMIN = env.DJANGO_ADMIN
+ALLOWED_HOSTS = env.get_allowed_hosts()
 
 PASSWORD_RESET_TIMEOUT = 86400
 
@@ -154,24 +152,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 _VCAP_SERVICES = env.json("VCAP_SERVICES", default={})
 
-if "postgres" in _VCAP_SERVICES:
-    _database_uri = f"{_VCAP_SERVICES['postgres'][0]['credentials']['uri']}"
-    DATABASES = {
-        "default": {
-            **dj_database_url.parse(
-                _database_uri,
-                engine="postgresql",
-                conn_max_age=0,
-            ),
-            "ENGINE": "django_db_geventpool.backends.postgresql_psycopg2",
-            "OPTIONS": {
-                "MAX_CONNS": env("DB_MAX_CONNS", default=10),
-            },
-        }
-    }
-else:
-    default_database = env.db()
-    DATABASES = {"default": default_database}
+DATABASES = env.get_database_config()
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -212,8 +193,8 @@ STATICFILES_FINDERS = [
 STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, "..", "static"))
 STATIC_URL = "/static/"
 
-PUBLIC_ROOT_URL = env("PUBLIC_ROOT_URL", default="http://localhost:8001")
-CASEWORKER_ROOT_URL = env("CASEWORKER_ROOT_URL", default="http://localhost:8002")
+PUBLIC_ROOT_URL = env.PUBLIC_ROOT_URL
+CASEWORKER_ROOT_URL = env.CASEWORKER_ROOT_URL
 
 API_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 REST_FRAMEWORK = {
@@ -235,14 +216,14 @@ REST_FRAMEWORK = {
 # Caseworker: 1
 # Public:     2
 # Celery:     3
-REDIS_DATABASE_NUMBER = env("REDIS_DATABASE_NUMBER", default=0)
-CELERY_DATABASE_NUMBER = env("CELERY_DATABASE_NUMBER", default=3)
+REDIS_DATABASE_NUMBER = env.REDIS_DATABASE_NUMBER
+CELERY_DATABASE_NUMBER = env.CELERY_DATABASE_NUMBER
 if "redis" in _VCAP_SERVICES:
     uri = _VCAP_SERVICES["redis"][0]["credentials"]["uri"]
     REDIS_BASE_URL = uri
     CELERY_BROKER_URL = f"{uri}/{CELERY_DATABASE_NUMBER}?ssl_cert_reqs=required"
 else:
-    REDIS_BASE_URL = env("REDIS_BASE_URL", default="redis://redis:6379")
+    REDIS_BASE_URL = env.get_redis_url()
     uri = env("CELERY_BROKER_URL", default="redis://redis:6379")
     CELERY_BROKER_URL = f"{uri}/{CELERY_DATABASE_NUMBER}"
 
@@ -256,17 +237,17 @@ CACHES = {
     },
 }
 
-CELERY_TASK_ALWAYS_EAGER = env("CELERY_TASK_ALWAYS_EAGER", default=False)
+CELERY_TASK_ALWAYS_EAGER = env.CELERY_TASK_ALWAYS_EAGER
 CELERY_WORKER_LOG_FORMAT = "[%(asctime)s: %(levelname)s/%(processName)s] [%(name)s] %(message)s"
 
 # Axes
-AXES_ENABLED = env("AXES_ENABLED", default=True)
+AXES_ENABLED = env.AXES_ENABLED
 # Axes sits behind a proxy
 AXES_BEHIND_REVERSE_PROXY = True
 # Number of login/2fa attempts
-AXES_FAILURE_LIMIT = env("AXES_FAILURE_LIMIT", default=3)
+AXES_FAILURE_LIMIT = env.AXES_FAILURE_LIMIT
 # Number of hours for failed login lock cool-off
-AXES_COOLOFF_TIME = datetime.timedelta(minutes=env("FAILED_LOGIN_COOLOFF", default=10))
+AXES_COOLOFF_TIME = datetime.timedelta(env.FAILED_LOGIN_COOLOFF)
 # Tell Axes the username field is 'email'
 AXES_USERNAME_FORM_FIELD = "email"
 # Reset the lock count on successful login
@@ -282,8 +263,8 @@ AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
 
 # Opensearch host and port. OPENSEARCH HOST/PORT are offered as
 # fallback when VCAP is not set by the environment
-OPENSEARCH_HOST = env("OPENSEARCH_HOST", default=None)
-OPENSEARCH_PORT = env("OPENSEARCH_PORT", default=None)
+OPENSEARCH_HOST = env.OPENSEARCH_HOST
+OPENSEARCH_PORT = env.OPENSEARCH_PORT
 OPENSEARCH_URI = None
 opensearch_vcap_config = _VCAP_SERVICES.get("opensearch")
 if opensearch_vcap_config:
@@ -319,35 +300,35 @@ LOGGING = {
     },
     "root": {
         "handlers": ["stdout"],
-        "level": env("ROOT_LOG_LEVEL", default="INFO"),
+        "level": env.ROOT_LOG_LEVEL,
     },
     "loggers": {
         "django": {
             "handlers": [
                 "stdout",
             ],
-            "level": env("DJANGO_LOG_LEVEL", default="INFO"),
+            "level": env.DJANGO_LOG_LEVEL,
             "propagate": False,
         },
         "django.server": {
             "handlers": [
                 "stdout",
             ],
-            "level": env("DJANGO_SERVER_LOG_LEVEL", default="INFO"),
+            "level": env.DJANGO_SERVER_LOG_LEVEL,
             "propagate": False,
         },
         "django.request": {
             "handlers": [
                 "stdout",
             ],
-            "level": env("DJANGO_REQUEST_LOG_LEVEL", default="INFO"),
+            "level": env.DJANGO_REQUEST_LOG_LEVEL,
             "propagate": False,
         },
         "django.db.backends": {
             "handlers": [
                 "stdout",
             ],
-            "level": env("DJANGO_DB_LOG_LEVEL", default="INFO"),
+            "level": env.DJANGO_DB_LOG_LEVEL,
             "propagate": False,
         },
     },
@@ -360,8 +341,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 # ------------------------------------------------------------------------------
 API_PREFIX = "api/v1"
 API_V2_PREFIX = "api/v2"
-API_V2_ENABLED = env.bool("API_V2_ENABLED", default=False)
-AUTH_TOKEN_MAX_AGE_MINUTES = env.int("AUTH_TOKEN_MAX_AGE_MINUTES", default=60)
+API_V2_ENABLED = env.API_V2_ENABLED
+AUTH_TOKEN_MAX_AGE_MINUTES = env.AUTH_TOKEN_MAX_AGE_MINUTES
 if API_V2_ENABLED:
     AUTH_USER_MODEL = "authentication.User"
     ANON_USER_TOKEN = "change-me"
@@ -378,10 +359,13 @@ ORGANISATION_NAME = env("ORGANISATION_NAME", default="Organisation name placehol
 ORGANISATION_INITIALISM = env("ORGANISATION_INITIALISM", default="PLACEHOLDER")
 
 # AWS
-AWS_ACCESS_KEY_ID = AWS_S3_ACCESS_KEY_ID = env("S3_STORAGE_KEY", default=None)
-AWS_SECRET_ACCESS_KEY = AWS_S3_SECRET_ACCESS_KEY = env("S3_STORAGE_SECRET", default=None)
-AWS_STORAGE_BUCKET_NAME = env("S3_BUCKET_NAME", default=None)
-AWS_S3_REGION_NAME = env("AWS_REGION", default="eu-west-2")
+AWS_ACCESS_KEY_ID = AWS_S3_ACCESS_KEY_ID = env.S3_STORAGE_KEY
+AWS_SECRET_ACCESS_KEY = AWS_S3_SECRET_ACCESS_KEY = env.S3_STORAGE_SECRET
+
+app_bucket_creds = env.get_s3_bucket_config()
+
+AWS_STORAGE_BUCKET_NAME = app_bucket_creds.get("bucket_name")
+AWS_S3_REGION_NAME = app_bucket_creds.get("aws_region")
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_ENCRYPTION = True
 # S3 client library to use
@@ -389,18 +373,18 @@ S3_CLIENT = "boto3"
 # S3 Root directory name
 S3_DOCUMENT_ROOT_DIRECTORY = "documents"
 # Time before S3 download links expire
-S3_DOWNLOAD_LINK_EXPIRY_SECONDS = env.int("S3_DOWNLOAD_LINK_EXPIRY_SECONDS", default=3600)
+S3_DOWNLOAD_LINK_EXPIRY_SECONDS = env.S3_DOWNLOAD_LINK_EXPIRY_SECONDS
 # Max upload size - 2GB
 MAX_UPLOAD_SIZE = 2 * (1024 * 1024 * 1024)
 # FILE DOWNLOAD CHUNK SIZE
 STREAMING_CHUNK_SIZE = 8192
 # Max life of password reset code in hours
-PASSWORD_RESET_CODE_AGE_HOURS = env("PASSWORD_RESET_CODE_AGE", default=2)
+PASSWORD_RESET_CODE_AGE_HOURS = env.PASSWORD_RESET_CODE_AGE
 
 # Two factor authentication is mandated
-TWO_FACTOR_AUTH_REQUIRED = env.bool("TWO_FACTOR_AUTH_REQUIRED", default=True)
+TWO_FACTOR_AUTH_REQUIRED = env.TWO_FACTOR_AUTH_REQUIRED
 # Two factor authentication validity duration in days
-TWO_FACTOR_AUTH_VALID_DAYS = env("TWO_FACTOR_AUTH_VALID_DAYS", default=14)
+TWO_FACTOR_AUTH_VALID_DAYS = env.TWO_FACTOR_AUTH_VALID_DAYS
 # Lockout time for two factor failures
 TWO_FACTOR_LOCK_MINUTES = 5
 # Two factor authentication code validity (SMS delivery type) in minutes
@@ -410,7 +394,7 @@ TWO_FACTOR_CODE_EMAIL_VALID_MINUTES = 20
 # Number of two factor authentication attempts allowed before locking
 TWO_FACTOR_MAX_ATTEMPTS = 3
 # How long do users have to wait before users can request another 2fa code (SECONDS)
-TWO_FACTOR_RESEND_TIMEOUT_SECONDS = env("TWO_FACTOR_RESEND_TIMEOUT_SECONDS", default=20)
+TWO_FACTOR_RESEND_TIMEOUT_SECONDS = env.TWO_FACTOR_RESEND_TIMEOUT_SECONDS
 
 # Time to cache method
 METHOD_CACHE_DURATION_MINUTES = 2
@@ -425,12 +409,12 @@ EMAIL_VERIFY_CODE_REGENERATE_TIMEOUT = 15
 SECRETARY_OF_STATE_ORGANISATION_ID = "8850d091-e119-4ab5-9e21-ede5f0112bef"
 
 # Companies House API
-COMPANIES_HOUSE_API_KEY = env("COMPANIES_HOUSE_API_KEY", default=None)
+COMPANIES_HOUSE_API_KEY = env.COMPANIES_HOUSE_API_KEY
 
 # GOV Notify
-GOV_NOTIFY_API_KEY = env.str("GOV_NOTIFY_API_KEY", default=None)
-GOV_NOTIFY_TESTING_KEY = env.str("GOV_NOTIFY_TESTING_KEY", default=None)
-DISABLE_NOTIFY_WHITELIST = env.bool("DISABLE_NOTIFY_WHITELIST", default=False)
+GOV_NOTIFY_API_KEY = env.GOV_NOTIFY_API_KEY
+GOV_NOTIFY_TESTING_KEY = env.GOV_NOTIFY_TESTING_KEY
+DISABLE_NOTIFY_WHITELIST = env.DISABLE_NOTIFY_WHITELIST
 
 # ------------------------------------------------------------------------------
 # The Crud Zone - things likely to be refactored out.
@@ -439,15 +423,15 @@ API_DATE_FORMAT = "%Y-%m-%d"
 FRIENDLY_DATE_FORMAT = "%-d %B %Y"
 API_CACHE_TIMEOUT = 3  # Cache timeout in minutes
 DEFAULT_QUERYSET_PAGE_SIZE = 20
-TRUSTED_USER_EMAIL = env("HEALTH_CHECK_USER_EMAIL")
-RUN_ASYNC = env.bool("RUN_ASYNC", default=True)
+TRUSTED_USER_EMAIL = env.HEALTH_CHECK_USER_EMAIL
+RUN_ASYNC = env.RUN_ASYNC
 # The ENVIRONMENT_KEY settings are superfluous (they sought to link Public/CW
 # portal calls to a "security group"), because we plan to use django-guardian
 # for object level permissions. In the new `authentication` package we will
 # only expect ANON_USER_TOKEN in the request, meaning only bearers of THAT
 # token will be allowed to use any unauthenticated views (e.g. `/auth/login`).
-CASE_WORKER_ENVIRONMENT_KEY = env("CASE_WORKER_ENVIRONMENT_KEY")
-PUBLIC_ENVIRONMENT_KEY = env("PUBLIC_ENVIRONMENT_KEY")
+CASE_WORKER_ENVIRONMENT_KEY = env.CASE_WORKER_ENVIRONMENT_KEY
+PUBLIC_ENVIRONMENT_KEY = env.PUBLIC_ENVIRONMENT_KEY
 # Allowed origins
 ALLOWED_ORIGINS = (CASE_WORKER_ENVIRONMENT_KEY, PUBLIC_ENVIRONMENT_KEY)
 # Days of registration window for a case
@@ -456,8 +440,8 @@ CASE_REGISTRATION_DURATION = 15
 # So much wrong with this - and operational assurance is taken care of by SRE
 # capabilities like ELK and Grafana (and visible to devs in prod, which this
 # is not). Bin it.
-GECKOBOARD_API_KEY = env("GECKOBOARD_API_KEY", default=None)
-GECKOBOARD_ENV = env("GECKOBOARD_ENV", default="dev")
+GECKOBOARD_API_KEY = env.GECKOBOARD_API_KEY
+GECKOBOARD_ENV = env.GECKOBOARD_ENV
 
 # Variable so we know if we're running in testing mode or not, this is True in the test.py settings
 TESTING = False
@@ -479,34 +463,32 @@ FLAGS = {
 }
 
 # ------------------- GOV.NOTIFY AUDIT COPY EMAILS -------------------
-AUDIT_EMAIL_ENABLED = env.bool("AUDIT_EMAIL_ENABLED", False)
-AUDIT_EMAIL_GIVE_UP_SECONDS = env.int("AUDIT_EMAIL_GIVE_UP_SECONDS", default=259200)
-AUDIT_EMAIL_RETRY_COUNTDOWN = env.int("AUDIT_EMAIL_RETRY_COUNTDOWN", default=1200)
-AUDIT_EMAIL_FROM_ADDRESS = env.str(
-    "AUDIT_EMAIL_FROM_ADDRESS", default="notify.copy@traderemedies.gov.uk"  # /PS-IGNORE
-)
-AUDIT_EMAIL_FROM_NAME = env.str("AUDIT_EMAIL_FROM_NAME", default="TRS Notify Copy")
-AUDIT_EMAIL_IAM_USER = env.str("AUDIT_EMAIL_IAM_USER")
-AUDIT_EMAIL_SMTP_USERNAME = env.str("AUDIT_EMAIL_SMTP_USERNAME")
-AUDIT_EMAIL_SMTP_PASSWORD = env.str("AUDIT_EMAIL_SMTP_PASSWORD")
+AUDIT_EMAIL_ENABLED = env.AUDIT_EMAIL_ENABLED
+AUDIT_EMAIL_GIVE_UP_SECONDS = env.AUDIT_EMAIL_GIVE_UP_SECONDS
+AUDIT_EMAIL_RETRY_COUNTDOWN = env.AUDIT_EMAIL_RETRY_COUNTDOWN
+AUDIT_EMAIL_FROM_ADDRESS = env.AUDIT_EMAIL_FROM_ADDRESS
+AUDIT_EMAIL_FROM_NAME = env.AUDIT_EMAIL_FROM_NAME
+AUDIT_EMAIL_IAM_USER = env.AUDIT_EMAIL_IAM_USER
+AUDIT_EMAIL_SMTP_USERNAME = env.AUDIT_EMAIL_SMTP_USERNAME
+AUDIT_EMAIL_SMTP_PASSWORD = env.AUDIT_EMAIL_SMTP_PASSWORD
 AUDIT_EMAIL_SMTP_HOST = env.str(
     "AUDIT_EMAIL_SMTP_HOST", default=f"email-smtp.{AWS_S3_REGION_NAME}.amazonaws.com"
 )
 AUDIT_EMAIL_SMTP_PORT = env.int("AUDIT_EMAIL_SMTP_PORT", default=587)
-AUDIT_EMAIL_TO_ADDRESS = env.str("AUDIT_EMAIL_TO_ADDRESS")
+AUDIT_EMAIL_TO_ADDRESS = env.AUDIT_EMAIL_TO_ADDRESS
 
 # ------------------- API RATE LIMITING -------------------
-API_RATELIMIT_ENABLED = env.bool("API_RATELIMIT_ENABLED", default=False)
+API_RATELIMIT_ENABLED = env.API_RATELIMIT_ENABLED
 if API_RATELIMIT_ENABLED:
     MIDDLEWARE = MIDDLEWARE + [
         "django_ratelimit.middleware.RatelimitMiddleware",
     ]
-    API_RATELIMIT_RATE = env.str("API_RATELIMIT_RATE", default="500/m")
+    API_RATELIMIT_RATE = env.API_RATELIMIT_RATE
     RATELIMIT_VIEW = "config.ratelimit.ratelimited_error"
 
 # ------------------- API PROFILING -------------------
 PYINSTRUMENT_PROFILE_DIR = "profiles"
-PROFILING_ENABLED = env.bool("PROFILING_ENABLED", default=False)
+PROFILING_ENABLED = env.PROFILING_ENABLED
 if PROFILING_ENABLED:
     MIDDLEWARE = [
         "config.middleware.StatsMiddleware",
