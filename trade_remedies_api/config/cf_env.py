@@ -8,6 +8,7 @@ from pydantic_settings import BaseSettings
 
 env_obj = environ.Env()
 
+
 class VCAPServices(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -91,10 +92,9 @@ class CloudFoundrySettings(BaseSettings):
     VCAP_SERVICES: Optional[VCAPServices] = {}
     REDIS_BASE_URL: str = "redis://redis:6379"
 
-
     def get_allowed_hosts(self) -> list[str]:
         return self.ALLOWED_HOSTS.split(",") if self.ALLOWED_HOSTS else ["localhost"]
-    
+
     def get_database_config(self) -> dict:
         if "postgresql" in self.VCAP_SERVICES:
             _database_uri = f"{self.VCAP_SERVICES['postgres'][0]['credentials']['uri']}"
@@ -111,14 +111,15 @@ class CloudFoundrySettings(BaseSettings):
                     },
                 }
             }
-        return {
-            "default": env_obj.db()
-        }
+        return {"default": env_obj.db()}
 
     def get_s3_bucket_config(self) -> dict:
         """Return s3 bucket config that matches keys used in CF"""
-    
-        return {"aws_region": self.AWS_REGION, "bucket_name": self.S3_BUCKET_NAME or self.AWS_STORAGE_BUCKET_NAME}
+
+        return {
+            "aws_region": self.AWS_REGION,
+            "bucket_name": self.S3_BUCKET_NAME or self.AWS_STORAGE_BUCKET_NAME,
+        }
 
     def get_redis_url(self) -> str:
         if "redis" in self.VCAP_SERVICES:

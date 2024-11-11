@@ -15,7 +15,6 @@ class Settings(CloudFoundrySettings):
     celery_broker_url: str = Field(alias="celery_broker_url", default="")
     AWS_STORAGE_BUCKET_NAME: str
 
-
     def get_allowed_hosts(self) -> list[str]:
         return setup_allowed_hosts(self.ALLOWED_HOSTS)
 
@@ -42,8 +41,7 @@ class Settings(CloudFoundrySettings):
         return self.celery_broker_url
 
 
-class CircleCIEnvironment(Settings):
-    ...
+class CircleCIEnvironment(Settings): ...
 
 
 if is_copilot():
@@ -51,15 +49,15 @@ if is_copilot():
         # When building use the fake settings in .env.circleci
         env: Settings | CloudFoundrySettings = Settings(
             _env_file=".env.circleci", _env_file_encoding="utf-8"
-        ) # type: ignore[call-arg]
+        )  # type: ignore[call-arg]
 
     else:
         # when deployed read values from the environment variables
-        env = Settings() # type: ignore[call-arg]
+        env = Settings()  # type: ignore[call-arg]
 
 elif "CIRCLECI" in os.environ:
-    env = CircleCIEnvironment() # type: ignore[call-arg]
+    env = CircleCIEnvironment()  # type: ignore[call-arg]
 
 else:
     # Cloud Foundry environment
-    env = CloudFoundrySettings() # type: ignore[call-arg]
+    env = CloudFoundrySettings()  # type: ignore[call-arg]
