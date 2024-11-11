@@ -19,19 +19,19 @@ class VCAPServices(BaseModel):
 
 
 class CloudFoundrySettings(BaseSettings):
-    ALLOWED_HOSTS: Optional[str]
-    API_PORT: Optional[str] 
+    ALLOWED_HOSTS: str = ""
+    API_PORT: str = "8000"
     API_RATELIMIT_ENABLED: bool = False
     AUDIT_EMAIL_ENABLED: bool = False
     AUDIT_EMAIL_FROM_ADDRESS: str = "notify.copy@traderemedies.gov.uk"
     AUDIT_EMAIL_FROM_NAME: str = "TRS Notify Copy"
-    AUDIT_EMAIL_IAM_USER: Optional[str] 
-    AUDIT_EMAIL_SMTP_PASSWORD: Optional[str] 
-    AUDIT_EMAIL_SMTP_USERNAME: Optional[str] 
+    AUDIT_EMAIL_IAM_USER: Optional[str] = None
+    AUDIT_EMAIL_SMTP_PASSWORD: Optional[str] = None
+    AUDIT_EMAIL_SMTP_USERNAME: Optional[str] = None
     AUDIT_EMAIL_TO_ADDRESS: Optional[str] 
-    AV_SERVICE_PASSWORD: Optional[str]
-    AV_SERVICE_URL: Optional[str]
-    AV_SERVICE_USERNAME: Optional[str]
+    AV_SERVICE_PASSWORD: Optional[str] = None
+    AV_SERVICE_URL: Optional[str] = None
+    AV_SERVICE_USERNAME: Optional[str] = None
     AWS_REGION: str = "eu-west-2"
     CASEWORKER_ROOT_URL: str = "http://localhost:8002"
     CASE_WORKER_ENVIRONMENT_KEY: str
