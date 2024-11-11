@@ -15,12 +15,6 @@ commands:
             poetry export --with dev --without-hashes -f requirements.txt -o requirements-dev.txt
             pip install -r requirements-dev.txt
 
-  restore_dependency_cache:
-    description: "Restore dependency cache."
-    steps:
-      - restore_cache:
-          key: deps2-{{ .Branch }}-{{ checksum "requirements-dev.txt" }}
-
   save_dependency_cache:
     description: "Save dependency cache."
     steps:
@@ -28,6 +22,12 @@ commands:
           key: deps2-{{ .Branch }}-{{ checksum "requirements-dev.txt" }}
           paths:
             - "venv"
+
+  restore_dependency_cache:
+    description: "Restore dependency cache."
+    steps:
+      - restore_cache:
+          key: deps2-{{ .Branch }}-{{ checksum "requirements-dev.txt" }}
 
 jobs:
   code_quality:
