@@ -12,34 +12,34 @@ env_obj = environ.Env()
 class VCAPServices(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    postgres: list[dict[str, Any]]
-    redis: list[dict[str, Any]]
-    aws_s3_bucket: list[dict[str, Any]] = Field(alias="aws-s3-bucket")
-    opensearch: list[dict[str, Any]]
+    postgres: list[dict[str, Any]] = Field(alias="postgres", default=[])
+    redis: list[dict[str, Any]] = Field(alias="redis", default=[])
+    aws_s3_bucket: list[dict[str, Any]] = Field(alias="aws-s3-bucket", default=[])
+    opensearch: list[dict[str, Any]] = Field(alias="opensearch", default=[])
 
 
 class CloudFoundrySettings(BaseSettings):
-    ALLOWED_HOSTS: str
-    API_PORT: str
+    ALLOWED_HOSTS: Optional[str]
+    API_PORT: Optional[str] 
     API_RATELIMIT_ENABLED: bool = False
     AUDIT_EMAIL_ENABLED: bool = False
     AUDIT_EMAIL_FROM_ADDRESS: str = "notify.copy@traderemedies.gov.uk"
     AUDIT_EMAIL_FROM_NAME: str = "TRS Notify Copy"
-    AUDIT_EMAIL_IAM_USER: str
-    AUDIT_EMAIL_SMTP_PASSWORD: str
-    AUDIT_EMAIL_SMTP_USERNAME: str
-    AUDIT_EMAIL_TO_ADDRESS: str
-    AV_SERVICE_PASSWORD: str
-    AV_SERVICE_URL: str
-    AV_SERVICE_USERNAME: str
+    AUDIT_EMAIL_IAM_USER: Optional[str] 
+    AUDIT_EMAIL_SMTP_PASSWORD: Optional[str] 
+    AUDIT_EMAIL_SMTP_USERNAME: Optional[str] 
+    AUDIT_EMAIL_TO_ADDRESS: Optional[str] 
+    AV_SERVICE_PASSWORD: Optional[str]
+    AV_SERVICE_URL: Optional[str]
+    AV_SERVICE_USERNAME: Optional[str]
     AWS_REGION: str = "eu-west-2"
     CASEWORKER_ROOT_URL: str = "http://localhost:8002"
     CASE_WORKER_ENVIRONMENT_KEY: str
-    CELERY_LOGLEVEL: str
+    CELERY_LOGLEVEL: str = "INFO"
     COMPANIES_HOUSE_API_KEY: Optional[str] = None
     DB_MAX_CONNS: int = 10
     DEBUG: bool = False
-    DISABLE_COLLECTSTATIC: int
+    DISABLE_COLLECTSTATIC: int = 1
     DISABLE_NOTIFY_WHITELIST: bool = False
     DJANGO_ADMIN: bool = False
     DJANGO_DB_LOG_LEVEL: str = "INFO"
@@ -51,12 +51,12 @@ class CloudFoundrySettings(BaseSettings):
     FAILED_LOGIN_COOLOFF: int = 10
     GECKOBOARD_API_KEY: Optional[str] = None
     GOV_NOTIFY_API_KEY: Optional[str] = None
-    GUNICORN_WORKERS: int
-    GUNICORN_WORKER_CONNECTIONS: int
-    HEALTH_CHECK_USER_EMAIL: str
-    HEALTH_CHECK_USER_TOKEN: str
-    MASTER_ADMIN_EMAIL: str
-    MASTER_ADMIN_PASSWORD: str
+    GUNICORN_WORKERS: int = 1
+    GUNICORN_WORKER_CONNECTIONS: int = 10
+    HEALTH_CHECK_USER_EMAIL: str = "health_check@localhost"
+    HEALTH_CHECK_USER_TOKEN: str = "health_check_token"
+    MASTER_ADMIN_EMAIL: str = "admin@localhost"
+    MASTER_ADMIN_PASSWORD: str = "password"
     ORGANISATION_INITIALISM: str = "PLACEHOLDER"
     ORGANISATION_NAME: str = "Organisation name placeholder"
     PUBLIC_ENVIRONMENT_KEY: str
@@ -88,7 +88,7 @@ class CloudFoundrySettings(BaseSettings):
     AUDIT_EMAIL_RETRY_COUNTDOWN: int = 1200
     AUDIT_EMAIL_SMTP_PORT: int = 587
     API_RATELIMIT_RATE: str = "500/m"
-    PROFILING_ENABLED: str = False
+    PROFILING_ENABLED: bool = False
     VCAP_SERVICES: Optional[VCAPServices] = {}
     REDIS_BASE_URL: str = "redis://redis:6379"
 
