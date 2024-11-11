@@ -41,7 +41,8 @@ class Settings(CloudFoundrySettings):
         return self.celery_broker_url
 
 
-class CircleCIEnvironment(Settings): ...
+class CircleCIEnvironment(Settings): 
+    ...
 
 
 if is_copilot():
