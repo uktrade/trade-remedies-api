@@ -4,7 +4,6 @@ import datetime
 import os
 import sys
 
-import dj_database_url
 import environ
 import sentry_sdk
 from flags import conditions
@@ -266,7 +265,7 @@ AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
 OPENSEARCH_HOST = env.OPENSEARCH_HOST
 OPENSEARCH_PORT = env.OPENSEARCH_PORT
 OPENSEARCH_URI = None
-opensearch_vcap_config = _VCAP_SERVICES.get("opensearch")
+opensearch_vcap_config = _VCAP_SERVICES.opensearch
 if opensearch_vcap_config:
     OPENSEARCH_URI = opensearch_vcap_config[0]["credentials"]["uri"]
 # OpenSearch index mapping  by doc_type
