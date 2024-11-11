@@ -24,7 +24,7 @@ commands:
             - "venv"
 
 jobs:
-  restore-dependencies:
+  restore_dependencies:
     steps:
       - checkout
       - restore_cache:
