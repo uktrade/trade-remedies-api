@@ -31,7 +31,6 @@ commands:
           key: deps2-{{ .Branch }}-{{ checksum "requirements-dev.txt" }}
           paths:
             - "venv"
-            - "requirements-dev.txt"
 
 jobs:
   code_quality:
@@ -39,9 +38,9 @@ jobs:
       - image: cimg/python:3.9.5
     steps:
       - checkout
-      - restore_dependency_cache
+      # - restore_dependency_cache
       - install_dependencies
-      - save_dependency_cache
+      # - save_dependency_cache
       - run:
           name: Run black
           command: |
@@ -74,9 +73,9 @@ jobs:
             fingerprints:
               - "9f:19:e2:26:c4:aa:6e:4d:98:77:22:09:b9:cf:50:f3"
       - checkout
-      - restore_dependency_cache
+      # - restore_dependency_cache
       - install_dependencies
-      - save_dependency_cache
+      # - save_dependency_cache
       - run:
           name: Run tests and save coverage report
           command: |
