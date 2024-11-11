@@ -35,7 +35,7 @@ commands:
 jobs:
   code_quality:
     docker:
-      - image: cimg/python:3.9.5
+      - image: cimg/python:3.9.20
     steps:
       - checkout
       # - restore_dependency_cache
@@ -51,7 +51,7 @@ jobs:
             pflake8 trade_remedies_api --config pyproject.toml
   test_and_fitness_functions:
     docker:
-      - image: cimg/python:3.9.5
+      - image: cimg/python:3.9.20
         environment:
           DATABASE_URL: psql://ubuntu@localhost:5432/trade_remedies
           DJANGO_SETTINGS_MODULE: config.settings.test
