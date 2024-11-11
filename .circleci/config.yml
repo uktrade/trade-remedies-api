@@ -19,7 +19,8 @@ commands:
     description: "Restore dependency cache."
     steps:
       - restore_cache:
-          keys: 
+          keys:
+            - deps2-{{ .Branch }}-{{ checksum "requirements-dev.txt" }} 
             - deps2-{{ .Branch }}-
             - deps2-
 
