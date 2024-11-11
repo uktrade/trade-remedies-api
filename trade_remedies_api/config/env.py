@@ -23,7 +23,7 @@ class Settings(CloudFoundrySettings):
             return {"default": {}}
 
         return {
-            "default": dj_database_url.parse(database_url_from_env("DATABASE_URL")),
+            "default": dj_database_url.parse(database_url_from_env("DATABASE_CREDENTIALS")),
         }
 
     def get_s3_bucket_config(self) -> dict:
@@ -41,7 +41,7 @@ class Settings(CloudFoundrySettings):
         return self.celery_broker_url
 
 
-class CircleCIEnvironment(Settings):
+class CircleCIEnvironment(CloudFoundrySettings):
     pass
 
 
