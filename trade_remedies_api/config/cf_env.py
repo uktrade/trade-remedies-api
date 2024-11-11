@@ -88,7 +88,7 @@ class CloudFoundrySettings(BaseSettings):
     AUDIT_EMAIL_RETRY_COUNTDOWN: int = 1200
     AUDIT_EMAIL_SMTP_PORT: int = 587
     API_RATELIMIT_RATE: str = "500/m"
-    PROFILING_ENABLED = False
+    PROFILING_ENABLED: str = False
     VCAP_SERVICES: Optional[VCAPServices] = {}
     REDIS_BASE_URL: str = "redis://redis:6379"
 
