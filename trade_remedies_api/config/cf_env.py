@@ -36,6 +36,7 @@ class CloudFoundrySettings(BaseSettings):
     CASEWORKER_ROOT_URL: str = "http://localhost:8002"
     CASE_WORKER_ENVIRONMENT_KEY: str
     CELERY_LOGLEVEL: str = "INFO"
+    CELERY_BROKER_URL: str = "redis://redis:6379"
     COMPANIES_HOUSE_API_KEY: Optional[str] = None
     DB_MAX_CONNS: int = 10
     DEBUG: bool = False

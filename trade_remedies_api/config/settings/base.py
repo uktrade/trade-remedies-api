@@ -224,7 +224,7 @@ if "redis" in _VCAP_SERVICES:
     CELERY_BROKER_URL = f"{uri}/{CELERY_DATABASE_NUMBER}?ssl_cert_reqs=required"
 else:
     REDIS_BASE_URL = env.get_redis_url()
-    uri = env("CELERY_BROKER_URL", default="redis://redis:6379")
+    uri = env.CELERY_BROKER_URL
     CELERY_BROKER_URL = f"{uri}/{CELERY_DATABASE_NUMBER}"
 
 CACHES = {
