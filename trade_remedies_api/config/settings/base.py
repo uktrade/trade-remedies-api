@@ -150,7 +150,7 @@ AUTHENTICATION_BACKENDS = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-_VCAP_SERVICES = env.json("VCAP_SERVICES", default={})
+_VCAP_SERVICES = env.VCAP_SERVICES
 
 DATABASES = env.get_database_config()
 
