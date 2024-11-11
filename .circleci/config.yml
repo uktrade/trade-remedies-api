@@ -23,13 +23,12 @@ commands:
           paths:
             - "venv"
 
-  restore_dependency_cache:
-    description: "Restore dependency cache."
+jobs:
+  restore-dependencies:
     steps:
+      - checkout
       - restore_cache:
           key: deps2-{{ .Branch }}-{{ checksum "requirements-dev.txt" }}
-
-jobs:
   code_quality:
     docker:
       - image: cimg/python:3.9.5
