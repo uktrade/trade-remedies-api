@@ -23,7 +23,7 @@ class Settings(CloudFoundrySettings):
             return {"default": {}}
 
         return {
-            "default": dj_database_url.parse(database_url_from_env("DATABASE_CREDENTIALS")),
+            "default": dj_database_url.parse(database_url_from_env("DATABASE_URL")),
         }
 
     def get_s3_bucket_config(self) -> dict:
