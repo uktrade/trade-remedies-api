@@ -9,7 +9,7 @@ commands:
          command: |
             python3 -m venv venv
             echo ". venv/bin/activate" >> $BASH_ENV
-            . venv/bin/activate  # 
+            . venv/bin/activate
             pip install --upgrade pip
             pip install poetry==1.6.1
             poetry export --with dev --without-hashes -f requirements.txt -o requirements-dev.txt
@@ -20,7 +20,6 @@ commands:
     steps:
       - restore_cache:
           keys: 
-            - deps2-{{ .Branch }}-{{ checksum "requirements-dev.txt" }}
             - deps2-{{ .Branch }}-
             - deps2-
 
