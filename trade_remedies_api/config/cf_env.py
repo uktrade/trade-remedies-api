@@ -29,6 +29,7 @@ class CloudFoundrySettings(BaseSettings):
     AUDIT_EMAIL_SMTP_PASSWORD: Optional[str] = None
     AUDIT_EMAIL_SMTP_USERNAME: Optional[str] = None
     AUDIT_EMAIL_TO_ADDRESS: Optional[str] = None
+    AUDIT_EMAIL_SMTP_HOST: Optional[str] = None
     AV_SERVICE_PASSWORD: Optional[str] = None
     AV_SERVICE_URL: Optional[str] = None
     AV_SERVICE_USERNAME: Optional[str] = None
