@@ -65,6 +65,7 @@ class CloudFoundrySettings(BaseSettings):
     REDIS_DATABASE_NUMBER: int = 0
     RUN_ASYNC: bool = True
     S3_BUCKET_NAME: Optional[str] = None
+    AWS_STORAGE_BUCKET_NAME: Optional[str] = None
     S3_DOWNLOAD_LINK_EXPIRY_SECONDS: int = 3600
     S3_STORAGE_KEY: Optional[str] = None
     S3_STORAGE_SECRET: Optional[str] = None
