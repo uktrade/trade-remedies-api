@@ -119,7 +119,7 @@ class CloudFoundrySettings(BaseSettings):
 
         return {
             "aws_region": self.AWS_REGION,
-            "bucket_name": self.S3_BUCKET_NAME or self.AWS_STORAGE_BUCKET_NAME,
+            "bucket_name": self.S3_BUCKET_NAME or self.AWS_STORAGE_BUCKET_NAME or "",
         }
 
     def get_redis_url(self) -> str:
