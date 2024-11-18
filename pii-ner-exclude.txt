@@ -1,3 +1,6 @@
+linux
+ENV PYTHONDONTWRITEBYTECODE 1
+update -y && apt
 PUB
 ref
 " Returns the mime type for this file
