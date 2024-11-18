@@ -2192,3 +2192,5 @@ django-db-geventpool==4.0.0
 Holborn
 the third party
 terminated_at
+GUNICORN_ACCESS_LOG_FORMAT
+GUNICORN_ENABLE_ASYNC_PSYCOPG2
