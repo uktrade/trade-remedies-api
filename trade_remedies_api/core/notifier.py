@@ -5,12 +5,68 @@ from notifications_python_client.notifications import NotificationsAPIClient
 
 from .utils import convert_to_e164
 
+from config.env import env
+
+
+class DummyNotificationsAPIClient:
+    def send_email_notification(self, email_address, template_id, personalisation, reference=None):
+        print(f"Sending email to {email_address} with template {template_id}")
+        return {
+            "content": {
+                "body": "This is a dummy email body",
+                "subject": "This is a dummy email subject",
+            },
+            "reference": reference,
+        }
+
+    def get_template(self, template_id):
+        print(f"Getting template {template_id}")
+        return {
+            "id": template_id,
+            "body": "This is a dummy template body",
+            "subject": "This is a dummy template subject",
+        }
+    
+    def get_all_templates(self):
+        print("Getting all templates")
+        return {
+            "templates": [
+                {
+                    "id": "1",
+                    "name": "Dummy Template 1",
+                },
+                {
+                    "id": "2",
+                    "name": "Dummy Template 2",
+                },
+            ]
+        }
+
+    def post_template_preview(self, template_id, personalisation):
+        print(f"Previewing template {template_id} with personalisation {personalisation}")
+        return {
+            "id": template_id,
+            "body": "This is a dummy preview body",
+            "subject": "This is a dummy preview subject",
+        }
+
+    def send_sms_notification(self, phone_number, template_id, personalisation, reference=None):
+        print(f"Sending SMS to {phone_number} with template {template_id}")
+        return {
+            "content": {
+                "body": "This is a dummy SMS body",
+            },
+            "reference": reference,
+        }
+
 
 def get_client():
     """
     Return a Notification client
     """
-    return NotificationsAPIClient(os.environ["GOV_NOTIFY_API_KEY"])
+    if os.environ.get("DJANGO_SETTINGS_MODULE", "").endswith("local"):
+        return DummyNotificationsAPIClient()
+    return NotificationsAPIClient(env.GOV_NOTIFY_API_KEY or "")
 
 
 def send_mail(email, context, template_id, reference=None):
