@@ -26,7 +26,7 @@ class DummyNotificationsAPIClient:
             "body": "This is a dummy template body",
             "subject": "This is a dummy template subject",
         }
-    
+
     def get_all_templates(self):
         print("Getting all templates")
         return {
