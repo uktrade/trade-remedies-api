@@ -13,3 +13,5 @@ RUN pip install -r requirements-dev.txt
 
 ADD . /app
 WORKDIR /app
+RUN pip install -r requirements.txt
+ADD . /app

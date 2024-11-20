@@ -2,7 +2,7 @@ version: "3"
 services:
   api:
     build:
-       context: .
+      context: .
     ports:
       - "8000:8000"
     volumes:
@@ -29,6 +29,7 @@ services:
     command: celery -A config worker -l DEBUG
     volumes:
       - ./trade_remedies_api:/app/
+      - ./requirements-dev.txt:/requirements.txt
     env_file:
       - local.env
     environment:
@@ -48,7 +49,7 @@ services:
       - DJANGO_SETTINGS_MODULE=config.settings.local
       - DATABASE_URL=psql://postgres:postgres@postgres:5432/trade_remedies
   postgres:
-    image: postgres:12
+    image: postgres:17
     ports:
       - "5432:5432"
     volumes:
@@ -57,10 +58,17 @@ services:
     environment:
       POSTGRES_DB: trade_remedies
       POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 2s
+      timeout: 2s
+      retries: 5
+
   redis:
-    image: redis:alpine
+    image: redis:7.4.1
     ports:
       - "6379:6379"
+
   opensearch:
     image: opensearchproject/opensearch:2.13.0
     restart: unless-stopped

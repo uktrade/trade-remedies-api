@@ -1,7 +1,7 @@
 import os
 from psycogreen.gevent import patch_psycopg
 
-from trade_remedies_api.config.env import env
+from config.env import env
 
 accesslog = os.environ.get("GUNICORN_ACCESSLOG", "-")
 access_log_format = os.environ.get(
