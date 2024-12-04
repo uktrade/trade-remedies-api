@@ -7,33 +7,34 @@ services:
       - "8000:8000"
     volumes:
       - ./trade_remedies_api:/app/
-      - ./requirements.in:/app/requirements.in/
-      - ./requirements:/app/requirements/
+      - ./requirements-dev.txt:/app/requirements-dev.txt
     env_file:
       - local.env
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      /bin/sh -c "
+      python manage.py migrate &&
+      python manage.py load_sysparams &&
+      python manage.py notify_env &&
+      python manage.py collectstatic --noinput &&
+      python manage.py runserver 0.0.0.0:8000
+      "
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.local
-
+    depends_on:
+      - postgres
   celery:
     build:
        context: .
     command: celery -A config worker -l DEBUG
     volumes:
       - ./trade_remedies_api:/app/
-      - ./requirements-dev.txt:/requirements.txt
     env_file:
       - local.env
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.local
       - DATABASE_URL=psql://postgres:postgres@postgres:5432/trade_remedies
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    platform: linux/amd64
-
+      - api
   postgres:
     image: postgres:17
     ports:
@@ -64,4 +65,4 @@ services:
     environment:
       - discovery.type=single-node
       - plugins.security.disabled=true
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=6wJYrLCtWOwffg41
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=coRrecth0rseba++ery9.23.2007staple$

@@ -4,9 +4,14 @@ FROM python:3.9.20
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+COPY requirements.txt /app/
+COPY requirements-dev.txt /app/
+
+WORKDIR /app
 RUN pip install --upgrade pip
-RUN apt update -y && apt install -y build-essential libpq-dev
-COPY requirements.txt /app/requirements.txt
+RUN pip install -r requirements-dev.txt
+
+ADD . /app
 WORKDIR /app
 RUN pip install -r requirements.txt
 ADD . /app
