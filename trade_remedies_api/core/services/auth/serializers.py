@@ -149,7 +149,9 @@ class AuthenticationSerializer(UserExistsSerializer, PasswordSerializer):  # noq
             user_group = ENVIRONMENT_GROUPS.get(env_key)
             if user_group and not user.has_groups(groups=user_group):
                 logger.error(
-                    f"{user.email} does not have access to {user_group}" if env_key else f"env_key not defined while logging {user.email}"
+                    f"{user.email} does not have access to {user_group}"
+                    if env_key
+                    else f"env_key not defined while logging {user.email}"
                 )
                 raise CustomValidationError(error_key="invalid_access")
 
