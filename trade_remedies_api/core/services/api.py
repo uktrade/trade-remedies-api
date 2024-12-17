@@ -1,5 +1,4 @@
 import json
-import mimetypes
 import re
 
 from django.contrib.auth.models import Group
@@ -9,8 +8,6 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q
 from django.db.utils import IntegrityError
-from django.http import HttpResponse
-from django.utils.html import escape
 from rest_framework import status
 from rest_framework.views import APIView
 from v2_api_client.shared.logging import audit_logger
@@ -18,7 +15,6 @@ from v2_api_client.shared.logging import audit_logger
 from audit import AUDIT_TYPE_NOTIFY
 from core.constants import TRUTHFUL_INPUT_VALUES
 from core.feature_flags import FeatureFlagNotFound, is_enabled
-from core.feedback import feedback_export
 from core.models import JobTitle, SystemParameter, User
 from core.notifier import get_preview, get_template
 from core.tasks import send_mail
