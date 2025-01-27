@@ -146,13 +146,13 @@ class AuthenticationSerializer(UserExistsSerializer, PasswordSerializer):  # noq
             audit_log(audit_type=AUDIT_TYPE_LOGIN, user=user)
             # ensure the origin of the request is allowed for this user group
             env_key = request.META.get("HTTP_X_ORIGIN_ENVIRONMENT")
-            if not user.has_groups(groups=ENVIRONMENT_GROUPS[env_key]):
-                if not env_key:
-                    logger.error(f"env_key not defined while logging {user.email}")
-                else:
-                    logger.error(
-                        f"{user.email} does not have access to {ENVIRONMENT_GROUPS[env_key]}"
-                    )
+            user_group = ENVIRONMENT_GROUPS.get(env_key)
+            if user_group and not user.has_groups(groups=user_group):
+                logger.error(
+                    f"{user.email} does not have access to {user_group}"
+                    if env_key
+                    else f"env_key not defined while logging {user.email}"
+                )
                 raise CustomValidationError(error_key="invalid_access")
 
             email_verified = user.is_tra() or user.userprofile.email_verified_at
