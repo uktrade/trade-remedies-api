@@ -53,6 +53,7 @@ services:
 
   redis:
     image: redis:7.4.1
+    command: ["redis-server", "--save", ""]  # Disable RDB snapshot saving
     ports:
       - "6379:6379"
 
