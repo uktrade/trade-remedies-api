@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-cd ${HOME}/trade_remedies_api
+cd ./trade_remedies_api
 python ./manage.py migrate
 python ./manage.py load_sysparams
 python ./manage.py notify_env
