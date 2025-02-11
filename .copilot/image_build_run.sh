@@ -2,4 +2,4 @@
 
 set -e
 
-python ./manage.py collectstatic --noinput
+python ./trade_remedies_api/manage.py collectstatic --noinput
