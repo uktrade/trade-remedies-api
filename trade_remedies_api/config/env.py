@@ -20,10 +20,10 @@ class Settings(CloudFoundrySettings):
 
     def get_database_config(self) -> dict:
         if self.build_step:
-            print(f"get_database_config: in build step according to {self.build_step}")
+            print(f"get_database_config: in build step according to {self.build_step}", file=sys.stderr)
             return {"default": {}}
 
-        print(f"get_database_config: NOT in build step according to {self.build_step}")
+        print(f"get_database_config: NOT in build step according to {self.build_step}", file=sys.stderr)
         return {
             "default": dj_database_url.parse(database_url_from_env("DATABASE_CREDENTIALS")),
         }
