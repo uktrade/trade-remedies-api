@@ -446,11 +446,11 @@ GECKOBOARD_ENV = env.GECKOBOARD_ENV
 TESTING = False
 
 # ------------------- FEATURE FLAGS -------------------
-try:
-    conditions.register("PART_OF_GROUP", fn=is_user_part_of_group)
-except DuplicateCondition:
-    # During deployment, this can sometimes be ran twice causing a DuplicateCondition error
-    pass
+# try:
+#     conditions.register("PART_OF_GROUP", fn=is_user_part_of_group)
+# except DuplicateCondition:
+#     # During deployment, this can sometimes be ran twice causing a DuplicateCondition error
+#     pass
 FEATURE_FLAG_PREFIX = "FEATURE_FLAG"
 FLAGS = {
     f"{FEATURE_FLAG_PREFIX}_UAT_TEST": [
