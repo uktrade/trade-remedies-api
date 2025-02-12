@@ -2,7 +2,6 @@
 import datetime
 import os
 import sys
-print("Start of settings", file=sys.stderr)
 
 import environ
 import sentry_sdk
@@ -37,8 +36,6 @@ def strip_sensitive_data(event, hint):
     except Exception as exc:
         pass
     return event
-
-print("Sentry config in settings", file=sys.stderr)
 
 SENTRY_ENVIRONMENT = env.SENTRY_ENVIRONMENT
 sentry_sdk.init(
@@ -153,7 +150,6 @@ WSGI_APPLICATION = "config.wsgi.application"
 _VCAP_SERVICES = env.VCAP_SERVICES
 
 DATABASES = env.get_database_config()
-print("After database config in settings", file=sys.stderr)
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -446,7 +442,6 @@ GECKOBOARD_ENV = env.GECKOBOARD_ENV
 
 # Variable so we know if we're running in testing mode or not, this is True in the test.py settings
 TESTING = False
-print("Start of feature flags config in settings", file=sys.stderr)
 
 # ------------------- FEATURE FLAGS -------------------
 try:
@@ -463,7 +458,6 @@ FLAGS = {
         {"condition": "PART_OF_GROUP", "value": True, "required": True},
     ],
 }
-print("End of feature flags config in settings", file=sys.stderr)
 
 # ------------------- GOV.NOTIFY AUDIT COPY EMAILS -------------------
 AUDIT_EMAIL_ENABLED = env.AUDIT_EMAIL_ENABLED
@@ -499,4 +493,3 @@ if PROFILING_ENABLED:
     MIDDLEWARE = MIDDLEWARE + [
         "pyinstrument.middleware.ProfilerMiddleware",
     ]
-print("End of settings", file=sys.stderr)
