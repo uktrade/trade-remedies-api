@@ -1,8 +1,8 @@
 """Django settings for trade_remedies_api project."""
-print("Start of settings", file=sys.stderr)
 import datetime
 import os
 import sys
+print("Start of settings", file=sys.stderr)
 
 import environ
 import sentry_sdk
