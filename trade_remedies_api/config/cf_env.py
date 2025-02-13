@@ -77,7 +77,7 @@ class CloudFoundrySettings(BaseSettings):
     AXES_ENABLED: bool = True
     AXES_FAILURE_LIMIT: int = 3
     OPENSEARCH_HOST: Optional[str] = None
-    OPENSEARCH_PORT: Optional[int] = None
+    OPENSEARCH_PORT: Optional[int] = 9200
     ROOT_LOG_LEVEL: str = "INFO"
     API_V2_ENABLED: bool = False
     AUTH_TOKEN_MAX_AGE_MINUTES: int = 60
