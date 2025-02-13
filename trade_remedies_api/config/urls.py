@@ -269,4 +269,3 @@ if settings.DJANGO_ADMIN:
     urlpatterns.append(path("admin/", admin.site.urls))
 
 urlpatterns.append(path("healthcheck", health_check, name="healthcheck"))
-urlpatterns.append(path("pingdom/ping.xml", health_check, name="healthcheck-temp"))
