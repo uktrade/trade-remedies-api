@@ -267,7 +267,7 @@ opensearch_vcap_config = _VCAP_SERVICES.opensearch
 if opensearch_vcap_config:
     OPENSEARCH_URI = opensearch_vcap_config[0]["credentials"]["uri"]
 else:
-    OPENSEARCH_URI = env.OPENSEARCH_HOST
+    OPENSEARCH_URI = f"{env.OPENSEARCH_HOST}:{env.OPENSEARCH_PORT}"
 # OpenSearch index mapping  by doc_type
 OPENSEARCH_INDEX = {
     "document": "main",
