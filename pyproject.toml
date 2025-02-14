@@ -9,7 +9,7 @@ requires = ["poetry-core^1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9.11"
 Markdown = "3.1.1"
 PyPDF2 = "1.27.9"
 boto3 = "1.17.88"
@@ -49,7 +49,7 @@ openpyxl = "3.1.2"
 opensearch-py = "2.5.0"
 phonenumbers = "8.12.38"
 prompt-toolkit = "^3.0.30"
-psycopg2-binary = "2.9.1"
+psycopg2-binary = "2.9.10"
 python-docx = "1.1.2"
 python-pptx = "1.0.2"
 pytz = "*"
@@ -68,8 +68,10 @@ django-ratelimit = "4.0.0"
 tldextract = "3.4.4"
 pillow = "^10.3.0"
 gunicorn = "22.0.0"
+dbt-copilot-python = "0.1.4"
 trade-remedies-client = {git = "https://github.com/uktrade/trade-remedies-client.git", rev = "master"}
 v2-api-client = {git = "https://github.com/uktrade/trs_v2_api_client.git", rev = "master"}
+pydantic-settings = "2.5.2"
 
 [tool.poetry.dev-dependencies]
 black = "24.3.0"

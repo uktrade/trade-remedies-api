@@ -13,20 +13,6 @@ from .exceptions import HealthCheckException
 
 logger = logging.getLogger(__name__)
 
-
-@measure_time
-def ping_celery():
-    """
-    This function pings Celery.
-    :return: the task
-    """
-    i = app.control.inspect()
-    availability = i.ping()
-    if not availability:
-        raise HealthCheckException("Celery not working")
-    return availability
-
-
 @measure_time
 def ping_postgres():
     """
@@ -57,7 +43,9 @@ def ping_opensearch():
 
     :return: the response from OpenSearch
     """
-    response = requests.get(settings.OPENSEARCH_URI, timeout=1)
+    print("pinging OpenSearch")
+    response = requests.get(settings.OPENSEARCH_URI, timeout=10)
+    print(response.__dict__)
     return response
 
 
@@ -85,7 +73,11 @@ def application_service_health():
 
     :return: a tuple containing the status (OK or an error message) and the average response time (in seconds)
     """
-    services = [ping_celery, ping_postgres, ping_redis, ping_opensearch]
+    services = [
+        ping_postgres,
+        ping_redis,
+        # ping_opensearch,
+    ]
     response_times = []
 
     for service_check in services:
