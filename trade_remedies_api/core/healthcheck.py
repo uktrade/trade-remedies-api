@@ -43,7 +43,9 @@ def ping_opensearch():
 
     :return: the response from OpenSearch
     """
+    print("pinging OpenSearch")
     response = requests.get(settings.OPENSEARCH_URI, timeout=10)
+    print(response.__dict__)
     return response
 
 

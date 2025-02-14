@@ -50,6 +50,7 @@ class ApiHealthView(APIView):
         """
         Return current API health status
         """
+        print("hitting ApiHealthView(APIView):")
         try:
             database_ok = bool(User.objects.first())
         except Exception:
