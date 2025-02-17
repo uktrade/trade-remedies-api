@@ -141,5 +141,4 @@ profiles/
 
 */contacts/management/commands/*.csv
 
-requirements-dev.txt
 /postgres_data_old/
