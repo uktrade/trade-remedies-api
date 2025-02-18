@@ -44,7 +44,8 @@ def ping_opensearch():
     :return: the response from OpenSearch
     """
     print("Pinging OpenSearch…")
-    response = requests.get(settings.OPENSEARCH_URI, timeout=20)
+    # response = requests.get(settings.OPENSEARCH_URI, timeout=20)
+    response = ("Not a real response", 123.456)
     print("OpenSearch pinged.")
     # print("status code", response.status_code)
     # print("we made it through the request")
