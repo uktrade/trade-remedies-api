@@ -44,8 +44,8 @@ def ping_opensearch():
     :return: the response from OpenSearch
     """
     response = requests.get(settings.OPENSEARCH_URI, timeout=20)
-    print("status code", response.status_code)
-    print("we made it through the request")
+    # print("status code", response.status_code)
+    # print("we made it through the request")
     return response
 
 
