@@ -81,13 +81,14 @@ def application_service_health():
     response_times = []
 
     for service_check in services:
-        # try:
-        _, response_time = service_check()
-        print(response_time)
-        response_times.append(response_time)
-        # except Exception as err:
-        #     sentry_sdk.capture_exception(err)
-        #     return _pingdom_custom_status_html_wrapper(f"Error: {str(err)}", 0)
+        try:
+            _, response_time = service_check()
+            print(response_time)
+            response_times.append(response_time)
+        except Exception as err:
+            sentry_sdk.capture_exception(err)
+            print("here is the error: ", str(err))
+            return _pingdom_custom_status_html_wrapper(f"Error: {str(err)}", 0)
 
     avg_response_time = sum(response_times) / len(response_times)
     return _pingdom_custom_status_html_wrapper("OK", avg_response_time)
