@@ -44,7 +44,8 @@ def ping_opensearch():
     :return: the response from OpenSearch
     """
     response = requests.get(settings.OPENSEARCH_URI, timeout=20)
-    print(response.__dict__)
+    print("status code", response.status_code)
+    print("we made it through the request")
     return response
 
 
@@ -82,9 +83,9 @@ def application_service_health():
     for service_check in services:
         try:
             _, response_time = service_check()
+            print(response_time)
             response_times.append(response_time)
         except Exception as err:
-            print(err)
             sentry_sdk.capture_exception(err)
             return _pingdom_custom_status_html_wrapper(f"Error: {str(err)}", 0)
 
