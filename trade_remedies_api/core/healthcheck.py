@@ -93,13 +93,13 @@ def application_service_health():
     ]
     response_times = []
 
-    ping_opensearch()
     # for service_check in services:
-        # try:
-        #     service_check()
-        #     response_times.append(response_time)
-        # except Exception:
-        #     print("send to sentry")
-        #     return _pingdom_custom_status_html_wrapper(f"Error: some error", 0)
+    try:
+        ping_opensearch()
+        # response_times.append(response_time)
+    except Exception as err:
+        print(err.with_traceback(err.__traceback__))
+        print("send to sentry")
+        return _pingdom_custom_status_html_wrapper(f"Error: some error", 0)
 
     return _pingdom_custom_status_html_wrapper("OK", 0)
