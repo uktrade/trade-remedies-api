@@ -66,7 +66,7 @@ def ping_opensearch():
     except Exception as err:
         print(err)
         print("we're in the example exception")
-        print(err.with_traceback(err.__traceback__))
+        print(err.__traceback__)
 
     response = requests.get(settings.OPENSEARCH_URI, timeout=20)
     return response
