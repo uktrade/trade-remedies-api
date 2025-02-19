@@ -2,6 +2,7 @@ import logging
 import xml.etree.ElementTree as ET
 
 import redis
+import traceback
 import requests
 import sentry_sdk
 from config.celery import app
@@ -66,7 +67,7 @@ def ping_opensearch():
     except Exception as err:
         print(err)
         print("we're in the example exception")
-        print(err.__traceback__)
+        traceback.print_tb(err.__traceback__)
 
     response = requests.get(settings.OPENSEARCH_URI, timeout=20)
     return response
