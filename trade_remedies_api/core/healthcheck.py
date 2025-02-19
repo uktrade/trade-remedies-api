@@ -55,7 +55,7 @@ def ping_opensearch():
     requests_log.propagate = True
 
     response = requests.get(settings.OPENSEARCH_URI, timeout=20)
-    return response
+    return None, response.elapsed.total_seconds()
 
 
 def _pingdom_custom_status_html_wrapper(status_str: str, response_time_value: float) -> str:
