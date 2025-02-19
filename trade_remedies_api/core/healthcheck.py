@@ -7,6 +7,7 @@ import sentry_sdk
 from config.celery import app
 from django.conf import settings
 from django.db import connection
+import http.client as http_client
 
 from .decorators import measure_time
 from .exceptions import HealthCheckException
@@ -44,11 +45,16 @@ def ping_opensearch():
     :return: the response from OpenSearch
     """
     print("Pinging OpenSearch…")
-    # response = requests.get(settings.OPENSEARCH_URI, timeout=20)
-    response = ("Not a real response", 123.456)
-    print("OpenSearch pinged.")
-    # print("status code", response.status_code)
-    # print("we made it through the request")
+    http_client.HTTPConnection.debuglevel = 1
+
+    # You must initialize logging, otherwise you'll not see debug output.
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.DEBUG)
+    requests_log = logging.getLogger("requests.packages.urllib3")
+    requests_log.setLevel(logging.DEBUG)
+    requests_log.propagate = True
+
+    response = requests.get(settings.OPENSEARCH_URI, timeout=20)
     return response
 
 
