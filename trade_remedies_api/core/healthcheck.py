@@ -3,6 +3,8 @@ import xml.etree.ElementTree as ET
 
 import redis
 import traceback
+import gevent.monkey
+gevent.monkey.patch_all()
 import requests
 import sentry_sdk
 from config.celery import app
@@ -58,6 +60,7 @@ def ping_opensearch():
 
     :return: the response from OpenSearch
     """
+
     print("requesting http")
     requests.get("http://example.com", timeout=20)
 
