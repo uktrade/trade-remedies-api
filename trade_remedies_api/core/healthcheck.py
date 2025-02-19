@@ -61,7 +61,13 @@ def ping_opensearch():
     requests.get("http://example.com", timeout=20)
 
     print("requesting https")
-    requests.get("https://example.com", timeout=20)
+    try:
+        requests.get("https://example.com", timeout=20)
+    except Exception as err:
+        print(err)
+        print("we're in the example exception")
+        print(err.with_traceback(err.__traceback__))
+
     response = requests.get(settings.OPENSEARCH_URI, timeout=20)
     return response
 
