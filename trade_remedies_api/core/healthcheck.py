@@ -7,12 +7,25 @@ import sentry_sdk
 from config.celery import app
 from django.conf import settings
 from django.db import connection
-import http.client as http_client
 
 from .decorators import measure_time
 from .exceptions import HealthCheckException
 
 logger = logging.getLogger(__name__)
+
+
+@measure_time
+def ping_celery():
+    """
+    This function pings Celery.
+    :return: the task
+    """
+    i = app.control.inspect()
+    availability = i.ping()
+    if not availability:
+        raise HealthCheckException("Celery not working")
+    return availability
+
 
 @measure_time
 def ping_postgres():
@@ -44,18 +57,8 @@ def ping_opensearch():
 
     :return: the response from OpenSearch
     """
-    print("Pinging OpenSearch…")
-    http_client.HTTPConnection.debuglevel = 1
-
-    # You must initialize logging, otherwise you'll not see debug output.
-    logging.basicConfig()
-    logging.getLogger().setLevel(logging.DEBUG)
-    requests_log = logging.getLogger("requests.packages.urllib3")
-    requests_log.setLevel(logging.DEBUG)
-    requests_log.propagate = True
-
-    response = requests.get(settings.OPENSEARCH_URI, timeout=20)
-    return None, response.elapsed.total_seconds()
+    response = requests.get(settings.OPENSEARCH_URI, timeout=1)
+    return response
 
 
 def _pingdom_custom_status_html_wrapper(status_str: str, response_time_value: float) -> str:
@@ -83,21 +86,20 @@ def application_service_health():
     :return: a tuple containing the status (OK or an error message) and the average response time (in seconds)
     """
     services = [
+        # ping_celery,
         ping_postgres,
         ping_redis,
-        ping_opensearch,
+        ping_opensearch
     ]
     response_times = []
 
     for service_check in services:
-        try:
-            _, response_time = service_check()
-            print(f"{service_check.__name__} response time: {response_time}")
-            response_times.append(response_time)
-        except Exception as err:
-            sentry_sdk.capture_exception(err)
-            print(f"{service_check.__name__} error: {err}")
-            return _pingdom_custom_status_html_wrapper(f"Error: {str(err)}", 0)
+        # try:
+        _, response_time = service_check()
+        response_times.append(response_time)
+        # except Exception as err:
+        #     sentry_sdk.capture_exception(err)
+        #     return _pingdom_custom_status_html_wrapper(f"Error: {str(err)}", 0)
 
-    avg_response_time = sum(response_times) / len(response_times)
-    return _pingdom_custom_status_html_wrapper("OK", avg_response_time)
+    # avg_response_time = sum(response_times) / len(response_times)
+    return _pingdom_custom_status_html_wrapper("OK", 0)
