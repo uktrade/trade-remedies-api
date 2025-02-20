@@ -3,8 +3,6 @@ import xml.etree.ElementTree as ET
 
 import redis
 import traceback
-import gevent.monkey
-gevent.monkey.patch_all()
 import requests
 import sentry_sdk
 from config.celery import app
