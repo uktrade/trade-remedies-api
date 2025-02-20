@@ -11,7 +11,16 @@ services:
       - ./requirements:/app/requirements/
     env_file:
       - local.env
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      /bin/sh -c "
+      python manage.py migrate &&
+      python manage.py load_sysparams &&
+      python manage.py notify_env &&
+      python manage.py adminuser &&
+      python manage.py s3credentials &&
+      python manage.py collectstatic --noinput &&
+      python manage.py runserver 0.0.0.0:8000
+      "
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.local
   celery:

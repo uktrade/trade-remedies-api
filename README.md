@@ -51,5 +51,21 @@ Revert to old branding (defined _in_ the management command):
 Tests (including BDD testing) should be invoked from the
 [orchestration project repo](https://github.com/uktrade/trade-remedies-docker).
 
+
+## Need to know tips during local development
+
+this will disable the celery worker to be called during local setup & develop
+```
+RUN_ASYNC = False
+```
+
+### IMPORTANT ###
+
+For local development you most run these mangment commands below to make sure the public and caseworker services run locally with authenication error:
+
+```
+python manage.py adminuser
+python manage.py s3credentials
+```
 ## Fitness Functions
 ![Current fitness metrics for TRSV2](fitness/fitness_metrics_graph.png)
