@@ -10,13 +10,11 @@ worker_class = "gevent"
 worker_connections = os.environ.get("GUNICORN_WORKER_CONNECTIONS", "10")
 workers = os.environ.get("GUNICORN_WORKERS", "1")
 
-patch_psycopg()
+def post_fork(server, worker):
+    """
+    Called just after a worker has been forked.
 
-# def post_fork(server, worker):
-#     """
-#     Called just after a worker has been forked.
-#
-#     Enables async processing in Psycopg2 if GUNICORN_ENABLE_ASYNC_PSYCOPG2 is set.
-#     """
-#     patch_psycopg()
-#     worker.log.info("Enabled async Psycopg2")
+    Enables async processing in Psycopg2 if GUNICORN_ENABLE_ASYNC_PSYCOPG2 is set.
+    """
+    patch_psycopg()
+    worker.log.info("Enabled async Psycopg2")
