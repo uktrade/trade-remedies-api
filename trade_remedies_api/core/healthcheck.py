@@ -59,18 +59,25 @@ def ping_opensearch():
     :return: the response from OpenSearch
     """
 
-    print("requesting http")
-    requests.get("http://example.com", timeout=20)
-
-    print("requesting https")
+    # print("requesting http")
+    # requests.get("http://example.com", timeout=20)
+    #
+    # print("requesting https")
+    # try:
+    #     requests.get("https://example.com", timeout=20)
+    # except Exception as err:
+    #     print(err)
+    #     print("we're in the example exception")
+    #     traceback.print_tb(err.__traceback__)
+    #
     try:
-        requests.get("https://example.com", timeout=20)
+        response = requests.get(settings.OPENSEARCH_URI, timeout=30)
     except Exception as err:
         print(err)
         print("we're in the example exception")
         traceback.print_tb(err.__traceback__)
+        raise
 
-    response = requests.get(settings.OPENSEARCH_URI, timeout=20)
     return response
 
 
@@ -80,10 +87,10 @@ def _pingdom_custom_status_html_wrapper(status_str: str, response_time_value: fl
     https://documentation.solarwinds.com/en/success_center/pingdom/content/topics/http-custom-check.htm?cshid=pd-rd_115000431709-http-custom-check
     """
     root = ET.Element("pingdom_http_custom_check")
-    # status = ET.SubElement(root, "status")
-    # status.text = str(status_str)
-    # response_time = ET.SubElement(root, "response_time")
-    # response_time.text = str(response_time_value)
+    status = ET.SubElement(root, "status")
+    status.text = str(status_str)
+    response_time = ET.SubElement(root, "response_time")
+    response_time.text = str(response_time_value)
     xml = ET.tostring(root, encoding="unicode", method="xml")
     return xml
 
@@ -105,11 +112,12 @@ def application_service_health():
 
     # for service_check in services:
     try:
-        ping_opensearch()
-        # response_times.append(response_time)
+        _, response_time = ping_opensearch()
+        response_times.append(response_time)
     except Exception as err:
         print(err.with_traceback(err.__traceback__))
         print("send to sentry")
         return _pingdom_custom_status_html_wrapper(f"Error: some error", 0)
 
-    return _pingdom_custom_status_html_wrapper("OK", 0)
+    avg_response_time = sum(response_times) / len(response_times)
+    return _pingdom_custom_status_html_wrapper("OK", avg_response_time)
