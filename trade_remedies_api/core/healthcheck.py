@@ -58,26 +58,7 @@ def ping_opensearch():
 
     :return: the response from OpenSearch
     """
-
-    # print("requesting http")
-    # requests.get("http://example.com", timeout=20)
-    #
-    # print("requesting https")
-    # try:
-    #     requests.get("https://example.com", timeout=20)
-    # except Exception as err:
-    #     print(err)
-    #     print("we're in the example exception")
-    #     traceback.print_tb(err.__traceback__)
-    #
-    try:
-        response = requests.get(settings.OPENSEARCH_URI, timeout=30)
-    except Exception as err:
-        print(err)
-        print("we're in the example exception")
-        traceback.print_tb(err.__traceback__)
-        raise
-
+    response = requests.get(settings.OPENSEARCH_URI, timeout=30)
     return response
 
 
@@ -110,14 +91,13 @@ def application_service_health():
     ]
     response_times = []
 
-    # for service_check in services:
-    try:
-        _, response_time = ping_opensearch()
-        response_times.append(response_time)
-    except Exception as err:
-        print(err.with_traceback(err.__traceback__))
-        print("send to sentry")
-        return _pingdom_custom_status_html_wrapper(f"Error: some error", 0)
+    for service_check in services:
+        try:
+            _, response_time = service_check()
+            response_times.append(response_time)
+        except Exception as err:
+            sentry_sdk.capture_exception(err)
+            return _pingdom_custom_status_html_wrapper(f"Error: {str(err)}", 0)
 
     avg_response_time = sum(response_times) / len(response_times)
     return _pingdom_custom_status_html_wrapper("OK", avg_response_time)
