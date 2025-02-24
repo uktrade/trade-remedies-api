@@ -1,5 +1,6 @@
 from celery import Celery
 from celery.schedules import crontab
+from dbt_copilot_python.celery_health_check import healthcheck
 
 app = Celery("config")
 
@@ -28,3 +29,5 @@ app.conf.beat_schedule = {
         "schedule": crontab(hour=2, minute=0),
     },
 }
+
+celery_app = healthcheck.setup(app)
