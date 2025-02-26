@@ -87,7 +87,7 @@ def application_service_health():
         # ping_celery,
         ping_postgres,
         ping_redis,
-        ping_opensearch
+        # ping_opensearch
     ]
     response_times = []
 
