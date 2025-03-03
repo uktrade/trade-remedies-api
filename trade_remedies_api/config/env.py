@@ -13,7 +13,7 @@ from .cf_env import CloudFoundrySettings
 class Settings(CloudFoundrySettings):
     build_step: bool = Field(alias="build_step", default=False)
     celery_broker_url: str = Field(alias="celery_broker_url", default="")
-    AWS_STORAGE_BUCKET_NAME: str = Field(alias="AWS_STORAGE_BUCKET_NAME", default="")
+    AWS_STORAGE_BUCKET_NAME: str = Field(alias="AWS_STORAGE_BUCKET_NAME")
 
     def get_allowed_hosts(self) -> list[str]:
         return setup_allowed_hosts(self.ALLOWED_HOSTS)
