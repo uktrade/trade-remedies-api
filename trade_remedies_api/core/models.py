@@ -286,6 +286,11 @@ class UserManager(BaseUserManager):
         contact.address = kwargs.get("address") or contact.address
         contact.save()
         userprofile.save()
+
+        # if the user is not using 2FA force add the 2FA object
+        if not hasattr(user, 'twofactorauth'):
+            twofactor, _ = TwoFactorAuth.objects.get_or_create(user=user)
+            user.twofactorauth = twofactor
         user.save()
         self.evaluate_sos_membership(user, groups)
         return user
