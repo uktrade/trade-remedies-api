@@ -38,10 +38,15 @@ def strip_sensitive_data(event, hint):
     return event
 
 SENTRY_ENVIRONMENT = env.SENTRY_ENVIRONMENT
+SENTRY_ENABLE_TRACING = env.SENTRY_ENABLE_TRACING
+SENTRY_TRACES_SAMPLE_RATE = env.SENTRY_TRACES_SAMPLE_RATE
+
 sentry_sdk.init(
     dsn=env.SENTRY_DSN,
     integrations=[DjangoIntegration(), CeleryIntegration()],
     environment=SENTRY_ENVIRONMENT,
+    enable_tracing=SENTRY_ENABLE_TRACING,
+    traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
     before_send=strip_sensitive_data,
 )
 

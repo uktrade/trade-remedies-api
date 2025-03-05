@@ -72,6 +72,8 @@ class CloudFoundrySettings(BaseSettings):
     S3_STORAGE_SECRET: Optional[str] = None
     SENTRY_DSN: str = ""
     SENTRY_ENVIRONMENT: str = "local"
+    SENTRY_ENABLE_TRACING: bool = False
+    SENTRY_TRACES_SAMPLE_RATE: float = 0.1
     CELERY_DATABASE_NUMBER: int = 3
     CELERY_TASK_ALWAYS_EAGER: bool = False
     AXES_ENABLED: bool = True
