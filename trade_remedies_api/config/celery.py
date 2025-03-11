@@ -20,10 +20,6 @@ app.conf.beat_schedule = {
         "task": "audit.tasks.check_notify_send_status",
         "schedule": crontab(minute=30),
     },
-    "geckoboard-update-hourly": {
-        "task": "reports.tasks.update_geckoboard",
-        "schedule": crontab(minute=0),
-    },
     "index-documents-daily": {
         "task": "documents.tasks.index_documents",
         "schedule": crontab(hour=2, minute=0),
