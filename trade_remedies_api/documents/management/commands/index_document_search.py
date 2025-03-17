@@ -9,19 +9,20 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class Command(BaseCommand):
-    help = 'Index documents for open searching'
+    help = "Index documents for open searching"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--force',
-            action='store_true',
-            help='Force indexing of all non-deleted documents',
+            "--force",
+            action="store_true",
+            help="Force indexing of all non-deleted documents",
         )
 
     def handle(self, *args, **options):
-        force = options['force']
-        
+        force = options["force"]
+
         logger.info("Starting document indexing")
         if not force:
             # Just non-indexed documents
@@ -31,15 +32,15 @@ class Command(BaseCommand):
             document_ids = Document.objects.filter(
                 deleted_at__isnull=True,
             )
-            
+
         all_ids = document_ids.values_list("id", flat=True)
-        
+
         for document_id in all_ids:
             if settings.RUN_ASYNC:
                 index_document.delay(document_id)
             else:
                 index_document(document_id)
-                
+
         self.stdout.write(
-            self.style.SUCCESS(f'Successfully queued {len(all_ids)} documents for indexing')
+            self.style.SUCCESS(f"Successfully queued {len(all_ids)} documents for indexing")
         )

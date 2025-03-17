@@ -48,7 +48,7 @@ class V2RegistrationSerializer(
                 contact_address=self.initial_data["address_snippet"],
                 contact_post_code=self.initial_data["post_code"],
                 contact_phone=self.initial_data["mobile"],
-                **self.validated_data
+                **self.validated_data,
             )
             self.instance = new_user
             organisation = Organisation.objects.create_or_update_organisation(

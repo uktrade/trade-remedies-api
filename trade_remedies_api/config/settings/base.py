@@ -1,4 +1,5 @@
 """Django settings for trade_remedies_api project."""
+
 import datetime
 import os
 import sys
@@ -36,6 +37,7 @@ def strip_sensitive_data(event, hint):
     except Exception as exc:
         pass
     return event
+
 
 SENTRY_ENVIRONMENT = env.SENTRY_ENVIRONMENT
 SENTRY_ENABLE_TRACING = env.SENTRY_ENABLE_TRACING
