@@ -71,7 +71,7 @@ validation_errors = {
         "error_summary": "The authentication code is incorrect and your account has been temporarily locked. Try again in 5 minutes",
     },
     "login_incorrect_timeout": {
-        "error_summary": f"You have entered incorrect sign in details too many times and your account will be locked for {env('FAILED_LOGIN_COOLOFF', default=10)} minutes"
+        "error_summary": f"You have entered incorrect sign in details too many times and your account will be locked for {env.FAILED_LOGIN_COOLOFF} minutes"
     },
     "invalid_access": {"error_summary": "Invalid access to environment"},
     "wrong_email_verification_code": {"error_summary": "Invalid access to environment"},

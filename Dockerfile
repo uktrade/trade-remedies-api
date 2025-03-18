@@ -1,4 +1,4 @@
-FROM python:3.9.15
+FROM python:3.9.20
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -11,3 +11,5 @@ RUN pip install -r requirements-dev.txt
 
 ADD . /app
 WORKDIR /app
+RUN pip install -r requirements.txt
+ADD . /app
