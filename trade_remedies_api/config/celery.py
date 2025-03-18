@@ -14,7 +14,7 @@ app.conf.beat_schedule = {
     },
     "check-measure-expiry-daily": {
         "task": "cases.tasks.check_measure_expiry",
-        "schedule": crontab(hour=0, minute=5),
+        "schedule": crontab(hour=0, minute=20),
     },
     "audit-notify-hourly": {
         "task": "audit.tasks.check_notify_send_status",

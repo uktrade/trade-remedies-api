@@ -98,7 +98,7 @@ fitness-functions = {git = "https://github.com/uktrade/fitness-functions", rev =
 line-length = 100
 #diff = true
 #check = true
-target-versions = ['py39']
+target_version = ['py39']
 exclude = '''
 /(
     \.eggs
