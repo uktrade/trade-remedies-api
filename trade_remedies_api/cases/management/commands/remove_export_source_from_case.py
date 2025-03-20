@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = """Remove the 'Export Source' field data from a case.
-    This will change the behaviour of a case relating to 'All Countries' 
+    This will change the behaviour of a case relating to 'All Countries'
     rather than a specific one."""
 
     # ./manage.py remove_export_source_from_case -case_name <NAME FROM CASEWORKER>
