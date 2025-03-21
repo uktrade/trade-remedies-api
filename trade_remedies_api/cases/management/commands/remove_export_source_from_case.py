@@ -14,9 +14,6 @@ class Command(BaseCommand):
     This will change the behaviour of a case relating to 'All Countries'
     rather than a specific one."""
 
-    # Example:
-    # ./manage.py remove_export_source_from_case -case_id <ID OF CASE>
-
     def add_arguments(self, parser):
         parser.add_argument(
             "-case_id", type=str, help="ID of the case to update. Get it from the caseworker URL."
