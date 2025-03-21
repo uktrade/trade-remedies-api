@@ -31,4 +31,5 @@ class Command(BaseCommand):
             ExportSource.objects.filter(case=case_to_amend).delete()
         else:
             raise Exception("Case identified is of a type not in the ALL_COUNTRY_CASE_TYPES list")
+
         logger.info("Export Source cleared for case: " + options["case_name"])
