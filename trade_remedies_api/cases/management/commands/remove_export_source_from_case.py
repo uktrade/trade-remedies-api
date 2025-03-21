@@ -4,9 +4,7 @@ from django.core.management.base import BaseCommand
 
 from cases.models import Case, ExportSource
 
-from cases.constants import (
-    ALL_COUNTRY_CASE_TYPES,
-)
+from cases.constants import ALL_COUNTRY_CASE_TYPES
 
 logger = logging.getLogger(__name__)
 
