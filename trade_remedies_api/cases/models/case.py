@@ -831,6 +831,10 @@ class Case(BaseModel, CaseOrNotice):
 
     @property
     def team(self):
+
+
+
+        
         return self.usercase_set.select_related(
             "user",
             "user__userprofile",
