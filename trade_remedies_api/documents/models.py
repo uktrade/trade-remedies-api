@@ -479,7 +479,11 @@ class Document(BaseModel):
                         "id": organisation.id,
                         "name": organisation.name,
                         "company_number": organisation.companies_house_id,
-                        "country": organisation.country and organisation.country.name,
+                        "country": (
+                            organisation.country.name
+                            if hasattr(organisation, "country") and organisation.country
+                            else None
+                        ),
                     }
                 }
             )

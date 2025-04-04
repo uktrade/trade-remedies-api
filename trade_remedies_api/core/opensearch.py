@@ -28,7 +28,7 @@ class OSWrapper(object):
                 credentials = settings.OPENSEARCH_URI
             else:
                 credentials = {"host": settings.OPENSEARCH_HOST, "port": settings.OPENSEARCH_PORT}
-            cls._os_client = OpenSearch([credentials])
+            cls._os_client = OpenSearch([credentials], timeout=45)
         return cls._os_client
 
 

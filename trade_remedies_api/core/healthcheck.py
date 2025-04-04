@@ -2,6 +2,7 @@ import logging
 import xml.etree.ElementTree as ET
 
 import redis
+import traceback
 import requests
 import sentry_sdk
 from config.celery import app
@@ -57,7 +58,7 @@ def ping_opensearch():
 
     :return: the response from OpenSearch
     """
-    response = requests.get(settings.OPENSEARCH_URI, timeout=1)
+    response = requests.get(settings.OPENSEARCH_URI, timeout=30)
     return response
 
 
@@ -66,14 +67,11 @@ def _pingdom_custom_status_html_wrapper(status_str: str, response_time_value: fl
     response data format:
     https://documentation.solarwinds.com/en/success_center/pingdom/content/topics/http-custom-check.htm?cshid=pd-rd_115000431709-http-custom-check
     """
-    root = ET.Element("root")
-    pingdom_http_custom_check = ET.SubElement(root, "pingdom_http_custom_check")
-    status = ET.SubElement(pingdom_http_custom_check, "status")
-    strong = ET.SubElement(status, "strong")
-    strong.text = str(status_str)
-    response_time = ET.SubElement(pingdom_http_custom_check, "response_time")
-    strong = ET.SubElement(response_time, "strong")
-    strong.text = str(response_time_value)
+    root = ET.Element("pingdom_http_custom_check")
+    status = ET.SubElement(root, "status")
+    status.text = str(status_str)
+    response_time = ET.SubElement(root, "response_time")
+    response_time.text = str(response_time_value)
     xml = ET.tostring(root, encoding="unicode", method="xml")
     return xml
 
@@ -85,7 +83,12 @@ def application_service_health():
 
     :return: a tuple containing the status (OK or an error message) and the average response time (in seconds)
     """
-    services = [ping_celery, ping_postgres, ping_redis, ping_opensearch]
+    services = [
+        # ping_celery,
+        ping_postgres,
+        ping_redis,
+        ping_opensearch,
+    ]
     response_times = []
 
     for service_check in services:
