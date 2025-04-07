@@ -5,24 +5,21 @@ commands:
     description: "Install Python dependencies"
     steps:
       - run:
-         name: Install Python dependencies
-         command: |
+          name: Install Python dependencies
+          command: |
             python3 -m venv venv
             echo ". venv/bin/activate" >> $BASH_ENV
-            . venv/bin/activate
+            . venv/bin/activate  #
             pip install --upgrade pip
             pip install poetry==1.6.1
-            poetry export --with dev --without-hashes -f requirements.txt -o requirements-dev.txt
+            poetry export --dev --without-hashes -f requirements.txt -o requirements-dev.txt
             pip install -r requirements-dev.txt
 
   restore_dependency_cache:
     description: "Restore dependency cache."
     steps:
       - restore_cache:
-          keys:
-            - deps2-{{ .Branch }}-{{ checksum "requirements-dev.txt" }} 
-            - deps2-{{ .Branch }}-
-            - deps2-
+          key: deps2-{{ .Branch }}-{{ checksum "requirements-dev.txt" }} 
 
   save_dependency_cache:
     description: "Save dependency cache."
@@ -33,9 +30,10 @@ commands:
             - "venv"
 
 jobs:
+
   code_quality:
     docker:
-      - image: cimg/python:3.9.20
+      - image: cimg/python:3.9.11
     steps:
       - checkout
       - restore_dependency_cache
@@ -51,7 +49,7 @@ jobs:
             pflake8 trade_remedies_api --config pyproject.toml
   test_and_fitness_functions:
     docker:
-      - image: cimg/python:3.9.20
+      - image: cimg/python:3.9.11
         environment:
           DATABASE_URL: psql://ubuntu@localhost:5432/trade_remedies
           DJANGO_SETTINGS_MODULE: config.settings.test
