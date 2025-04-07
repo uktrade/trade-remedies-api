@@ -19,10 +19,7 @@ commands:
     description: "Restore dependency cache."
     steps:
       - restore_cache:
-          keys:
-            - deps2-{{ .Branch }}-{{ checksum "requirements-dev.txt" }} 
-            - deps2-{{ .Branch }}-
-            - deps2-
+          key: deps2-{{ .Branch }}-{{ checksum "requirements-dev.txt" }} 
 
   save_dependency_cache:
     description: "Save dependency cache."
@@ -33,6 +30,7 @@ commands:
             - "venv"
 
 jobs:
+
   code_quality:
     docker:
       - image: cimg/python:3.9.11
