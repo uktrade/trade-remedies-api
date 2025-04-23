@@ -8,8 +8,8 @@ class Command(BaseCommand):
     help = "Assign a company to a specific case role in a case."
 
     def add_arguments(self, parser):
-        parser.add_argument("organisation_id", type=int, help="ID of the organisation to assign.")
-        parser.add_argument("case_id", type=int, help="ID of the case.")
+        parser.add_argument("organisation_id", type=str, help="ID of the organisation to assign.")
+        parser.add_argument("case_id", type=str, help="ID of the case.")
         parser.add_argument("role_key", type=str, help="Key of the case role to assign.")
 
     def handle(self, *args, **options):
