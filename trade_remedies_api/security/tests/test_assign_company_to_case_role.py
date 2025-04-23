@@ -8,7 +8,7 @@ from security.models import OrganisationCaseRole, CaseRole
 
 
 class AssignCompanyToCaseRoleTest(TestCase):
-    fixtures = ["organisations.json", "cases.json", "roles.json"]
+    fixtures = ["tra_organisations.json", "roles.json"]
 
     def setUp(self):
         # Set up initial data for the test
