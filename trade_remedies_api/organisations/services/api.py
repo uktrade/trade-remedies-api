@@ -546,13 +546,13 @@ class OrganisationCaseRoleAPI(TradeRemediesApiView):
 
         if role_key:
             role = CaseRole.objects.get(key=role_key)
-            case_role, _ = OrganisationCaseRole.objects.get_or_create(
-                case=case, organisation=organisation, defaults={"role": role}
-            )
         else:
-            case_role, _ = OrganisationCaseRole.objects.get_or_create(
-                case=case, organisation=organisation
-            )
+            # Assign a default role if role_key is not provided
+            role = CaseRole.objects.get(key="applicant")
+
+        case_role, _ = OrganisationCaseRole.objects.get_or_create(
+            case=case, organisation=organisation, defaults={"role": role}
+        )
 
         # Add/update LOA contact
         if self.post_type == "loa":
