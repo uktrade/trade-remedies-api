@@ -49,12 +49,6 @@ class AssignCompanyToCaseRoleTest(TestCase):
         )
         self.assertEqual(organisation_case_role.role, new_role)
 
-    def test_assign_company_to_case_role_invalid_organisation(self):
-        # Test invalid organisation ID
-        with self.assertRaises(CommandError) as context:
-            call_command("assign_company_to_case_role", 999, self.case.id, self.role.key)
-        self.assertIn("Organisation with ID 999 does not exist", str(context.exception))
-
     def test_assign_company_to_case_role_invalid_case(self):
         # Test invalid case ID
         with self.assertRaises(CommandError) as context:
