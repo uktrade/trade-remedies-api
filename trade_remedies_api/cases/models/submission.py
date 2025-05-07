@@ -68,7 +68,7 @@ class SubmissionManager(models.Manager):
         case = get_case(case)
         submissions = self.filter(case=case, deleted_at__isnull=True).select_related(
             "type",
-            "status", 
+            "status",
             "organisation",
             "contact",
             "case",
@@ -91,7 +91,7 @@ class SubmissionManager(models.Manager):
             # Prefetch organisation case roles
             models.Prefetch(
                 "organisation__organisationcaserole_set",
-                queryset=OrganisationCaseRole.objects.filter(case=case)
+                queryset=OrganisationCaseRole.objects.filter(case=case),
             ),
         )
 
@@ -211,17 +211,6 @@ class Submission(BaseModel):
     objects = SubmissionManager()
 
     class Meta:
-        # indexes = [
-        #     models.Index(fields=['case']),
-        #     models.Index(fields=['organisation']),
-        #     models.Index(fields=['created_at']),
-        #     models.Index(fields=['archived']),
-        #     models.Index(fields=['type']),
-        #     models.Index(fields=['issued_at']),
-        #     # Composite indexes for common query patterns
-        #     models.Index(fields=['case', 'archived']),
-        #     models.Index(fields=['case', 'organisation']),
-        # ]
 
         permissions = (
             ("send_deficiency_notice", "Can send deficiency notices"),

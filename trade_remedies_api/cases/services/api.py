@@ -874,13 +874,14 @@ class SubmissionsAPIView(TradeRemediesApiView):
                 )
             else:
                 raise NotFoundApiExceptions("Submission not found or invalid access")
-            
+
         # Count total before slicing for pagination
         total_count = submissions.count()
 
         # Apply ordering and get paginated slice
-        submissions = submissions.order_by("-created_at")[(page-1)*page_size:page*page_size]
-        
+        submissions = submissions.order_by("-created_at")[(page - 1) * page_size : page * page_size]
+
+        # reduced to constanst size for the list comprehension
         _result_list = [
             submission.to_embedded_dict(
                 requested_by=request.user, requested_for=self.organisation, fields=fields
@@ -888,14 +889,12 @@ class SubmissionsAPIView(TradeRemediesApiView):
             for submission in submissions
         ]
 
-        return ResponseSuccess({
-            "results": _result_list,
-            "pagination": {
-                "page": page,
-                "page_size": page_size,
-                "total_count": total_count
+        return ResponseSuccess(
+            {
+                "results": _result_list,
+                "pagination": {"page": page, "page_size": page_size, "total_count": total_count},
             }
-        })
+        )
 
     @transaction.atomic
     def post(
