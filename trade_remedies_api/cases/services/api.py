@@ -855,7 +855,6 @@ class SubmissionsAPIView(TradeRemediesApiView):
             sampled_only=sampled_only,
         )
 
-        # Add pagination to avoid loading too many records
         page_size = int(request.query_params.get("page_size", 50))
         page = int(request.query_params.get("page", 1))
 
@@ -881,7 +880,7 @@ class SubmissionsAPIView(TradeRemediesApiView):
         # Apply ordering and get paginated slice
         submissions = submissions.order_by("-created_at")[(page - 1) * page_size : page * page_size]
 
-        # reduced to constanst size for the list comprehension
+        # reduced to smaller junk sizes for the list comprehension
         _result_list = [
             submission.to_embedded_dict(
                 requested_by=request.user, requested_for=self.organisation, fields=fields

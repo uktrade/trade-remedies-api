@@ -83,12 +83,10 @@ class SubmissionManager(models.Manager):
             "parent",
         )
 
-        # Add key prefetch_related to minimize additional queries
         submissions = submissions.prefetch_related(
             "submissiondocument_set__document",
             "submissiondocument_set__type",
             "invitations__contact",
-            # Prefetch organisation case roles
             models.Prefetch(
                 "organisation__organisationcaserole_set",
                 queryset=OrganisationCaseRole.objects.filter(case=case),
