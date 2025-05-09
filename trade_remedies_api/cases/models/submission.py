@@ -72,10 +72,27 @@ class SubmissionManager(models.Manager):
             "organisation",
             "contact",
             "case",
+            "case__type",
+            "case__stage",
             "created_by",
+            "sent_by",
+            "received_from",
+            "issued_by",
             "contact__userprofile",
             "contact__userprofile__user",
+            "parent",
         )
+
+        submissions = submissions.prefetch_related(
+            "submissiondocument_set__document",
+            "submissiondocument_set__type",
+            "invitations__contact",
+            models.Prefetch(
+                "organisation__organisationcaserole_set",
+                queryset=OrganisationCaseRole.objects.filter(case=case),
+            ),
+        )
+
         if submission_type_id:
             _sub_type = SubmissionType.objects.get(id=submission_type_id)
             submissions = submissions.filter(type=_sub_type)
@@ -192,6 +209,7 @@ class Submission(BaseModel):
     objects = SubmissionManager()
 
     class Meta:
+
         permissions = (
             ("send_deficiency_notice", "Can send deficiency notices"),
             ("publish_public", "Can issue to the public case record"),
