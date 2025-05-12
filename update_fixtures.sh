@@ -14,5 +14,3 @@ echo "Company sectors"
 ./manage.py dumpdata cases.sector --indent 4 > cases/fixtures/sectors.json
 echo "Archive reasons"
 ./manage.py dumpdata cases.archivereason --indent 4 > cases/fixtures/archive_reasons.json
-
-
