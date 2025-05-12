@@ -14,7 +14,7 @@ from core.services.exceptions import (
     AccessDenied,
     InvalidFileUpload,
 )
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.db import transaction, models
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -90,6 +90,7 @@ from audit.utils import audit_log
 from workflow.models import WorkflowTemplate
 from django_countries import countries
 from django.utils import timezone
+from core.models import UserProfile
 
 logger = logging.getLogger(__name__)
 
@@ -222,6 +223,13 @@ class CasesAPIView(TradeRemediesApiView):
         *args,
         **kwargs,
     ):
+
+        ###############################
+        # There are actually 12 different Case queries that can run coming into this get method.
+        # Some are worse than others, but they do have a high query time compared to other queries
+        # observed in the app.
+        ###############################
+
         audit_logger.info(
             "V1 - Case(s) accessed",
             extra={"case": case_id, "user": request.user.id, "organisation": organisation_id},
@@ -242,8 +250,25 @@ class CasesAPIView(TradeRemediesApiView):
                 else archived and (archived.lower() in TRUTHFUL_INPUT_VALUES)
             )
         }
+
+
+
+
+
+
+
+
         cases = []
+
+
+
+
+
+
+
+
         if all_cases in TRUTHFUL_INPUT_VALUES and all_initiated and organisation_id is None:
+            logger.critical("=================== QUERY CASE 1")
             cases = Case.objects.filter(
                 deleted_at__isnull=True, archived_at__isnull=True, initiated_at__isnull=False
             )
@@ -252,7 +277,15 @@ class CasesAPIView(TradeRemediesApiView):
             cases = cases.select_related(
                 "type", "stage", "archive_reason", "created_by", "workflow"
             ).order_by("sequence")
+
+
+
+
+
+
+
         elif archived in TRUTHFUL_INPUT_VALUES:
+            logger.critical("=================== QUERY CASE 2")
             cases = (
                 Case.objects.filter(
                     deleted_at__isnull=True, archived_at__isnull=False, initiated_at__isnull=False
@@ -265,7 +298,16 @@ class CasesAPIView(TradeRemediesApiView):
                 )
                 .order_by("sequence")
             )
+
+
+
+
+
+
+
+
         elif new_cases in TRUTHFUL_INPUT_VALUES:
+            logger.critical("=================== QUERY CASE 3")
             cases = (
                 Case.objects.filter(
                     deleted_at__isnull=True,
@@ -281,7 +323,17 @@ class CasesAPIView(TradeRemediesApiView):
                 )
                 .order_by("sequence")
             )
+
+
+
+
+
+
+
+
+
         elif all_investigator_cases in TRUTHFUL_INPUT_VALUES:
+            logger.critical("=================== QUERY CASE 4")
             user_cases = Case.objects.all_user_cases(user=request.user, **_kwargs)
             all_investigator_cases = Case.objects.investigator_cases(current=True).order_by(
                 "sequence"
@@ -293,11 +345,36 @@ class CasesAPIView(TradeRemediesApiView):
                 cases_dict_list.append(_dict)
             return ResponseSuccess({"results": cases_dict_list})
 
+
+
+
+
+
+
+
+
         elif registration_of_interest in TRUTHFUL_INPUT_VALUES:
+            logger.critical("=================== QUERY CASE 5")
             cases = Case.objects.available_for_regisration_of_intestest(request.user)
+
+
+
+
+
+
+
+
+
         elif organisation_id is None and case_id is None:
             user = request.user
+
+
+
+
+
+
             if outer_org_cases:
+                logger.critical("=================== QUERY CASE 6")
                 # Get the user-org-case objects for all users/cases in this user's org
                 # e.g. all the cases a law-firm has been involved in
                 user_cases = Case.objects.outer_user_cases(user=request.user)
@@ -329,6 +406,11 @@ class CasesAPIView(TradeRemediesApiView):
                         _dict.update({"role": caserole.to_dict()})
                     results.append(_dict)
                 return ResponseSuccess({"results": results})
+            
+
+
+
+            logger.critical("=================== QUERY CASE 7")
             user = User.objects.get(id=user_id) if user_id else user
             cases = Case.objects.all_user_cases(user=user, **_kwargs)
             results = []
@@ -337,7 +419,15 @@ class CasesAPIView(TradeRemediesApiView):
                 data["user_case"] = True
                 results.append(data)
             return ResponseSuccess({"results": results})
+        
+
+
+
+
+
+
         elif case_id and self.organisation:
+            logger.critical("=================== QUERY CASE 8")
             case = Case.objects.select_related(
                 "type", "stage", "archive_reason", "created_by", "workflow"
             ).get(
@@ -348,18 +438,38 @@ class CasesAPIView(TradeRemediesApiView):
             return ResponseSuccess(
                 {"result": case.to_dict(organisation=self.organisation, fields=fields)}
             )
+        
+
+
+
+
+
         elif organisation_id is not None:
+
+
+
+
             if outer_org_cases:
+                logger.critical("=================== QUERY CASE 9")
                 cases = self.organisation.related_cases(
                     initiated_only=all_initiated, requested_by=request.user
                 )
                 return ResponseSuccess({"results": cases})
+            
+
+
+
             elif all_cases:
+                logger.critical("=================== QUERY CASE 10")
                 for ocr in OrganisationCaseRole.objects.case_prepared(organisation_id):
                     case_dict = ocr.to_embedded_dict()
                     case_dict.update(ocr.case.to_embedded_dict(organisation=self.organisation))
                     cases.append(case_dict)
                 return ResponseSuccess({"results": cases})
+            
+
+
+            logger.critical("=================== QUERY CASE 11")
             cases = UserCase.objects.filter(
                 user=request.user, organisation_id=organisation_id
             ).select_related(
@@ -379,7 +489,14 @@ class CasesAPIView(TradeRemediesApiView):
                     raise NotFoundApiExceptions("Invalid case id or access is denied")
             else:
                 cases = set([usercase.case for usercase in cases])
+
+
+
+
+
+
         elif case_id:
+            logger.critical("=================== QUERY CASE 12")
             try:
                 if request.user.is_tra():
                     case = Case.objects.investigator_cases(request.user).get(id=case_id)
@@ -389,6 +506,11 @@ class CasesAPIView(TradeRemediesApiView):
                 return ResponseSuccess({"result": case.to_dict(fields=fields)})
             except Case.DoesNotExist:
                 raise NotFoundApiExceptions("Invalid case id or access is denied")
+
+
+
+
+
         return ResponseSuccess(
             {
                 "results": [
@@ -744,15 +866,102 @@ class CaseUserAssignAPI(TradeRemediesApiView):
     """
 
     def get(self, request, case_id, *args, **kwargs):
-        try:
-            case = Case.objects.get_case(id=case_id)
-        except Case.DoesNotExist:
-            raise NotFoundApiExceptions("invalid case id")
+
+        #########################################
+        #
+        # api_1           | 2025-02-25 15:09:12,905 CRITICAL ---------------------------------
+        # api_1           | 2025-02-25 15:09:12,909 CRITICAL sql.endpoint: /api/v1/case/b96ed20c-6ecc-4b8b-9930-95d04292fc35/team/
+        # api_1           | 2025-02-25 15:09:12,913 CRITICAL sql.query_count: 18
+        # api_1           | 2025-02-25 15:09:12,916 CRITICAL sql.query_time: 0.14752745628356934
+        # api_1           | 2025-02-25 15:09:12,923 CRITICAL ---------------------------------
+        #
+        #########################################
+        #team_list = Case.objects.filter(id=case_id).values("team").distinct()
+        #case = Case.objects.get(id=case_id)
+        #Entry.objects.filter(myfilter).values(columname).distinct()
+
+        #test = UserCase.objects.filter(case=case_id).prefetch_related("user", "user_userprofile", "organisation").filter(user__groups__name__in=SECURITY_GROUPS_TRA)
+
+        #check = UserCase.objects.filter(
+        #    case=case_id
+        #    ).select_related(
+        #        "user"
+        #    ).prefetch_related(
+        #        "organisation",
+        #        Prefetch(
+        #            "user",
+        #            queryset=UserProfile.objects.select_related("user")
+        #        )
+        #    ).filter(user__groups__name__in=SECURITY_GROUPS_TRA)
+        
+        check = UserCase.objects.filter(case=case_id).select_related("user").prefetch_related(
+            Prefetch("organisation", queryset=User.objects.select_related("userprofile"))
+        ).filter(user__groups__name__in=SECURITY_GROUPS_TRA)
+
+
+        #logger.critical("++++++++++++++++++")
+        #logger.critical(check)
+        #logger.critical("+")
+        #logger.critical(case.team)
+        #logger.critical("++++++++++++++++++")
         results = []
-        for member in case.team:
+        for member in check:
             dict = member.to_dict()
             dict["user"] = member.user.to_dict()
             results.append(dict)
+
+#class Topping(models.Model):
+#    name = models.CharField(max_length=30)
+#
+#
+#class Pizza(models.Model):
+#    name = models.CharField(max_length=50)
+#    toppings = models.ManyToManyField(Topping)
+#
+#    def __str__(self):
+#        return "%s (%s)" % (
+#            self.name,
+#            ", ".join(topping.name for topping in self.toppings.all()),
+#        )
+#    
+#class Restaurant(models.Model):
+#    pizzas = models.ManyToManyField(Pizza, related_name="restaurants")
+#    best_pizza = models.ForeignKey(
+#        Pizza, related_name="championed_by", on_delete=models.CASCADE
+#    )
+#
+#Pizza.objects.prefetch_related(
+#    Prefetch("restaurants", queryset=Restaurant.objects.select_related("best_pizza"))
+#)
+
+
+
+        #Project.objects.filter(
+        #        is_main_section=True
+        #    ).select_related(
+        #        'project_group'
+        #    ).prefetch_related(
+        #        Prefetch(
+        #            'project_group__project_set',
+        #            queryset=Project.objects.prefetch_related(
+        #                Prefetch(
+        #                    'projectmember_set',
+        #                    to_attr='projectmember_list'
+        #                )
+        #            ),
+        #            to_attr='project_list'
+        #        )
+        #    )
+
+        #try:
+        #    case = Case.objects.get_case(id=case_id)
+        #except Case.DoesNotExist:
+        #    raise NotFoundApiExceptions("invalid case id")
+        #results = []
+        #for member in case.team:
+        #    dict = member.to_dict()
+        #    dict["user"] = member.user.to_dict()
+        #    results.append(dict)
 
         return ResponseSuccess({"results": results})
 
@@ -828,9 +1037,26 @@ class SubmissionsAPIView(TradeRemediesApiView):
 
     """
 
+
+
+
+    # api_1           | 2025-02-26 09:45:36,499 CRITICAL ---------------------------------
+    # api_1           | 2025-02-26 09:45:36,502 CRITICAL sql.endpoint: /api/v1/case/b96ed20c-6ecc-4b8b-9930-95d04292fc35/submissions/global/
+    # api_1           | 2025-02-26 09:45:36,504 CRITICAL sql.query_count: 6
+    # api_1           | 2025-02-26 09:45:36,507 CRITICAL sql.query_time: 0.10882377624511719
+    # api_1           | 2025-02-26 09:45:36,510 CRITICAL ---------------------------------
+
+
+
+
+
+
     show_global = False
 
     def get(self, request, organisation_id=None, case_id=None, submission_id=None, *args, **kwargs):
+
+        logger.critical("THIS IS THE QUERY CAUSING THE TROUBLE MAYBE?????????????")
+
         case = None
         private = request.query_params.get("private", "false").lower() in ("true", "1", "t", "y")
         self.show_global = self.show_global or request.query_params.get(
@@ -1793,6 +2019,20 @@ class CaseEnumsAPI(TradeRemediesApiView):
     """
 
     def get(self, request, case_id=None, *args, **kwargs):
+
+
+        #########################################
+        # This one is HEFTY. Stat from a single case in the DB.
+        #
+        # api_1           | 2025-02-25 14:48:36,650 CRITICAL ---------------------------------
+        # api_1           | 2025-02-25 14:48:36,665 CRITICAL sql.endpoint: /api/v1/cases/enums/
+        # api_1           | 2025-02-25 14:48:36,679 CRITICAL sql.query_count: 112
+        # api_1           | 2025-02-25 14:48:36,693 CRITICAL sql.query_time: 0.2336742877960205
+        # api_1           | 2025-02-25 14:48:36,707 CRITICAL ---------------------------------
+        #
+        #########################################
+
+
         case = None
         available_submission_types = {}
         case_id = case_id or request.query_params.get("case_id")

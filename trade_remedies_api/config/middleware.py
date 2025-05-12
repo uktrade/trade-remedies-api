@@ -4,11 +4,43 @@ from django.conf import settings
 from sentry_sdk import set_user
 import time
 from core.services.exceptions import AccessDenied
+from django.db import connection
+import logging
+logger = logging.getLogger(__name__)
 
 
 class MiddlewareMixin:
     def __init__(self, get_response):
         self.get_response = get_response
+
+
+class SqlMonitor:
+    def __init__(self):
+        self.query_count = 0
+        self.query_time = 0.0
+
+    def __call__(self, execute, sql, params, many, context):
+        start_time = time.time()
+        try:
+            return execute(sql, params, many, context)
+        finally:
+            self.query_count += 1
+            self.query_time += time.time() - start_time
+
+
+class SqlMonitorMiddleware(MiddlewareMixin):
+    def __call__(self, request):
+        sql_monitor = SqlMonitor()
+        with connection.execute_wrapper(sql_monitor):
+            response = self.get_response(request)
+
+        logger.critical("---------------------------------")
+        logger.critical(f"sql.endpoint: {request.path}")
+        logger.critical(f"sql.query_count: {sql_monitor.query_count}")
+        logger.critical(f"sql.query_time: {sql_monitor.query_time}")
+        logger.critical("---------------------------------")
+
+        return response
 
 
 class ApiTokenSetter(MiddlewareMixin):
