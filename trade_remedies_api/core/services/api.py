@@ -110,7 +110,7 @@ class UserApiView(TradeRemediesApiView):
     def get(self, request, user_id=None, user_group=None, *args, **kwargs):
         """
         Return all users or a specific user by id.
-        
+
         Args:
             user_id (str, optional): Specific user ID to return. If None, returns all users.
             user_group (str, optional): Filter users by 'caseworker' or 'public' group.
@@ -124,7 +124,7 @@ class UserApiView(TradeRemediesApiView):
         else:
             # Get pagination parameters
             page = int(request.query_params.get("page", 1))
-            page_size = int(request.query_params.get("page_size", 50))
+            page_size = int(request.query_params.get("page_size", 25))
 
             groups = request.query_params.getlist("groups")
 
@@ -146,21 +146,17 @@ class UserApiView(TradeRemediesApiView):
             # Count total results for pagination info
             total_count = users.count()
             # Apply sorting and pagination
-            users = users.order_by("name")[(page - 1) * page_size : page * page_size]
-
+            users = users.order_by("-created_at")[(page - 1) * page_size : page * page_size]
 
             return ResponseSuccess(
                 {
-                    "results": [
-                        user.to_dict()
-                        for user in users
-                    ],
+                    "results": [user.to_dict() for user in users],
                     "pagination": {
                         "page": page,
                         "page_size": page_size,
                         "total_count": total_count,
-                        "total_pages": (total_count + page_size - 1) // page_size
-                    }
+                        "total_pages": (total_count + page_size - 1) // page_size,
+                    },
                 }
             )
 

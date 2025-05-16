@@ -710,18 +710,20 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
             o_user.security_group.name for o_user in self.get_organisation_user_groups()
         ]
 
-        _dict.update({
-            "manager": self.is_tra(manager=True),
-            "should_two_factor": self.should_two_factor(user_agent),
-            **self.address,
-        })
+        _dict.update(
+            {
+                "manager": self.is_tra(manager=True),
+                "should_two_factor": self.should_two_factor(user_agent),
+                **self.address,
+            }
+        )
 
         representing = []
         for rep in self.representing:
             if rep:
                 representing.append(rep.to_embedded_dict())
         _dict["representing"] = representing
-        
+
         # Add permissions map
         _dict["permissions"] = self.permission_map
 
@@ -738,7 +740,7 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
             }
         try:
             # Access userprofile directly to avoid getter method overhead
-            if hasattr(self, 'userprofile'):
+            if hasattr(self, "userprofile"):
                 _dict.update(self.userprofile.to_dict())
         except AttributeError as e:
             logger.warning(f"Cannot expand user profile: {e}")
