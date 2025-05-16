@@ -691,6 +691,9 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
         If the implementing class has the _to_dict method, it's output
         if used to update the core dict data
         """
+        # Pre-fetch commonly accessed attributes to avoid repeated DB calls
+        groups = list(self.get_groups())
+        is_tra = self.is_tra()  # Use method_cache
         _dict = {
             "id": str(self.id),
             "created_at": self.created_at.strftime(settings.API_DATETIME_FORMAT),
@@ -698,21 +701,30 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
             "name": escape(self.name),
             "initials": self.initials,
             "active": self.is_active,
-            "groups": [group.name for group in self.get_groups()],
-            "organisation_groups": [
-                o_user.security_group.name for o_user in self.get_organisation_user_groups()
-            ],
-            "tra": self.is_tra(),
+            "tra": is_tra,
+            "groups": [group.name for group in groups],
+        }
+
+        # Get organization groups in a single query if needed
+        _dict["organisation_groups"] = [
+            o_user.security_group.name for o_user in self.get_organisation_user_groups()
+        ]
+
+        _dict.update({
             "manager": self.is_tra(manager=True),
             "should_two_factor": self.should_two_factor(user_agent),
-            "representing": [
-                representing.to_embedded_dict()
-                for representing in self.representing
-                if representing
-            ],
-            "permissions": self.permission_map,
             **self.address,
-        }
+        })
+
+        representing = []
+        for rep in self.representing:
+            if rep:
+                representing.append(rep.to_embedded_dict())
+        _dict["representing"] = representing
+        
+        # Add permissions map
+        _dict["permissions"] = self.permission_map
+
         # TODO: There is a duplication here between this code and the userprofile following
         # Is this needed? why? seems to be validating an organisation...
         if organisation:
@@ -725,8 +737,9 @@ class User(AbstractBaseUser, PermissionsMixin, CaseSecurityMixin):
                 "role": user_org.to_embedded_dict() if user_org else {},
             }
         try:
-            # System users (e.g. Healthcheck) will not have a profile.
-            _dict.update(self.userprofile.to_dict())
+            # Access userprofile directly to avoid getter method overhead
+            if hasattr(self, 'userprofile'):
+                _dict.update(self.userprofile.to_dict())
         except AttributeError as e:
             logger.warning(f"Cannot expand user profile: {e}")
         except Exception as e:
