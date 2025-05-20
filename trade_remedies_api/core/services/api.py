@@ -109,19 +109,32 @@ class UserApiView(TradeRemediesApiView):
 
     def get(self, request, user_id=None, user_group=None, *args, **kwargs):
         """
-        Return all users or a specific one by id
+        Return all users or a specific user by id.
+
+        Args:
+            user_id (str, optional): Specific user ID to return. If None, returns all users.
+            user_group (str, optional): Filter users by 'caseworker' or 'public' group.
+
+        Returns:
+            ResponseSuccess: Contains single user dict if user_id provided, else list of user dicts with pagination.
         """
         if user_id is not None:
             user = User.objects.get(id=user_id)
             return ResponseSuccess({"result": user.to_dict()})
         else:
+            # Get pagination parameters
+            page = int(request.query_params.get("page", 1))
+            page_size = int(request.query_params.get("page_size", 25))
+
             groups = request.query_params.getlist("groups")
+
             users = (
                 User.objects.exclude(groups__name=SECURITY_GROUP_SUPER_USER)
                 .exclude(userprofile__isnull=True)
                 .exclude(deleted_at__isnull=False)
                 .select_related("userprofile", "twofactorauth")
                 .prefetch_related("groups", "usercase_set", "organisationuser_set")
+                .distinct()
             )
             if groups:
                 users = users.filter(groups__name__in=groups)
@@ -130,13 +143,20 @@ class UserApiView(TradeRemediesApiView):
             elif user_group == "public":
                 users = users.filter(groups__name__in=SECURITY_GROUPS_PUBLIC)
 
+            # Count total results for pagination info
+            total_count = users.count()
+            # Apply sorting and pagination
+            users = users.order_by("-created_at")[(page - 1) * page_size : page * page_size]
+
             return ResponseSuccess(
                 {
-                    "results": [
-                        # user.to_embedded_dict(groups=True) for user in users
-                        user.to_dict()
-                        for user in users
-                    ]
+                    "results": [user.to_dict() for user in users],
+                    "pagination": {
+                        "page": page,
+                        "page_size": page_size,
+                        "total_count": total_count,
+                        "total_pages": (total_count + page_size - 1) // page_size,
+                    },
                 }
             )
 
