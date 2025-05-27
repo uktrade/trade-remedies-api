@@ -872,28 +872,16 @@ class SubmissionsAPIView(TradeRemediesApiView):
                     sampled_only=sampled_only,
                 )
 
-                if fields:
-                    # If specific fields are requested, use lighter serialization
-                    result_dict = submission.to_embedded_dict(
-                        requested_by=request.user, requested_for=self.organisation, fields=fields
-                    )
-                    # Only load documents if needed
-                    if "documents" in fields.split(","):
-                        docs = submission.submission_documents()
-                        result_dict["documents"] = [doc.to_dict(user=request.user) for doc in docs]
-                    return ResponseSuccess({"result": result_dict})
-                else:
-                    # Use full serialization when no specific fields are requested
-                    return ResponseSuccess(
-                        {
-                            "result": submission.to_dict(
-                                requested_by=request.user,
-                                requested_for=self.organisation,
-                                with_documents=True,
-                                fields=fields,
-                            )
-                        }
-                    )
+                return ResponseSuccess(
+                    {
+                        "result": submission.to_dict(
+                            requested_by=request.user,
+                            requested_for=self.organisation,
+                            with_documents=True,
+                            fields=fields,
+                        )
+                    }
+                )
             except Submission.model.DoesNotExist:
                 raise NotFoundApiExceptions("Submission not found or invalid access")
 
