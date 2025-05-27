@@ -31,11 +31,11 @@ class SubmissionManager(models.Manager):
     def get_submission(self, id, case=None):
         """
         Get a submission by ID with optional case filtering and result caching.
-    
+
         Args:
             id: The submission ID
             case: Optional case to filter by
-        
+
         Returns:
             Submission object with related fields preloaded
         """
@@ -52,7 +52,6 @@ class SubmissionManager(models.Manager):
         cached_result = cache.get(cache_key)
         if cached_result:
             return cached_result
-        
 
         submission = self.select_related(
             "case",
