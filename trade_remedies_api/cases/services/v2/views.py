@@ -1,8 +1,10 @@
 import re
+import sentry_sdk
 
 from django.http import HttpResponseBadRequest
 from django.db import transaction
 from django.http import JsonResponse
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -17,6 +19,7 @@ from cases.services.v2.serializers import (
     PublicFileSerializer,
     SubmissionSerializer,
     SubmissionTypeSerializer,
+    SubmissionReadOnlySerializer,
 )
 from config.viewsets import BaseModelViewSet
 from organisations.models import Organisation
@@ -150,6 +153,63 @@ class SubmissionViewSet(BaseModelViewSet):
     queryset = Submission.objects.all()
     serializer_class = SubmissionSerializer
 
+    def get_serializer_class(self):
+        """Use read-only serializer for retrieve and list actions"""
+        if self.action in ["retrieve", "list"]:
+            return SubmissionReadOnlySerializer
+        return SubmissionSerializer
+
+    def retrieve(self, request, pk=None):
+        """
+        Retrieve a single submission instance with optimized querying and caching.
+
+        Args:
+            request: The HTTP request
+            pk: submission ID (UUID) | None
+
+        Returns:
+            Response with serialized submission data
+        """
+        try:
+
+            submission = Submission.objects.get_submission(id=pk)
+
+            serializer = self.get_serializer(submission)
+
+            audit_logger.info(
+                "Submission retrieved",
+                extra={
+                    "submission": submission.id,
+                    "user": request.user.id,
+                    "case": submission.case_id,
+                },
+            )
+
+            return Response(serializer.data)
+
+        except Submission.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            # Log unexpected errors
+            audit_logger.error(
+                "Error retrieving submission",
+                extra={"submission_id": pk, "error": str(e)},
+            )
+
+            sentry_sdk.capture_exception(
+                error=e,
+                scope={
+                    "submission_id": pk,
+                    "user_id": request.user.id,
+                    "case_id": request.query_params.get("case"),
+                    "endpoint": "submission-retrieve",
+                },
+            )
+
+            return Response(
+                {"detail": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
     @action(detail=True, methods=["put"], url_name="update_submission_status")
     def update_submission_status(self, request, *args, **kwargs):
         """Updates the status of a submission object.
@@ -213,7 +273,7 @@ class SubmissionViewSet(BaseModelViewSet):
             # If it does, we return a 409 with the serialized ROI that already exists
             return Response(
                 status=409,
-                data=self.serializer_class(existing_roi, many=True, parsed_query=parsed_query).data,
+                data=self.get_serializer(existing_roi, many=True, parsed_query=parsed_query).data,
             )
 
         # Always use the requesting user's contact object, as that is the person actually
@@ -274,7 +334,7 @@ class SubmissionViewSet(BaseModelViewSet):
         )
 
         return Response(
-            self.serializer_class(instance=submission_object, parsed_query=parsed_query).data
+            self.get_serializer(instance=submission_object, parsed_query=parsed_query).data
         )
 
     def perform_create(self, serializer):

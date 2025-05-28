@@ -29,20 +29,52 @@ from .workflow import CaseWorkflowState
 
 class SubmissionManager(models.Manager):
     def get_submission(self, id, case=None):
+        """
+        Get a submission by ID with optional case filtering and result caching.
+
+        Args:
+            id: The submission ID
+            case: Optional case to filter by
+
+        Returns:
+            Submission object with related fields preloaded
+        """
+        from django.core.cache import cache
+
         query_kwargs = {"id": id}
         if case:
             query_kwargs["case"] = case
-        return self.select_related(
-            "case",
-            "organisation",
-            "type",
-            "status",
-            "contact",
-            "sent_by",
-            "created_by",
-            "case_role",
-            "issued_by",
-        ).get(**query_kwargs)
+
+        # Generate a cache key based on submission ID and case ID (if provided)
+        cache_key = f"submission_{id}_{case.id if case else 'none'}"
+
+        cached_result = cache.get(cache_key)
+        if cached_result:
+            return cached_result
+
+        submission = (
+            self.select_related(
+                "case",
+                "organisation",
+                "type",
+                "status",
+                "contact",
+                "sent_by",
+                "created_by",
+                "case_role",
+                "issued_by",
+                "case__type",
+            )
+            .prefetch_related(
+                "submissiondocument_set__document",
+                "submissiondocument_set__type",
+            )
+            .get(**query_kwargs)
+        )
+
+        cache.set(cache_key, submission, 60 * settings.METHOD_CACHE_DURATION_MINUTES)
+
+        return submission
 
     def get_submissions(
         self,

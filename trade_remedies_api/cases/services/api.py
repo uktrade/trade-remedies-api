@@ -845,22 +845,33 @@ class SubmissionsAPIView(TradeRemediesApiView):
                 case = Case.objects.get(id=case_id)
             except Case.DoesNotExist:
                 raise NotFoundApiExceptions("Case not found or access denied")
-        submissions = Submission.objects.get_submissions(
-            case=case,
-            requested_by=request.user,
-            requested_for=self.organisation,
-            private=private,
-            submission_id=submission_id,
-            show_global=self.show_global,
-            sampled_only=sampled_only,
-        )
+
+        # we want all submissions
+        if case_id and not submission_id:
+            submissions = Submission.objects.get_submissions(
+                case=case,
+                requested_by=request.user,
+                requested_for=self.organisation,
+                private=private,
+                show_global=self.show_global,
+                sampled_only=sampled_only,
+            )
 
         page_size = int(request.query_params.get("page_size", 50))
         page = int(request.query_params.get("page", 1))
 
         if submission_id:
-            if submissions:
-                submission = submissions.get(id=submission_id)
+            try:
+                submission = Submission.objects.get_submission(
+                    submission_id=submission_id,
+                    case=case,
+                    requested_by=request.user,
+                    requested_for=self.organisation,
+                    private=private,
+                    show_global=self.show_global,
+                    sampled_only=sampled_only,
+                )
+
                 return ResponseSuccess(
                     {
                         "result": submission.to_dict(
@@ -871,7 +882,7 @@ class SubmissionsAPIView(TradeRemediesApiView):
                         )
                     }
                 )
-            else:
+            except Submission.model.DoesNotExist:
                 raise NotFoundApiExceptions("Submission not found or invalid access")
 
         # Count total before slicing for pagination
@@ -880,7 +891,7 @@ class SubmissionsAPIView(TradeRemediesApiView):
         # Apply ordering and get paginated slice
         submissions = submissions.order_by("-created_at")[(page - 1) * page_size : page * page_size]
 
-        # reduced to smaller junk sizes for the list comprehension
+        # smaller chunk sizes for the list comprehension
         _result_list = [
             submission.to_embedded_dict(
                 requested_by=request.user, requested_for=self.organisation, fields=fields
