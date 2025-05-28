@@ -19,6 +19,7 @@ from cases.services.v2.serializers import (
     PublicFileSerializer,
     SubmissionSerializer,
     SubmissionTypeSerializer,
+    SubmissionReadOnlySerializer,
 )
 from config.viewsets import BaseModelViewSet
 from organisations.models import Organisation
@@ -150,7 +151,13 @@ class CaseViewSet(BaseModelViewSet):
 
 class SubmissionViewSet(BaseModelViewSet):
     queryset = Submission.objects.all()
-    serializer_class = SubmissionSerializer
+
+    def get_serializer_class(self):
+        """Use read-only serializer for retrieve and list actions"""
+        queryset = super().get_queryset()
+        if self.action in ["retrieve", "list"]:
+            return SubmissionReadOnlySerializer.setup_eager_loading(queryset)
+        return SubmissionSerializer
 
     def retrieve(self, request, pk=None):
         """
@@ -164,13 +171,10 @@ class SubmissionViewSet(BaseModelViewSet):
             Response with serialized submission data
         """
         try:
-            submission = Submission.objects.get_submission(id=pk)
 
-            # Get serializer context with request
-            context = self.get_serializer_context()
+            submission = get_object_or_404(self.queryset, pk=pk)
 
-            # Serialize with proper context and filtering
-            serializer = self.get_serializer(submission, context=context)
+            serializer = self.get_serializer(submission)
 
             audit_logger.info(
                 "Submission retrieved",
@@ -269,7 +273,7 @@ class SubmissionViewSet(BaseModelViewSet):
             # If it does, we return a 409 with the serialized ROI that already exists
             return Response(
                 status=409,
-                data=self.serializer_class(existing_roi, many=True, parsed_query=parsed_query).data,
+                data=self.get_serializer(existing_roi, many=True, parsed_query=parsed_query).data,
             )
 
         # Always use the requesting user's contact object, as that is the person actually
@@ -330,7 +334,7 @@ class SubmissionViewSet(BaseModelViewSet):
         )
 
         return Response(
-            self.serializer_class(instance=submission_object, parsed_query=parsed_query).data
+            self.get_serializer(instance=submission_object, parsed_query=parsed_query).data
         )
 
     def perform_create(self, serializer):

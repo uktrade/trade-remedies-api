@@ -1,3 +1,4 @@
+from django.db import models
 from django_restql.fields import NestedField
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
@@ -238,6 +239,75 @@ class SubmissionSerializer(CustomValidationModelSerializer):
                 )
 
         return orphaned_documents
+
+
+class SubmissionReadOnlySerializer(serializers.Serializer):
+    """
+    Optimized read-only serializer for submissions.
+    Removes validation overhead and includes only necessary fields.
+    """
+
+    id = serializers.UUIDField(read_only=True)
+    name = serializers.CharField(read_only=True)
+    received_at = serializers.DateTimeField(read_only=True)
+    sent_at = serializers.DateTimeField(read_only=True)
+    issued_at = serializers.DateTimeField(read_only=True)
+    deficiency_notice_params = serializers.JSONField(read_only=True)
+
+    # Simple read-only fields
+    organisation_name = serializers.ReadOnlyField(source="organisation.name")
+    organisation_case_role_name = serializers.ReadOnlyField()
+    is_tra = serializers.ReadOnlyField()
+
+    # Minimal nested serializers
+    case = NestedField(
+        serializer_class=CaseSerializer, read_only=True, fields=["id", "reference", "name", "type"]
+    )
+
+    type = NestedField(
+        serializer_class=SubmissionTypeSerializer, read_only=True, fields=["id", "name", "key"]
+    )
+
+    status = NestedField(
+        serializer_class=SubmissionStatusSerializer, read_only=True, fields=["id", "name"]
+    )
+
+    # Documents with minimal fields
+    submission_documents = serializers.SerializerMethodField()
+
+    def get_submission_documents(self, instance):
+        """Optimized document retrieval"""
+        documents = instance.submissiondocument_set.select_related("document", "type").filter(
+            deleted_at__isnull=True
+        )
+
+        # Filter confidential docs if requested
+        request = self.context.get("request")
+        if request and request.GET.get("non_confidential_only") == "True":
+            documents = documents.filter(document__confidential=False)
+
+        return SubmissionDocumentSerializer(documents, many=True).data
+
+    @staticmethod
+    def setup_eager_loading(queryset):
+        """
+        Optimise queryset loading with specific select_related and prefetch_related
+        """
+        return queryset.select_related(
+            "case", "organisation", "type", "status", "contact", "case__type"
+        ).prefetch_related(
+            models.Prefetch(
+                "submissiondocument_set",
+                queryset=SubmissionDocument.objects.select_related("document", "type").filter(
+                    deleted_at__isnull=True
+                ),
+            )
+        )
+
+    class Meta:
+        """Additional meta options for optimization"""
+
+        read_only_fields = "__all__"
 
 
 class PublicFileSerializer(serializers.Serializer):
