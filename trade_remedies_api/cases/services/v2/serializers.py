@@ -260,16 +260,11 @@ class SubmissionReadOnlySerializer(serializers.Serializer):
     is_tra = serializers.ReadOnlyField()
 
     # Minimal nested serializers
-    case = NestedField(
-        serializer_class=CaseSerializer, read_only=True, fields=["id", "reference", "name", "type"]
-    )
+    case = NestedField(serializer_class=CaseSerializer, read_only=True, accept_pk=True)
 
-    type = NestedField(
-        serializer_class=SubmissionTypeSerializer, read_only=True, fields=["id", "name", "key"]
-    )
-
+    type = NestedField(serializer_class=SubmissionTypeSerializer, read_only=True, accept_pk=True)
     status = NestedField(
-        serializer_class=SubmissionStatusSerializer, read_only=True, fields=["id", "name"]
+        serializer_class=SubmissionStatusSerializer, read_only=True, accept_pk=True
     )
 
     # Documents with minimal fields
