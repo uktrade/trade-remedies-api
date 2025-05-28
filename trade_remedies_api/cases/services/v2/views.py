@@ -165,7 +165,7 @@ class SubmissionViewSet(BaseModelViewSet):
 
         Args:
             request: The HTTP request
-            kwargs: URL kwargs including 'pk' for submission ID
+            pk: submission ID (UUID) | None
 
         Returns:
             Response with serialized submission data
