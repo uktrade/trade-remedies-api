@@ -48,7 +48,7 @@ class SubmissionManager(models.Manager):
         # Generate a cache key based on submission ID and case ID (if provided)
         cache_key = f"submission_{id}_{case.id if case else 'none'}"
 
-        cached_result = cache.get(cache_key, timeout=2)
+        cached_result = cache.get(cache_key)
         if cached_result:
             return cached_result
 
@@ -75,8 +75,7 @@ class SubmissionManager(models.Manager):
             .get(**query_kwargs)
         )
 
-        # Cache the result for future queries (cache for 10 mins)
-        cache.set(cache_key, submission, 60 * 10)
+        cache.set(cache_key, submission, 60 * settings.METHOD_CACHE_DURATION_MINUTES)
 
         return submission
 
