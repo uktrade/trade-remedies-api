@@ -155,7 +155,6 @@ class SubmissionViewSet(BaseModelViewSet):
 
     def get_serializer_class(self):
         """Use read-only serializer for retrieve and list actions"""
-        queryset = super().get_queryset()
         if self.action in ["retrieve", "list"]:
             return SubmissionReadOnlySerializer
         return SubmissionSerializer
