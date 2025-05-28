@@ -151,12 +151,13 @@ class CaseViewSet(BaseModelViewSet):
 
 class SubmissionViewSet(BaseModelViewSet):
     queryset = Submission.objects.all()
+    serializer_class = SubmissionSerializer
 
     def get_serializer_class(self):
         """Use read-only serializer for retrieve and list actions"""
         queryset = super().get_queryset()
         if self.action in ["retrieve", "list"]:
-            return SubmissionReadOnlySerializer.setup_eager_loading(queryset)
+            return SubmissionReadOnlySerializer
         return SubmissionSerializer
 
     def retrieve(self, request, pk=None):
@@ -172,7 +173,7 @@ class SubmissionViewSet(BaseModelViewSet):
         """
         try:
 
-            submission = get_object_or_404(self.queryset, pk=pk)
+            submission = Submission.objects.get_submission(id=pk)
 
             serializer = self.get_serializer(submission)
 

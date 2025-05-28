@@ -272,27 +272,6 @@ class SubmissionReadOnlySerializer(serializers.Serializer):
         serializer_class=SubmissionDocumentSerializer, many=True, read_only=True
     )
 
-    @staticmethod
-    def setup_eager_loading(queryset):
-        """
-        Optimise queryset loading with specific select_related and prefetch_related
-        """
-        return queryset.select_related(
-            "case", "organisation", "type", "status", "contact", "case__type"
-        ).prefetch_related(
-            models.Prefetch(
-                "submissiondocument_set",
-                queryset=SubmissionDocument.objects.select_related("document", "type").filter(
-                    deleted_at__isnull=True
-                ),
-            )
-        )
-
-    class Meta:
-        """Additional meta options for optimization"""
-
-        read_only_fields = "__all__"
-
 
 class PublicFileSerializer(serializers.Serializer):
     submission_id = serializers.UUIDField()
