@@ -39,7 +39,6 @@ class SubmissionManager(models.Manager):
         Returns:
             Submission object with related fields preloaded
         """
-        # Import cache module inside the method to avoid circular imports
         from django.core.cache import cache
 
         query_kwargs = {"id": id}
@@ -49,21 +48,32 @@ class SubmissionManager(models.Manager):
         # Generate a cache key based on submission ID and case ID (if provided)
         cache_key = f"submission_{id}_{case.id if case else 'none'}"
 
-        cached_result = cache.get(cache_key)
+        cached_result = cache.get(cache_key, timeout=2)
         if cached_result:
             return cached_result
 
-        submission = self.select_related(
-            "case",
-            "organisation",
-            "type",
-            "status",
-            "contact",
-            "sent_by",
-            "created_by",
-            "case_role",
-            "issued_by",
-        ).get(**query_kwargs)
+        # Build optimized query
+        submission = (
+            self.select_related(
+                "case",
+                "organisation",
+                "type",
+                "status",
+                "contact",
+                "sent_by",
+                "created_by",
+                "case_role",
+                "issued_by",
+                "organisation__country",  # Pre-fetch for organisation.country.name
+                "case__type",  # Pre-fetch for case type relations
+                "contact__userprofile",  # Pre-fetch for contact relations
+            )
+            .prefetch_related(
+                "submissiondocument_set__document",
+                "submissiondocument_set__type",
+            )
+            .get(**query_kwargs)
+        )
 
         # Cache the result for future queries (cache for 10 mins)
         cache.set(cache_key, submission, 60 * 10)
