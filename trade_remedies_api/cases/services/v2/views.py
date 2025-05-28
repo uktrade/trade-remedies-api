@@ -189,13 +189,13 @@ class SubmissionViewSet(BaseModelViewSet):
             # Log unexpected errors
             audit_logger.error(
                 "Error retrieving submission",
-                extra={"submission_id": kwargs.get("pk"), "error": str(e)},
+                extra={"submission_id": pk, "error": str(e)},
             )
 
             sentry_sdk.capture_exception(
                 error=e,
                 scope={
-                    "submission_id": kwargs.get("pk"),
+                    "submission_id": pk,
                     "user_id": request.user.id,
                     "case_id": request.query_params.get("case"),
                     "endpoint": "submission-retrieve",
