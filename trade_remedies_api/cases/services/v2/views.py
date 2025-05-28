@@ -152,7 +152,7 @@ class SubmissionViewSet(BaseModelViewSet):
     queryset = Submission.objects.all()
     serializer_class = SubmissionSerializer
 
-    def retrieve(self, request, *args, **kwargs):
+    def retrieve(self, request, pk=None):
         """
         Retrieve a single submission instance with optimized querying and caching.
 
@@ -164,9 +164,7 @@ class SubmissionViewSet(BaseModelViewSet):
             Response with serialized submission data
         """
         try:
-            submission = Submission.objects.get_submission(
-                id=kwargs.get("pk"), case=request.query_params.get("case")
-            )
+            submission = Submission.objects.get_submission(id=pk)
 
             # Get serializer context with request
             context = self.get_serializer_context()
