@@ -268,20 +268,9 @@ class SubmissionReadOnlySerializer(serializers.Serializer):
     )
 
     # Documents with minimal fields
-    submission_documents = serializers.SerializerMethodField()
-
-    def get_submission_documents(self, instance):
-        """Optimized document retrieval"""
-        documents = instance.submissiondocument_set.select_related("document", "type").filter(
-            deleted_at__isnull=True
-        )
-
-        # Filter confidential docs if requested
-        request = self.context.get("request")
-        if request and request.GET.get("non_confidential_only") == "True":
-            documents = documents.filter(document__confidential=False)
-
-        return SubmissionDocumentSerializer(documents, many=True).data
+    submission_documents = NestedField(
+        serializer_class=SubmissionDocumentSerializer, many=True, read_only=True
+    )
 
     @staticmethod
     def setup_eager_loading(queryset):
