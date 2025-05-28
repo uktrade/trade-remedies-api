@@ -52,7 +52,6 @@ class SubmissionManager(models.Manager):
         if cached_result:
             return cached_result
 
-        # Build optimized query
         submission = (
             self.select_related(
                 "case",
@@ -64,9 +63,7 @@ class SubmissionManager(models.Manager):
                 "created_by",
                 "case_role",
                 "issued_by",
-                "organisation__country",  # Pre-fetch for organisation.country.name
-                "case__type",  # Pre-fetch for case type relations
-                "contact__userprofile",  # Pre-fetch for contact relations
+                "case__type",
             )
             .prefetch_related(
                 "submissiondocument_set__document",
