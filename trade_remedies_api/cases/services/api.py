@@ -863,15 +863,8 @@ class SubmissionsAPIView(TradeRemediesApiView):
         if submission_id:
             try:
                 submission = Submission.objects.get_submission(
-                    submission_id=submission_id,
-                    case=case,
-                    requested_by=request.user,
-                    requested_for=self.organisation,
-                    private=private,
-                    show_global=self.show_global,
-                    sampled_only=sampled_only,
+                    submission_id=submission_id, case=case
                 )
-
                 return ResponseSuccess(
                     {
                         "result": submission.to_dict(
@@ -882,7 +875,7 @@ class SubmissionsAPIView(TradeRemediesApiView):
                         )
                     }
                 )
-            except Submission.model.DoesNotExist:
+            except Submission.DoesNotExist:
                 raise NotFoundApiExceptions("Submission not found or invalid access")
 
         # Count total before slicing for pagination
