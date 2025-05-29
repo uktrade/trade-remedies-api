@@ -30,7 +30,8 @@ from .workflow import CaseWorkflowState
 class SubmissionManager(models.Manager):
     def get_submission(self, id, case=None):
         """
-        Get a submission by ID with optional case filtering and result caching.
+        Get a submission by ID with optional case filtering.
+        No caching to ensure real-time updates are visible
 
         Args:
             id: The submission ID
@@ -39,42 +40,26 @@ class SubmissionManager(models.Manager):
         Returns:
             Submission object with related fields preloaded
         """
-        from django.core.cache import cache
 
-        query_kwargs = {"id": id}
-        if case:
-            query_kwargs["case"] = case
-
-        # Generate a cache key based on submission ID and case ID (if provided)
-        cache_key = f"submission_{id}_{case.id if case else 'none'}"
-
-        cached_result = cache.get(cache_key)
-        if cached_result:
-            return cached_result
-
-        submission = (
-            self.select_related(
-                "case",
-                "organisation",
-                "type",
-                "status",
-                "contact",
-                "sent_by",
-                "created_by",
-                "case_role",
-                "issued_by",
-                "case__type",
-            )
-            .prefetch_related(
-                "submissiondocument_set__document",
-                "submissiondocument_set__type",
-            )
-            .get(**query_kwargs)
+        queryset = Submission.objects.select_related(
+            "case",
+            "type",
+            "status",
+            "organisation",
+            "contact",
+            "created_by",
+            "sent_by",
+            "received_from",
+        ).prefetch_related(
+            "submissiondocument_set",
+            "submissiondocument_set__document",
+            "submissiondocument_set__type",
         )
 
-        cache.set(cache_key, submission, 60 * settings.METHOD_CACHE_DURATION_MINUTES)
+        if case:
+            queryset = queryset.filter(case=case)
 
-        return submission
+        return queryset.get(id=id)
 
     def get_submissions(
         self,
