@@ -862,9 +862,7 @@ class SubmissionsAPIView(TradeRemediesApiView):
 
         if submission_id:
             try:
-                submission = Submission.objects.get_submission(
-                    submission_id=submission_id, case=case
-                )
+                submission = Submission.objects.get_submission(id=submission_id, case=case)
                 return ResponseSuccess(
                     {
                         "result": submission.to_dict(
